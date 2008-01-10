@@ -38,6 +38,8 @@ to separate loci in the header of the file -- fixed (TJ)
 * provide the list of the points crossed by a Monmonier's boundary -- done (PS)
 * read.structure code -- I'm on it (TJ)
 * read.structure doc -- I'm on it (TJ)
+* include new simulated datasets of sPCA -- I'm on it (TJ)
+* document new simulated datasets of sPCA -- I'm on it (TJ)
 
 
 
