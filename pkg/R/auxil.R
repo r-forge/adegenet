@@ -7,14 +7,6 @@
 ###########################
 
 
-#############################################
-#############################################
-# Init function called in zzz.R
-#############################################
-#############################################
-
-#.initAdegenetUtils <- function(){
-
 ##############################
 # Method truenames for genind
 ##############################
@@ -60,7 +52,6 @@ setMethod("truenames",signature(x="genpop"), function(x){
 
 
 
-          
 
 ###########################
 # Method seploc for genind
@@ -135,8 +126,6 @@ setMethod("seploc", signature(x="genpop"), function(x,truenames=FALSE){
 })
 
 
-#} # end .initAdegenetUtils  
-
 #######################
 # Function adegenetWeb
 #######################
@@ -144,3 +133,29 @@ adegenetWeb <- function(){
   cat("Opening url \"http://pbil.univ-lyon1.fr/software/adegenet/\" ...\n")
   browseURL("http://pbil.univ-lyon1.fr/software/adegenet/")
 }
+
+
+
+###############
+# '$' operator
+###############
+setMethod("$","genind",function(x,name) {
+    return(attr(x,name))
+})
+
+
+setMethod("$<-","genind",function(x,name,value) {
+   slot(x,name,check=TRUE) <- value
+  return(x)
+})
+
+
+setMethod("$","genpop",function(x,name) {
+    return(attr(x,name))
+})
+
+
+setMethod("$<-","genpop",function(x,name,value) {
+  slot(x,name,check=TRUE) <- value
+  return(x)
+})

@@ -6,6 +6,8 @@
 \alias{show,genind-method}
 \alias{names,genind-method}
 \alias{summary,genind-method}
+\alias{$,genind-method}
+\alias{$<-,genind-method}
 \alias{genind}
 \alias{.valid.genind}
 \title{adegenet formal class (S4) for individual genotypes}

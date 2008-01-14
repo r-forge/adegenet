@@ -740,7 +740,7 @@ setMethod("old2new", "genind", function(object){
   x <- object
   res <- new("genind")
 
-  res@tab <- as.data.frame(x$tab)
+  res@tab <- as.matrix(x$tab)
   res@ind.names <- as.character(x$ind.names)
   res@loc.names <- as.character(x$loc.names)
   res@loc.nall <- as.integer(x$loc.nall)
@@ -760,7 +760,7 @@ setMethod("old2new", "genpop", function(object){
   x <- object
   res <- new("genpop")
 
-  res@tab <- as.data.frame(x$tab)
+  res@tab <- as.matrix(x$tab)
   res@pop.names <- as.character(x$pop.names)
   res@loc.names <- as.character(x$loc.names)
   res@loc.nall <- as.integer(x$loc.nall)
