@@ -50,6 +50,7 @@ to separate loci in the header of the file -- fixed (TJ)
 ===========================
 ===========================
 * in spca, when nfposi=0, the returned object actually contains what corresponds to nfposi=1. Comes from multispati in ade4. To correct.
+* use spcaIllus to illustrate global.rtest and local.rtest
 *
 
 
