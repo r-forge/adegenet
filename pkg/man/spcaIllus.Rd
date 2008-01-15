@@ -30,8 +30,9 @@ multivariate method. Submitted to \emph{Heredity}.
 \author{
   Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr}
 }
+\seealso{ \code{\link{spca}} }
 \references{
-  Jombart, T., Devillard, S., Dufour, A.-B. and Pontier, D.
+  Jombart T, Devillard S, Dufour A-B and Pontier D
 Revealing cryptic spatial patterns in genetic variability by a new
 multivariate method. Submitted to \emph{Heredity}.
  
@@ -39,6 +40,8 @@ multivariate method. Submitted to \emph{Heredity}.
   genetics simulations \emph{Journal of Heredity}, \bold{92}: 301-302
 }
 \examples{
+if(require(spdep) & require(ade4)){
+
 data(spcaIllus)
 attach(spcaIllus)
 ## comparison PCA vs sPCA
@@ -47,8 +50,8 @@ attach(spcaIllus)
 pca2A <- dudi.pca(dat2A$tab,center=TRUE,scale=FALSE,scannf=FALSE)
 pca2B <- dudi.pca(dat2B$tab,center=TRUE,scale=FALSE,scannf=FALSE)
 pca2C <- dudi.pca(dat2C$tab,center=TRUE,scale=FALSE,scannf=FALSE)
-pca3 <- dudi.pca(dat3$tab,center=TRUE,scale=FALSE,scannf=FALSE)
-pca4 <- dudi.pca(dat4$tab,center=TRUE,scale=FALSE,scannf=FALSE)
+pca3 <- dudi.pca(dat3$tab,center=TRUE,scale=FALSE,scannf=FALSE,nf=2)
+pca4 <- dudi.pca(dat4$tab,center=TRUE,scale=FALSE,scannf=FALSE,nf=2)
 
 # sPCA
 spca2A <- spca(dat2A,xy=dat2A$other$xy,ask=FALSE,type=1,plot=FALSE,scannf=FALSE,nfposi=1,nfnega=0)
@@ -75,15 +78,38 @@ s.value(x$other$xy,analysis$li[,axis],include.ori=FALSE,addaxes=FALSE,cgrid=0,gr
 
 par(mar=rep(.1,4))
 if(is.null(lab)) lab = gsub("[P]","",x$pop)
-text(x$other$xy, lab=lab, col="red", cex=1.5, font=2)
+text(x$other$xy, lab=lab, col="blue", cex=1.2, font=2)
 add.scatter({barplot(analysis$eig,col="grey");box();title("Eigenvalues",line=-1)},posi="bottomright",ratio=.3)
 }
 
 # plots
 get(getOption("device"))(width=10,height=5)
 par(mfrow=c(1,2))
-plotaux()
+plotaux(dat2A,pca2A,sub="dat2A - PCA",pos="bottomleft",csub=2)
+plotaux(dat2A,spca2A,sub="dat2A - sPCA glob1",pos="bottomleft",csub=2)
+
+plotaux(dat2B,pca2B,sub="dat2B - PCA",pos="bottomleft",csub=2)
+plotaux(dat2B,spca2B,sub="dat2B - sPCA glob1",pos="bottomleft",csub=2)
+
+plotaux(dat2C,pca2C,sub="dat2C - PCA",pos="bottomleft",csub=2)
+plotaux(dat2C,spca2C,sub="dat2C - sPCA loc1",pos="bottomleft",csub=2,axis=2)
+
+get(getOption("device"))()
+par(mfrow=c(2,2))
+plotaux(dat3,pca3,sub="dat3 - PCA axis1",pos="bottomleft",csub=2)
+plotaux(dat3,spca3,sub="dat3 - sPCA glob1",pos="bottomleft",csub=2)
+plotaux(dat3,pca3,sub="dat3 - PCA axis2",pos="bottomleft",csub=2,axis=2)
+plotaux(dat3,spca3,sub="dat3 - sPCA loc1",pos="bottomleft",csub=2,axis=2)
+
+plotaux(dat4,pca4,lab=dat4$other$sup.pop,sub="dat4 - PCA axis1",pos="bottomleft",csub=2)
+plotaux(dat4,spca4,lab=dat4$other$sup.pop,sub="dat4 - sPCA glob1",pos="bottomleft",csub=2)
+plotaux(dat4,pca4,lab=dat4$other$sup.pop,sub="dat4 - PCA axis2",pos="bottomleft",csub=2,axis=2)
+plotaux(dat4,spca4,lab=dat4$other$sup.pop,sub="dat4 - sPCA loc1",pos="bottomleft",csub=2,axis=2)
+
 # detach data
 detach(spcaIllus)
 }
+}
 \keyword{datasets}
+\keyword{spatial}
+
