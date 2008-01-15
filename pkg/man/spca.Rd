@@ -135,27 +135,18 @@ de Jong, P. and Sprenger, C. and van Veen, F. (1984) On extreme values
 of Moran's I and Geary's c. \emph{Geographical Analysis}, \bold{16}, 17--24.
 
 }
-\seealso{\code{\link{chooseCN}}, \code{\link[pkg:ade4]{multispati}}, \code{\link[pkg:ade4]{multispati.randtest}}
+\seealso{\code{\link{spcaIllus}}, a set of simulated data illustrating
+  the sPCA \cr
+  \code{\link{chooseCN}}, \code{\link[pkg:ade4]{multispati}}, \code{\link[pkg:ade4]{multispati.randtest}}
 }
 \author{ Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
 \examples{
-if(require(spdep) & require(ade4)){
+## data(spcaIllus) illustrates the sPCA
+## see ?spcaIllus
+##
 
-data(nancycats)
-obj <- genind2genpop(nancycats)
+example(spcaIllus)
 
-spca1 <- spca(obj, nancycats@other$xy, ask=FALSE, plot=FALSE, type=2, scannf=FALSE,
-nfposi=2, nfnega=2)
-
-spca1
-
-summary(spca1)
-
-screeplot(spca1)
-
-plot(spca1)
-par(mfrow=c(1,1))
-}
 }
 \keyword{spatial}
 \keyword{multivariate}

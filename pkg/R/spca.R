@@ -75,7 +75,9 @@ spca <- function(obj, xy=NULL, cn=NULL, scannf=TRUE, nfposi=1, nfnega=1, type=1,
   
   spcaX$call <- appel
 
-  keptaxes <- c(1:nfposi,if(nfnega>0) (length(spcaX$eig)-nfnega+1):length(spcaX$eig))
+  posaxes <- if(nfposi>0) {1:nfposi} else NULL
+  negaxes <- if(nfnega>0) {(length(spcaX$eig)-nfnega+1):length(spcaX$eig)} else NULL
+  keptaxes <- c(posaxes,negaxes)
       
   colnames(spcaX$c1) <- paste("Axis",keptaxes)
   colnames(spcaX$li) <- paste("Axis",keptaxes)
