@@ -137,6 +137,7 @@ of Moran's I and Geary's c. \emph{Geographical Analysis}, \bold{16}, 17--24.
 }
 \seealso{\code{\link{spcaIllus}}, a set of simulated data illustrating
   the sPCA \cr
+  \code{\link{global.rtest}} and \code{\link{local.rtest}} \cr
   \code{\link{chooseCN}}, \code{\link[pkg:ade4]{multispati}}, \code{\link[pkg:ade4]{multispati.randtest}}
 }
 \author{ Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
