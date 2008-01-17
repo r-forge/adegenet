@@ -331,6 +331,7 @@ plot.spca <- function (x, axis = 1, ...){
     # 6
     par(mar=c(4,4,2,1))
     screeplot(x,main="Eigenvalues decomposition")
+    par(mar=rep(.1,4))
     box()
     return(invisible(match.call()))
 }
