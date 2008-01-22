@@ -61,7 +61,7 @@ read.fstat(file,missing=NA,quiet=FALSE)
 
   Excoffier L. & Heckel G.(2006) Computer programs for population genetics data analysis: a survival guide \emph{Nature}, \bold{7}: 745-758
 }
-\seealso{\code{\link[pkg:hierfstat]{read.fstat.data}}}
+\seealso{\code{\link[pkg:hierfstat]{read.fstat.data}} in package hierfstat}
 \author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
 \examples{
 read.genetix(system.file("files/nancycats.gtx",package="adegenet"))
