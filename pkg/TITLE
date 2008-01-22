@@ -1,2 +1,2 @@
 adegenet
-Classes and functions for genetic data analysis within the multivariate framework.
+The adegenet package for R: classes and methods for the multivariate analysis of genetic markers.
