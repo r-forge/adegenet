@@ -31,8 +31,8 @@ to separate loci in the header of the file -- fixed (TJ)
 
 # DOCUMENTATION ISSUES:
 =======================
-*
-*
+* document df2genind -- I'm on it (TJ)
+* split documentation of read.[...] functions (?)
 *
 
 # NEW IMPLEMENTATIONS:
@@ -42,7 +42,12 @@ to separate loci in the header of the file -- fixed (TJ)
 * read.structure doc -- I'm on it (TJ)
 * include new simulated datasets of sPCA -- done (TJ)
 * document new simulated datasets of sPCA -- done (TJ)
-*
+* split read.genetix in: 
+   - a "true" read.genetix, similar to other read... functions  -- I'm on it (TJ)
+   - a "df2genind" which takes a matrix of char strings of lengths 2,4
+   or 6  -- I'm on it (TJ)
+
+
 
 
 
@@ -52,6 +57,8 @@ to separate loci in the header of the file -- fixed (TJ)
 * in spca, when nfposi=0, the returned object actually contains what corresponds to nfposi=1. Comes from multispati in ade4. To correct.
 * use spcaIllus to illustrate global.rtest and local.rtest
 *
+
+
 
 
 

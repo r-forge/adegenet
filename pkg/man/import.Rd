@@ -33,8 +33,11 @@ read.fstat(file,missing=NA,quiet=FALSE)
   \item{pop}{an optional factor giving the population of each genotype in 'x'. }}
 \details{There are 3 treatments for missing values: \cr
   - NA: kept as NA.\cr
-  - 0: missing values are replaced by zero. Recommended for a PCA on
-  compositionnal data.\cr
+  
+  - 0: missing values are replaced by zero (i.e. a non-typed individual
+  is coded by a '0' on all alleles of the concerned locus). Recommended
+  for a PCA on compositionnal data.\cr
+  
   - "mean": missing values are replaced by the mean frequency of the
   corresponding allele, computed on the whole set of
   individuals. Recommended for a centred PCA.\cr
