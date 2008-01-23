@@ -25,110 +25,73 @@
 
 
 
+#####################
+# Function df2genind
+#####################
+df2genind <- function(X, ncode=NULL, ind.names=NULL, pop=NULL, missing=NA){
 
-########################################
-# Function read.genetix
-# code based on previous ade4 functions
-########################################
-read.genetix <- function(file=NULL,X=NULL,pop=NULL,missing=NA,quiet=FALSE) {
-    if(is.null(X) == is.null(file)) stop("Either X or file must be provided")
-    if(!quiet) cat("\n Converting data from GENETIX to a genind object... \n")
+    if(is.data.frame(X)) X <- as.matrix(X)
+    if (!inherits(X, "matrix")) stop ("X is not a matrix")
 
-    if(!is.null(X)){
-      if(is.data.frame(X)) X <- as.matrix(X)
-      if (!inherits(X, "matrix")) stop ("X is not a matrix")
-    }
-    
-    # eventually read from file
-    if(!is.null(file)){
-      if(!file.exists(file)) stop("Specified file does not exist.")
-      if(toupper(substr(file,nchar(file)-2,nchar(file))) != "GTX") stop("File extension .gtx expected")
-      # retrieve first infos
-      nloc <- as.numeric(scan(file,nlines=1,what="character",quiet=TRUE)[1])
-      npop <- as.numeric(scan(file,nlines=1,skip=1,what="character",quiet=TRUE)[1])
-      txt <- scan(file,skip=2,what="character",sep="\n",quiet=TRUE)
-      txt <- gsub("\t"," ",txt)
-      loc.names <- txt[seq(1,by=2,length=nloc)]
-      txt <- txt[-(1:(nloc*2))]
-
-      # retrieve populations infos
-      pop.names <- vector(mode="character",length=npop)
-      pop.nind <- vector(mode="integer",length=npop)
-      index <- 1
-      temp <- vector(mode="integer",length=npop)
-      for(i in 1:npop){
-        pop.names[i] <- txt[index]
-        pop.nind[i] <- as.numeric(txt[index+1])
-        temp[i] <- index
-        index <- index + pop.nind[i] + 2
-      }
-      pop.names <- .rmspaces(pop.names)
-      
-      # retrieve genotypes infos
-      txt <- txt[-c(temp,temp+1)]
-      txt <- .rmspaces(txt)
-      txt <- sapply(1:length(txt),function(i) unlist(strsplit(txt[i],"([[:space:]]+)|([[:blank:]]+)")) )
-      X <- t(txt)
-      if(ncol(X) == (nloc+1)){
-        rownames(X) <- X[,1]
-        X <- X[,-1]
-      } else{
-        rownames(X) <- 1:nrow(X)
-      }
-      
-      colnames(X) <- loc.names
-      
-      # make a factor "pop" if there is more than one population
-      pop <- factor(rep(pop.names,pop.nind))
-    } # end if(!is.null(file))
-
-    # now X exists whether file or X was provided by user
-
-    # make the result
     res <- list()
 
     n <- nrow(X)
+    if(!is.null(ind.names)) {rownames(X) <- ind.names}
       
-    # pop optionnelle
+    ## pop optionnelle
     if(!is.null(pop)){
       if(length(pop)!= n) stop("length of factor pop differs from nrow(X)")
       pop <- as.factor(pop)
     }
- 
-    # fonction pour corriger les cas a 4 caracteres, eliminer les autres, remplacer les NA
-    checkcar <- function(cha) {
-        n <- nchar(cha)
-        if(n==6) return(cha)
-        if(is.na(cha) || cha=="0") return("000000")
-        if(n>6) stop(paste("data with more than 6 characters (",cha,")",sep=""))
-        if(n==4) return(paste("0",substr(cha,1,2),"0",substr(cha,3,4),sep=""))
-        if(n==2) return(paste("00",substr(cha,1,1),"00",substr(cha,2,2),sep=""))
-        if(n<6) stop(paste("\n",cha,"is not interpretable"))  
-     } # end checkcar
-    
-    if(any(nchar(X)) != 6) {X <- apply(X,c(1,2),checkcar)}
-    # X contient a present seulement des données valides avec 6 caracteres
 
-    # Erase entierely non-typed loci
-    temp <- apply(X,2,function(c) all(c=="000000"))
-    X <- X[,!temp]
+    ## find or check the number of coding characters, 'ncode'
+    if(!is.null(ncode)) {if(ncode <  max(nchar(X)) ) stop("some character strings exceed the provided ncode.")}
+    if(is.null(ncode)) { ncode <- max(nchar(X)) }
+    if((ncode %% 2)>0) stop("Invalid number of coding characters (should be 2, 4, or 6)")
+    
+    
+    ## now check all strings and make sure they all have 'ncode' characters
+    ## NA are temporarily coded as "00", "000" or "000000" to fit the check
+    keepCheck <- any(nchar(X) < ncode)
+    missAll <- paste(rep("0",ncode/2),collapse="")
+    missTyp <- paste(rep("0",ncode),collapse="")
+    X[is.na(X)] <- missTyp
+    
+    while(keepCheck){
+        mat0 <- matrix("", ncol=ncol(X), nrow=nrow(X))
+        mat0[nchar(X) < ncode] <- "0"
+        X <-  matrix(paste(mat0, X, sep=""), nrow=nrow(mat0))
+        keepCheck <- any(nchar(X) < ncode)
+    }
+        
+    ## X now only contains valid strings with ncode characters
+
+    ## Erase entierely non-typed loci
+    temp <- apply(X,2,function(c) all(c==missTyp))
+    if(any(temp)){
+        X <- X[,!temp]
+        warning("entirely non-type marker(s) deleted")
+    }
     nloc <- ncol(X)
     loc.names <- colnames(X)
     
-    # Erase entierely non-type individuals
-    temp <- apply(X,1,function(c) all(c=="000000"))
-    X <- X[!temp,]
+    ## Erase entierely non-type individuals
+    temp <- apply(X,1,function(c) all(c==missTyp))
+    if(any(temp)){
+        X <- X[!temp,]
+        warning("entirely non-type individual(s) deleted")        
+    }
     pop <- pop[!temp]
     n <- nrow(X)
     ind.names <- rownames(X)
     # note: if X is kept as a matrix, duplicate row names are no problem
     
     enumallel <- function (x) {
-      w <- as.character(x)
-      w1 <- substr(w,1,3)
-      w2 <- substr(w,4,6)
-      w3 <- sort(unique (c(w1,w2)))
-      return(w3[w3!="000"])
+        w <- as.character(x)
+        w1 <- substr(w,1,ncode/2)
+        w2 <- substr(w,(ncode/2)+1,ncode)
+        w3 <- sort(unique (c(w1,w2)))
+        return(w3[w3!=missAll])
     }
 
     loc.all <- lapply(1:ncol(X),function(i) enumallel(X[,i]))
@@ -143,15 +106,15 @@ read.genetix <- function(file=NULL,X=NULL,pop=NULL,missing=NA,quiet=FALSE) {
 
     # remplissage des tableaux
     findall <- function(cha,loc.all){
-      if(cha=="000") return(NULL)
-      return(which(cha==loc.all))
+        if(cha==missAll) return(NULL)
+        return(which(cha==loc.all))
     }
 
     for(i in 1:n){
       for(j in 1:nloc){
-        all1pos <- findall(substr(X[i,j],1,3),loc.all[[j]])
+        all1pos <- findall(substr(X[i,j],1,ncode/2),loc.all[[j]])
         temp[[j]][i,all1pos] <- temp[[j]][i,all1pos] + 0.5
-        all2pos <- findall(substr(X[i,j],4,6),loc.all[[j]])
+        all2pos <- findall(substr(X[i,j],(ncode/2)+1,ncode),loc.all[[j]])
         temp[[j]][i,all2pos] <- temp[[j]][i,all2pos] + 0.5
         if(is.null(c(all1pos,all2pos))) {temp[[j]][i,] <- NA}
       }
@@ -177,10 +140,70 @@ read.genetix <- function(file=NULL,X=NULL,pop=NULL,missing=NA,quiet=FALSE) {
      
     prevcall <- match.call()
 
-    res <- as.genind( tab=mat, pop=pop, prevcall=prevcall )
+    res <- genind( tab=mat, pop=pop, prevcall=prevcall )
+    
+    return(res)
+} # end df2genind
+
+
+
+
+
+########################################
+# Function read.genetix
+# code based on previous ade4 functions
+########################################
+read.genetix <- function(file=NULL,missing=NA,quiet=FALSE) {
+    if(!quiet) cat("\n Converting data from GENETIX to a genind object... \n")
+
+      
+    ## read from file
+    if(!file.exists(file)) stop("Specified file does not exist.")
+    if(toupper(substr(file,nchar(file)-2,nchar(file))) != "GTX") stop("File extension .gtx expected")
+      # retrieve first infos
+    nloc <- as.numeric(scan(file,nlines=1,what="character",quiet=TRUE)[1])
+    npop <- as.numeric(scan(file,nlines=1,skip=1,what="character",quiet=TRUE)[1])
+    txt <- scan(file,skip=2,what="character",sep="\n",quiet=TRUE)
+    txt <- gsub("\t"," ",txt)
+    loc.names <- txt[seq(1,by=2,length=nloc)]
+    txt <- txt[-(1:(nloc*2))]
+
+    ## retrieve populations infos
+    pop.names <- vector(mode="character",length=npop)
+    pop.nind <- vector(mode="integer",length=npop)
+    index <- 1
+    temp <- vector(mode="integer",length=npop)
+    for(i in 1:npop){
+        pop.names[i] <- txt[index]
+        pop.nind[i] <- as.numeric(txt[index+1])
+        temp[i] <- index
+        index <- index + pop.nind[i] + 2
+    }
+    pop.names <- .rmspaces(pop.names)
+      
+    ## retrieve genotypes infos
+    txt <- txt[-c(temp,temp+1)]
+    txt <- .rmspaces(txt)
+    txt <- sapply(1:length(txt),function(i) unlist(strsplit(txt[i],"([[:space:]]+)|([[:blank:]]+)")) )
+    X <- t(txt)
+    if(ncol(X) == (nloc+1)){
+        rownames(X) <- X[,1]
+        X <- X[,-1]
+    } else{
+        rownames(X) <- 1:nrow(X)
+    }
+    
+    colnames(X) <- loc.names
+    
+    ## make a factor "pop" if there is more than one population
+    pop <- factor(rep(pop.names,pop.nind))
+    
+    ## pass X to df2genind
+    res <- df2genind(X=X, ncode=6, pop=pop, missing=missing)
+    res@call <- match.call()
     
     if(!quiet) cat("\n...done.\n\n")
-
+    
     return(res)
 } # end read.genetix
 
@@ -218,7 +241,7 @@ read.fstat <- function(file,missing=NA,quiet=FALSE){
   colnames(X) <- loc.names
   rownames(X) <- 1:nrow(X)
 
-  res <- read.genetix(X=X,pop=pop,missing=missing,quiet=TRUE)
+  res <- df2genind(X=X,pop=pop,missing=missing)
   # beware : fstat files do not yield ind names
   res@ind.names <- rep("",length(res@ind.names))
   names(res@ind.names) <- rownames(res@tab)
@@ -331,17 +354,17 @@ read.genepop <- function(file,missing=NA,quiet=FALSE){
   rownames(X) <- ind.names
   colnames(X) <- loc.names
 
-  # correct X to fulfill the genetix format
-  f1 <- function(char){
-    paste("00", substr(char,1,1), "00", substr(char,2,2), sep="")
-  }
+ ##  # correct X to fulfill the genetix format
+##   f1 <- function(char){
+##     paste("00", substr(char,1,1), "00", substr(char,2,2), sep="")
+##   }
 
-  f2 <- function(char){
-    paste("0", substr(char,1,2), "0", substr(char,3,4), sep="")
-  }
+##   f2 <- function(char){
+##     paste("0", substr(char,1,2), "0", substr(char,3,4), sep="")
+##   }
 
-  if(all(nchar(X)==2)) {X <- apply(X,c(1,2),f1)}
-  if(all(nchar(X)==4)) {X <- apply(X,c(1,2),f2)}
+##   if(all(nchar(X)==2)) {X <- apply(X,c(1,2),f1)}
+##   if(all(nchar(X)==4)) {X <- apply(X,c(1,2),f2)}
 
   # give right pop names
   # beware: genepop takes the name of the last individual of a sample as this sample's name
@@ -349,7 +372,7 @@ read.genepop <- function(file,missing=NA,quiet=FALSE){
   pop.names <- ind.names[pop.names.idx]
   levels(pop) <- pop.names
   
-  res <- read.genetix(X=X,pop=pop,missing=missing,quiet=TRUE)
+  res <- df2genind(X=X,pop=pop,missing=missing)
   res@call <- prevcall
   
   if(!quiet) cat("\n...done.\n\n")
@@ -495,7 +518,7 @@ read.structure <- function(file, n.ind=NULL, n.loc=NULL, col.lab=NULL, col.pop=N
   rownames(X) <- ind.names
   colnames(X) <- loc.names
 
-  res <- read.genetix(X=X,pop=pop,missing=missing,quiet=TRUE)
+  res <- df2genind(X=X,pop=pop,missing=missing)
 
   res@call <- match.call()
 

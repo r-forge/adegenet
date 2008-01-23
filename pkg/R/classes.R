@@ -239,12 +239,12 @@ setMethod("names", signature(x = "genpop"), function(x){
 
 
 
-#####################
-# Function as.genind
-#####################
-as.genind <- function(tab=NULL,pop=NULL,prevcall=NULL){
+##################
+# Function genind
+##################
+## constructor of a genind object
+genind <- function(tab,pop=NULL,prevcall=NULL){
 
-  if(is.null(tab)) stop("tab not provided.")
   X <- as.matrix(tab)
   if(is.null(colnames(X))) stop("tab columns have no name.")
   if(is.null(rownames(X))) {rownames(X) <- 1:nrow(X)}
@@ -326,18 +326,20 @@ as.genind <- function(tab=NULL,pop=NULL,prevcall=NULL){
  
   return(res)
   
-} # end as.genind
+} # end genind
+
+######################
+# alias for as.genind
+######################
+as.genind <- genind
 
 
 
+##################
+# Function genpop
+##################
+genpop <- function(tab,prevcall=NULL){
 
-
-#####################
-# Function as.genpop
-#####################
-as.genpop <- function(tab=NULL,prevcall=NULL){
-
-  if(is.null(tab)) stop("tab not provided.")
   X <- as.matrix(tab)
   if(is.null(colnames(X))) stop("tab columns have no name.")
   if(is.null(rownames(X))) {rownames(X) <- 1:nrow(X)}
@@ -401,9 +403,14 @@ as.genpop <- function(tab=NULL,prevcall=NULL){
   
   return(res)
   
-} # end as.genpop
+} # end genpop
 
 
+
+######################
+# alias for as.genpop
+######################
+as.genpop <- genpop
 
 
 
@@ -718,7 +725,7 @@ genind2genpop <- function(x,pop=NULL,missing=NA,quiet=FALSE){
 
   prevcall <- match.call()
   
-  res <- as.genpop(tab=tabcount, prevcall=prevcall)
+  res <- genpop(tab=tabcount, prevcall=prevcall)
   res@other <- x@other
 
   if(!quiet) cat("\n...done.\n\n")
