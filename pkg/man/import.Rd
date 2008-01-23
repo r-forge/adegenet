@@ -1,11 +1,29 @@
 \encoding{UTF-8}
 \name{import}
+\alias{df2genind}
 \alias{import2genind}
 \alias{read.genetix}
 \alias{read.genepop}
 \alias{read.fstat}
-\title{ Conversion function for adegenet}
-\description{ The function \code{import2genind} detects the extension of
+\title{ Conversion functions for adegenet}
+\description{
+  Their are two ways to import genotyping data to a \linkS4class{genind} object: from
+  a data.frame with a given format (see below), or from a file with a
+  recognized extension.\cr
+  
+  The function \code{df2genind} converts a data.frame (or a matrix) into
+  a \linkS4class{genind} object. The data.frame must meet the following
+  requirements:\cr
+  - genotypes are in row (on row per genotype)\cr
+  - markers are in columns\cr
+  - each element is a string of (2, 4 or 6) characters coding both alleles without
+  separation. Missing values are coded by NA or zeros. Uncomplete
+  strings are filled with "0" at the begining. For instance, "912" in a
+  4-characters coding scheme is interpreted as "0912", thus as an
+  heterozygote with alleles "09" and "12". Note that this format is the
+  one of GENETIX for a 6-characters coding scheme\cr
+  
+  The function \code{import2genind} detects the extension of
   the file given in argument and seeks for an appropriate import
   function to create a \code{genind} object.\cr
   Current functions are :\cr
@@ -15,34 +33,37 @@
   - \code{read.fstat} for Fstat files \code{.dat} \cr
 }
 \usage{
+df2genind(X, ncode=NULL, ind.names=NULL, pop=NULL, missing=NA)
 import2genind(file,missing=NA,quiet=FALSE)
-read.genetix(file=NULL,X=NULL,pop=NULL,missing=NA,quiet=FALSE)
+read.genetix(file=NULL,missing=NA,quiet=FALSE)
 read.genepop(file,missing=NA,quiet=FALSE)
 read.fstat(file,missing=NA,quiet=FALSE)
 }
 \arguments{
+  \item{X}{a matrix or a data.frame (see decription)}
+  \item{ncode}{an optional integer the number of characters used for coding one
+    genotype at one locus (can be 2, 4 or 6). If not provided, this is
+    determined from data.}
+  \item{ind.names}{an optional character vector giving the individuals names}
+  \item{pop}{an optional factor giving the population of each individual.}
   \item{file}{ a character string giving the path to the file to
     convert, with the appropriate extension.}
   \item{missing}{can be NA, 0 or "mean". See details section.}
   \item{quiet}{ logical stating whether a conversion message must be
     printed (TRUE,default) or not (FALSE).}
-  \item{X}{if file is not provided, \code{read.genetix} can be used on
-  a data frame with genotypes in GENETIX format (e.g. "080082" for an
-  heterozygote with alleles 80 and 82); individuals are in rows, loci are
-  in columns. Missing values are coded as "000000".}
-  \item{pop}{an optional factor giving the population of each genotype in 'x'. }}
+}
+   
 \details{There are 3 treatments for missing values: \cr
   - NA: kept as NA.\cr
   
-  - 0: missing values are replaced by zero (i.e. a non-typed individual
-  is coded by a '0' on all alleles of the concerned locus). Recommended
-  for a PCA on compositionnal data.\cr
+  - 0: allelic frequencies are set to 0  on all alleles of the concerned
+  locus. Recommended for a PCA on compositionnal data.\cr
   
   - "mean": missing values are replaced by the mean frequency of the
   corresponding allele, computed on the whole set of
   individuals. Recommended for a centred PCA.\cr
 
-  Beware: same data in different formats are not expected to produce the
+  Beware: same data in different formats are not expected to produce 
   exactly the same \code{genind} objects.\cr
   For instance, conversions made by GENETIX to Fstat may change the
   the sorting of the genotypes; GENETIX stores individual names whereas

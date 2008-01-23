@@ -1,16 +1,23 @@
 \encoding{UTF-8}
-\name{as.genind}
+\name{genind constructor}
+\alias{genind-methods}
 \alias{as.genind}
 \alias{is.genind}
-\title{as.genind and is.genind}
-\description{Auxiliary functions for genind objects.\cr
-  \code{as.genind} performs a direct conversion from a table of
-  genotypes coded as allelic frequency table to a genind object.
+\title{genind constructor}
+\description{Constructor for \linkS4class{genind} objects.\cr
+  The function \code{genind} creates a \linkS4class{genind} object from
+  a matrix of allelic frequency where genotypes are in rows and alleles
+  in columns. This table must have correct names for rows and
+  columns.\cr
+
+  The function \code{as.genind} is an alias for \code{genind} function.\cr
+ 
   \code{is.genind} tests if an object is a valid genind object.
 }
 
 \usage{
-as.genind(tab=NULL,pop=NULL,prevcall=NULL)
+genind(tab,pop=NULL,prevcall=NULL)
+as.genind(tab,pop=NULL,prevcall=NULL)
 is.genind(x)
 }
 
@@ -22,12 +29,12 @@ is.genind(x)
   \item{x}{an object}
 }
 \value{
-  For {as.genind}, a genind object. For {is.genind}, a logical.
+  For \code{genind} and \code{as.genind}, a genind object. For \code{is.genind}, a logical.
 }
 \author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr}}
 \seealso{
   \code{"\linkS4class{genind}"}, and \code{\link{import2genind}} for
-  import from various types of file.
+  importing from various types of file.
 }
 \examples{
 data(nancycats)
@@ -39,9 +46,7 @@ class(obj)
 dim(obj)
 
 # make it a new genind
-obj <- as.genind(obj)
+obj <- genind(obj)
 obj
 }
-\keyword{classes}
 \keyword{manip}
-\keyword{multivariate}
