@@ -12,6 +12,8 @@
 #
 # Inside a given section, priority goes decreasing.
 #
+# Delete fixed things each new release.
+#
 # T.J. 2008
 #
 ######################
