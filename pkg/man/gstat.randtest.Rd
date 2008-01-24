@@ -53,7 +53,7 @@ sup.pop=NULL, sub.pop=NULL, nsim=499)
 if(require(hierfstat)){
 # here the example of g.stats.glob is taken using gstat.randtest
 data(gtrunchier)
-x <- read.genetix(X=gtrunchier[,-c(1,2)],pop=gtrunchier$Patch)
+x <- df2genind(X=gtrunchier[,-c(1,2)],pop=gtrunchier$Patch)
 
 # test in hierfstat
 gtr.test<- g.stats.glob(gtrunchier[,-1])
