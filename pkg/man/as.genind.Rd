@@ -1,6 +1,7 @@
 \encoding{UTF-8}
 \name{genind constructor}
 \alias{genind-methods}
+\alias{genind}
 \alias{as.genind}
 \alias{is.genind}
 \title{genind constructor}
@@ -12,7 +13,10 @@
 
   The function \code{as.genind} is an alias for \code{genind} function.\cr
  
-  \code{is.genind} tests if an object is a valid genind object.
+  \code{is.genind} tests if an object is a valid genind object.\cr
+
+  Note: to get the manpage about \linkS4class{genind}, please type
+  'class ? genind'.
 }
 
 \usage{

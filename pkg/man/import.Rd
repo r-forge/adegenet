@@ -33,7 +33,7 @@
   - \code{read.fstat} for Fstat files \code{.dat} \cr
 }
 \usage{
-df2genind(X, ncode=NULL, ind.names=NULL, pop=NULL, missing=NA)
+df2genind(X, ncode=NULL, ind.names=NULL, loc.names=NULL, pop=NULL, missing=NA)
 import2genind(file,missing=NA,quiet=FALSE)
 read.genetix(file=NULL,missing=NA,quiet=FALSE)
 read.genepop(file,missing=NA,quiet=FALSE)
@@ -44,7 +44,9 @@ read.fstat(file,missing=NA,quiet=FALSE)
   \item{ncode}{an optional integer the number of characters used for coding one
     genotype at one locus (can be 2, 4 or 6). If not provided, this is
     determined from data.}
-  \item{ind.names}{an optional character vector giving the individuals names}
+  \item{ind.names}{an optional character vector giving the individuals
+    names}
+  \item{loc.names}{an optional character vector giving the markers names}
   \item{pop}{an optional factor giving the population of each individual.}
   \item{file}{ a character string giving the path to the file to
     convert, with the appropriate extension.}

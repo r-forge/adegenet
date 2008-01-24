@@ -1,6 +1,7 @@
 \encoding{UTF-8}
 \name{genpop constructor}
 \alias{genpop-methods}
+\alias{genpop}
 \alias{as.genpop}
 \alias{is.genpop}
 \title{genpop constructor}
@@ -12,7 +13,10 @@
 
   The function \code{as.genpop} is an alias for \code{genpop} function.\cr
  
-  \code{is.genpop} tests if an object is a valid genpop object.
+  \code{is.genpop} tests if an object is a valid genpop object.\cr
+
+   Note: to get the manpage about \linkS4class{genpop}, please type
+  'class ? genpop'.
 }
 \usage{
 genpop(tab,prevcall=NULL)

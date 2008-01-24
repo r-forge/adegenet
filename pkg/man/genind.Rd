@@ -1,14 +1,12 @@
 \encoding{UTF-8}
 \name{genind}
 \alias{genind-class}
-\alias{genind}
 \alias{print,genind-method}
 \alias{show,genind-method}
 \alias{names,genind-method}
 \alias{summary,genind-method}
 \alias{$,genind-method}
 \alias{$<-,genind-method}
-\alias{genind}
 \alias{.valid.genind}
 \title{adegenet formal class (S4) for individual genotypes}
 \description{The S4 class \code{genind} is used to store individual genotypes.\cr

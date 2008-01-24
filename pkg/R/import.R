@@ -28,7 +28,7 @@
 #####################
 # Function df2genind
 #####################
-df2genind <- function(X, ncode=NULL, ind.names=NULL, pop=NULL, missing=NA){
+df2genind <- function(X, ncode=NULL, ind.names=NULL, loc.names=NULL, pop=NULL, missing=NA){
 
     if(is.data.frame(X)) X <- as.matrix(X)
     if (!inherits(X, "matrix")) stop ("X is not a matrix")
@@ -36,8 +36,11 @@ df2genind <- function(X, ncode=NULL, ind.names=NULL, pop=NULL, missing=NA){
     res <- list()
 
     n <- nrow(X)
-    if(!is.null(ind.names)) {rownames(X) <- ind.names}
-      
+    nloc <- ncol(X)
+    
+    if(is.null(ind.names)) {rownames(X) <- ind.names}
+    if(is.null(loc.names)) {loc.names <- colnames(X)}
+    
     ## pop optionnelle
     if(!is.null(pop)){
       if(length(pop)!= n) stop("length of factor pop differs from nrow(X)")
@@ -72,8 +75,6 @@ df2genind <- function(X, ncode=NULL, ind.names=NULL, pop=NULL, missing=NA){
         X <- X[,!temp]
         warning("entirely non-type marker(s) deleted")
     }
-    nloc <- ncol(X)
-    loc.names <- colnames(X)
     
     ## Erase entierely non-type individuals
     temp <- apply(X,1,function(c) all(c==missTyp))
