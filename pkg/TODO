@@ -33,21 +33,22 @@ to separate loci in the header of the file -- fixed (TJ)
 
 # DOCUMENTATION ISSUES:
 =======================
-* document df2genind -- I'm on it (TJ)
-* split documentation of read.[...] functions (?)
+* document df2genind -- done (TJ)
+* split documentation of read.[...] functions -- done (TJ)
 *
 
 # NEW IMPLEMENTATIONS:
 =====================
 * provide the list of the points crossed by a Monmonier's boundary -- done (PS)
-* read.structure code -- I'm on it (TJ)
-* read.structure doc -- I'm on it (TJ)
+* read.structure code -- done (TJ)
+* read.structure doc -- done (TJ)
 * include new simulated datasets of sPCA -- done (TJ)
 * document new simulated datasets of sPCA -- done (TJ)
 * split read.genetix in: 
-   - a "true" read.genetix, similar to other read... functions  -- I'm on it (TJ)
+   - a "true" read.genetix, similar to other read... functions  -- done (TJ)
    - a "df2genind" which takes a matrix of char strings of lengths 2,4
-   or 6  -- I'm on it (TJ)
+   or 6  -- done (TJ)
+* method to split a genind object, keeping only certain populations
 
 
 
