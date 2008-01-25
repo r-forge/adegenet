@@ -1,7 +1,8 @@
 \encoding{UTF-8}
 \name{df2genind}
 \alias{df2genind}
-\title{ Convert a data.frame of genotypes to a genind object}
+\alias{genind2df}
+\title{ Convert a data.frame of genotypes to a genind object, and conversely.}
 \description{
   The function \code{df2genind} converts a data.frame (or a matrix) into
   a \linkS4class{genind} object. The data.frame must meet the following
@@ -14,9 +15,14 @@
   4-characters coding scheme is interpreted as "0912", thus as an
   heterozygote with alleles "09" and "12". Note that this format is the
   one of GENETIX for a 6-characters coding scheme\cr
+
+  The function \code{genind2df} converts a \linkS4class{genind} back to
+ such a data.frame.
  }
 \usage{
-df2genind(X, ncode=NULL, ind.names=NULL, loc.names=NULL, pop=NULL, missing=NA)
+df2genind(X, ncode=NULL, ind.names=NULL, loc.names=NULL, pop=NULL,
+ missing=NA)
+genind2df(x,pop=NULL, sep="")
 }
 \arguments{
   \item{X}{a matrix or a data.frame (see decription)}
@@ -29,6 +35,8 @@ df2genind(X, ncode=NULL, ind.names=NULL, loc.names=NULL, pop=NULL, missing=NA)
     names; if NULL, taken from colnames of X.}
   \item{pop}{an optional factor giving the population of each individual.}
   \item{missing}{can be NA, 0 or "mean". See details section.}
+  \item{x}{a \linkS4class{genind} object}
+  \item{sep}{a character used to separate two alleles}
  }
    
 \details{There are 3 treatments for missing values: \cr
@@ -41,7 +49,8 @@ df2genind(X, ncode=NULL, ind.names=NULL, loc.names=NULL, pop=NULL, missing=NA)
   corresponding allele, computed on the whole set of
   individuals. Recommended for a centred PCA.\cr
 }
-\value{an object of the class \code{genind}}
+\value{an object of the class \linkS4class{genind} for \code{df2genind};
+  a matrix of biallelic genotypes for \code{genind2df}}
 \seealso{\code{\link{import2genind}}, \code{\link{read.genetix}},
   \code{\link{read.fstat}}, \code{\link{read.structure}}}
 \author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
@@ -54,5 +63,6 @@ df
 obj <- df2genind(df)
 obj
 truenames(obj)
+genind2df(obj)
 }
 \keyword{manip}

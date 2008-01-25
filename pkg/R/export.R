@@ -110,3 +110,41 @@ genind2hierfstat <- function(x,pop=NULL){
 
   return(res)
 }
+
+
+
+
+#####################
+# Function genind2df
+#####################
+genind2df <- function(x,pop=NULL, sep=""){
+
+  if(!is.genind(x)) stop("x is not a valid genind object")
+
+  if(is.null(pop)) pop <- x@pop
+  if(is.null(pop)) pop <- as.factor(rep("P1",nrow(x@tab)))
+  
+  # make one table by locus from x@tab
+  kX <- seploc(x,res.type="matrix")
+  
+  # kX is a list of nloc tables
+  
+  # function to recode a genotype in form "A1/A2" from frequencies
+  recod <- function(vec,lab){
+    if(all(is.na(vec))) return(NA)
+    if(round(sum(vec),10) != 1) return(NA)
+    temp <- c(which(vec==0.5),which(vec==1))
+    if(length(temp)==0) return(NA)
+    lab <- lab[temp]
+    res <- paste(lab[1],lab[length(lab)],sep=sep)
+    return(res)
+  }
+ 
+  # kGen is a list of nloc vectors of genotypes
+  kGen <- lapply(1:length(kX), function(i) apply(kX[[i]],1,recod,x@all.names[[i]]))
+  names(kGen) <- x@loc.names
+
+  res <- cbind.data.frame(kGen)
+
+  return(res)
+}
