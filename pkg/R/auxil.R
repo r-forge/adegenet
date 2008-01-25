@@ -58,9 +58,11 @@ setMethod("truenames",signature(x="genpop"), function(x){
 ###########################
 setGeneric("seploc", function(x, ...) standardGeneric("seploc"))
 
-setMethod("seploc", signature(x="genind"), function(x,truenames=FALSE){
+setMethod("seploc", signature(x="genind"), function(x,truenames=FALSE,res.type=c("genind","matrix")){
   
   if(!is.genind(x)) stop("x is not a valid genind object")
+  res.type <- match.arg(res.type)
+  if(res.type=="genind") { truenames <- TRUE }
   
   temp <- x@loc.fac
   nloc <- length(levels(temp))
@@ -86,6 +88,14 @@ setMethod("seploc", signature(x="genind"), function(x,truenames=FALSE){
     names(kX) <- names(x@loc.names)
   }
 
+  prevcall <- match.call()
+  if(res.type=="genind"){
+      kX <- lapply(kX, genind, pop=x@pop, prevcall=prevcall)
+      for(i in 1:length(kX)){
+          kX[[i]]@other <- x@other
+      }
+  }
+  
   return(kX)  
 })
 
@@ -94,10 +104,12 @@ setMethod("seploc", signature(x="genind"), function(x,truenames=FALSE){
 ###########################
 # Method seploc for genpop
 ###########################
-setMethod("seploc", signature(x="genpop"), function(x,truenames=FALSE){
+setMethod("seploc", signature(x="genpop"), function(x,truenames=FALSE,res.type=c("genpop","matrix")){
   
   if(!is.genpop(x)) stop("x is not a valid genpop object")
-  
+  res.type <- match.arg(res.type)
+  if(res.type=="genpop") { truenames <- TRUE }
+ 
   temp <- x@loc.fac
   nloc <- length(levels(temp))
   levels(temp) <- 1:nloc
@@ -122,8 +134,18 @@ setMethod("seploc", signature(x="genpop"), function(x,truenames=FALSE){
     names(kX) <- names(x@loc.names)
   }
 
+  prevcall <- match.call()
+  if(res.type=="genpop"){
+      kX <- lapply(kX, genpop, prevcall=prevcall)
+      for(i in 1:length(kX)){
+          kX[[i]]@other <- x@other
+      }
+  }
+
   return(kX)  
 })
+
+
 
 
 #######################
@@ -133,6 +155,8 @@ adegenetWeb <- function(){
   cat("Opening url \"http://pbil.univ-lyon1.fr/software/adegenet/\" ...\n")
   browseURL("http://pbil.univ-lyon1.fr/software/adegenet/")
 }
+
+
 
 
 

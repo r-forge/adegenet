@@ -529,8 +529,8 @@ setMethod ("summary", "genind", function(object, ...){
 
   res$NA.perc <- 100*sum(is.na(x@tab))/prod(dim(x@tab))
 
-  # auxiliary function to compute observed heterozygosity 
-  temp <- seploc(x,truenames=FALSE) 
+  # auxiliary function to compute observed heterozygosity
+  temp <- seploc(x,truenames=FALSE,res.type="matrix")
   f1 <- function(tab){
     H <- sum(tab==0.5,na.rm=TRUE)/(2*nrow(tab))
     return(H)

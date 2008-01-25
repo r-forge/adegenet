@@ -23,7 +23,7 @@ genind2genotype <- function(x,pop=NULL,res.type=c("matrix","list")){
   res.type <- tolower(res.type[1])
   
   # make one table by locus from x@tab
-  kX <- seploc(x)
+  kX <- seploc(x,res.type="matrix")
   # kX is a list of nloc tables
   
   # function to recode a genotype in form "A1/A2" from frequencies
@@ -79,7 +79,7 @@ genind2hierfstat <- function(x,pop=NULL){
   if(is.null(pop)) pop <- as.factor(rep("P1",nrow(x@tab)))
   
   # make one table by locus from x@tab
-  kX <- seploc(x)
+  kX <- seploc(x,res.type="matrix")
   # kX is a list of nloc tables
 
   # prepare allele names

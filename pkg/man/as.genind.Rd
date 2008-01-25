@@ -45,12 +45,7 @@ data(nancycats)
 nancycats@loc.names
 
 # isolate one marker, fca23
-obj <- seploc(nancycats,truenames=TRUE)$"fca23"
-class(obj)
-dim(obj)
-
-# make it a new genind
-obj <- genind(obj)
+obj <- seploc(nancycats)$"fca23"
 obj
 }
 \keyword{manip}
