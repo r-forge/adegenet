@@ -24,6 +24,17 @@
 
 
 
+###################
+# Function readExt
+###################
+.readExt <- function(char){
+    temp <- as.character(char)
+    temp <- unlist(strsplit(char,"[.]"))
+    res <- temp[length(temp)]
+    return(res)
+}
+
+
 
 #####################
 # Function df2genind
@@ -38,7 +49,7 @@ df2genind <- function(X, ncode=NULL, ind.names=NULL, loc.names=NULL, pop=NULL, m
     n <- nrow(X)
     nloc <- ncol(X)
     
-    if(is.null(ind.names)) {rownames(X) <- ind.names}
+    if(is.null(ind.names)) {ind.names <- rownames(X)}
     if(is.null(loc.names)) {loc.names <- colnames(X)}
     
     ## pop optionnelle
@@ -160,7 +171,7 @@ read.genetix <- function(file=NULL,missing=NA,quiet=FALSE) {
       
     ## read from file
     if(!file.exists(file)) stop("Specified file does not exist.")
-    if(toupper(substr(file,nchar(file)-2,nchar(file))) != "GTX") stop("File extension .gtx expected")
+    if(toupper(.readExt(file)) != "GTX") stop("File extension .gtx expected")
       # retrieve first infos
     nloc <- as.numeric(scan(file,nlines=1,what="character",quiet=TRUE)[1])
     npop <- as.numeric(scan(file,nlines=1,skip=1,what="character",quiet=TRUE)[1])
@@ -215,7 +226,7 @@ read.genetix <- function(file=NULL,missing=NA,quiet=FALSE) {
 ##########################
 read.fstat <- function(file,missing=NA,quiet=FALSE){
   if(!file.exists(file)) stop("Specified file does not exist.")
-  if(toupper(substr(file,nchar(file)-2,nchar(file))) != "DAT") stop("File extension .dat expected")
+  if(toupper(.readExt(file)) != "DAT") stop("File extension .dat expected")
 
   if(!quiet) cat("\n Converting data from a FSTAT .dat file to a genind object... \n\n")
 
@@ -263,7 +274,7 @@ read.fstat <- function(file,missing=NA,quiet=FALSE){
 ##########################
 read.genepop <- function(file,missing=NA,quiet=FALSE){
   if(!file.exists(file)) stop("Specified file does not exist.")
-  if(toupper(substr(file,nchar(file)-2,nchar(file))) != "GEN") stop("File extension .gen expected")
+  if(toupper(.readExt(file)) != "GEN") stop("File extension .gen expected")
 
   if(!quiet) cat("\n Converting data from a Genepop .gen file to a genind object... \n\n")
 
@@ -389,14 +400,19 @@ read.genepop <- function(file,missing=NA,quiet=FALSE){
 ############################
 # Function read.structure
 ############################
-read.structure <- function(file, n.ind=NULL, n.loc=NULL, col.lab=NULL, col.pop=NULL,
-                             col.others=NULL, row.marknames=NULL, onerowperind=FALSE, NA.char="-9",
-                             pop=NULL, missing=NA, quiet=FALSE){
+read.structure <- function(file, n.ind=NULL, n.loc=NULL,  onerowperind=FALSE, col.lab=NULL, col.pop=NULL, col.others=NULL, row.marknames=NULL, NA.char="-9", pop=NULL, missing=NA, ask=TRUE, quiet=FALSE){
   
   if(!file.exists(file)) stop("Specified file does not exist.")
-  if(toupper(substr(file,nchar(file)-2,nchar(file))) != "STRU") stop("File extension .stru expected")
+  if(!toupper(.readExt(file)) %in% c("STR","STRU")) stop("File extension .stru expected")
 
-  # required questions
+  ## set defaults for non optional arguments without default values
+  if(!ask){
+      if(is.null(col.lab)) col.lab <- 0
+      if(is.null(col.pop)) col.pop <- 0
+      if(is.null(row.marknames)) row.marknames <- 0
+  }
+  
+  ## required questions
   if(is.null(n.ind)){
     cat("\n How many genotypes are there? ")
     n.ind <- as.integer(readLines(n = 1))
@@ -417,10 +433,10 @@ read.structure <- function(file, n.ind=NULL, n.loc=NULL, col.lab=NULL, col.pop=N
     col.pop <- as.integer(readLines(n = 1))
   }
 
-  if(is.null(col.others)){
-    cat("\n Which other optional columns should be read (type enter if absent)? ")
+  if(is.null(col.others) & ask){
+    cat("\n Which other optional columns should be read (press 'return' when done)? ")
     col.others <- scan(quiet=TRUE)
-    if(length(col.others) == 0) col.others <- NULL
+    if(length(col.others) == 0)  col.others <- NULL
   }
 
   if(is.null(row.marknames)){
@@ -470,7 +486,7 @@ read.structure <- function(file, n.ind=NULL, n.loc=NULL, col.lab=NULL, col.pop=N
   lastline <- length(txt)
   mat <- txt[(lastline-n+1):lastline]
   mat <- t(as.data.frame(strsplit(mat,"[[:blank:]]+")))
-  row.names(mat) <- 1:n
+  rownames(mat) <- 1:n
   gen <- mat[, (ncol(mat)-p+1):ncol(mat)]
   
   
@@ -479,14 +495,14 @@ read.structure <- function(file, n.ind=NULL, n.loc=NULL, col.lab=NULL, col.pop=N
     loc.names <- .rmspaces(txt[row.marknames])
     loc.names <- unlist(strsplit(loc.names,"[[:blank:]]+"))
   } else {
-    loc.names <- rep("",n.loc)
+    loc.names <- .genlab("L",n.loc)
   }
 
   # genotypes labels
   if(col.lab !=0) {
     ind.names <- mat[, col.lab]
   } else {
-    ind.names <- rep("",n.ind)
+    ind.names <- .genlab("",n.ind)
   }
 
   # population factor
@@ -501,13 +517,27 @@ read.structure <- function(file, n.ind=NULL, n.loc=NULL, col.lab=NULL, col.pop=N
     X.other <- mat[col.others]
   }
   
-  # transformations if onerowperind is FALSE
+  ## transformations if onerowperind is FALSE
   if(!onerowperind) {
     temp <- seq(1,n,by=2)
     ind.names <- ind.names[temp]
     if(length(ind.names) < n.ind) warning("Duplicated identifier for genotypes")
     pop <- pop[temp]
     if(exists("X.other")) X.other <- X.other[temp]
+
+    ## make sur that all strings in gen have the same number of characters
+    ncode <- max(nchar(gen))
+    keepCheck <- any(nchar(gen) < ncode)
+    
+    while(keepCheck){
+        mat0 <- matrix("", ncol=ncol(gen), nrow=nrow(gen))
+        mat0[nchar(gen) < ncode] <- "0"
+        gen <-  matrix(paste(mat0, gen, sep=""), nrow=nrow(mat0))
+        keepCheck <- any(nchar(gen) < ncode)
+    }
+        
+
+    
     
     # reorder matrix of genotypes
     X <- t(sapply(temp, function(i) paste(gen[i,],gen[i+1,],sep="") ))
@@ -523,17 +553,21 @@ read.structure <- function(file, n.ind=NULL, n.loc=NULL, col.lab=NULL, col.pop=N
 
   res@call <- match.call()
 
-  res@other <- list(X=X.other)
+  if(exists("X.other")) {res@other <- list(X=X.other)}
+
+  return(res)
   
 }
+
+
 
 
 #########################
 # Function import2genind
 #########################
-import2genind <- function(file,missing=NA,quiet=FALSE){
+import2genind <- function(file,missing=NA,quiet=FALSE, ...){
   if(!file.exists(file)) stop("Specified file does not exist.")
-  ext <- rev(unlist(strsplit(file,"[.]")))[1]
+  ext <- .readExt(file)
   ext <- toupper(ext)
   
   if(ext == "GTX")
@@ -545,12 +579,12 @@ import2genind <- function(file,missing=NA,quiet=FALSE){
   if(ext == "GEN")
     return(read.genepop(file,missing=missing,quiet=quiet))
 
-  if(ext == "GEN")
-    return(read.genepop(file,missing=missing,quiet=quiet))
+  if(ext %in% c("STR","STRU"))
+    return(read.structure(file,missing=missing,quiet=quiet, ...))
   
   # evaluated only if extension is not supported
   cat("\n File format (",ext,") not supported.\n")
-  cat("\nSupported formats are:\nGENETIX (.gtx) \nFSTAT (.dat) \nGenepop (.gen)\n")
+  cat("\nSupported formats are:\nGENETIX (.gtx) \nFSTAT (.dat) \nGenepop (.gen)\n \nSTRUCTURE (.str)\n")
        
   return(invisible())    
 }
