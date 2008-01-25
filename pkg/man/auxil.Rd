@@ -17,28 +17,32 @@
 \title{ Utilities functions}
 \description{ Most of theses functions are S4 methods to be used with \code{genind} and
   \code{genpop} objects.\cr
-  \code{truenames} returns elements of the object with using true names
+   The function \code{seploc} splits an object by marker, returning a
+   list whose components each correspond to a marker.\cr
+   
+   \code{truenames} returns elements of the object using true names
   (as opposed to generic labels) for individuals, markers, alleles, and population.\cr
-  The function \code{seploc} splits the table (\code{x\$tab}) by marker,
-  allowing separate analysis of markers.
   An exception is \code{adegenetWeb}, which simply opens the adegenet
   website in the default navigator.
 }
 \usage{
-\S4method{seploc}{genind}(truenames=FALSE)
-\S4method{seploc}{genpop}(truenames=FALSE)
+\S4method{seploc}{genind}(truenames=FALSE,res.type=c("genind","matrix"))
+\S4method{seploc}{genpop}(truenames=FALSE,res.type=c("genpop","matrix"))
 adegenetWeb()
 }
 \arguments{
     \item{truenames}{a logical indicating whether generic labels
-    (FALSE,default) or true names should be used (TRUE).}
+      (FALSE,default) or true names should be used (TRUE).}
+    \item{res.type}{a character indicating the type of returned results,
+      a genind or genpop object (default) or a matrix of data.}
 }
-\value{The function \code{truenames} returns a matrix similar to x\$tab
-but with true labels. If x\$pop exists, it returns a list with this
-matrix (\$tab) and a population vector with true names (\$pop).\cr
-   
-   The function \code{seploc} applied to \code{genind} or \code{genpop}
-objects returns a list of matrices, one per marker.
+\value{The function \code{seploc} returns an list of objects of the
+  same class as the initial object, or a list of matrices similar to
+  x\$tab.\cr
+
+  \code{truenames} returns a matrix similar to the x\$tab slot but with
+  true labels. If x\$pop exists, it returns a list with this
+  matrix (\$tab) and a population vector with true names (\$pop).\cr
 }
 \author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
 \examples{
@@ -47,23 +51,9 @@ data(microbov)
 truenames(microbov)$tab[1:5,1:5]
 
 # separate all markers
-obj <- seploc(microbov,truenames=TRUE)
+obj <- seploc(microbov)
 names(obj)
 
-# make a new object with INRA5
-head(obj$INRA5)
-inra5.gind <- as.genind(obj$INRA5)
-inra5.gind
-
-# perform tests only on this marker
-if(require(genetics)){
-hw.test <- HWE.test(inra5.gind,pop=microbov@pop,res.type="matrix",permut=TRUE) 
-hw.test
-}
-
-if(require(hierfstat)){
-g.test <- gstat.randtest(inra5.gind,pop=microbov@pop,nsim=99)
-g.test
-}
+obj$INRA5
 }
 \keyword{manip}

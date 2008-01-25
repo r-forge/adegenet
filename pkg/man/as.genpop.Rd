@@ -42,12 +42,7 @@ data(nancycats)
 obj <- genind2genpop(nancycats)
 
 # isolate one locus, fca77
-obj <- seploc(obj,truenames=TRUE)$"fca77"
-class(obj)
-dim(obj)
-head(obj)
-# make it a new genpop
-obj <- genpop(obj)
+obj <- seploc(obj)$"fca77"
 obj
 }
 \keyword{manip}
