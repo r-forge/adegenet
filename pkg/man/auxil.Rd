@@ -12,6 +12,7 @@
 \alias{seploc,genind-method}
 \alias{seploc,genpop-method}
 \alias{.rmspaces}
+\alias{.readExt}
 \alias{adegenetWeb}
 \title{ Utilities functions}
 \description{ Most of theses functions are S4 methods to be used with \code{genind} and
