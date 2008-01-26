@@ -49,6 +49,11 @@ to separate loci in the header of the file -- fixed (TJ)
    - a "df2genind" which takes a matrix of char strings of lengths 2,4
    or 6  -- done (TJ)
 * method to split a genind object, keeping only certain populations
+   - seppop
+* implement a $[$ method for genind and genpop objects (and call it in
+   seppop)
+* implement na.replace methods for genind and genpop objects (call it
+   in df2genind)
 
 
 
