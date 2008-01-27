@@ -25,7 +25,7 @@ hybridize(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NULL,
   readable by STRUCTURE (in which case the 'file' must be supplied). }
   \item{file}{a character giving the name of the file to be written
   when 'res.type' is "STRUCTURE"; if NULL, a the created file is of the
-  form "hybrids_[the current date].str".}
+  form "hybrids\_[the current date].str".}
   \item{quiet}{a logical specifying whether the writing to a file (when
     'res.type' is "STRUCTURE") should be announced (FALSE, default) or
     not (TRUE).}

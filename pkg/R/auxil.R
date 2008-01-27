@@ -58,7 +58,7 @@ setMethod("truenames",signature(x="genpop"), function(x){
 ###########################
 setGeneric("seploc", function(x, ...) standardGeneric("seploc"))
 
-setMethod("seploc", signature(x="genind"), function(x,truenames=FALSE,res.type=c("genind","matrix")){
+setMethod("seploc", signature(x="genind"), function(x,truenames=TRUE,res.type=c("genind","matrix")){
   
   if(!is.genind(x)) stop("x is not a valid genind object")
   res.type <- match.arg(res.type)
@@ -104,7 +104,7 @@ setMethod("seploc", signature(x="genind"), function(x,truenames=FALSE,res.type=c
 ###########################
 # Method seploc for genpop
 ###########################
-setMethod("seploc", signature(x="genpop"), function(x,truenames=FALSE,res.type=c("genpop","matrix")){
+setMethod("seploc", signature(x="genpop"), function(x,truenames=TRUE,res.type=c("genpop","matrix")){
   
   if(!is.genpop(x)) stop("x is not a valid genpop object")
   res.type <- match.arg(res.type)
@@ -183,3 +183,49 @@ setMethod("$<-","genpop",function(x,name,value) {
   slot(x,name,check=TRUE) <- value
   return(x)
 })
+
+
+
+###############
+# '[' operator
+###############
+setMethod("[","genind", 
+          function(x, i, j, ..., drop=FALSE) {
+
+              if (missing(i)) i <- TRUE
+              if (missing(j)) j <- TRUE
+
+              pop <- NULL
+              if(is.null(x@pop)) { tab <- truenames(x) }
+              if(!is.null(x@pop)) {
+                  temp <- truenames(x)
+                  tab <- temp$tab
+                  pop <- temp$pop
+                  pop <- factor(pop[i])
+              }
+             
+              prevcall <- match.call()
+              tab <- tab[i, j, ...,drop=FALSE]
+              
+              res <- genind(tab,pop=pop,prevcall=prevcall)
+              
+              return(res)
+          })
+
+
+
+setMethod("[","genpop", 
+          function(x, i, j, ..., drop=FALSE) {
+
+              if (missing(i)) i <- TRUE
+              if (missing(j)) j <- TRUE
+
+              tab <- truenames(x) 
+             
+              prevcall <- match.call()
+              tab <- tab[i, j, ...,drop=FALSE]
+              
+              res <- genpop(tab,prevcall=prevcall)
+              
+              return(res)
+          })
