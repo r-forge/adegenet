@@ -58,7 +58,7 @@ Class \code{"\linkS4class{indInfo}"}, directly.
 \seealso{\code{\link{as.genind}}, \code{\link{is.genind}}, \code{\link{genind2genpop}},
   \code{\link{genpop}}, \code{\link{import2genind}},
   \code{\link{read.genetix}}, \code{\link{read.genepop}},
-  \code{\link{read.fstat}}
+  \code{\link{read.fstat}}, \code{\link{na.replace}}
   
 }
 \author{ Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }

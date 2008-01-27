@@ -40,32 +40,33 @@ hybridize(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NULL,
 \author{ Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
 \examples{
 ## let's make a zebu-taurin hybrid
-## P01 is Aubrac
-## P15 is Zebu Peul
+## P15 is Salers
+## P02 is Zebu Peul
 data(microbov)
 microbov$pop.names
 
-aubrac <- genind(truenames(microbov)$tab[microbov$pop=="P01",])
-zebu <- genind(truenames(microbov)$tab[microbov$pop=="P15",])
+salers <- microbov[microbov$pop=="P15",]
+zebu <- microbov[microbov$pop=="P02",]
 
-## let's make some... Zebrac (or Aubbu)
-zebrac <- hybridize(aubrac,zebu, n=40, res.type="df",sep="")
-zebrac
+## let's make some... Zeblers
+zebler <- hybridize(salers,zebu, n=40, res.type="df",sep="")
+head(zebler)
 
 ## now let's merge all this in one data frame
-newDat <- rbind.data.frame(genind2df(microbov), zebrac)
+newDat <- rbind.data.frame(genind2df(microbov), zebler)
 pop <- microbov$pop
 levels(pop) <- microbov$pop.names
-pop <- factor(c(as.character(pop),rep("zebrac",40)))
+pop <- factor(c(as.character(pop),rep("zebler",40)))
 
 ## make this dataset a genind to analyse it
 obj <- df2genind(newDat, pop=pop)
 
 ## correspondance analysis
 if(require(ade4)){
-X <- genind2genpop(obj,missing="replace")
+X <- genind2genpop(obj,missing="chi2",quiet=TRUE)
 coa1 <- dudi.coa(as.data.frame(X$tab),scannf=FALSE,nf=3)
 s.label(coa1$li,label=X$pop.names)
+add.scatter.eig(coa1$eig,2,1,2)
 }
 }
 \keyword{manip}

@@ -5,36 +5,30 @@
 \description{The function \code{genind2genpop} converts genotypes data
   (genind) into alleles counts per population (genpop).}
 \usage{
-genind2genpop(x,pop=NULL,missing=NA,quiet=FALSE)
+genind2genpop(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE)
 }
 \arguments{
   \item{x}{an object of class \code{genind}.}
   \item{pop}{a factor giving the population of each genotype in 'x'. If
     note provided, seeked in x@pop, but if given, the argument
     prevails on x@pop.}
-  \item{missing}{can be NA, 0, or "replace". See details for more information.}
+  \item{missing}{can be "NA", "0", or "chi2". See details for more information.}
   \item{quiet}{logical stating whether a conversion message must be
     printed (TRUE,default) or not (FALSE).}
     
 }
 \details{The values of the 'missing' argument in \code{genind2genpop}
   have the following effects:\cr
-  - NA: if all genotypes of a population for a given allele are
+  - "NA": if all genotypes of a population for a given allele are
   missing, count value will be NA\cr
   
-  - 0: if all genotypes of a population for a given allele are
+  - "0": if all genotypes of a population for a given allele are
   missing, count value will be 0\cr
   
-  - "replace": when an allele is not typed in a population, it is
-  assigned an allele count so that the allelic frequency in this
-  populations is the same as the frequency in the whole dataset.\cr
-  If allele 'j' of locus 'k' in pop 'i' is missing, the
-  count value is number 'x' so that the frequency 'x/s' ('s' being the
-  number of observations in 'k' ) equals the frequency 'f' computed on the whole data (i.e. considering all pop as one)\cr
-  Then x verifies:\cr
-  \deqn{x/s = f(1-f) => x=f(1-f)s}
-
-  Note on 'pop': the factor is sorted in the order of appearance of each modality.
+  - "chi2": if all genotypes of a population for a given allele are
+  missing, count value will be that of a theoretical count in of a
+  Chi-squared test. This is obtained by the product of the margins
+  sums divided by the total number of alleles.
 }
 \value{
   A genpop object. The component @other in 'x' is passed to the created
@@ -42,7 +36,7 @@ genind2genpop(x,pop=NULL,missing=NA,quiet=FALSE)
 }
 \author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr}}
 \seealso{
-  \code{"\linkS4class{genind}"}, \code{"\linkS4class{genpop}"}
+  \linkS4class{genind}, \linkS4class{genpop}, \code{\link{na.replace}}
 }
 \examples{
   data(nancycats)
