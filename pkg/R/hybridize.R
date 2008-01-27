@@ -18,11 +18,11 @@ hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NUL
     k <- length(x1$loc.names)
  
     #### get frequencies for each locus
-    x1 <- genind2genpop(x1,pop=factor(rep(1,n1)),quiet=TRUE)
+    x1 <- genind2genpop(x1,pop=factor(rep(1,n1)),missing="0",quiet=TRUE)
     freq1 <- makefreq(x1,quiet=TRUE)$tab
     freq1 <- split(freq1, x1@loc.fac)
 
-    x2 <- genind2genpop(x2,pop=factor(rep(1,n2)),quiet=TRUE)
+    x2 <- genind2genpop(x2,pop=factor(rep(1,n2)),missing="0",quiet=TRUE)
     freq2 <- makefreq(x2,quiet=TRUE)$tab
     freq2 <- split(freq2, x2@loc.fac)
 
@@ -95,7 +95,8 @@ hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NUL
         res <- as.data.frame(matrix(res,ncol=k))
         names(res) <- x1@loc.names
         row.names(res) <- .genlab("",n)
-        res <- genind(res,prevcall=match.call())
+        res <- df2genind(res)
+        res@call <- match.call()
         
         return(res)
     }

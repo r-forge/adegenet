@@ -44,8 +44,7 @@ Class \code{"\linkS4class{popInfo}"}, directly.
   }
 }
 \references{}
-\seealso{\code{\link{as.genpop}}, \code{\link{is.genpop}},code{\link{makefreq}}, \code{\link{genind}}, \code{\link{import2genind}}, \code{\link{read.genetix}}, 
-\code{\link{read.genepop}}, \code{\link{read.fstat}}
+\seealso{\code{\link{as.genpop}}, \code{\link{is.genpop}},code{\link{makefreq}}, \code{\link{genind}}, \code{\link{import2genind}}, \code{\link{read.genetix}}, \code{\link{read.genepop}}, \code{\link{read.fstat}}, \code{\link{na.replace}}
 }
 \author{ Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
 \examples{
@@ -68,7 +67,7 @@ all(obj3@pop.names==rownames(microsatt$tab))
 # it worked
 
 # perform a correspondance analysis
-obj4 <- genind2genpop(obj1,missing="replace")
+obj4 <- genind2genpop(obj1,missing="chi2")
 ca1 <- dudi.coa(as.data.frame(obj4@tab),scannf=FALSE)
 s.label(ca1$li,sub="Correspondance Analysis",csub=2)
 add.scatter.eig(ca1$eig,2,xax=1,yax=2,posi="top")

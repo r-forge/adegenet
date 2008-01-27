@@ -186,9 +186,12 @@ setMethod("$<-","genpop",function(x,name,value) {
 
 
 
+
+
 ###############
 # '[' operator
 ###############
+## genind
 setMethod("[","genind", 
           function(x, i, j, ..., drop=FALSE) {
 
@@ -213,7 +216,7 @@ setMethod("[","genind",
           })
 
 
-
+## genpop
 setMethod("[","genpop", 
           function(x, i, j, ..., drop=FALSE) {
 
@@ -229,3 +232,132 @@ setMethod("[","genpop",
               
               return(res)
           })
+
+
+
+
+
+
+##################
+# Function seppop
+##################
+setGeneric("seppop", function(x, ...) standardGeneric("seppop"))
+
+## genind
+setMethod("seppop", signature(x="genind"), function(x,pop=NULL,truenames=TRUE,res.type=c("genind","matrix")){
+
+    ## misc checks 
+    if(!is.genind(x)) stop("x is not a valid genind object")
+    if(is.null(pop)) {pop <- x@pop}
+    if(is.null(pop)) stop("pop not provided and x@pop is empty")
+    res.type <- match.arg(res.type)
+    if(res.type=="genind") { truenames <- TRUE }
+  
+    pop <- x@pop
+    levels(pop) <- x@pop.names
+
+    ## make a list of genind objects
+    kObj <- lapply(levels(pop), function(lev) x[pop==lev, ])
+    names(kObj) <- levels(pop)
+
+    ## res is a list of genind
+    if(res.type=="genind"){ return(kObj) }
+  
+    ## res is list of matrices
+    if(truenames) {
+        res <- lapply(kObj, function(obj) truenames(obj)$tab)
+    } else{
+        res <- lapply(kObj, function(obj) obj$tab)
+    }
+    
+    return(res) 
+}) # end seppop
+
+
+
+
+
+#####################
+# Methods na.replace
+#####################
+setGeneric("na.replace", function(x, ...) standardGeneric("na.replace"))
+
+## genind method
+setMethod("na.replace", signature(x="genind"), function(x,method, quiet=FALSE){
+
+    ## preliminary stuff
+    validObject(x)
+    if(!any(is.na(x@tab))) {
+        if(!quiet) cat("\n Replaced 0 missing values \n")
+        return(x)
+    }
+    method <- tolower(method)
+    method <- match.arg(method, c("0","mean"))
+
+    res <- x
+    
+    if(method=="0"){
+        res@tab[is.na(x@tab)] <- 0
+    }
+
+    if(method=="mean"){
+        f1 <- function(vec){
+            m <- mean(vec,na.rm=TRUE)
+            vec[is.na(vec)] <- m
+            return(vec)
+        }
+
+        res@tab <- apply(x@tab, 2, f1)
+    }
+
+    if(!quiet){
+        Nna <- sum(is.na(x@tab))
+        cat("\n Replaced",Nna,"missing values \n")
+    }
+
+    return(res)
+
+})
+
+
+
+
+## genpop method
+setMethod("na.replace", signature(x="genpop"), function(x,method, quiet=FALSE){
+
+    ## preliminary stuff
+    validObject(x)
+    if(!any(is.na(x@tab))) {
+        if(!quiet) cat("\n Replaced 0 missing values \n")
+        return(x)
+    }
+
+    method <- tolower(method)
+    method <- match.arg(method, c("0","chi2"))
+
+    res <- x
+    
+    if(method=="0"){
+        res@tab[is.na(x@tab)] <- 0
+    }
+
+    if(method=="chi2"){
+        ## compute theoretical counts
+        ## (same as in a Chi-squared)
+        X <- x@tab
+        sumPop <- apply(X,1,sum,na.rm=TRUE)
+        sumLoc <- apply(X,2,sum,na.rm=TRUE)
+        X.theo <- sumPop %o% sumLoc / sum(X,na.rm=TRUE)
+
+        X[is.na(X)] <- X.theo[is.na(X)]
+        res@tab <- X
+    }
+
+    if(!quiet){
+        Nna <- sum(is.na(x@tab))
+        cat("\n Replaced",Nna,"missing values \n")
+    }
+
+    return(res)
+})
+
