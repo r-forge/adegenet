@@ -4,7 +4,7 @@
 ## in both objects.
 ##
 
-hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NULL, quiet=FALSE, sep="/"){
+hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NULL, quiet=FALSE, sep="/", hyb.label="h"){
     ## checks
     if(!is.genind(x1)) stop("x1 is not a valid genind object")
     if(!is.genind(x2)) stop("x2 is not a valid genind object")
@@ -18,13 +18,13 @@ hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NUL
     k <- length(x1$loc.names)
  
     #### get frequencies for each locus
-    x1 <- genind2genpop(x1,pop=factor(rep(1,n1)),missing="0",quiet=TRUE)
-    freq1 <- makefreq(x1,quiet=TRUE)$tab
-    freq1 <- split(freq1, x1@loc.fac)
+    y1 <- genind2genpop(x1,pop=factor(rep(1,n1)),missing="0",quiet=TRUE)
+    freq1 <- makefreq(y1,quiet=TRUE)$tab
+    freq1 <- split(freq1, y1@loc.fac)
 
-    x2 <- genind2genpop(x2,pop=factor(rep(1,n2)),missing="0",quiet=TRUE)
-    freq2 <- makefreq(x2,quiet=TRUE)$tab
-    freq2 <- split(freq2, x2@loc.fac)
+    y2 <- genind2genpop(x2,pop=factor(rep(1,n2)),missing="0",quiet=TRUE)
+    freq2 <- makefreq(y2,quiet=TRUE)$tab
+    freq2 <- split(freq2, y2@loc.fac)
 
     #### sampling of gametes
     ## kX1 / kX2 are lists of tables of sampled gametes
@@ -61,19 +61,27 @@ hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NUL
     #### construction of zygotes
     gam1 <-  gsub("/.*$","",gam1)
     gam2 <-  gsub("/.*$","",gam2)
- 
+
     ## res.type=="STRUCTURE"
     if(res.type=="STRUCTURE"){
-        res <- paste(gam1,gam2,sep="")
+        res <- paste(gam1,gam2,sep=" ") # make df for the hybrids
         res <- as.data.frame(matrix(res,ncol=k))
         names(res) <- x1@loc.names
-        row.names(res) <- .genlab("",n)
+        row.names(res) <- .genlab(hyb.label,n)
+        df1 <- genind2df(x1,sep=" ") # make df with parents and hybrids
+        df2 <- genind2df(x2,sep=" ")
+        res <- rbind.data.frame(df1,df2,res) # rbind the three df
+        res[is.na(res)] <- "-9 -9" # this is two missing alleles for STRUCTURE
+        pop <- rep(1:3,c(nrow(x1@tab), nrow(x2@tab), n)) # make a pop identifier
+        res <- cbind.data.frame(pop,res, stringsAsFactors = FALSE)
+        names(res) <- names(res)[-1]
+
         if(is.null(file)) {
-            file <- gsub("[[:space:]]","-",date())
+            file <- gsub("[[:space:]]|:","-",date())
             file <- paste("hybrid",file,sep="_")
             file <- paste(file,"str",sep=".")
         }
-        write.table(res, file=file,row.names = TRUE, col.names = TRUE)
+        write.table(res, file=file,row.names = TRUE, col.names = TRUE, quote=FALSE)
         if(!quiet) cat("\nWrote results to file", file, "\n")
 
         return(invisible())
@@ -84,7 +92,7 @@ hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NUL
         res <- paste(gam1,gam2,sep=sep)
         res <- as.data.frame(matrix(res,ncol=k))
         names(res) <- x1@loc.names
-        row.names(res) <- .genlab("",n)
+        row.names(res) <- .genlab(hyb.label,n)
 
         return(res)
     }
@@ -94,7 +102,7 @@ hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NUL
         res <- paste(gam1,gam2,sep="")
         res <- as.data.frame(matrix(res,ncol=k))
         names(res) <- x1@loc.names
-        row.names(res) <- .genlab("",n)
+        row.names(res) <- .genlab(hyb.label,n)
         res <- df2genind(res)
         res@call <- match.call()
         

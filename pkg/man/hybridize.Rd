@@ -13,7 +13,7 @@
 }
 \usage{
 hybridize(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NULL,
-  quiet=FALSE, sep="/")
+  quiet=FALSE, sep="/", hyb.label="h")
 }
 \arguments{
   \item{x1}{a \linkS4class{genind} object}
@@ -22,7 +22,8 @@ hybridize(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NULL,
   \item{res.type}{a character giving the type of output requested. Must
   be "genind" (default), "df" (i.e. data.frame like in
   \code{\link{genind2df}}), or "STRUCTURE" to generate a .str file
-  readable by STRUCTURE (in which case the 'file' must be supplied). }
+  readable by STRUCTURE (in which case the 'file' must be supplied). See
+  'details' for STRUCTURE output.}
   \item{file}{a character giving the name of the file to be written
   when 'res.type' is "STRUCTURE"; if NULL, a the created file is of the
   form "hybrids\_[the current date].str".}
@@ -30,12 +31,25 @@ hybridize(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NULL,
     'res.type' is "STRUCTURE") should be announced (FALSE, default) or
     not (TRUE).}
   \item{sep}{a character used to separate two alleles}
+  \item{hyb.label}{a character string used to construct the hybrids
+  labels; by default, "h", which gives labels: "h01", "h02", "h03",...}
 }
 \value{
   A \linkS4class{genind} object (by default), or a data.frame of alleles
   (res.type="df"). No R output if res.type="STRUCTURE" (results written
-  to the specified file).
-  
+  to the specified file). 
+}
+\details{
+  If the output is a STRUCTURE file, this file will have the following
+  caracteristics:\cr
+  - file contains the genotypes of the parents, and then the genotypes
+  of hybrids\cr
+  - the first column identifies genotypes\cr
+  - the second column identifies the population (1 and 2 for parents x1 and x2;
+  3 for hybrids)\cr
+  - the first line contains the names of the markers\cr
+  - one row = one genotype (onerowperind will be true)\cr
+  - missing values coded by "-9" (the software's default)\cr
 }
 \author{ Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
 \examples{
