@@ -144,7 +144,7 @@ genind2df <- function(x,pop=NULL, sep=""){
   kGen <- lapply(1:length(kX), function(i) apply(kX[[i]],1,recod,x@all.names[[i]]))
   names(kGen) <- x@loc.names
 
-  res <- cbind.data.frame(kGen)
+  res <- cbind.data.frame(kGen,stringsAsFactors=FALSE)
 
   return(res)
 }
