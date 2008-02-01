@@ -51,10 +51,10 @@ hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NUL
     tab2 <- cbind.data.frame(kX2)
     ## gam 1/2 are genind containing gametes
     gam2 <- genind(tab2)
-    gam2@loc.names <- x1@loc.names
-    gam2@loc.fac <- x1@loc.fac
-    gam2@all.names <- x1@all.names
-    gam2@loc.nall <- x1@loc.nall
+    gam2@loc.names <- x2@loc.names
+    gam2@loc.fac <- x2@loc.fac
+    gam2@all.names <- x2@all.names
+    gam2@loc.nall <- x2@loc.nall
     gam2 <- genind2df(gam2,sep="/")
     gam2 <- as.matrix(gam2)
 
@@ -74,7 +74,7 @@ hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NUL
         res[is.na(res)] <- "-9 -9" # this is two missing alleles for STRUCTURE
         pop <- rep(1:3,c(nrow(x1@tab), nrow(x2@tab), n)) # make a pop identifier
         res <- cbind.data.frame(pop,res, stringsAsFactors = FALSE)
-        names(res) <- names(res)[-1]
+        names(res)[1] <- ""
 
         if(is.null(file)) {
             file <- gsub("[[:space:]]|:","-",date())
@@ -90,7 +90,7 @@ hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NUL
     ## res.type=="df"
     if(res.type=="df"){
         res <- paste(gam1,gam2,sep=sep)
-        res <- as.data.frame(matrix(res,ncol=k))
+        res <- as.data.frame(matrix(res,ncol=k), stringsAsFactors=FALSE)
         names(res) <- x1@loc.names
         row.names(res) <- .genlab(hyb.label,n)
 
@@ -100,7 +100,7 @@ hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NUL
     ## res.type=="genind"
     if(res.type=="genind"){
         res <- paste(gam1,gam2,sep="")
-        res <- as.data.frame(matrix(res,ncol=k))
+        res <- as.data.frame(matrix(res,ncol=k), stringsAsFactors=FALSE)
         names(res) <- x1@loc.names
         row.names(res) <- .genlab(hyb.label,n)
         res <- df2genind(res)

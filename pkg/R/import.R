@@ -95,7 +95,7 @@ df2genind <- function(X, ncode=NULL, ind.names=NULL, loc.names=NULL, pop=NULL, m
     }
     pop <- pop[!temp]
     n <- nrow(X)
-    ind.names <- rownames(X)
+    # ind.names <- rownames(X) this erases the real labels
     # note: if X is kept as a matrix, duplicate row names are no problem
     
     enumallel <- function (x) {
@@ -535,14 +535,15 @@ read.structure <- function(file, n.ind=NULL, n.loc=NULL,  onerowperind=FALSE, co
         gen <-  matrix(paste(mat0, gen, sep=""), nrow=nrow(mat0))
         keepCheck <- any(nchar(gen) < ncode)
     }
-        
-
-    
     
     # reorder matrix of genotypes
     X <- t(sapply(temp, function(i) paste(gen[i,],gen[i+1,],sep="") ))
     
-  } # end if(!onerowperind)
+  } else { # else of "if(!onerowperind)"
+      temp <- seq(1,p-1,by=2)
+      X <- paste(gen[,temp] , gen[,temp+1], sep="")
+      X <- matrix(X, nrow=n.ind)
+  }
   
   # replace missing values by NAs
   X <- gsub(NA.char,NA,X)
