@@ -45,7 +45,7 @@ echo $contents; } ?>
 
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
-<p> Information about <strong>adegenet</strong> is currently available at the <a href="http://pbil.univ-lyon1.fr/software/adegenet/" <strong>adegenet website</strong></a>. </p>
+<p> Information about <strong>adegenet</strong> is currently available at the <a href="website/index.html" <strong>adegenet website</strong></a>. </p>
 
 
 </body>
