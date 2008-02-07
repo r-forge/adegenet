@@ -16,7 +16,7 @@
 ################
 # Function spca
 ################
-spca <- function(obj, xy=NULL, cn=NULL, scannf=TRUE, nfposi=1, nfnega=1, type=1,
+spca <- function(obj, xy=NULL, cn=NULL, scale=FALSE, scannf=TRUE, nfposi=1, nfnega=1, type=1,
                  ask=TRUE, plot.nb=TRUE, edit.nb=FALSE ,truenames=TRUE, d1=NULL, d2=NULL, k=NULL) {
   
   if(!inherits(obj,c("genind","genpop"))) stop("obj must be a genind or genpop object.")
@@ -60,7 +60,7 @@ spca <- function(obj, xy=NULL, cn=NULL, scannf=TRUE, nfposi=1, nfnega=1, type=1,
   }
 
   # perform analyses
-  pcaX <- dudi.pca(X, center=TRUE, scale=FALSE, scannf=FALSE)
+  pcaX <- dudi.pca(X, center=TRUE, scale=scale, scannf=FALSE)
 
   spcaX <- multispati(dudi=pcaX, listw=cn.lw, scannf=scannf, nfposi=nfposi, nfnega=nfnega)
 

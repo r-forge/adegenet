@@ -26,7 +26,7 @@
   autocorrelation\cr
 }
 \usage{
-spca(obj, xy=NULL, cn=NULL, scannf=TRUE, nfposi=1, nfnega=1, type=1, ask=TRUE,
+spca(obj, xy=NULL, cn=NULL, scale=FALSE, scannf=TRUE, nfposi=1, nfnega=1, type=1, ask=TRUE,
 plot.nb=TRUE, edit.nb=FALSE ,truenames=TRUE, d1=NULL, d2=NULL, k=NULL)
 
 \method{print}{spca}(x, \dots)
@@ -43,7 +43,9 @@ plot.nb=TRUE, edit.nb=FALSE ,truenames=TRUE, d1=NULL, d2=NULL, k=NULL)
     coordinates. Can be NULL if cn is provided.}
   \item{cn}{a connection network of the class 'nb' (package spdep). Can
     be NULL if xy is provided. Can be easily obtained using the function
-  chooseCN.}
+    chooseCN.}
+  \item{scale}{a logical indicating whether alleles should be scaled to
+    unit variance (TRUE) or not (FALSE, default).}
   \item{scannf}{a logical stating whether eigenvalues should be chosen
     interactively (TRUE, default) or not (FALSE).}
   \item{nfposi}{an integer giving the number of positive eigenvalues retained
