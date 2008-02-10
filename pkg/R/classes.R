@@ -131,7 +131,7 @@ setClass("indInfo", representation(ind.names = "character",
                                   pop = "factorOrNULL",
                                   pop.names = "charOrNULL",
                                   other = "listOrNULL", "VIRTUAL"),
-         prototype(pop = NULL, pop.names = NULL, other = NULL))
+         prototype(pop=NULL, pop.names = NULL, other = NULL))
 
 
 

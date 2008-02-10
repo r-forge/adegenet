@@ -28,6 +28,7 @@
   x\$tab.\cr
 }
 \author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
+\seealso{\code{\link{seppop}}, \code{\link{repool}}}
 \examples{
 data(microbov)
 

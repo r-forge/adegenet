@@ -164,7 +164,7 @@ adegenetWeb <- function(){
 # '$' operator
 ###############
 setMethod("$","genind",function(x,name) {
-    return(attr(x,name))
+    return(slot(x,name))
 })
 
 
@@ -175,7 +175,7 @@ setMethod("$<-","genind",function(x,name,value) {
 
 
 setMethod("$","genpop",function(x,name) {
-    return(attr(x,name))
+    return(slot(x,name))
 })
 
 
@@ -361,3 +361,51 @@ setMethod("na.replace", signature(x="genpop"), function(x,method, quiet=FALSE){
     return(res)
 })
 
+
+
+
+
+##################
+# Function repool
+##################
+repool <- function(x){
+
+  ## preliminary stuff
+  if(!inherits(x,"list")) stop("x must be a list")
+  if(!all(sapply(x,is.genind))) stop("x is does not contain only valid genind objects")
+  temp <- sapply(x,function(e) e$loc.names)
+  if(!all(table(temp)==length(x))) stop("markers are not the same for all objects")
+
+
+  ## extract info
+  listTab <- lapply(x,genind2df)
+  getPop <- function(obj){
+      if(is.null(obj$pop)) return(rep("?",nrow(obj$tab)))
+      pop <- obj$pop
+      levels(pop) <- obj$pop.names
+      return(pop)
+  }
+
+  ## handle pop
+  listPop <- lapply(x, getPop)
+  pop <- unlist(listPop, use.name=FALSE)
+  pop <- factor(pop, levels=unique(pop))
+  
+  ## handle genotypes
+  markNames <- colnames(listTab[[1]])
+  listTab <- lapply(listTab, function(tab) tab[,markNames]) # resorting of the tabs
+
+  ## bind all tabs by rows
+  tab <- listTab[[1]] 
+  for(i in 2:length(x)){
+      tab <- rbind(tab,listTab[[i]])
+  }
+
+  res <- df2genind(tab,pop=pop)
+  res$call <- match.call()
+  
+  return(res)
+} # end repool
+
+
+ 

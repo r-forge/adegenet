@@ -63,10 +63,12 @@ salers <- microbov[microbov$pop=="P15",]
 zebu <- microbov[microbov$pop=="P02",]
 
 ## let's make some... Zeblers
-zebler <- hybridize(salers,zebu, n=40, res.type="df",sep="")
-head(zebler)
+zebler <- hybridize(salers,zebu, n=40)
 
-## now let's merge all this in one data frame
+## now let's merge all data into a single genind
+##newDat <- repool(list(microbov,zebler))
+## FIX ME
+
 newDat <- rbind.data.frame(genind2df(microbov), zebler)
 pop <- microbov$pop
 levels(pop) <- microbov$pop.names
