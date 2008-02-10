@@ -29,12 +29,14 @@
 * genepop2genind: bug when both newlines and commas are used
 to separate loci in the header of the file -- fixed (TJ)
 * package conversion to S4 -- done (TJ)
+* !!! new("genind")$pop gives a really nasty thing - maybe a bug in methods 
 *
 
 # DOCUMENTATION ISSUES:
 =======================
 * document df2genind -- done (TJ)
 * split documentation of read.[...] functions -- done (TJ)
+* document repool function
 *
 
 # NEW IMPLEMENTATIONS:
@@ -54,6 +56,8 @@ to separate loci in the header of the file -- fixed (TJ)
    seppop)
 * implement na.replace methods for genind and genpop objects (call it
    in df2genind)
+* repool function
+*
 
 # TESTING:
 ==========

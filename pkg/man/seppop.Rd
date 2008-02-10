@@ -33,6 +33,7 @@
   (default) or a matrix of data corresponding to the 'tab' slots.
 }
 \author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
+\seealso{\code{\link{seploc}}, \code{\link{repool}}}
 \examples{
 data(microbov)
 
