@@ -12,13 +12,15 @@
   outputs (see 'res.type' argument).
 }
 \usage{
-hybridize(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NULL,
+hybridize(x1, x2, n, pop=NULL, res.type=c("genind","df","STRUCTURE"), file=NULL,
   quiet=FALSE, sep="/", hyb.label="h")
 }
 \arguments{
   \item{x1}{a \linkS4class{genind} object}
   \item{x2}{a \linkS4class{genind} object}
   \item{n}{an integer giving the number of hybrids requested}
+  \item{pop}{a character string giving naming the population of the
+  created hybrids. If NULL, will have the form "x1-x2"}
   \item{res.type}{a character giving the type of output requested. Must
   be "genind" (default), "df" (i.e. data.frame like in
   \code{\link{genind2df}}), or "STRUCTURE" to generate a .str file
@@ -53,33 +55,32 @@ hybridize(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NULL,
 }
 \author{ Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
 \examples{
-## let's make a zebu-taurin hybrid
-## P15 is Salers
-## P02 is Zebu Peul
+## Let's make some cattle hybrids
+##
 data(microbov)
-microbov$pop.names
 
-salers <- microbov[microbov$pop=="P15",]
-zebu <- microbov[microbov$pop=="P02",]
+## first, isolate each breed
+temp <- seppop(microbov)
+names(temp)
+
+salers <- temp$Salers
+zebu <- temp$Zebu
+borgou <- temp$Borgou
+somba <- temp$Somba
 
 ## let's make some... Zeblers
-zebler <- hybridize(salers,zebu, n=40)
+zebler <- hybridize(salers, zebu, n=40)
+
+## and some Somgou
+somgou <- hybridize(somba, borgou, n=40)
 
 ## now let's merge all data into a single genind
-##newDat <- repool(list(microbov,zebler))
-## FIX ME
+newDat <- repool(microbov, zebler, somgou)
 
-newDat <- rbind.data.frame(genind2df(microbov), zebler)
-pop <- microbov$pop
-levels(pop) <- microbov$pop.names
-pop <- factor(c(as.character(pop),rep("zebler",40)))
-
-## make this dataset a genind to analyse it
-obj <- df2genind(newDat, pop=pop)
-
-## correspondance analysis
+## make a correspondance analysis
+## and see where hybrids are placed
 if(require(ade4)){
-X <- genind2genpop(obj,missing="chi2",quiet=TRUE)
+X <- genind2genpop(newDat,missing="chi2",quiet=TRUE)
 coa1 <- dudi.coa(as.data.frame(X$tab),scannf=FALSE,nf=3)
 s.label(coa1$li,label=X$pop.names)
 add.scatter.eig(coa1$eig,2,1,2)
