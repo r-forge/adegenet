@@ -4,7 +4,7 @@
 ## in both objects.
 ##
 
-hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NULL, quiet=FALSE, sep="/", hyb.label="h"){
+hybridize <- function(x1, x2, n, pop=NULL, res.type=c("genind","df","STRUCTURE"), file=NULL, quiet=FALSE, sep="/", hyb.label="h"){
     ## checks
     if(!is.genind(x1)) stop("x1 is not a valid genind object")
     if(!is.genind(x2)) stop("x2 is not a valid genind object")
@@ -103,7 +103,12 @@ hybridize <- function(x1, x2, n, res.type=c("genind","df","STRUCTURE"), file=NUL
         res <- as.data.frame(matrix(res,ncol=k), stringsAsFactors=FALSE)
         names(res) <- x1@loc.names
         row.names(res) <- .genlab(hyb.label,n)
-        res <- df2genind(res)
+        if(is.null(pop)){ # if pop is not provided, merge the two parent populations
+            pop <- paste(deparse(substitute(x1)) , deparse(substitute(x2)), sep="-") 
+        }
+        pop <- factor(rep(pop,n))
+        
+        res <- df2genind(res, pop=pop)
         res@call <- match.call()
         
         return(res)

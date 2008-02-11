@@ -368,44 +368,45 @@ setMethod("na.replace", signature(x="genpop"), function(x,method, quiet=FALSE){
 ##################
 # Function repool
 ##################
-repool <- function(x){
+repool <- function(...){
 
-  ## preliminary stuff
-  if(!inherits(x,"list")) stop("x must be a list")
-  if(!all(sapply(x,is.genind))) stop("x is does not contain only valid genind objects")
-  temp <- sapply(x,function(e) e$loc.names)
-  if(!all(table(temp)==length(x))) stop("markers are not the same for all objects")
-
-
-  ## extract info
-  listTab <- lapply(x,genind2df)
-  getPop <- function(obj){
-      if(is.null(obj$pop)) return(rep("?",nrow(obj$tab)))
+    ## preliminary stuff
+    x <- list(...)
+    if(is.list(x[[1]])) x <- x[[1]] ## if ... is a list, keep this list for x
+    if(!inherits(x,"list")) stop("x must be a list")
+    if(!all(sapply(x,is.genind))) stop("x is does not contain only valid genind objects")
+    temp <- sapply(x,function(e) e$loc.names)
+    if(!all(table(temp)==length(x))) stop("markers are not the same for all objects")
+    
+    
+    ## extract info
+    listTab <- lapply(x,genind2df)
+    getPop <- function(obj){
+        if(is.null(obj$pop)) return(factor(rep(NA,nrow(obj$tab))))
       pop <- obj$pop
-      levels(pop) <- obj$pop.names
-      return(pop)
-  }
-
-  ## handle pop
-  listPop <- lapply(x, getPop)
-  pop <- unlist(listPop, use.name=FALSE)
-  pop <- factor(pop, levels=unique(pop))
-  
+        levels(pop) <- obj$pop.names
+        return(pop)
+    }
+    
+    ## handle pop
+    listPop <- lapply(x, getPop)
+    pop <- unlist(listPop, use.name=FALSE)
+    pop <- factor(pop)
+    
   ## handle genotypes
-  markNames <- colnames(listTab[[1]])
-  listTab <- lapply(listTab, function(tab) tab[,markNames]) # resorting of the tabs
-
-  ## bind all tabs by rows
-  tab <- listTab[[1]] 
-  for(i in 2:length(x)){
-      tab <- rbind(tab,listTab[[i]])
-  }
-
-  res <- df2genind(tab,pop=pop)
-  res$call <- match.call()
-  
-  return(res)
+    markNames <- colnames(listTab[[1]])
+    listTab <- lapply(listTab, function(tab) tab[,markNames]) # resorting of the tabs
+    
+    ## bind all tabs by rows
+    tab <- listTab[[1]] 
+    for(i in 2:length(x)){
+        tab <- rbind(tab,listTab[[i]])
+    }
+    
+    res <- df2genind(tab,pop=pop)
+    res$call <- match.call()
+    
+    return(res)
 } # end repool
 
 
- 
