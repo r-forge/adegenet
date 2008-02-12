@@ -141,29 +141,31 @@ setClass("indInfo", representation(ind.names = "character",
 # Class genind
 ###############
 .genind.valid <- function(object){
-  if(length(object@ind.names) != nrow(object@tab)) {
-    cat("\ninvalid length in ind.names\n")
-    return(FALSE)
-  }
-  
-  if(!is.null(object@pop)){
-
-    if(length(object@pop) != nrow(object@tab)) {
-      cat("\npop is given but has invalid length\n")
-      return(FALSE)
+    if(!.gen.valid(object)) return(FALSE)
+    
+    if(length(object@ind.names) != nrow(object@tab)) {
+        cat("\ninvalid length in ind.names\n")
+        return(FALSE)
     }
     
-    if(is.null(object@pop.names)) {
-      cat("\npop is provided without pop.names")
-    }  
+    if(!is.null(object@pop)){ # check pop
+        
+        if(length(object@pop) != nrow(object@tab)) {
+            cat("\npop is given but has invalid length\n")
+            return(FALSE)
+        }
+        
+        if(is.null(object@pop.names)) {
+            cat("\npop is provided without pop.names")
+        }  
+        
+        if(length(object@pop.names) != length(levels(object@pop))) {
+            cat("\npop.names has invalid length\n")
+            return(FALSE)
+        }
+    } # end check pop
     
-    if(length(object@pop.names) != length(levels(object@pop))) {
-      cat("\npop.names has invalid length\n")
-      return(FALSE)
-    }
-  }
-  
-  return(TRUE)
+    return(TRUE)
 } #end .genind.valid
 
 setClass("genind", contains=c("gen", "indInfo"))
@@ -183,12 +185,13 @@ setClass("popInfo", representation(pop.names = "character", other = "listOrNULL"
 # Class genpop
 ###############
 .genpop.valid <- function(object){
- if(length(object@pop.names) != nrow(object@tab)) {
-    cat("\ninvalid length in pop.names\n")
-    return(FALSE)
-  }
-  
-   return(TRUE)
+    if(!.gen.valid(object)) return(FALSE)
+    if(length(object@pop.names) != nrow(object@tab)) {
+        cat("\ninvalid length in pop.names\n")
+        return(FALSE)
+    }
+    
+    return(TRUE)
 } #end .genpop.valid
 
 setClass("genpop", contains=c("gen", "popInfo"))
@@ -402,7 +405,7 @@ as.genpop <- genpop
 
 
 ##########################
-# Method print for genind
+# Method show for genind
 ##########################
 setMethod ("show", "genind", function(object){
   x <- object
@@ -447,7 +450,7 @@ setMethod ("show", "genind", function(object){
 
 
 ##########################
-# Method print for genpop
+# Method show for genpop
 ##########################
 setMethod ("show", "genpop", function(object){
   x <- object
