@@ -152,8 +152,8 @@ setMethod("seploc", signature(x="genpop"), function(x,truenames=TRUE,res.type=c(
 # Function adegenetWeb
 #######################
 adegenetWeb <- function(){
-  cat("Opening url \"http://pbil.univ-lyon1.fr/software/adegenet/\" ...\n")
-  browseURL("http://pbil.univ-lyon1.fr/software/adegenet/")
+  cat("Opening url \"http://adegenet.r-forge.r-project.org/\" ...\n")
+  browseURL("http://adegenet.r-forge.r-project.org/")
 }
 
 

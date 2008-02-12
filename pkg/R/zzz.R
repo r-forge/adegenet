@@ -6,6 +6,6 @@
   cat("   ### adegenet is loaded ### \n")
   cat("   ##########################\n\n")
   
-  cat(" - to start, type ?adegenet\n")
-  cat(" - to browse adegenet website, type adegenetWeb()\n\n")
+  cat(" - to start, type '?adegenet'\n")
+  cat(" - to browse adegenet website, type 'adegenetWeb()'\n\n")
 }
