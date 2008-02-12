@@ -63,6 +63,8 @@
    indexed by 'i' and the alleles indexed by 'j'.\cr
    - \code{\link{makefreq}}: returns a table of allelic frequencies from
    a \linkS4class{genpop} object.\cr
+   - \code{link{repool}} merges genoptypes from different
+   genetic pools into one single \linkS4class{genind} object.\cr
 
    
    === ANALYZING DATA ===\cr
