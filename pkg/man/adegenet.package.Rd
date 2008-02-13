@@ -32,7 +32,7 @@
   function \code{\link{import2genind}}.\cr
   It is also possible to read genotypes coded by character strings from
   a data.frame in which genotypes are in rows, markers in columns. For
-  this, use \code{\link{df2genind}}.
+  this, use \code{\link{df2genind}}.\cr
 
   
    === EXPORTING DATA ===\cr
@@ -49,7 +49,7 @@
    
    === MANIPULATING DATA ===\cr
    Several functions allow one to manipulate \linkS4class{genind} or
-   \linkS4class{genpop} objects
+   \linkS4class{genpop} objects\cr
    - \code{\link{genind2genpop}}: convert a \linkS4class{genind} object
    to a  \linkS4class{genpop} \cr
    - \code{\link{seploc}}: creates one object per marker \cr
@@ -63,12 +63,12 @@
    indexed by 'i' and the alleles indexed by 'j'.\cr
    - \code{\link{makefreq}}: returns a table of allelic frequencies from
    a \linkS4class{genpop} object.\cr
-   - \code{link{repool}} merges genoptypes from different
+   - \code{\link{repool}} merges genoptypes from different
    genetic pools into one single \linkS4class{genind} object.\cr
 
    
    === ANALYZING DATA ===\cr
-   Several functions allow to use usual, and less usual analyses:
+   Several functions allow to use usual, and less usual analyses:\cr
    - \code{\link{HWE.test.genind}}: performs HWE test for all
    populations and loci combinations \cr
    - \code{\link{gstat.randtest}}: performs a Monte Carlo test of Goudet's G statistic, measuring
@@ -99,8 +99,8 @@
     Package: \tab adegenet\cr
     Type: \tab Package\cr
     Version: \tab 1.1-0\cr
-    Date: \tab 2008-01-27\cr
-    License: \tab GPL version 2 or newer
+    Date: \tab 2008-02-12\cr
+    License: \tab GPL (>=2)
   }  
 }
 \author{Thibaut Jombart <jombart@biomserv.univ-lyon1.fr>}
