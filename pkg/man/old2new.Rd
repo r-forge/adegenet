@@ -12,8 +12,12 @@
   so that old adegenet objects can be retrieved and used in recent versions.
 }
 \usage{
-\S4method{old2new}{genind}()
-\S4method{old2new}{genpop}()
+\S4method{old2new}{genind}(object)
+\S4method{old2new}{genpop}(object)
+}
+\arguments{
+  \item{object}{a genind or genpop object in S3 version, i.e. prior
+    adegenet\_1.1-0}
 }
 \details{
   Optional content but \code{$pop} and \code{$pop.names} will not be

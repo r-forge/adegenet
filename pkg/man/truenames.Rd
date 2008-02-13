@@ -13,11 +13,11 @@
   (as opposed to generic labels) for individuals, markers, alleles, and population.\cr
 }
 \usage{
-\S4method{truenames}{genind}()
-\S4method{truenames}{genpop}()
+\S4method{truenames}{genind}(x)
+\S4method{truenames}{genpop}(x)
 }
 \arguments{
-  No additional arguments.
+  \item{x}{a \linkS4class{genind} or a \linkS4class{genpop} object}
 }
 \value{
   If x\$pop is empty (NULL), a matrix similar to the x\$tab slot but

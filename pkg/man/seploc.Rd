@@ -13,10 +13,11 @@
   each correspond to a marker.\cr
 }
 \usage{
-\S4method{seploc}{genind}(truenames=FALSE,res.type=c("genind","matrix"))
-\S4method{seploc}{genpop}(truenames=FALSE,res.type=c("genpop","matrix"))
+\S4method{seploc}{genind}(x,truenames=TRUE,res.type=c("genind","matrix"))
+\S4method{seploc}{genpop}(x,truenames=TRUE,res.type=c("genpop","matrix"))
 }
 \arguments{
+    \item{x}{a \linkS4class{genind} or a \linkS4class{genpop} object.}
     \item{truenames}{a logical indicating whether true names should be
       used (TRUE, default) instead of generic labels (FALSE).}
     \item{res.type}{a character indicating the type of returned results,
