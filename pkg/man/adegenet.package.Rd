@@ -105,7 +105,7 @@
 }
 \author{Thibaut Jombart <jombart@biomserv.univ-lyon1.fr>}
 \references{
-  See adegenet website: \url{http://pbil.univ-lyon1.fr/software/adegenet/}
+  See adegenet website: \url{http://adegenet.r-forge.r-project.org/}
 }
 \keyword{manip}
 \keyword{multivariate}
