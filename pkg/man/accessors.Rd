@@ -1,10 +1,10 @@
 \encoding{UTF-8}
 \docType{methods}
 \name{Accessors}
-\alias{$,pdata-method}
-\alias{$,phylo4-method}
-\alias{$<-,pdata-method}
-\alias{$<-,phylo4-method}
+\alias{$,genind-method}
+\alias{$,genpop-method}
+\alias{$<-,genind-method}
+\alias{$<-,genpop-method}
 \alias{[,genind-method}
 \alias{[,genpop-method}
 \title{ Accessors for adegenet objects}
