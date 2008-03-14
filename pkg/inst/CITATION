@@ -6,5 +6,6 @@ title = "The adegenet package for R: classes and methods for the multivariate an
 year = "2008",
 author = "T. Jombart",
 school = "University Lyon 1, Biometry and Evolutive Biology Laboratory, UMR-CNRS 5558",
-textVersion = "Jombart, T. (2008) The adegenet package for R: classes and methods for the multivariate analysis of genetic markers."
+textVersion = "Jombart, T. (2008) The adegenet package for R: classes and methods for the multivariate analysis of genetic markers.
+url: http://adegenet.r-forge.r-project.org/"
 )
