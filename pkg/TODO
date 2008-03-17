@@ -26,7 +26,7 @@
 
 # CODE ISSUES:
 ==============
-* 
+* df2genind fails when entirely non-type individuals exist -- done (TJ)
 
 # DOCUMENTATION ISSUES:
 =======================
@@ -35,6 +35,7 @@
 # NEW IMPLEMENTATIONS:
 =====================
 * Implement "sep" argument in df2genind
+* Implement a method to merge different markers for the same individuals
 *
 
 # TESTING:
