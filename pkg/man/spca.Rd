@@ -39,8 +39,8 @@ plot.nb=TRUE, edit.nb=FALSE ,truenames=TRUE, d1=NULL, d2=NULL, k=NULL)
 }
 \arguments{
   \item{obj}{a \code{genind} or \code{genpop} object.}
-  \item{xy}{an matrix or data.frame with two columns for x and y
-    coordinates. Can be NULL if cn is provided.}
+  \item{xy}{a matrix or data.frame with two columns for x and y
+    coordinates. Seeked from obj\$other\$xy if it exists. Can be NULL if \code{cn} is provided.}
   \item{cn}{a connection network of the class 'nb' (package spdep). Can
     be NULL if xy is provided. Can be easily obtained using the function
     chooseCN.}
