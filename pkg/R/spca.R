@@ -21,7 +21,8 @@ spca <- function(obj, xy=NULL, cn=NULL, scale=FALSE, scannf=TRUE, nfposi=1, nfne
   
   if(!inherits(obj,c("genind","genpop"))) stop("obj must be a genind or genpop object.")
   invisible(validObject(obj))
-  
+
+  if(is.null(xy) & !is.null(obj$other$xy)) xy <- obj$other$xy
   if(is.data.frame(xy)) xy <- as.matrix(xy)
   if(ncol(xy) != 2) stop("xy does not have two columns.")
   if(nrow(xy) != nrow(obj@tab)) stop("obj@tab and xy must have the same row numbers.")
