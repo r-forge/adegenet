@@ -36,7 +36,7 @@
 =====================
 * Implement "sep" argument in df2genind
 * Implement a method to merge different markers for the same individuals
-*
+* Implement spatial weights derived from inverse spatial distances in chooseCN -- done (TJ)
 
 # TESTING:
 ==========
