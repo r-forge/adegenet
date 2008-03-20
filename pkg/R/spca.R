@@ -294,7 +294,7 @@ plot.spca <- function (x, axis = 1, ...){
     nfnega <- x$nfnega
     ## handle neig parameter - hide cn if nore than 100 links
     nLinks <- sum(card(x$lw$neighbours))
-    if(nLinks < 100) {
+    if(nLinks < 500) {
         neig <- nb2neig(x$lw$neighbours)
     } else {
         neig <- NULL
@@ -305,7 +305,7 @@ plot.spca <- function (x, axis = 1, ...){
       
     # 1
     if(n<30) clab <- 1 else clab <- 0
-    s.label(xy, cpoi=0, clab=clab, include.ori=FALSE, addaxes=FALSE, neig=neig,
+    s.label(xy, clab=clab, include.ori=FALSE, addaxes=FALSE, neig=neig,
             cneig=1, sub="Connection network", csub=2)    
     
     # 2
