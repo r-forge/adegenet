@@ -131,6 +131,7 @@ chooseCN <- function(xy,ask=TRUE, type=NULL, result.type="nb", d1=NULL, d2=NULL,
             cat("\n Enter the minimum distance \n(range = 0 -", max(cn),"): ")
             dmin <- as.numeric(readLines(n = 1))
         }
+        if(a<1) { a <- 1 }
         thres <- mean(cn)/1e8
         if(dmin > thres) dmin <- thres
         cn[cn < dmin] <- dmin
