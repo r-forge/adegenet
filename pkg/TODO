@@ -38,7 +38,7 @@
 * Implement a method to merge different markers for the same individuals
 * Implement spatial weights derived from inverse spatial distances in chooseCN -- done (TJ)
 * Build accessors for marker names, indiv names, pop names, spatial coords, ...
-* Implement a Fst wrapper for genind objects
+* Implement a Fst wrapper for genind objects -- done (TJ)
 * 
 
 # TESTING:
