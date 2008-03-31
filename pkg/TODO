@@ -39,7 +39,8 @@
 * Implement spatial weights derived from inverse spatial distances in chooseCN -- done (TJ)
 * Build accessors for marker names, indiv names, pop names, spatial coords, ...
 * Implement a Fst wrapper for genind objects -- done (TJ)
-* 
+* Proceed wisely the elements of @other when subsetting objects using the "[" operator. --done (TJ)
+*
 
 # TESTING:
 ==========
