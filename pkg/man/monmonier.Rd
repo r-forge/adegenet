@@ -119,8 +119,7 @@ Manni, F., Guerard, E. and Heyer, E. (2004) Geographic patterns of (genetic, mor
 \seealso{\code{\link{spca}},\code{\link[pkg:spdep]{nb}}}
 
 \examples{
-require(spdep)
-require(ade4)
+if(require(spdep) & require(ade4)){
 
 ### non-interactive example
 
@@ -191,6 +190,7 @@ mon2 <- optimize.monmonier(xy,dist(x2),cn2,ntry=6)
 
 # graphics
 plot(mon2,x2,method="greylevel",add.arr=FALSE,bwd=6,col="red",csize=.5)
+}
 }
 }
 \keyword{multivariate}
