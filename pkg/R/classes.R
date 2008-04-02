@@ -297,17 +297,19 @@ genind <- function(tab,pop=NULL,prevcall=NULL){
   # beware, keep levels of pop sorted in
   # there order of appearance
   if(!is.null(pop)) {
-    pop.lab <- .genlab("P",length(levels(pop)) )
-    # put pop levels in appearance order
-    pop <- as.character(pop)
-    pop <- factor(pop, levels=unique(pop))
-    temp <- pop
-    # now levels are correctly ordered
-    levels(pop) <- pop.lab
-    res@pop <- pop
-    pop.names <- as.character(levels(temp))
-    names(pop.names) <- as.character(levels(res@pop))
-    res@pop.names <- pop.names
+      # convert pop to a factor if it is not
+      if(!is.factor(pop)) {pop <- factor(pop)}
+      pop.lab <- .genlab("P",length(levels(pop)) )
+      # put pop levels in appearance order
+      pop <- as.character(pop)
+      pop <- factor(pop, levels=unique(pop))
+      temp <- pop
+      # now levels are correctly ordered
+      levels(pop) <- pop.lab
+      res@pop <- pop
+      pop.names <- as.character(levels(temp))
+      names(pop.names) <- as.character(levels(res@pop))
+      res@pop.names <- pop.names
   }
 
   if(is.null(prevcall)) {prevcall <- match.call()}
