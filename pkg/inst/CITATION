@@ -1,11 +1,10 @@
 citHeader("To cite the adegenet package:")
 
 citEntry(
-entry="misc",
-title = "The adegenet package for R: classes and methods for the multivariate analysis of genetic markers.",
-year = "2008",
+entry="Article",
+title = "adegenet: a R package for the multivariate analysis of genetic markers",
+journal= "Bioinformatics",
+year = "in press",
 author = "T. Jombart",
-school = "University Lyon 1, Biometry and Evolutive Biology Laboratory, UMR-CNRS 5558",
-textVersion = "Jombart, T. (2008) The adegenet package for R: classes and methods for the multivariate analysis of genetic markers.
-url: http://adegenet.r-forge.r-project.org/"
+textVersion = "Jombart, T. (in press) adegenet: a R package for the multivariate analysis of genetic markers. Bioinformatics"
 )
