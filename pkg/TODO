@@ -64,7 +64,7 @@
 * import from geneticsBase -- for now their basic class is not even documented!
 * export to geneticsBase -- same thing
 * see where code needs tuning, and use C/C++
-* implement globa.rtest and local.rtest for genind/genpop objects
+* implement global.rtest and local.rtest for genind/genpop objects
 * Implement method "scale" for genind / genpop objects
 * Implement dudi wrappers for genind / genpop objects
 *
