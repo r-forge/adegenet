@@ -16,16 +16,16 @@
   point, the algorithm seeks the highest distance between immediate
   neighbours, and so on until a threshold value is attained. It is
   recommended to choose this threshold from the barplot of sorted local
-  differences: a boundary will likely be indicated by an abrupt decrease
-  of these values.
+  distances: a boundary will likely result in an abrupt decrease
+  of these values.\cr
  
   When several paths are looked for, the previous paths are taken into
   account, and cannot be either crossed or redrawn. Monmonier's
   algorithm can be used to assess the boundaries between patches of
-  homogeneous observations.
+  homogeneous observations.\cr
     
   Although Monmonier algorithm was initially designed for Voronoi
-  tesselation, this function generalizes this algorithm to different
+  tesselation, this implementation generalizes this algorithm to different
   connection networks. The \code{optimize.monmonier} function produces a
   \code{monmonier} object by trying several starting points, and
   returning the best boundary (largest sum of local differences). This
@@ -34,11 +34,11 @@
 }
 
 \usage{
-monmonier(xy, dist, cn, threshold=NULL, nrun=1,
-skip.local.diff=rep(0,nrun),scanthres=is.null(threshold))
+monmonier(xy, dist, cn, threshold=NULL, bd.length=NULL, nrun=1,
+skip.local.diff=rep(0,nrun),scanthres=is.null(threshold), allowLoop=TRUE)
 
-optimize.monmonier(xy, dist, cn, ntry=10, return.best=TRUE,
-display.graph=TRUE, threshold=NULL, scanthres=is.null(threshold))
+optimize.monmonier(xy, dist, cn, ntry=10, bd.length=NULL, return.best=TRUE,
+display.graph=TRUE, threshold=NULL, scanthres=is.null(threshold), allowLoop=TRUE)
 
 \method{plot}{monmonier}(x, variable=NULL,
 displayed.runs=1:x$nrun, add.arrows=TRUE,
@@ -54,10 +54,14 @@ cneig=1, pixmap=NULL, contour=NULL, area=NULL, add.plot=FALSE, \dots)
   \item{cn}{a connection network of class \code{nb} (package \code{spdep})}
   \item{threshold}{a number giving the minimal distance between two
     neighbours crossed by the path; by default, this is the third quartile of all the distances between neighbours}
+  \item{bd.length}{an optional integer giving the requested length of
+    the boundaries (in number of local differences)}
   \item{nrun}{is a integer giving the number of runs of the algorithm, that is, the number of paths to search, being one by default}
   \item{skip.local.diff}{is a vector of integers, whose length is the number of paths (\code{nrun}); each integer gives the number of starting point to skip, to avoid being stuck in a local difference between two neighbours into an homogeneous patch; none are skipped by default}
   \item{scanthres}{a logical stating whether the threshold sould be
     chosen from the barplot of sorted distances between neighbours}
+  \item{allowLoop}{a logical specifying whether the boundary can loop
+    (TRUE, default) or not (FALSE)}
   \item{ntry}{an integer giving the number of different starting points
     tried.}
   \item{return.best}{a logical stating whether the best monmonier object
@@ -142,8 +146,7 @@ data(sim2pop)
 
 if(require(hierfstat)){
 ## try and find the Fst
-temp <- genind2hierfstat(sim2pop)
-varcomp.glob(temp[,1],temp[,-1])
+fstat(sim2pop,fst=TRUE)
 # Fst = 0.038
 }
 
