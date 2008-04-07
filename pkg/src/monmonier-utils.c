@@ -42,7 +42,7 @@ typedef	enum { FALSE, TRUE } bool;
 #define	DIM 2               /* Dimension of points */
 
 typedef	double tPointd[DIM];   /* Type double point */
-const double NEARZERO=10e-15; /* Seuil de tolérance du zero. */
+const double NEARZERO=10e-15; /* THRESHOLD for zero. */
 /*---------------------------------------------------------------------
 Function prototypes.
 ---------------------------------------------------------------------*/
@@ -72,13 +72,13 @@ double **mat;
 tPointd c,d,crois;
 
 
-/* Allocation memoire pour les variables C locales */
+/* Memory allocation for local C variables */
 n = *nrow;
 p = *ncol;
 
- taballoc(&mat, n, p); /* fonction C ade4 */
+ taballoc(&mat, n, p); /* function from ade4 */
 
-/* On reconstruit la matrice des segments en C (mat) */
+/* Reconstruction of the matrix of segments */
 k = 0;
 for (j=1; j<=p; j++) {
   for (i=1; i<=n; i++) {
@@ -87,8 +87,8 @@ for (j=1; j<=p; j++) {
   }
 }
 
-/* On effectue les comparaisons d'un segment ab avec tous les autres (cd) 
-On s'arrete des qu'on a croise un segment */
+/* The segment of interest (ab) is checked for crossing against all other segments (cd)
+We stop as soon as one segment is crossed */
  temp = 0;
  i = 1;
  while(temp!=1 && i<=n){
@@ -101,7 +101,7 @@ On s'arrete des qu'on a croise un segment */
    }
  *answer = temp;
 
- /* Liberation memoire */
+ /* Free allocated memory */
  freetab(mat);
 }
 
@@ -123,7 +123,7 @@ int	SegSeg( tPointd a, tPointd b, tPointd c, tPointd d)
    double num, denom;  /* Numerator and denoninator of equations. */
    int code = 10; /* returned value, default 10 is a failure */
 
-   /* Initialisation (utile?) du point d'intersection p */
+   /* Initialisation of the interesection point 'p' */
    tPointd p;
 
    p[X] = -1;
