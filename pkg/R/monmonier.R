@@ -30,7 +30,6 @@ M <- neig2mat(cn)
 D <- as.matrix(dist)
 ## matrix of distances among neighbours
 D <- M*D
-maxS <- sum(D>0)/2 # maxS: maximum increment of s1 and s2 in main function (= number of local distances)
 
 ## set/check the threshold value of the distances among neighbours
 ## default: the median of all distances among neighbours
@@ -253,8 +252,8 @@ for(run in 1:nrun){
     ## logical handling the exansion of a boundary
     keepExpanding <- ((current.bd.length < bd.length)
                       && ((currentDir1$val>Dlim)|(currentDir2$val>Dlim))
-                      && s1 < maxS
-                      && s2 < maxS )
+                      && s1 < nrow(matSegVal)
+                      && s2 < nrow(matSegVal) )
 
     #### This while loop has the following behavior:
     ## as long as the keepExpanding is true, we try to expand the boundary by 
@@ -319,8 +318,8 @@ for(run in 1:nrun){
         ## update the logical for the while loop
         keepExpanding <- ((current.bd.length < bd.length)
                           && ((currentDir1$val>Dlim)|(currentDir2$val>Dlim))
-                          && s1 < maxS-1
-                          && s2 < maxS-1 )
+                          && s1 <= nrow(matSegVal)
+                          && s2 <= nrow(matSegVal) )
         
         ## handle the looping of a boundary
         if(hasExpanded && (current.bd.length>3) && allowLoop){
@@ -348,7 +347,7 @@ for(run in 1:nrun){
         ## output for debugging
          cat("\n","s1:",s1,"s2:",s2,"i1:",i1,"i2:",i2,"D1:",
             currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
-            "maxS",maxS,"\n")
+            "nrow(matSegVal)",nrow(matSegVal),"\n")
 
     } # end of one given run
 
