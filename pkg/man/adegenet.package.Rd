@@ -92,7 +92,7 @@
    For more information, visit the adegenet website by typing
    \code{adegenetWeb()}.\cr
 
-   To cite adegenet, please use \code{citation("adegenet")}.
+   To cite adegenet, please use the reference given by \code{citation("adegenet")}.
  }
 \details{
   \tabular{ll}{
@@ -105,6 +105,9 @@
 }
 \author{Thibaut Jombart <jombart@biomserv.univ-lyon1.fr>}
 \references{
+Jombart T. (2008) adegenet: a R package for the multivariate analysis of genetic markers
+\emph{Bioinformatics}. doi: 10.1093/bioinformatics/btn129\cr
+  
   See adegenet website: \url{http://adegenet.r-forge.r-project.org/}
 }
 \keyword{manip}
