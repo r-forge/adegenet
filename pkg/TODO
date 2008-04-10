@@ -29,7 +29,7 @@
 * df2genind fails when entirely non-type individuals exist -- done (TJ)
 * optimize.monmonier: check the way final object is constructed: can fail when the function is called inside another function
 * monmonier: fails on a regular grid; must be a problem in the C code detecting colinearity between two segments
-* monmonier: bug when bd.length is abnormally high. 
+* monmonier: bug when bd.length is abnormally high -- mainly fixed, but sometimes stops to early (TJ) 
 *
 
 # DOCUMENTATION ISSUES:
