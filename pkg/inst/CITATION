@@ -4,7 +4,7 @@ citEntry(
 entry="Article",
 title = "adegenet: a R package for the multivariate analysis of genetic markers",
 journal= "Bioinformatics",
-year = "in press",
+year = "2008",
 author = "T. Jombart",
-textVersion = "Jombart, T. (in press) adegenet: a R package for the multivariate analysis of genetic markers. Bioinformatics"
+textVersion = "Jombart, T. (2008) adegenet: a R package for the multivariate analysis of genetic markers. Bioinformatics. doi: 10.1093/bioinformatics/btn129"
 )
