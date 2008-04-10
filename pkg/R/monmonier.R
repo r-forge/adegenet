@@ -30,6 +30,7 @@ M <- neig2mat(cn)
 D <- as.matrix(dist)
 ## matrix of distances among neighbours
 D <- M*D
+maxS <- sum(D>0)/2 # maxS: maximum increment of s1 and s2 in main function (= number of local distances)
 
 ## set/check the threshold value of the distances among neighbours
 ## default: the median of all distances among neighbours
@@ -59,20 +60,58 @@ listCpl <- neig.util.GtoL(neig2mat(cn))
 allSeg <- cbind(xy[,1][listCpl[,1]] , xy[,2][listCpl[,1]] , xy[,1][listCpl[,2]] , xy[,2][listCpl[,2]])
 colnames(allSeg) <- c('xP','yP','xQ','yQ')
 
-## consider the distances among neighbours sorted in decreasing order
-## consider a rank 'rang' in this vector of values
-## Given 'rang' getNext retrieves the two corresponding neighbours (A and B), the absolute value of their distance (val) and the middle of segment AB (M).
-getNext <- function(D,rang){
-	val <- unique(sort(D,decreasing=TRUE))[rang]
-	A <- which(round(D,10)==round(val,10),TRUE)[1,1] # beware: == used on doubles
-	B <- which(round(D,10)==round(val,10),TRUE)[1,2] # beware: == used on doubles
-	xA <- xy[A,1]
-	yA <- xy[A,2]
-	xB <- xy[B,1]
-	yB <- xy[B,2]
-	xM <- (xA + xB)/2
-	yM <- (yA + yB)/2
-	return( list(A=c(A,xA,yA), B=c(B,xB,yB), M=c(xM,yM), val=val) )
+## Compute once and for all a matrix matSegVal with columns A, B and val
+## A: index of one vertex
+## B: index if another vertex, connected (beighbour) to B
+## val: distance between A and B
+## This table is such that "val" is sorted in decreasing order.
+matSegVal <- which(D>0,arr.ind=TRUE)
+matSegVal.names <- apply(matSegVal,1,function(vec) paste(sort(vec),collapse="-"))
+rownames(matSegVal) <- matSegVal.names # used to get unique segments (cause D is symmetric)
+matSegVal <- matSegVal[unique(rownames(matSegVal)),]
+temp <- apply(matSegVal,1,function(vec) D[vec[1],vec[2]])
+matSegVal <- cbind(matSegVal,temp) # matSegVal has its 3 colums
+idx <- order(matSegVal[,3], decreasing=TRUE)
+matSegVal <- matSegVal[idx,]
+
+## auxiliary function used to remove a segment from matSegVal (A,B: indices of vertices of the removed edge)
+rmFromMatSegVal <- function(A,B){
+    AB.name <- paste(sort(c(A,B)), collapse="-")
+    toRemove <- match(AB.name, rownames(matSegVal))
+    matSegVal <<- matSegVal[-toRemove,]
+}
+
+## Given a rank 'rang', getNext retrieves the two corresponding neighbours (A and B),
+## their middle (M), and the corresponding value.
+## A is the index of the vertex, xA and yA are its coordinates
+getNext <- function(rang){
+    ## ## ## OLD VERSION ## ## ##
+    ## val <- unique(sort(D,decreasing=TRUE))[rang]
+    ##  A <- which(round(D,10)==round(val,10),TRUE)[1,1] # beware: == used on doubles
+    ##     B <- which(round(D,10)==round(val,10),TRUE)[1,2] # beware: == used on doubles
+    ##     xA <- xy[A,1]
+    ##     yA <- xy[A,2]
+    ##     xB <- xy[B,1]
+    ##     yB <- xy[B,2]
+    ## 	xM <- (xA + xB)/2
+    ##     yM <- (yA + yB)/2
+    ## ## ## END OLD VERSION ## ## ##
+    
+    #### Must take into account that the some local distances occur for different segments
+    #### Create a table with columns A, B and val
+
+    temp <- matSegVal[rang,]
+    A <- temp[1]
+    B <- temp[2]
+    val <- temp[3]
+    xA <- xy[A,1]
+    yA <- xy[A,2]
+    xB <- xy[B,1]
+    yB <- xy[B,2]
+    xM <- mean(c(xA,xB))
+    yM <- mean(c(yA,yB))
+    
+    return( list(A=c(A,xA,yA), B=c(B,xB,yB), M=c(xM,yM), val=val) )
 }
 
 ## checkNext returns TRUE if it is ok to draw the segment MN, i.e. if MN does not cross another edge,
@@ -185,21 +224,23 @@ for(run in 1:nrun){
     ## the corresponding values of distance are set definitely to -1
     if(skip.local.diff[run] >0)
         for(i in 1:skip.local.diff[run]){
-            temp <- getNext(D,1)
-            D[temp$A[1],temp$B[1] ] <- -1
-            D[temp$B[1],temp$A[1] ] <- -1
+            temp <- getNext(1)
+            ## D[temp$A[1],temp$B[1] ] <- -1
+            ## D[temp$B[1],temp$A[1] ] <- -1
+            rmFromMatSelVal(temp$A[1],temp$B[1])
         }
     
     ## starting point: find the highest distance among neighbours
     ## then expand
-    currentDir1 <- getNext(D,1)
+    currentDir1 <- getNext(1)
     currentDir2 <- currentDir1
     current.bd.length <- 1
     if(currentDir1$val<=Dlim) stop(paste('Algorithm reached the threshold value at the first step of run',run))
     result[[run]]$dir1[[1]] <- currentDir1 # first point dir1
     result[[run]]$dir2[[1]] <- currentDir2 # first point dir2 (same as dir1)
-    D[result[[run]]$dir1[[1]]$A[1],result[[run]]$dir1[[1]]$B[1]] <- -1 # update D matrix
-    D[result[[run]]$dir1[[1]]$B[1],result[[run]]$dir1[[1]]$A[1]] <- -1 # update D matrix
+    ## D[result[[run]]$dir1[[1]]$A[1],result[[run]]$dir1[[1]]$B[1]] <- -1 # update D matrix
+    ## D[result[[run]]$dir1[[1]]$B[1],result[[run]]$dir1[[1]]$A[1]] <- -1 # update D matrix
+    rmFromMatSegVal(result[[run]]$dir1[[1]]$A[1], result[[run]]$dir1[[1]]$B[1]) # update matSegVal
     
     ## dir1 => i1: result index; s1: index for the rank of the distance between neighbours (decreasing order)
     ## dir2 => i2: result index; s2: index for the rank of the distance between neighbours (decreasing order)
@@ -207,7 +248,7 @@ for(run in 1:nrun){
     s1 <- 1
     i2 <- 1
     s2 <- 2
-    maxS <- length(unique(sort(D)))
+    n <- nrow(D)
     
     ## logical handling the exansion of a boundary
     keepExpanding <- ((current.bd.length < bd.length)
@@ -219,13 +260,13 @@ for(run in 1:nrun){
     ## as long as the keepExpanding is true, we try to expand the boundary by 
     ## 1) finding the highest next distance among neighbours
     ## 2) test if we can draw the corresponding segment
-    ## 3) - if we can, store the result, increment i1 or i2, reset s1 and s2, erase the distance (set it to -1)
+    ## 3) - if we can, store the result, increment i1 or i2, reset s1 and s2, erase the edge
     ## 3) - if we can't, take the next distance among neighbours (incrementing s1 and s2)
     ## 4) get back to 1)
     while(keepExpanding){
         hasExpanded <- FALSE # used to test if it is relevant to check for looping
-        currentDir1 <- getNext(D,s1)
-        currentDir2 <- getNext(D,s2)
+        currentDir1 <- getNext(s1)
+        currentDir2 <- getNext(s2)
         ## first direction (dir1)
         if( currentDir1$val > Dlim ) {
             if(checkNext(result[[run]]$dir1[[length(result[[run]]$dir1)]]$M,
@@ -237,8 +278,10 @@ for(run in 1:nrun){
                 i1 <- i1+1
                 result[[run]]$dir1[[i1]] <- currentDir1
                 ## update the matrix of diff. between neighbours
-                D[result[[run]]$dir1[[i1]]$A[1],result[[run]]$dir1[[i1]]$B[1]] <- -1
-                D[result[[run]]$dir1[[i1]]$B[1],result[[run]]$dir1[[i1]]$A[1]] <- -1
+                ## D[result[[run]]$dir1[[i1]]$A[1],result[[run]]$dir1[[i1]]$B[1]] <- -1
+                ## D[result[[run]]$dir1[[i1]]$B[1],result[[run]]$dir1[[i1]]$A[1]] <- -1
+                rmFromMatSegVal(result[[run]]$dir1[[i1]]$A[1],result[[run]]$dir1[[i1]]$B[1] ) # update matSegVal
+
                 s1 <- 1
                 ## update existing segments
                 allSeg <- rbind(allSeg,c(result[[run]]$dir1[[i1-1]]$M,result[[run]]$dir1[[i1]]$M) )
@@ -260,8 +303,9 @@ for(run in 1:nrun){
                 i2 <- i2+1
                 result[[run]]$dir2[[i2]] <- currentDir2
                 ## update the matrix of diff. between neighbours
-                D[result[[run]]$dir2[[i2]]$A[1],result[[run]]$dir2[[i2]]$B[1]] <- -1
-                D[result[[run]]$dir2[[i2]]$B[1],result[[run]]$dir2[[i2]]$A[1]] <- -1
+                ## D[result[[run]]$dir2[[i2]]$A[1],result[[run]]$dir2[[i2]]$B[1]] <- -1
+                ## D[result[[run]]$dir2[[i2]]$B[1],result[[run]]$dir2[[i2]]$A[1]] <- -1
+                rmFromMatSegVal(result[[run]]$dir2[[i2]]$A[1],result[[run]]$dir2[[i2]]$B[1])
                 s2 <- 1
                 ## update existing segments
                 allSeg <- rbind(allSeg,c(result[[run]]$dir2[[i2-1]]$M,result[[run]]$dir2[[i2]]$M) )
@@ -302,9 +346,9 @@ for(run in 1:nrun){
         }
 
         ## output for debugging
-        ## cat("\n","s1:",s1,"s2:",s2,"i1:",i1,"i2:",i2,"D1:",
-        ##    currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
-        ##    "maxS",maxS,"\n")
+         cat("\n","s1:",s1,"s2:",s2,"i1:",i1,"i2:",i2,"D1:",
+            currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
+            "maxS",maxS,"\n")
 
     } # end of one given run
 
