@@ -16,6 +16,14 @@ if(!is.matrix(xy)) stop('xy must be a matrix')
 if(!inherits(dist,"dist")) stop('Argument \'dist\' must be a distance matrix of class dist')
 if(nrow(xy) != nrow(as.matrix(dist))) stop('Number of sites and number of observations differ')
 
+## set to TRUE to debug
+DEBUG <- FALSE
+
+if(DEBUG) {
+    plot.nb(cn, xy, col="grey", points=FALSE)
+    text(xy,lab=1:nrow(xy),font=2)
+}
+
 ## PRECISION of the xy coordinates (in digits)
 ## used to retrieve edges from their coordinates
 ## do not go over 10
@@ -109,7 +117,7 @@ getNext <- function(rang){
     yB <- xy[B,2]
     xM <- mean(c(xA,xB))
     yM <- mean(c(yA,yB))
-    
+ 
     return( list(A=c(A,xA,yA), B=c(B,xB,yB), M=c(xM,yM), val=val) )
 }
 
@@ -198,7 +206,10 @@ checkNext <- function(M,N,A,B,C,D,segMat=allSeg){
           as.double(as.matrix(subsetSeg)), as.double(M), as.double(N), temp,PACKAGE="adegenet")[[6]]
         } else {temp <- 0}
         
-
+        ## for debugging
+        if(DEBUG) {
+            if(temp==1)  cat("\n can't go there (code",temp,")") else cat("\n new segment ok (code",temp,")")
+        }
 	## if a code 1 is returned, CheckAllSeg returns FALSE
         ## else it returns TRUE
         ## additional control used (code 10, CheckAllSeg failed)
@@ -264,8 +275,18 @@ for(run in 1:nrun){
     ## 4) get back to 1)
     while(keepExpanding){
         hasExpanded <- FALSE # used to test if it is relevant to check for looping
+        if(DEBUG){
+            points(currentDir1$M[1],currentDir1$M[2],col="black",pch=20,cex=2)
+            points(currentDir2$M[1],currentDir2$M[2],col="black",pch=20,cex=2)
+        }
         currentDir1 <- getNext(s1)
         currentDir2 <- getNext(s2)
+        if(DEBUG){
+            cat("\n dir1: trying edge",currentDir1$A[1],"-",currentDir1$B[1])
+            points(currentDir1$M[1],currentDir1$M[2],col="blue",pch=20,cex=2)
+            readline("\npress enter")
+        }
+        
         ## first direction (dir1)
         if( currentDir1$val > Dlim ) {
             if(checkNext(result[[run]]$dir1[[length(result[[run]]$dir1)]]$M,
@@ -287,10 +308,20 @@ for(run in 1:nrun){
                 ## add 1 to the boundary length
                 current.bd.length <- current.bd.length + 1
                 hasExpanded <- TRUE
+                if(DEBUG){
+                    arrows(result[[run]]$dir1[[i1-1]]$M[1], result[[run]]$dir1[[i1-1]]$M[2],
+                           result[[run]]$dir1[[i1]]$M[1], result[[run]]$dir1[[i1]]$M[2],col="blue",cex=2)
+                }
                 
             } else{ s1 <- s1+1 }
         } # end "if( currentDir1$val>Dlim)"
-        
+
+        if(DEBUG){
+            cat("\n dir2: trying edge",currentDir2$A[1],"-",currentDir2$B[1])
+            points(currentDir2$M[1],currentDir2$M[2],col="red",pch=20,cex=2)
+            readline("\npress enter")
+        }
+       
         ## second direction (dir2)
         if( currentDir2$val > Dlim ) {
             if(checkNext(result[[run]]$dir2[[length(result[[run]]$dir2)]]$M,
@@ -311,7 +342,11 @@ for(run in 1:nrun){
                 ## add 1 to the boundary length
                 current.bd.length <- current.bd.length + 1
                 hasExpanded <- TRUE
-                
+                if(DEBUG){
+                    arrows(result[[run]]$dir2[[i2-1]]$M[1], result[[run]]$dir2[[i2-1]]$M[2],
+                           result[[run]]$dir2[[i2]]$M[1], result[[run]]$dir2[[i2]]$M[2],col="red",cex=2)
+                }
+               
             } else{ s2 <- s2+1 }
         } # end "if( currentDir2$val>Dlim)"
         
@@ -345,10 +380,14 @@ for(run in 1:nrun){
         }
 
         ## output for debugging
-         cat("\n","s1:",s1,"s2:",s2,"i1:",i1,"i2:",i2,"D1:",
-            currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
-            "nrow(matSegVal)",nrow(matSegVal),"\n")
-
+        if(DEBUG) {
+       ##     cat("\n","s1:",s1,"s2:",s2,"i1:",i1,"i2:",i2,"D1:",
+       ##     currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
+       ##     "nrow(matSegVal)",nrow(matSegVal),"\n")
+            cat("\n","D1:",currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
+                "cur.bd.le", current.bd.length,"max length", bd.length,"\n")
+        }
+        
     } # end of one given run
 
 } # end for all run
