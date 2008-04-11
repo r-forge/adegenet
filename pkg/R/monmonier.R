@@ -21,7 +21,9 @@ DEBUG <- FALSE
 
 if(DEBUG) {
     plot.nb(cn, xy, col="grey", points=FALSE)
-    text(xy,lab=1:nrow(xy),font=2)
+    x1 <<- x1
+    s.value(xy,x1,add.p=TRUE)
+    text(xy,lab=1:nrow(xy),font=2,col="darkgreen")
 }
 
 ## PRECISION of the xy coordinates (in digits)
@@ -62,10 +64,12 @@ if(scanthres){
   if(toupper(temp)!="D") { Dlim <- as.numeric(temp) }
 }
 
-## build a data.frame of coords of neighbours, with columns x1 y1 x2 y2
-listCpl <- neig.util.GtoL(neig2mat(cn))
-allSeg <- cbind(xy[,1][listCpl[,1]] , xy[,2][listCpl[,1]] , xy[,1][listCpl[,2]] , xy[,2][listCpl[,2]])
-colnames(allSeg) <- c('xP','yP','xQ','yQ')
+#### OLD VERSION ####
+## ## build a data.frame of coords of neighbours, with columns x1 y1 x2 y2
+## listCpl <- neig.util.GtoL(neig2mat(cn))
+## allSeg <- cbind(xy[,1][listCpl[,1]] , xy[,2][listCpl[,1]] , xy[,1][listCpl[,2]] , xy[,2][listCpl[,2]])
+## colnames(allSeg) <- c('xP','yP','xQ','yQ')
+#### END OLD VERSION ####
 
 ## Compute once and for all a matrix matSegVal with columns A, B and val
 ## A: index of one vertex
@@ -80,6 +84,11 @@ temp <- apply(matSegVal,1,function(vec) D[vec[1],vec[2]])
 matSegVal <- cbind(matSegVal,temp) # matSegVal has its 3 colums
 idx <- order(matSegVal[,3], decreasing=TRUE)
 matSegVal <- matSegVal[idx,]
+
+## allSeg is a matrix giving the coordinates of all edges (in row), x1 y1 x2 y2.
+allSeg <- cbind(xy[matSegVal[,1],] , xy[matSegVal[,2],])
+rownames(allSeg) <- rownames(matSegVal)
+colnames(allSeg) <- c("x1","y1","x2","y2")
 
 ## auxiliary function used to remove a segment from matSegVal (A,B: indices of vertices of the removed edge)
 rmFromMatSegVal <- function(A,B){
@@ -123,105 +132,80 @@ getNext <- function(rang){
 
 ## checkNext returns TRUE if it is ok to draw the segment MN, i.e. if MN does not cross another edge,
 ## and FALSE otherwise
-## -M and N define the segment of interest
+## - M and N define the segment of interest
+## M = c(xM,yM) ; N=c(xN,yN)
 ## -segMat is the matrix of all known edges
+## A,B,C,D are not coordinates, but indices of vertices
 ## -AB is the edge whose middle is M ; given to avoid checking MN vs AB
 ## -CD is the edge whose middle is N ; given to avoid checking MN vs CD
+## 
 checkNext <- function(M,N,A,B,C,D,segMat=allSeg){
-        ## orientation du segment MN
-	xmin <- min(M[1],N[1])
-	xmax <- max(M[1],N[1])
-	ymin <- min(M[2],N[2])
-	ymax <- max(M[2],N[2])
+    ## orientation of the segment MN
+    xmin <- min(M[1],N[1])
+    xmax <- max(M[1],N[1])
+    ymin <- min(M[2],N[2])
+    ymax <- max(M[2],N[2])
+    
+### From here segment that would be difficult to check for crossing are removed
+### If MN is the segment of interest, with M middle of AB and N middle of CD,
 
-        ### From here segment that would be difficult to check for crossing are removed
-        ### If MN is the segment of interest, with M middle of AB and N middle of CD,
-        ### AB and CD are removed (these are sometimes mistaken for full intersection
-        
-        ## !Be carefull that subsetSeg is always a matrix
-        
-        ## The segment that was just drawn before is removed from the checks for crossing
-        subsetSeg <- segMat[-nrow(segMat),]
-        subsetSeg <- matrix(subsetSeg,ncol=4) # coerce to matrix, even if 0 rows
-        
-        ## subsetSeg is a matrix, each of its rows being a segment: xP,yP,xQ,yQ
-        ## edges out of the square of diagonal MN cannot be crossed, so they are removed from
-        ## the checks for crossing
-	subsetSeg <- matrix(subsetSeg[!(subsetSeg[,1] < xmin & subsetSeg[,3] < xmin),] ,ncol=4)
-	subsetSeg <- matrix(subsetSeg[!(subsetSeg[,1] > xmax & subsetSeg[,3] > xmax),] ,ncol=4)
-	subsetSeg <- matrix(subsetSeg[!(subsetSeg[,2] < ymin & subsetSeg[,4] < ymin),] ,ncol=4)
-	subsetSeg <- matrix(subsetSeg[!(subsetSeg[,2] > ymax & subsetSeg[,4] > ymax),] ,ncol=4)
-        ## ntemp is the number of rows in subsetSeg after these removals
-        ## from here, AB and CD remain to be taken out of subsetSeg; so if ntemp <= 2, no need to go further
-        ntemp <- nrow(subsetSeg)
-        if(ntemp <= 2) return(TRUE)
-        
-        ## AB is now taken out (doubtful code 2 returned by the C procedure CheckAllSeg)
-        ## AB is retrieved from subsetSeg
-        ## beware to round down the coordinates, which are double
-        ## there is also a need for knowing which of A and B comes first
-        AB <- c(A,B)
-        temp <- apply(subsetSeg,1,function(r) all(round(r,PRECISION)==round(AB,PRECISION)) )
-        if(!any(temp)) {
-          AB <- c(B,A)
-          temp <- apply(subsetSeg,1,function(r) all(round(r,PRECISION)==round(AB,PRECISION)) )
-        }
-        if(!any(temp)) {
-          # This warning is no longer useful. Commented out.
-          # warning("Failed to avoid middle-segment comparaison. Wrong path is likely to result.")
-        } else{ subsetSeg <- subsetSeg[-which(temp),] }
+    ## The segment that was just drawn before is removed from the checks for crossing
+    subsetSeg <- segMat[-nrow(segMat),,drop=FALSE] # make sure subsetSeg is always a matrix
 
-        ## Same treatment for CD as for AB
-        CD <- c(C,D)
-        temp <- apply(subsetSeg,1,function(r) all(round(r,PRECISION)==round(CD,PRECISION)) )
-        if(!any(temp)) {
-          CD <- c(D,C)
-          temp <- apply(subsetSeg,1,function(r) all(round(r,PRECISION)==round(CD,PRECISION)) )
-        }
-        if(!any(temp)) {
-          # This warning is no longer useful. Commented.    
-          # warning("Failed to avoid middle-segment comparaison. Wrong path is likely to result.")}
-        } else{ subsetSeg <- subsetSeg[-which(temp),] }
+    ## AB and CD are now taken out (doubtful code 2 returned by the C procedure CheckAllSeg)
+    AB.name <- paste(sort(c(A,B)),collapse="-")
+    AB.idx <- match(AB.name, rownames(subsetSeg))
+    CD.name <- paste(sort(c(C,D)),collapse="-")
+    CD.idx <- match(CD.name, rownames(subsetSeg))
+    subsetSeg <- subsetSeg[-c(AB.idx,CD.idx),,drop=FALSE]
 
-        ## temp is used for the output of CheckAllSeg
-        ## initialized at 10, which is never returned by CheckAllSeg
-	temp <- as.integer(10)
+    ## subsetSeg is a matrix, each of its rows being a segment: xP,yP,xQ,yQ
+    ## edges out of the square of diagonal MN cannot be crossed, so they are removed from
+    ## the checks for crossing
+    subsetSeg <- subsetSeg[!(subsetSeg[,1] < xmin & subsetSeg[,3] < xmin),,drop=FALSE]
+    subsetSeg <- subsetSeg[!(subsetSeg[,1] > xmax & subsetSeg[,3] > xmax),,drop=FALSE]
+    subsetSeg <- subsetSeg[!(subsetSeg[,2] < ymin & subsetSeg[,4] < ymin),,drop=FALSE]
+    subsetSeg <- subsetSeg[!(subsetSeg[,2] > ymax & subsetSeg[,4] > ymax),,drop=FALSE]
 
-        ## call to CheckAllSeg
-        ## =======================
-        ## output code for CheckAllSeg:
-        ## - 0: no intersection
-        ## - 1: all kind of intersection, including the codes from SegSeg function
-        ## (a C function inside monmonier-utils.C):
-        ## - 3 : The segments collinearly overlap, sharing at least a point.
-        ## - 2 : An endpoint (vertex) of one segment is on the other segment,
-        ## but segments aren't collinear.
-        ## - 1 : The segments intersect properly (i.e. not case 2 or 3)
-        ## =======================
-        ##
-        ## restore the matrix type if there is only one segment to check for crossing in subsetSeg
-        if(ntemp == 3) {subsetSeg <- matrix(subsetSeg,ncol=4)}
-        if(nrow(subsetSeg)>0) {
-          temp <- .C("CheckAllSeg",as.integer(nrow(subsetSeg)),as.integer(ncol(subsetSeg)),
-          as.double(as.matrix(subsetSeg)), as.double(M), as.double(N), temp,PACKAGE="adegenet")[[6]]
-        } else {temp <- 0}
-        
-        ## for debugging
-        if(DEBUG) {
-            if(temp==1)  cat("\n can't go there (code",temp,")") else cat("\n new segment ok (code",temp,")")
-        }
-	## if a code 1 is returned, CheckAllSeg returns FALSE
-        ## else it returns TRUE
-        ## additional control used (code 10, CheckAllSeg failed)
-        if(temp==10) stop("CheckAllSeg failure (returned value=10, i.e. unchanged, not computed). Please report the bug.")
-        if(temp==1) return(FALSE) else return(TRUE)
-    } # end of checkNext
+    ## temp is used for the output of CheckAllSeg
+    ## initialized at 10, which is never returned by CheckAllSeg
+    temp <- as.integer(10)
+    
+    ## call to CheckAllSeg
+    ## =======================
+    ## output code for CheckAllSeg:
+    ## - 0: no intersection
+    ## - 1: all kind of intersection, including the codes from SegSeg function
+    ## (a C function inside monmonier-utils.C):
+    ## - 3 : The segments collinearly overlap, sharing at least a point.
+    ## - 2 : An endpoint (vertex) of one segment is on the other segment,
+    ## but segments aren't collinear.
+    ## - 1 : The segments intersect properly (i.e. not case 2 or 3)
+    ## =======================
+    ##
+    ## restore the matrix type if there is only one segment to check for crossing in subsetSeg
+    
+    if(nrow(subsetSeg)>0) {
+        temp <- .C("CheckAllSeg",as.integer(nrow(subsetSeg)),as.integer(ncol(subsetSeg)),
+                   as.double(as.matrix(subsetSeg)), as.double(M), as.double(N), temp,PACKAGE="adegenet")[[6]]
+    } else {temp <- 0}
+    
+    ## for debugging
+    if(DEBUG) {
+        if(temp==1)  cat("\n can't go there (code",temp,")") else cat("\n new segment ok (code",temp,")")
+    }
+    ## if a code 1 is returned, CheckAllSeg returns FALSE
+    ## else it returns TRUE
+    ## additional control used (code 10, CheckAllSeg failed)
+    if(temp==10) stop("CheckAllSeg failure (returned value=10, i.e. unchanged, not computed). Please report the bug.")
+    if(temp==1) return(FALSE) else return(TRUE)
+} # end of checkNext
 
 ## result object is created
 ## this is a list with one component per run (a run = a boundary) 
 result <-list()
 for(run in 1:nrun){
-	result[[run]] <- list(dir1=list(),dir2=list())
+    result[[run]] <- list(dir1=list(),dir2=list())
 }
 
 
@@ -232,17 +216,17 @@ for(run in 1:nrun){
   
     ## handle skip.local.diff here
     ## the corresponding values of distance are set definitely to -1
-    if(skip.local.diff[run] >0)
-        for(i in 1:skip.local.diff[run]){
-            temp <- getNext(1)
-            ## D[temp$A[1],temp$B[1] ] <- -1
-            ## D[temp$B[1],temp$A[1] ] <- -1
-            rmFromMatSelVal(temp$A[1],temp$B[1])
-        }
+    ##   if(skip.local.diff[run] >0)
+    ##         for(i in 1:skip.local.diff[run]){
+    ##             temp <- getNext(1)
+    ##             ## D[temp$A[1],temp$B[1] ] <- -1
+    ##             ## D[temp$B[1],temp$A[1] ] <- -1
+    ##             rmFromMatSegVal(temp$A[1],temp$B[1])
+    ##         }
     
     ## starting point: find the highest distance among neighbours
     ## then expand
-    currentDir1 <- getNext(1)
+    currentDir1 <- getNext(1 + skip.local.diff[run])
     currentDir2 <- currentDir1
     current.bd.length <- 1
     if(currentDir1$val<=Dlim) stop(paste('Algorithm reached the threshold value at the first step of run',run))
@@ -260,11 +244,10 @@ for(run in 1:nrun){
     s2 <- 2
     n <- nrow(D)
     
-    ## logical handling the exansion of a boundary
+    ## logical handling the expansion of a boundary
     keepExpanding <- ((current.bd.length < bd.length)
                       && ((currentDir1$val>Dlim)|(currentDir2$val>Dlim))
-                      && s1 < nrow(matSegVal)
-                      && s2 < nrow(matSegVal) )
+                      && (s1 < nrow(matSegVal) | s2 < nrow(matSegVal)) )
 
     #### This while loop has the following behavior:
     ## as long as the keepExpanding is true, we try to expand the boundary by 
@@ -276,25 +259,25 @@ for(run in 1:nrun){
     while(keepExpanding){
         hasExpanded <- FALSE # used to test if it is relevant to check for looping
         if(DEBUG){
-            points(currentDir1$M[1],currentDir1$M[2],col="black",pch=20,cex=2)
-            points(currentDir2$M[1],currentDir2$M[2],col="black",pch=20,cex=2)
+            points(currentDir1$M[1],currentDir1$M[2],col="white",pch=20)
+            points(currentDir2$M[1],currentDir2$M[2],col="white",pch=20)
         }
-        currentDir1 <- getNext(s1)
-        currentDir2 <- getNext(s2)
+        if(s1 <= nrow(matSegVal)) { currentDir1 <- getNext(s1) }
+        if(s2 <= nrow(matSegVal)) { currentDir2 <- getNext(s2) }
         if(DEBUG){
             cat("\n dir1: trying edge",currentDir1$A[1],"-",currentDir1$B[1])
-            points(currentDir1$M[1],currentDir1$M[2],col="blue",pch=20,cex=2)
+            points(currentDir1$M[1],currentDir1$M[2],col="blue",pch=20)
             readline("\npress enter")
         }
         
         ## first direction (dir1)
-        if( currentDir1$val > Dlim ) {
+        if( currentDir1$val > Dlim && s1 <= nrow(matSegVal)) {
             if(checkNext(result[[run]]$dir1[[length(result[[run]]$dir1)]]$M,
                          currentDir1$M,
-                         result[[run]]$dir1[[length(result[[run]]$dir1)]]$A[2:3],
-                         result[[run]]$dir1[[length(result[[run]]$dir1)]]$B[2:3],
-                         currentDir1$A[2:3],
-                         currentDir1$B[2:3])) {
+                         result[[run]]$dir1[[length(result[[run]]$dir1)]]$A[1],
+                         result[[run]]$dir1[[length(result[[run]]$dir1)]]$B[1],
+                         currentDir1$A[1],
+                         currentDir1$B[1])) {
                 i1 <- i1+1
                 result[[run]]$dir1[[i1]] <- currentDir1
                 ## update the matrix of diff. between neighbours
@@ -310,7 +293,7 @@ for(run in 1:nrun){
                 hasExpanded <- TRUE
                 if(DEBUG){
                     arrows(result[[run]]$dir1[[i1-1]]$M[1], result[[run]]$dir1[[i1-1]]$M[2],
-                           result[[run]]$dir1[[i1]]$M[1], result[[run]]$dir1[[i1]]$M[2],col="blue",cex=2)
+                           result[[run]]$dir1[[i1]]$M[1], result[[run]]$dir1[[i1]]$M[2],col="blue")
                 }
                 
             } else{ s1 <- s1+1 }
@@ -318,18 +301,18 @@ for(run in 1:nrun){
 
         if(DEBUG){
             cat("\n dir2: trying edge",currentDir2$A[1],"-",currentDir2$B[1])
-            points(currentDir2$M[1],currentDir2$M[2],col="red",pch=20,cex=2)
+            points(currentDir2$M[1],currentDir2$M[2],col="red",pch=20)
             readline("\npress enter")
         }
        
         ## second direction (dir2)
-        if( currentDir2$val > Dlim ) {
+        if( currentDir2$val > Dlim  && s2 <= nrow(matSegVal)) {
             if(checkNext(result[[run]]$dir2[[length(result[[run]]$dir2)]]$M,
                          currentDir2$M,
-                         result[[run]]$dir2[[length(result[[run]]$dir2)]]$A[2:3],
-                         result[[run]]$dir2[[length(result[[run]]$dir2)]]$B[2:3],
-                         currentDir2$A[2:3],
-                         currentDir2$B[2:3])) {
+                         result[[run]]$dir2[[length(result[[run]]$dir2)]]$A[1],
+                         result[[run]]$dir2[[length(result[[run]]$dir2)]]$B[1],
+                         currentDir2$A[1],
+                         currentDir2$B[1])) {
                 i2 <- i2+1
                 result[[run]]$dir2[[i2]] <- currentDir2
                 ## update the matrix of diff. between neighbours
@@ -353,18 +336,17 @@ for(run in 1:nrun){
         ## update the logical for the while loop
         keepExpanding <- ((current.bd.length < bd.length)
                           && ((currentDir1$val>Dlim)|(currentDir2$val>Dlim))
-                          && s1 <= nrow(matSegVal)
-                          && s2 <= nrow(matSegVal) )
+                          && (s1 <= nrow(matSegVal) | s2 <= nrow(matSegVal)) )
         
         ## handle the looping of a boundary
         if(hasExpanded && (current.bd.length>3) && allowLoop){
             ## check if the two ends of the boundary can be joined
             canLoop <- checkNext(result[[run]]$dir1[[length(result[[run]]$dir1)]]$M,
                                  result[[run]]$dir2[[length(result[[run]]$dir2)]]$M,
-                                 result[[run]]$dir1[[length(result[[run]]$dir1)]]$A[2:3],
-                                 result[[run]]$dir1[[length(result[[run]]$dir1)]]$B[2:3],
-                                 result[[run]]$dir2[[length(result[[run]]$dir2)]]$A[2:3],
-                                 result[[run]]$dir2[[length(result[[run]]$dir2)]]$B[2:3]
+                                 result[[run]]$dir1[[length(result[[run]]$dir1)]]$A[1],
+                                 result[[run]]$dir1[[length(result[[run]]$dir1)]]$B[1],
+                                 result[[run]]$dir2[[length(result[[run]]$dir2)]]$A[1],
+                                 result[[run]]$dir2[[length(result[[run]]$dir2)]]$B[1]
                                  )
 
             if(canLoop) {
@@ -385,7 +367,8 @@ for(run in 1:nrun){
        ##     currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
        ##     "nrow(matSegVal)",nrow(matSegVal),"\n")
             cat("\n","D1:",currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
-                "cur.bd.le", current.bd.length,"max length", bd.length,"\n")
+                "cur.bd.le:", current.bd.length,"max length:", bd.length,"\n",
+                "s1:",s1,"s2:",s2,"maxS:",nrow(matSegVal))
         }
         
     } # end of one given run
@@ -481,6 +464,10 @@ plot.monmonier <- function(x, variable=NULL,displayed.runs=1:x$nrun,
             cex.bwd.2 <- ( val.2[1:(n2-1)] + val.2[2:n2] )/2
             cex.bwd.1 <- cex.bwd.1/max(cex.bwd.1)
             cex.bwd.2 <- cex.bwd.2/max(cex.bwd.2)
+            ## amplify the differences
+            cex.bwd.1 <- cex.bwd.1^1.5
+            cex.bwd.2 <- cex.bwd.2^1.5
+            
             
             if(add.arrows) {
                 if(n1>1) arrows(obj$dir1$path[1:(nrow(obj$dir1$path)-1),1],

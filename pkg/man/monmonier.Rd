@@ -178,7 +178,7 @@ xy <- matrix(runif(120,0,10), ncol=2)
 x1 <- rnorm(60)
 x1[xy[,1] > 5] <- x1[xy[,1] > 5]+4
 cn1 <- chooseCN(xy,type=2,ask=FALSE)
-mon1 <- optimize.monmonier(xy,dist(x1),cn1,ntry=6)
+mon1 <- optimize.monmonier(xy,dist(x1)^2,cn1,ntry=10)
 
 # graphics
 plot(mon1,x1)
@@ -189,7 +189,7 @@ x2 <- rnorm(60)
 sel <- (xy[,1]>3.5 & xy[,2]>3.5 & xy[,1]<6.5 & xy[,2]<6.5)
 x2[sel] <- x2[sel]+4
 cn2 <- chooseCN(xy,type=1,ask=FALSE)
-mon2 <- optimize.monmonier(xy,dist(x2),cn2,ntry=6)
+mon2 <- optimize.monmonier(xy,dist(x2)^2,cn2,ntry=10)
 
 # graphics
 plot(mon2,x2,method="greylevel",add.arr=FALSE,bwd=6,col="red",csize=.5)
