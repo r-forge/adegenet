@@ -17,14 +17,14 @@ if(!inherits(dist,"dist")) stop('Argument \'dist\' must be a distance matrix of 
 if(nrow(xy) != nrow(as.matrix(dist))) stop('Number of sites and number of observations differ')
 
 ## set to TRUE to debug
-DEBUG <- FALSE
+## DEBUG <- FALSE
 
-if(DEBUG) {
-    plot.nb(cn, xy, col="grey", points=FALSE)
-    x1 <<- x1
-    s.value(xy,x1,add.p=TRUE)
-    text(xy,lab=1:nrow(xy),font=2,col="darkgreen")
-}
+## if(DEBUG) {
+##     plot.nb(cn, xy, col="grey", points=FALSE)
+##     x1 <<- x1
+##     s.value(xy,x1,add.p=TRUE)
+##     text(xy,lab=1:nrow(xy),font=2,col="darkgreen")
+## }
 
 ## PRECISION of the xy coordinates (in digits)
 ## used when coordinates are inputed in C code.
@@ -200,9 +200,10 @@ checkNext <- function(M,N,A,B,C,D,segMat=allSeg,toRemove=NULL){
     } else {temp <- 0}
     
     ## for debugging
-    if(DEBUG) {
-        if(temp==1)  cat("\n can't go there (code",temp,")") else cat("\n new segment ok (code",temp,")")
-    }
+    ##    if(DEBUG) {
+    ##         if(temp==1)  cat("\n can't go there (code",temp,")") else cat("\n new segment ok (code",temp,")")
+    ##     }
+    
     ## if a code 1 or 3 is returned, CheckAllSeg returns FALSE
     ## else it returns TRUE
     ## additional control used (code 10, CheckAllSeg failed)
@@ -267,17 +268,17 @@ for(run in 1:nrun){
     ## 4) get back to 1)
     while(keepExpanding){
         hasExpanded <- FALSE # used to test if it is relevant to check for looping
-        if(DEBUG){
-            points(currentDir1$M[1],currentDir1$M[2],col="white",pch=20)
-            points(currentDir2$M[1],currentDir2$M[2],col="white",pch=20)
-        }
+       ##  if(DEBUG){
+        ##             points(currentDir1$M[1],currentDir1$M[2],col="white",pch=20)
+        ##             points(currentDir2$M[1],currentDir2$M[2],col="white",pch=20)
+        ##         }
         if(s1 <= nrow(matSegVal)) { currentDir1 <- getNext(s1) }
         if(s2 <= nrow(matSegVal)) { currentDir2 <- getNext(s2) }
-        if(DEBUG){
-            cat("\n dir1: trying edge",currentDir1$A[1],"-",currentDir1$B[1])
-            points(currentDir1$M[1],currentDir1$M[2],col="blue",pch=20)
-            readline("\npress enter")
-        }
+        ## if(DEBUG){
+        ##             cat("\n dir1: trying edge",currentDir1$A[1],"-",currentDir1$B[1])
+        ##             points(currentDir1$M[1],currentDir1$M[2],col="blue",pch=20)
+        ##             readline("\npress enter")
+        ##         }
         
         ## first direction (dir1)
         if( currentDir1$val > Dlim && s1 <= nrow(matSegVal)) {
@@ -301,19 +302,19 @@ for(run in 1:nrun){
                 ## add 1 to the boundary length
                 current.bd.length <- current.bd.length + 1
                 hasExpanded <- TRUE
-                if(DEBUG){
-                    arrows(result[[run]]$dir1[[i1-1]]$M[1], result[[run]]$dir1[[i1-1]]$M[2],
-                           result[[run]]$dir1[[i1]]$M[1], result[[run]]$dir1[[i1]]$M[2],col="blue")
-                }
+                ## if(DEBUG){
+                ##                     arrows(result[[run]]$dir1[[i1-1]]$M[1], result[[run]]$dir1[[i1-1]]$M[2],
+                ##                            result[[run]]$dir1[[i1]]$M[1], result[[run]]$dir1[[i1]]$M[2],col="blue")
+                ##                 }
                 
             } else{ s1 <- s1+1 }
         } # end "if( currentDir1$val>Dlim)"
 
-        if(DEBUG){
-            cat("\n dir2: trying edge",currentDir2$A[1],"-",currentDir2$B[1])
-            points(currentDir2$M[1],currentDir2$M[2],col="red",pch=20)
-            readline("\npress enter")
-        }
+        ## if(DEBUG){
+        ##             cat("\n dir2: trying edge",currentDir2$A[1],"-",currentDir2$B[1])
+        ##             points(currentDir2$M[1],currentDir2$M[2],col="red",pch=20)
+        ##             readline("\npress enter")
+        ##         }
        
         ## second direction (dir2)
         if( currentDir2$val > Dlim  && s2 <= nrow(matSegVal)) {
@@ -336,10 +337,10 @@ for(run in 1:nrun){
                 ## add 1 to the boundary length
                 current.bd.length <- current.bd.length + 1
                 hasExpanded <- TRUE
-                if(DEBUG){
-                    arrows(result[[run]]$dir2[[i2-1]]$M[1], result[[run]]$dir2[[i2-1]]$M[2],
-                           result[[run]]$dir2[[i2]]$M[1], result[[run]]$dir2[[i2]]$M[2],col="red",cex=2)
-                }
+                ## if(DEBUG){
+                ##                     arrows(result[[run]]$dir2[[i2-1]]$M[1], result[[run]]$dir2[[i2-1]]$M[2],
+                ##                            result[[run]]$dir2[[i2]]$M[1], result[[run]]$dir2[[i2]]$M[2],col="red",cex=2)
+                ##                 }
                
             } else{ s2 <- s2+1 }
         } # end "if( currentDir2$val>Dlim)"
@@ -378,14 +379,14 @@ for(run in 1:nrun){
         }
 
         ## output for debugging
-        if(DEBUG) {
-       ##     cat("\n","s1:",s1,"s2:",s2,"i1:",i1,"i2:",i2,"D1:",
-       ##     currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
-       ##     "nrow(matSegVal)",nrow(matSegVal),"\n")
-            cat("\n","D1:",currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
-                "cur.bd.le:", current.bd.length,"max length:", bd.length,"\n",
-                "s1:",s1,"s2:",s2,"maxS:",nrow(matSegVal))
-        }
+        ## if(DEBUG) {
+        ##        ##     cat("\n","s1:",s1,"s2:",s2,"i1:",i1,"i2:",i2,"D1:",
+        ##        ##     currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
+        ##        ##     "nrow(matSegVal)",nrow(matSegVal),"\n")
+        ##             cat("\n","D1:",currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
+        ##                 "cur.bd.le:", current.bd.length,"max length:", bd.length,"\n",
+        ##                 "s1:",s1,"s2:",s2,"maxS:",nrow(matSegVal))
+        ##         }
         
     } # end of one given run
 
@@ -576,7 +577,7 @@ for(i in 1:x$nrun){
 # function optimize.monmonier 
 ##############################
 optimize.monmonier <- function(xy,dist,cn,ntry=10, bd.length=NULL, return.best=TRUE,
-                               display.graph=TRUE,threshold=NULL,scanthres=is.null(threshold), allowLoop=TRUE){
+                               display.graph=TRUE,threshold=NULL,scanthres=is.null(threshold),allowLoop=TRUE){
 
 ## move X to the arguments if we want to optimize an already created object
 X <- NULL
@@ -610,27 +611,43 @@ if(scanthres){
 cat(paste("Boundaries computed (required: ",ntry,")\n",sep=""))
 
 ## for loop
-tests <- list()
+bdr.values <- -1 # used so that the first boundary is automatically the best
+
 for(i in 0:(ntry-1)){
-  tests[[i+1]] <- monmonier(xy, dist, cn.nb,skip=i,scanthres=FALSE,
+  temp <- monmonier(xy, dist, cn.nb,skip=i,scanthres=FALSE,
                             threshold=Dlim, bd.length=bd.length, allowLoop=allowLoop)
+  current.bdr.value <- sum(c(temp$run1$dir1$values, temp$run1$dir2$values))
+
+  if(all(current.bdr.value > bdr.values)) {
+      bdr.best <- temp
+      bdr.skip <- i
+  }
+
+  bdr.values <- c(bdr.values , current.bdr.value)
   cat(paste(1+i," ")) # print progression in live
 }
 
-bdr.values <- sapply(1:ntry,function(i) sum(c(tests[[i]]$run1$dir1$values,tests[[i]]$run1$dir2$values)) )
-
+## remove the first value (-1) in bdr.value
+bdr.values <- bdr.values[-1]
+  
 ## graphical display
 if(display.graph) barplot(bdr.values,xlab="Local differences skipped",ylab="Sum of all local differences",names.arg=0:(ntry-1))
 
 ## return the best value of skip.local.diff, or the corresponding object
-val <- which.max(bdr.values)-1
 if(!return.best) {
-  return(val)
+  return(bdr.skip)
   } else {
-    cat(paste("\nOptimal number of skipped local differences: ",val,"\n"))
-    call <- as.list(match.call())
-    exp <- bquote( monmonier(xy=.(call$xy),dist=.(call$dist),cn=.(call$cn),skip=.(val),
-                             ,scan=FALSE,thres=.(Dlim),bd.length=.(bd.length),allowLoop=.(allowLoop)) )
-    return(eval(exp))
+    cat(paste("\nOptimal number of skipped local differences: ",bdr.skip,"\n"))
+    prevcall <- as.list(match.call())
+    newcall <- bquote( monmonier(xy=.(prevcall$xy), dist=.(prevcall$dist), cn=.(prevcall$cn),
+                                 threshold=.(bdr.best$threshold), bd.length=.(bd.length),
+                                 nrun=1, skip.local.diff=.(as.numeric(bdr.skip)), scanthres=FALSE, allowLoop=.(allowLoop)) )
+
+    ## assign the appropriate call to the result
+    bdr.best$call <- newcall
+                             
+    ## exp <- bquote( monmonier(xy=.(prevcall$xy),dist=.(prevcall$dist),cn=.(prevcall$cn),skip=.(bdr.skip),
+    ##                          ,scan=FALSE,thres=.(Dlim),bd.length=.(bd.length),allowLoop=.(allowLoop)) )
+    return(bdr.best)
     }
 }

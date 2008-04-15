@@ -27,9 +27,9 @@
 # CODE ISSUES:
 ==============
 * df2genind fails when entirely non-type individuals exist -- done (TJ)
-* optimize.monmonier: check the way final object is constructed: can fail when the function is called inside another function
-* monmonier: fails on a regular grid; must be a problem in the C code detecting colinearity between two segments
-* monmonier: bug when bd.length is abnormally high -- mainly fixed, but sometimes stops to early (TJ) 
+* optimize.monmonier: check the way final object is constructed: can fail when the function is called inside another function -- fixed (TJ)
+* monmonier: fails on a regular grid; must be a problem in the C code detecting colinearity between two segments -- fixed (TJ)
+* monmonier: bug when bd.length is abnormally high -- fixed (TJ) 
 *
 
 # DOCUMENTATION ISSUES:
@@ -38,10 +38,7 @@
 
 # NEW IMPLEMENTATIONS:
 =====================
-* Implement "sep" argument in df2genind
-* Implement a method to merge different markers for the same individuals
 * Implement spatial weights derived from inverse spatial distances in chooseCN -- done (TJ)
-* Build accessors for marker names, indiv names, pop names, spatial coords, ...
 * Implement a Fst wrapper for genind objects -- done (TJ)
 * Proceed wisely the elements of @other when subsetting objects using the "[" operator. --done (TJ)
 *
@@ -58,8 +55,10 @@
 * in spca, when nfposi=0, the returned object actually contains what corresponds to nfposi=1. Comes from multispati in ade4. To correct.
 * use spcaIllus to illustrate global.rtest and local.rtest
 * check all examples and look for possible improvements
-* 
-
+* Implement "sep" argument in df2genind
+* Implement a method to merge different markers for the same individuals
+* Build accessors for marker names, indiv names, pop names, spatial coords, ...
+* Return a spatial object from monmonier (class sp?)
 
 
 # LONG TERM
@@ -71,4 +70,3 @@
 * implement global.rtest and local.rtest for genind/genpop objects
 * Implement method "scale" for genind / genpop objects
 * Implement dudi wrappers for genind / genpop objects
-*
