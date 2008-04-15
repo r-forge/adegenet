@@ -479,8 +479,9 @@ plot.monmonier <- function(x, variable=NULL,displayed.runs=1:x$nrun,
             n2 <- length(val.2)
             cex.bwd.1 <- ( val.1[1:(n1-1)] + val.1[2:n1] )/2
             cex.bwd.2 <- ( val.2[1:(n2-1)] + val.2[2:n2] )/2
-            cex.bwd.1 <- cex.bwd.1/max(cex.bwd.1)
-            cex.bwd.2 <- cex.bwd.2/max(cex.bwd.2)
+            cex.bwd.max <- max(c(cex.bwd.1,cex.bwd.2))
+            cex.bwd.1 <- cex.bwd.1/max(cex.bwd.max)
+            cex.bwd.2 <- cex.bwd.2/max(cex.bwd.max)
             ## amplify the differences
             ## cex.bwd.1 <- cex.bwd.1^1.5
             ## cex.bwd.2 <- cex.bwd.2^1.5

@@ -7,16 +7,16 @@
 
 \title{Boundary detection using Monmonier algorithm}
 \description{
-  The Monmonier's algorithm detects boundaries by finding the path
-  exhibiting the largest differences (provided in a distance matrix)
-  between neighbouring objects.\cr
+  The Monmonier's algorithm detects boundaries among vertices of a
+  valuated graph. This is achieved by finding the path
+  exhibiting the largest distances between connected vertices.\cr
 
-  The highest distance between two linked objects (i.e. neighbours) is
-  found, giving the starting point of the path. Starting from this
-  point, the algorithm seeks the highest distance between immediate
-  neighbours, and so on until a threshold value is attained. It is
-  recommended to choose this threshold from the barplot of sorted local
-  distances: a boundary will likely result in an abrupt decrease
+  The highest distance between two connected vertices (i.e. neighbours) is
+  found, giving the starting point of the path. Then, the algorithm
+  seeks the highest distance between immediate neighbours, and so on
+  until a threshold value is attained.
+  This threshold can be chosen from the plot of sorted distances between
+  connected vertices: a boundary will likely result in an abrupt decrease
   of these values.\cr
  
   When several paths are looked for, the previous paths are taken into
@@ -28,7 +28,7 @@
   tesselation, this implementation generalizes this algorithm to different
   connection networks. The \code{optimize.monmonier} function produces a
   \code{monmonier} object by trying several starting points, and
-  returning the best boundary (largest sum of local differences). This
+  returning the best boundary (i.e. largest sum of local distances). This
   is designed to avoid the algorithm to be trapped by a single strong
   local difference inside an homogeneous patch.
 }
@@ -91,14 +91,14 @@ cneig=1, pixmap=NULL, contour=NULL, area=NULL, add.plot=FALSE, \dots)
 }
 \details{
 The function \code{monmonier} returns a list of the class \code{monmonier}, which contains the general informations about the algorithm, and about each run.
-When displayed, the width of the boundaries reflect their strength.
+When displayed, the width of the boundaries reflects their 'strength'.
 Let a segment MN be part of the path, M being the middle of AB, N of CD.
-Then the boundary width for MN is proportionnal to (d(AB)+d(CD))/2.
+Then the boundary width for MN is proportionnal to (d(AB)+d(CD))/2.\cr
 
 As there is no perfect method to display graphically a quantitative
 variable (see for instance the differences between the two methods of
 \code{s.value}), the boundaries provided by this algorithm seem
-sometimes more reliable than the boundaries our eyes perceive (or miss).
+sometimes more reliable than the boundaries our eyes perceive (or miss).\cr
 
 }
 
@@ -176,13 +176,12 @@ legend("topright",leg=c("Pop A", "Pop B"),pch=c(17,19))
 # est-west separation
 xy <- matrix(runif(120,0,10), ncol=2)
 x1 <- rnorm(60)
-x1[xy[,1] > 5] <- x1[xy[,1] > 5]+4
-cn1 <- chooseCN(xy,type=2,ask=FALSE)
+x1[xy[,2] > 5] <- x1[xy[,2] > 5]+3
+cn1 <- chooseCN(xy,type=1,ask=FALSE)
 mon1 <- optimize.monmonier(xy,dist(x1)^2,cn1,ntry=10)
 
 # graphics
-plot(mon1,x1)
-plot(mon1,x1,met="greylevel")
+plot(mon1,x1,met="greylevel",csize=.6)
 
 # square in the middle
 x2 <- rnorm(60)
