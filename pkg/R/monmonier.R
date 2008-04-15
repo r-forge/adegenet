@@ -27,9 +27,8 @@ if(DEBUG) {
 }
 
 ## PRECISION of the xy coordinates (in digits)
-## used to retrieve edges from their coordinates
-## do not go over 10
-PRECISION=8
+## used when coordinates are inputed in C code.
+PRECISION=12
 
 ## conversion of the connection network
 cn.nb <- cn
@@ -56,7 +55,7 @@ if(!is.null(bd.length)) {
 
 
 if(scanthres){
-  plot(sort(unique(D)[unique(D) > 0],dec=TRUE),main="Local distances plot",type="l",xlab="rank")
+  plot(sort(unique(D)[unique(D) > 0],dec=TRUE),main="Local distances plot",type="l",xlab="rank",ylab="Sorted local distances")
   abline(h=Dlim,lty=2)
   mtext("Dashed line indicates present threshold")
   cat("Indicate the threshold (\'d\' for default): ")
@@ -138,8 +137,8 @@ getNext <- function(rang){
 ## A,B,C,D are not coordinates, but indices of vertices
 ## -AB is the edge whose middle is M ; given to avoid checking MN vs AB
 ## -CD is the edge whose middle is N ; given to avoid checking MN vs CD
-## 
-checkNext <- function(M,N,A,B,C,D,segMat=allSeg){
+## - toRemove: a vector of characters naming other edges in segMat to be removed before checking
+checkNext <- function(M,N,A,B,C,D,segMat=allSeg,toRemove=NULL){
     ## orientation of the segment MN
     xmin <- min(M[1],N[1])
     xmax <- max(M[1],N[1])
@@ -167,6 +166,13 @@ checkNext <- function(M,N,A,B,C,D,segMat=allSeg){
     subsetSeg <- subsetSeg[!(subsetSeg[,2] < ymin & subsetSeg[,4] < ymin),,drop=FALSE]
     subsetSeg <- subsetSeg[!(subsetSeg[,2] > ymax & subsetSeg[,4] > ymax),,drop=FALSE]
 
+    ## handle toRemove here
+    if(!is.null(toRemove)){
+        idx <- match(toRemove, rownames(subsetSeg))
+        idx <- idx[!is.na(idx)]
+        if(length(idx)>0) { subsetSeg <- subsetSeg[-idx,,drop=FALSE] }
+    }
+
     ## temp is used for the output of CheckAllSeg
     ## initialized at 10, which is never returned by CheckAllSeg
     temp <- as.integer(10)
@@ -184,6 +190,9 @@ checkNext <- function(M,N,A,B,C,D,segMat=allSeg){
     ## =======================
     ##
     ## restore the matrix type if there is only one segment to check for crossing in subsetSeg
+
+    ## round down coordinates in subsetSeg
+    subsetSeg <- round(subsetSeg, digits=PRECISION)
     
     if(nrow(subsetSeg)>0) {
         temp <- .C("CheckAllSeg",as.integer(nrow(subsetSeg)),as.integer(ncol(subsetSeg)),
@@ -194,11 +203,11 @@ checkNext <- function(M,N,A,B,C,D,segMat=allSeg){
     if(DEBUG) {
         if(temp==1)  cat("\n can't go there (code",temp,")") else cat("\n new segment ok (code",temp,")")
     }
-    ## if a code 1 is returned, CheckAllSeg returns FALSE
+    ## if a code 1 or 3 is returned, CheckAllSeg returns FALSE
     ## else it returns TRUE
     ## additional control used (code 10, CheckAllSeg failed)
     if(temp==10) stop("CheckAllSeg failure (returned value=10, i.e. unchanged, not computed). Please report the bug.")
-    if(temp==1) return(FALSE) else return(TRUE)
+    if(temp==1 | temp==2 | temp==3) return(FALSE) else return(TRUE)
 } # end of checkNext
 
 ## result object is created
@@ -288,6 +297,7 @@ for(run in 1:nrun){
                 s1 <- 1
                 ## update existing segments
                 allSeg <- rbind(allSeg,c(result[[run]]$dir1[[i1-1]]$M,result[[run]]$dir1[[i1]]$M) )
+                rownames(allSeg) <- c(rownames(allSeg)[-nrow(allSeg)] , paste("dir1",i1-1,i1,sep="-"))
                 ## add 1 to the boundary length
                 current.bd.length <- current.bd.length + 1
                 hasExpanded <- TRUE
@@ -322,6 +332,7 @@ for(run in 1:nrun){
                 s2 <- 1
                 ## update existing segments
                 allSeg <- rbind(allSeg,c(result[[run]]$dir2[[i2-1]]$M,result[[run]]$dir2[[i2]]$M) )
+                rownames(allSeg) <- c(rownames(allSeg)[-nrow(allSeg)] , paste("dir2",i2-1,i2,sep="-"))
                 ## add 1 to the boundary length
                 current.bd.length <- current.bd.length + 1
                 hasExpanded <- TRUE
@@ -341,12 +352,17 @@ for(run in 1:nrun){
         ## handle the looping of a boundary
         if(hasExpanded && (current.bd.length>3) && allowLoop){
             ## check if the two ends of the boundary can be joined
+            ## remove segments ending each direction (to avoid messy code 2 in checkNext)
+            terminalEdges <- c(paste("dir1",i1-1,i1,sep="-"),
+                               paste("dir2",i2-1,i2,sep="-"))
+            
             canLoop <- checkNext(result[[run]]$dir1[[length(result[[run]]$dir1)]]$M,
                                  result[[run]]$dir2[[length(result[[run]]$dir2)]]$M,
                                  result[[run]]$dir1[[length(result[[run]]$dir1)]]$A[1],
                                  result[[run]]$dir1[[length(result[[run]]$dir1)]]$B[1],
                                  result[[run]]$dir2[[length(result[[run]]$dir2)]]$A[1],
-                                 result[[run]]$dir2[[length(result[[run]]$dir2)]]$B[1]
+                                 result[[run]]$dir2[[length(result[[run]]$dir2)]]$B[1],
+                                 toRemove=terminalEdges
                                  )
 
             if(canLoop) {
@@ -465,8 +481,8 @@ plot.monmonier <- function(x, variable=NULL,displayed.runs=1:x$nrun,
             cex.bwd.1 <- cex.bwd.1/max(cex.bwd.1)
             cex.bwd.2 <- cex.bwd.2/max(cex.bwd.2)
             ## amplify the differences
-            cex.bwd.1 <- cex.bwd.1^1.5
-            cex.bwd.2 <- cex.bwd.2^1.5
+            ## cex.bwd.1 <- cex.bwd.1^1.5
+            ## cex.bwd.2 <- cex.bwd.2^1.5
             
             
             if(add.arrows) {
@@ -582,7 +598,7 @@ D <- M*D
 if(is.null(threshold) || (threshold<0)) {Dlim <- summary(unique(D[D>0]))[5]} else {Dlim <- threshold}
 
 if(scanthres){
-  plot(sort(unique(D)[unique(D) > 0],dec=TRUE),main="Local distances plot", type="l", xlab="rank")
+  plot(sort(unique(D)[unique(D) > 0],dec=TRUE),main="Local distances plot", type="l", xlab="rank",ylab="Sorted local distances")
   abline(h=Dlim,lty=2)
   mtext("Dashed line indicates present threshold")
   cat("Indicate the threshold (\'d\' for default): ")
