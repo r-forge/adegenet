@@ -18,24 +18,65 @@
  style="font-weight: bold;"></span><span style="font-weight: bold;"></span><br>
 <span style="font-weight: bold;"></span>Current
 version of <span style="color: rgb(255, 0, 0);">adegenet is
-1.1-0 </span>for R.2.6.2.<br>
+1.1-1 </span>for R.2.6.2.<br>
 You can install the devel version from <a
  href="https://r-forge.r-project.org/scm/?group_id=120">R-Forge</a>.<br>
-See the current <a href="https://r-forge.r-project.org/plugins/scmsvn/viewcvs.php/*checkout*/pkg/TODO?rev=64&root=adegenet">TODO list</a> of the package.<br>
+See the current <a
+ href="https://r-forge.r-project.org/plugins/scmsvn/viewcvs.php/*checkout*/pkg/TODO?rev=64&amp;root=adegenet">TODO
+list</a> of the package.<br>
+<br>
+<span style="font-weight: bold;">09/04/2008 </span><span
+ style="font-weight: bold;"><img alt="" src="images/new.png"
+ style="width: 80px; height: 37px;"></span><br>
+<big>New adegenet version (<span style="color: rgb(255, 0, 0);">1.1-1</span>)
+has been released for R.2.6.2 !</big><br>
+<span style="color: rgb(255, 0, 0);"><span style="color: rgb(0, 0, 0);">This
+release corrects a few bugs and adds some new features:<br>
+&nbsp;&nbsp;&nbsp; - <span style="font-family: monospace;"></span></span></span><span
+ style="text-decoration: underline;">I/O:</span> <span
+ style="color: rgb(255, 0, 0);"><span style="color: rgb(0, 0, 0);"><span
+ style="font-family: monospace;">df2genind</span> no longer fails when
+entirely non-type individuals exist.<br>
+&nbsp;&nbsp;&nbsp; </span></span><span style="color: rgb(255, 0, 0);"><span
+ style="color: rgb(0, 0, 0);">- <span
+ style="text-decoration: underline;">Spatial
+genetics:</span></span></span><span style="color: rgb(255, 0, 0);"><span
+ style="color: rgb(0, 0, 0);"> <span
+ style="font-family: monospace; color: rgb(255, 0, 0);">optimize.monmonier</span>
+now computes the 'best' boundary only once instead of twice. The
+matched call of the returned object has been fixed. </span></span><span
+ style="color: rgb(255, 0, 0);"><span style="color: rgb(0, 0, 0);"><span
+ style="font-family: monospace; color: rgb(255, 0, 0);">monmonier</span>
+no longer fails when coordinates are drawn from a regular grid. The
+whole code was re-thought</span></span> and optimized for speed.
+Monmonier's boundaries can now form loops. Instead of stoping at a
+given threshold, it is also possible to ask for a given length of
+boundary (argument <span
+ style="font-family: monospace; color: rgb(255, 0, 0);">bd.length</span>).
+The function <span
+ style="font-family: monospace; color: rgb(255, 0, 0);">chooseCN</span>
+has a new option to return a list of spatial weights defined as the
+inverse of spatial distances, at a given exponent.<br>
+&nbsp;&nbsp;&nbsp; - <span style="text-decoration: underline;">F
+statistics</span>: a wrapper for glob.varcomp has been implemented for
+genind objects, through the new function <span
+ style="font-family: monospace; color: rgb(255, 0, 0);">fstat</span>.<br>
+<span style="color: rgb(255, 0, 0);"><span style="color: rgb(0, 0, 0);">&nbsp;&nbsp;&nbsp;
+</span></span>- <span style="text-decoration: underline;">Data
+manipulation:</span> The elements of the <span
+ style="color: rgb(255, 0, 0);">@other</span> slot are now proceeded
+wisely when objects are subsetted using the '[' operator.<br>
 <br>
 <span style="font-weight: bold;">15/02/2008 </span><span
- style="font-weight: bold;"><img alt="" src="images/new.png"
- style="width: 80px; height: 37px;"><br>
+ style="font-weight: bold;"><br>
 </span><span style="font-weight: bold;"></span>A tutorial for the new
 version
 of adegenet is available from this website.<br>
 <br>
 <span style="font-weight: bold;">14/02/2008 </span><span
- style="font-weight: bold;"><img alt="" src="images/new.png"
- style="width: 80px; height: 37px;"></span><big><span
- style="font-weight: bold;"><br>
-</span>New adegenet version (<span style="color: rgb(255, 0, 0);">1.1-0</span>)
-has been released for R.2.6.2 !</big><br>
+ style="font-weight: bold;"></span><big><span style="font-weight: bold;"><br>
+</span><small>New adegenet version (<span style="color: rgb(255, 0, 0);">1.1-0</span>)
+has been released for R.2.6.2.</small></big><br>
 <span style="color: rgb(255, 0, 0);"><span style="color: rgb(0, 0, 0);">This
 totally new version includes:<br>
 &nbsp;&nbsp;&nbsp; - <span style="text-decoration: underline;">Data
