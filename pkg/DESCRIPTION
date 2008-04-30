@@ -9,4 +9,4 @@ Depends: methods
 Description: Classes and functions for genetic data analysis within the multivariate framework.
 License: GPL (>=2)
 LazyLoad: yes
-Collate: classes.R auxil.R makefreq.R chooseCN.R dist.genpop.R export.R gstat.randtest.R HWE.R import.R monmonier.R coords.monmonier.R spca.R spca.rtests.R zzz.R hybridize.R fstat.R
+Collate: classes.R auxil.R makefreq.R chooseCN.R dist.genpop.R export.R gstat.randtest.R HWE.R import.R monmonier.R coords.monmonier.R spca.R spca.rtests.R zzz.R hybridize.R fstat.R propShared.R
