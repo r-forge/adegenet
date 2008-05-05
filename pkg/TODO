@@ -63,3 +63,5 @@
 * implement global.rtest and local.rtest for genind/genpop objects
 * Implement method "scale" for genind / genpop objects
 * Implement dudi wrappers for genind / genpop objects
+* Check the formulae provided for Reynolds (consistent with Felsenstein's
+formulae, not straightforward reading the original article
