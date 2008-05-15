@@ -34,7 +34,7 @@
 
 # NEW IMPLEMENTATIONS:
 =====================
-*
+* genind2df: add an option to give NA per allele instead of per locus: NA[sep]NA instead of NA.
 
 # TESTING:
 ==========
