@@ -35,6 +35,7 @@
 # NEW IMPLEMENTATIONS:
 =====================
 * genind2df: add an option to give NA per allele instead of per locus: NA[sep]NA instead of NA.
+* implement different levels of ploidy in genind / genpop objects.
 
 # TESTING:
 ==========
@@ -57,11 +58,11 @@
 # LONG TERM
 ==========================
 ==========================
-* import from geneticsBase -- for now their basic class is not even documented!
+* import from geneticsBase -- wait for geneSet to be stable
 * export to geneticsBase -- same thing
 * see where code needs tuning, and use C/C++
 * implement global.rtest and local.rtest for genind/genpop objects
 * Implement method "scale" for genind / genpop objects
 * Implement dudi wrappers for genind / genpop objects
 * Check the formulae provided for Reynolds (consistent with Felsenstein's
-formulae, not straightforward reading the original article
+formulae, not straightforward reading the original article)
