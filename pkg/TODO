@@ -54,7 +54,7 @@
 * Implement a method to merge different markers for the same individuals
 * Build accessors for marker names, indiv names, pop names, spatial coords, ...
 * Return a spatial object from monmonier (class sp?)
-
+* Issue a warning when NAs exist in input of sPCA
 
 # LONG TERM
 ==========================
