@@ -26,7 +26,8 @@
 
 # CODE ISSUES:
 ==============
-* genind2df does not handle the pop correctly.
+* genind2df does not handle the pop argument correctly.
+* check the behavior of the constructor when one of several loci are entirely non-typed (same for individuals/populations)
 
 # DOCUMENTATION ISSUES:
 =======================
