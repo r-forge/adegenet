@@ -26,8 +26,8 @@
 
 # CODE ISSUES:
 ==============
-* genind2df does not handle the pop argument correctly.
-* check the behavior of the constructor when one of several loci are entirely non-typed (same for individuals/populations)
+* genind2df does not handle the pop argument correctly. -- fixed (TJ)
+* check the behavior of the constructor when one of several loci are entirely non-typed (same for individuals/populations) -- done, was a pb in df2genind, now fixed (TJ)
 
 # DOCUMENTATION ISSUES:
 =======================
@@ -35,7 +35,6 @@
 
 # NEW IMPLEMENTATIONS:
 =====================
-* genind2df: add an option to give NA per allele instead of per locus: NA[sep]NA instead of NA.
 * implement different levels of ploidy in genind / genpop objects.
 
 # TESTING:
@@ -54,7 +53,8 @@
 * Implement a method to merge different markers for the same individuals
 * Build accessors for marker names, indiv names, pop names, spatial coords, ...
 * Return a spatial object from monmonier (class sp?)
-* Issue a warning when NAs exist in input of sPCA
+* Issue a warning when NAs exist in input of sPCA -- done (TJ)
+* genind2df: add an option to give NA per allele instead of per locus: NA[sep]NA instead of NA.
 
 # LONG TERM
 ==========================

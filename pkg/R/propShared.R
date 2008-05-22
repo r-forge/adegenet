@@ -15,7 +15,7 @@ propShared <- function(obj){
     ## NAs are coded by 0
     ## The matrix is a cbind of two matrices, storing respectively the
     ## first and the second allele.
-    temp <- genind2df(x)
+    temp <- genind2df(x,usepop=FALSE)
     alleleSize <- max(apply(temp,1:2,nchar))/2
     mat1 <- apply(temp, 1:2, substr, 1, alleleSize)
     mat2 <- apply(temp, 1:2, substr, alleleSize+1, alleleSize*2)
