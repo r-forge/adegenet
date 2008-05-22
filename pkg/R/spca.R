@@ -65,7 +65,11 @@ spca <- function(obj, xy=NULL, cn=NULL, scale=FALSE, scannf=TRUE, nfposi=1, nfne
   if(is.genind(obj)) { X <- obj@tab }
   if(is.genpop(obj)) { X <- makefreq(obj, quiet=TRUE)$tab }
 
-  X <- apply(X,2,f1)
+  ## handle NAs
+  if(any(is.na(X))){
+      warning("NAs in data are automatically replaced (to mean allele frequency")
+      X <- apply(X,2,f1)
+  }
 
   if(truenames){
     rownames(X) <- rownames(truenames(obj))
