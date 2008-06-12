@@ -35,6 +35,7 @@
 # NEW IMPLEMENTATIONS:
 =====================
 * implement different levels of ploidy in genind / genpop objects.
+* implement classical Fst sensu Weir 1996
 
 # TESTING:
 ==========
