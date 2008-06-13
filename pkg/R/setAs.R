@@ -2,13 +2,13 @@
 # S4 methods
 #############
 setAs("genind", "data.frame", function(from, to) {
-    return(from@tab)
+    return(as.data.frame(from@tab))
 })
 
 
 
 setAs("genpop", "data.frame", function(from, to) {
-    return(from@tab)
+    return(as.data.frame(from@tab))
 })
 
 
