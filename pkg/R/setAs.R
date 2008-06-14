@@ -37,6 +37,27 @@ setAs("genind", "genpop", function(from, to) {
 
 
 
+setOldClass("ktab")
+setAs("genind", "ktab", function(from, to) {
+    if(!require(ade4)) stop("package ade4 is required")
+    res <- ktab.data.frame(df=as.data.frame(from), blocks=from@loc.nall, rownames=from@ind.names,
+                           colnames=unlist(from@all.names), tabnames=from@loc.names)
+    return(res)
+})
+
+
+
+
+setAs("genpop", "ktab", function(from, to) {
+    if(!require(ade4)) stop("package ade4 is required")
+    res <- ktab.data.frame(df=as.data.frame(from), blocks=from@loc.nall, rownames=from@pop.names,
+                           colnames=unlist(from@all.names), tabnames=from@loc.names)
+    return(res)
+})
+
+
+
+
 ##############
 # S3 versions
 ##############
@@ -67,3 +88,18 @@ as.matrix.genpop <- function(x,...){
 as.genpop.genind <- function(x,...){
     return(as(x,"genpop"))
 }
+
+
+
+
+as.ktab.genind <- function(x,...){
+    return(as(x,"ktab"))
+}
+
+
+
+
+as.ktab.genpop <- function(x,...){
+    return(as(x,"ktab"))
+}
+
