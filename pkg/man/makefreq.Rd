@@ -6,7 +6,7 @@
   frequencies from an object of class \code{genpop}.
 }
 \usage{
-makefreq(x,quiet=FALSE,missing=NA)
+makefreq(x,quiet=FALSE,missing=NA,truenames=TRUE)
 }
 \arguments{
   \item{x}{an object of class \code{genpop}.}
@@ -14,6 +14,8 @@ makefreq(x,quiet=FALSE,missing=NA)
     printed (TRUE,default) or not (FALSE).}
   \item{missing}{treatment for missing values. Can be NA, 0 or "mean"
     (see details)}
+  \item{truenames}{a logical indicating whether true labels (as opposed
+    to generic labels) should be used to name the output.}
 }
 \details{There are 3 treatments for missing values: \cr
   - NA: kept as NA.\cr
