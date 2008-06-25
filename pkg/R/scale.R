@@ -4,9 +4,15 @@
 setGeneric("scaleGen", function(x,...){standardGeneric("scaleGen")})
 
 setMethod("scaleGen", "genind", function(x, center=TRUE, scale=TRUE,
-                                      method=c("sigma", "binom"), truenames=TRUE){
+                                      method=c("sigma", "binom"), missing=c("NA","0","mean"), truenames=TRUE){
 
     method <- match.arg(method)
+    missing <- match.arg(missing)
+
+    ## handle "missing" arg
+    if(missing %in% c("0","mean")){
+        x <- na.replace(x,method=missing)
+    }
     
     ## handle specific cases
     if(scale & tolower(method)=="binom"){
@@ -36,10 +42,11 @@ setMethod("scaleGen", "genind", function(x, center=TRUE, scale=TRUE,
 
 
 setMethod("scaleGen", "genpop", function(x, center=TRUE, scale=TRUE,
-                                      method=c("sigma", "binom"), missing=NA, truenames=TRUE){
+                                      method=c("sigma", "binom"),  missing=c("NA","0","mean"), truenames=TRUE){
 
     method <- match.arg(method)
-
+    missing <- match.arg(missing)
+    
     ## make allele frequencies here
     X <- makefreq(x,quiet=TRUE,missing=missing,truenames=truenames)$tab
 

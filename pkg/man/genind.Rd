@@ -16,22 +16,24 @@
   of \$.
 }
 \section{Slots}{
-         \describe{
+  \describe{
     \item{\code{tab}:}{matrix of genotypes -in rows- for all alleles -in
-    columns-. Values are frequency: '0' if the genotype does not have
-    the corresponding allele, '1' for an homozygote and 0.5 for an
-    heterozygte.Rows and columns are given generic names.}
+      columns-. Values are frequency: '0' if the genotype does not have
+      the corresponding allele, '1' for an homozygote and 0.5 for an
+      heterozygte.Rows and columns are given generic names.}
     \item{\code{loc.names}:}{character vector containing the real names of the loci}
     \item{\code{loc.fac}:}{locus factor for the columns of \code{tab}}
     \item{\code{loc.nall}:}{integer vector giving the number of alleles per locus}
     \item{\code{all.names}:}{list having one component per locus, each containing a character vector of alleles names}
     \item{\code{call}:}{the matched call}
     \item{\code{ind.names}:}{character vector containing the real names of the
-    individuals. Note that as Fstat does not store these names, objects
-    converted from .dat files will contain empty \code{ind.names}.}
+      individuals. Note that as Fstat does not store these names, objects
+      converted from .dat files will contain empty \code{ind.names}.}
+    \item{\code{ploidy}:}{ an integer indicating the degree of ploidy of
+      the genotypes. Beware: 2 is not an integer, but as.integer(2) is.}
     \item{\code{pop}:}{(optional) factor giving the population of each individual}
     \item{\code{pop.names}:}{(optional) vector giving the real names of the
-    populations}
+      populations}
     \item{\code{other}:}{(optional) a list containing other information}
   }
 }
