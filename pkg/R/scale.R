@@ -1,9 +1,9 @@
 ####################
-# normalize methods
+# scaleGen methods
 ####################
-setGeneric("normalize", function(x,...){standardGeneric("normalize")})
+setGeneric("scaleGen", function(x,...){standardGeneric("scaleGen")})
 
-setMethod("normalize", "genind", function(x, center=TRUE, scale=TRUE,
+setMethod("scaleGen", "genind", function(x, center=TRUE, scale=TRUE,
                                       method=c("sigma", "binom"), truenames=TRUE){
 
     method <- match.arg(method)
@@ -35,7 +35,7 @@ setMethod("normalize", "genind", function(x, center=TRUE, scale=TRUE,
 
 
 
-setMethod("normalize", "genpop", function(x, center=TRUE, scale=TRUE,
+setMethod("scaleGen", "genpop", function(x, center=TRUE, scale=TRUE,
                                       method=c("sigma", "binom"), missing=NA, truenames=TRUE){
 
     method <- match.arg(method)

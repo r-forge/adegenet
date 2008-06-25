@@ -134,10 +134,11 @@ setValidity("gen", .gen.valid)
 # virtual class indInfo
 ########################
 setClass("indInfo", representation(ind.names = "character",
-                                  pop = "factorOrNULL",
-                                  pop.names = "charOrNULL",
-                                  other = "listOrNULL", "VIRTUAL"),
-         prototype(pop=NULL, pop.names = NULL, other = NULL))
+                                   pop = "factorOrNULL",
+                                   pop.names = "charOrNULL",
+                                   ploidy = "integer",
+                                   other = "listOrNULL", "VIRTUAL"),
+         prototype(pop=NULL, pop.names = NULL, ploidy = as.integer(2), other = NULL))
 
 
 
@@ -159,7 +160,7 @@ setClass("indInfo", representation(ind.names = "character",
         warning("\nduplicate names in ind.names:\n")
         print(temp[temp>1])
     }
-
+    
     if(!is.null(object@pop)){ # check pop
 
         if(length(object@pop) != nrow(object@tab)) {
@@ -185,6 +186,12 @@ setClass("indInfo", representation(ind.names = "character",
 
     } # end check pop
 
+    ## check ploidy
+    if(object@ploidy < as.integer(1)){
+        cat("\nploidy inferior to 1\n")
+        return(FALSE)
+    }
+    
     return(TRUE)
 } #end .genind.valid
 
@@ -241,13 +248,11 @@ setValidity("genpop", .genpop.valid)
 # Function names
 #################
 setMethod("names", signature(x = "genind"), function(x){
-  temp <- rev(names(attributes(x)))[-1]
-  return(rev(temp))
+    return(slotNames(x))
 })
 
 setMethod("names", signature(x = "genpop"), function(x){
-  temp <- rev(names(attributes(x)))[-1]
-  return(rev(temp))
+    return(slotNames(x))
 })
 
 
@@ -258,7 +263,7 @@ setMethod("names", signature(x = "genpop"), function(x){
 # Function genind
 ##################
 ## constructor of a genind object
-genind <- function(tab,pop=NULL,prevcall=NULL){
+genind <- function(tab,pop=NULL,prevcall=NULL,ploidy=2){
 
   X <- as.matrix(tab)
   if(is.null(colnames(X))) stop("tab columns have no name.")
@@ -337,6 +342,11 @@ genind <- function(tab,pop=NULL,prevcall=NULL){
       names(pop.names) <- as.character(levels(res@pop))
       res@pop.names <- pop.names
   }
+
+  ## ploidy
+  plo <- as.integer(ploidy)
+  if(plo < as.integer(1)) stop("ploidy inferior to 1")
+  res@ploidy <- plo
 
   if(is.null(prevcall)) {prevcall <- match.call()}
   res@call <- prevcall
@@ -457,7 +467,8 @@ setMethod ("show", "genind", function(object){
   cat("\n@loc.nall: number of alleles per locus")
   cat("\n@loc.fac: locus factor for the ", ncol(x@tab), "columns of @tab")
   cat("\n@all.names: list of ", length(x@all.names), "components yielding allele names for each locus")
-
+  cat("\n@ploidy: ",x@ploidy)
+  
   cat("\n\nOptionnal contents: ")
   cat("\n@pop: ", ifelse(is.null(x@pop), "- empty -", "factor giving the population of each individual"))
   cat("\n@pop.names: ", ifelse(is.null(x@pop.names), "- empty -", "factor giving the population of each individual"))
@@ -690,17 +701,18 @@ genind2genpop <- function(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE){
   # pop.names <- levels(pop) ## no longer used
 
   # tabcount is a matrix pop x alleles, counting alleles per pop
-  # *2 to have alleles count
+  # *ploidy to have alleles counts
   f1 <- function(v){
     if(all(is.na(v))) return(NA) else return(sum(v,na.rm=TRUE))
   }
 
   f2 <- function(v){
     if(all(is.na(v)) || sum(v,na.rm=TRUE)==0) return(NA)
-    return(v/(sum(v,na.rm=TRUE)))       
+    return(v/(sum(v,na.rm=TRUE)))
   }
 
-  tabcount <- 2* apply(x@tab,2,function(c) tapply(c,pop,f1))
+  tabcount <- x@ploidy * apply(x@tab,2,function(c) tapply(c,pop,f1))
+  tabcount <- round(tabcount,digits=0)
   # restitute matrix class when only one pop
   if(is.null(dim(tabcount))) {
     lab.col <- names(tabcount)
