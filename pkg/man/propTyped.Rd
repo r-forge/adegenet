@@ -32,17 +32,15 @@
   "loc"), or a matrix of binary data (when \code{by} equals "both")
 }
 \details{
-  The argument \code{method} is used as follows:\cr
-
-  - \code{sigma}: scaling is made using the usual standard deviation\cr
-
-  - \code{binom}: scaling is made using the theoretical variance of the
-  allele frequency. This can be used to avoid that frequencies close to
-  0.5 have a stronger variance that those close to 0 or 1.
+  When \code{by} is set to "both", the result is a matrix of binary data
+  with entities in rows (individuals or populations) and markers in
+  columns. The values of the matrix are 1 for typed data, and 0 for NA.
 }
 \author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
 \examples{
-
+data(nancycats)
+propTyped(nancycats,by="loc")
+propTyped(genind2genpop(nancycats),by="both")
 }
 \keyword{methods}
 \keyword{manip}
