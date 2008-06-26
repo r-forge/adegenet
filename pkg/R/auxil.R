@@ -453,3 +453,29 @@ repool <- function(...){
 } # end repool
 
 
+
+
+######################
+## miscellanous utils
+######################
+
+
+#######
+# nLoc
+#######
+setGeneric("nLoc", function(x,...){
+    standardGeneric("nLoc")
+})
+
+
+
+setMethod("nLoc","genind", function(x,...){
+    return(length(x@loc.names))
+})
+
+
+
+setMethod("nLoc","genpop", function(x,...){
+    return(length(x@loc.names))
+})
+

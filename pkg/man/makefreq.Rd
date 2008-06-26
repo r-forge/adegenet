@@ -29,7 +29,6 @@ makefreq(x,quiet=FALSE,missing=NA,truenames=TRUE)
   \item{nobs}{number of observations (i.e. alleles) for each population x locus combinaison.}
   \item{call}{the matched call}
 }
-\references{}
 \seealso{\code{\link{genpop}}
 }
 \author{ Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
