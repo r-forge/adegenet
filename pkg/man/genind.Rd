@@ -5,6 +5,8 @@
 \alias{show,genind-method}
 \alias{names,genind-method}
 \alias{summary,genind-method}
+\alias{nLoc}
+\alias{nLoc,genind-method}
 \alias{.valid.genind}
 \title{adegenet formal class (S4) for individual genotypes}
 \description{The S4 class \code{genind} is used to store individual genotypes.\cr
@@ -51,10 +53,11 @@ Class \code{"\linkS4class{indInfo}"}, directly.
       object (same as print)}
     \item{summary}{\code{signature(object = "genind")}: summarizes a
       genind object, invisibly returning its content}
+    \item{nLoc}{\code{signature(object = "genind")}: returns the number
+      of loci of the object}
+    
   }
 }
-
-\references{}
 \seealso{\code{\link{as.genind}}, \code{\link{is.genind}}, \code{\link{genind2genpop}},
   \code{\link{genpop}}, \code{\link{import2genind}},
   \code{\link{read.genetix}}, \code{\link{read.genepop}},
