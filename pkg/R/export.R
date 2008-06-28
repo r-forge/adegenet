@@ -16,6 +16,7 @@
 genind2genotype <- function(x,pop=NULL,res.type=c("matrix","list")){
 
   if(!is.genind(x)) stop("x is not a valid genind object")
+  if(x@ploidy != as.integer(2)) stop("not implemented for non-diploid objects")
 
   if(!require(genetics)) stop("genetics package is not required but not installed.")
   if(is.null(pop)) pop <- x@pop
@@ -73,42 +74,45 @@ genind2genotype <- function(x,pop=NULL,res.type=c("matrix","list")){
 # Function genind2hierfstat
 ############################
 genind2hierfstat <- function(x,pop=NULL){
-  if(!inherits(x,"genind")) stop("x must be a genind object (see ?genind)")
-  invisible(validObject(x))
-  if(is.null(pop)) pop <- x@pop
-  if(is.null(pop)) pop <- as.factor(rep("P1",nrow(x@tab)))
-  
-  # make one table by locus from x@tab
-  kX <- seploc(x,res.type="matrix")
-  # kX is a list of nloc tables
+    ##  if(!inherits(x,"genind")) stop("x must be a genind object (see ?genind)")
+    ##   invisible(validObject(x))
+    if(!is.genind(x)) stop("x is not a valid genind object")
+    if(x@ploidy != as.integer(2)) stop("not implemented for non-diploid objects")
 
-  # prepare allele names
-  all.names <- x@all.names
+    if(is.null(pop)) pop <- x@pop
+    if(is.null(pop)) pop <- as.factor(rep("P1",nrow(x@tab)))
+    
+    ## make one table by locus from x@tab
+    kX <- seploc(x,res.type="matrix")
+    ## kX is a list of nloc tables
 
-  # check the number of first 0 to remove from all.names
-  nfirstzero <- attr(regexpr("^0*",unlist(all.names)),"match.length")
-  nrmzero <- min(nfirstzero)
+    ## prepare allele names
+    all.names <- x@all.names
 
-  for(i in 1:nrmzero) {
-    all.names <- lapply(all.names,function(e) gsub("^0","",e))
-  }
-   
-  # function to recode a genotype in form "A1A2" (as integers) from frequencies
-  recod <- function(vec,lab){
-    if(all(is.na(vec))) return(NA)
-    if(sum(vec) < 0) return(NA)
-    temp <- which(vec!=0)
-    lab <- lab[temp]
-    res <- as.integer(paste(lab[1],lab[length(lab)],sep=""))
+    ## check the number of first 0 to remove from all.names
+    nfirstzero <- attr(regexpr("^0*",unlist(all.names)),"match.length")
+    nrmzero <- min(nfirstzero)
+
+    for(i in 1:nrmzero) {
+        all.names <- lapply(all.names,function(e) gsub("^0","",e))
+    }
+    
+    ## function to recode a genotype in form "A1A2" (as integers) from frequencies
+    recod <- function(vec,lab){
+        if(all(is.na(vec))) return(NA)
+        if(sum(vec) < 0) return(NA)
+        temp <- which(vec!=0)
+        lab <- lab[temp]
+        res <- as.integer(paste(lab[1],lab[length(lab)],sep=""))
+        return(res)
+    }
+
+                                        # kGen is a list of nloc vectors of genotypes
+    kGen <- lapply(1:length(kX), function(i) apply(kX[[i]],1,recod,all.names[[i]]))
+    res <- cbind(as.numeric(pop),as.data.frame(kGen))
+    colnames(res) <- c("pop",x@loc.names)
+
     return(res)
-  }
-
-  # kGen is a list of nloc vectors of genotypes
-  kGen <- lapply(1:length(kX), function(i) apply(kX[[i]],1,recod,all.names[[i]]))
-  res <- cbind(as.numeric(pop),as.data.frame(kGen))
-  colnames(res) <- c("pop",x@loc.names)
-
-  return(res)
 }
 
 
