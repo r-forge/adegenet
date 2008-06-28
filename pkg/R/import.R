@@ -46,6 +46,9 @@ df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, p
 
     res <- list()
 
+    ## make sure X is in character mode
+    mode(X) <- "character"
+    
     n <- nrow(X)
     nloc <- ncol(X)
     ploidy <- as.integer(ploidy)
@@ -71,8 +74,10 @@ df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, p
     ## ERASE ENTIRELY NON-TYPE LOCI AND INDIVIDUALS
     tempX <- X
     if(!is.null(sep)) tempX <- gsub(sep,"",X)
+    ## turn NANANA, 00000, ... into NA
     tempX <- gsub("^0*$",NA,X)
-
+    tempX <- gsub("(NA)+",NA,tempX)
+    
     ## Erase entierely non-typed loci
     temp <- apply(tempX,2,function(c) all(is.na(c)))
     if(any(temp)){
@@ -93,6 +98,8 @@ df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, p
     }
 
     n <- nrow(X)
+    X <- gsub("^.*NA.*$",NA,X) # set correct NAs in X
+    
     # ind.names <- rownames(X) this erases the real labels
     # note: if X is kept as a matrix, duplicate row names are no problem
  
@@ -278,7 +285,7 @@ read.genetix <- function(file=NULL,missing=NA,quiet=FALSE) {
     pop <- factor(rep(pop.names,pop.nind))
     
     ## pass X to df2genind
-    res <- df2genind(X=X, ncode=6, pop=pop, missing=missing)
+    res <- df2genind(X=X, ncode=6, pop=pop, missing=missing, ploidy=2)
     res@call <- match.call()
     
     if(!quiet) cat("\n...done.\n\n")
@@ -320,7 +327,7 @@ read.fstat <- function(file,missing=NA,quiet=FALSE){
   colnames(X) <- loc.names
   rownames(X) <- 1:nrow(X)
 
-  res <- df2genind(X=X,pop=pop,missing=missing)
+  res <- df2genind(X=X,pop=pop,missing=missing, ploidy=2)
   # beware : fstat files do not yield ind names
   res@ind.names <- rep("",length(res@ind.names))
   names(res@ind.names) <- rownames(res@tab)
@@ -451,7 +458,7 @@ read.genepop <- function(file,missing=NA,quiet=FALSE){
   pop.names <- ind.names[pop.names.idx]
   levels(pop) <- pop.names
   
-  res <- df2genind(X=X,pop=pop,missing=missing)
+  res <- df2genind(X=X,pop=pop,missing=missing, ploidy=2)
   res@call <- prevcall
   
   if(!quiet) cat("\n...done.\n\n")
@@ -617,7 +624,7 @@ read.structure <- function(file, n.ind=NULL, n.loc=NULL,  onerowperind=FALSE, co
   rownames(X) <- ind.names
   colnames(X) <- loc.names
 
-  res <- df2genind(X=X,pop=pop,missing=missing)
+  res <- df2genind(X=X,pop=pop,missing=missing, ploidy=2)
 
   res@call <- match.call()
 
