@@ -21,8 +21,7 @@
  such a data.frame.
  }
 \usage{
-df2genind(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, pop=NULL,
- missing=NA, ploidy=2)
+df2genind(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, pop=NULL, missing=NA, ploidy=2)
 genind2df(x,pop=NULL, sep="", usepop=TRUE)
 }
 \arguments{
@@ -42,7 +41,7 @@ genind2df(x,pop=NULL, sep="", usepop=TRUE)
     or \code{x@pop} should be used (TRUE, default) or not (FALSE).}
 }
    
-\details{There are 3 treatments for missing values: \cr
+\details{=== There are 3 treatments for missing values === \cr
   - NA: kept as NA.\cr
   
   - 0: allelic frequencies are set to 0  on all alleles of the concerned
@@ -52,7 +51,7 @@ genind2df(x,pop=NULL, sep="", usepop=TRUE)
   corresponding allele, computed on the whole set of
   individuals. Recommended for a centred PCA.\cr\cr
 
-  Details for the \code{sep} argument:\cr
+  === Details for the \code{sep} argument ===\cr
   this character is directly used in reguar expressions like
   \code{gsub}, and thus require some characters to be preceeded by
   double backslashes. For instance, "/" works but "|" must be coded as "\\\\|".
