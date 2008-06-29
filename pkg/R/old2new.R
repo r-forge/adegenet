@@ -23,6 +23,7 @@ setMethod("old2new", "genind", function(object){
       theoLength <- theoLength + 1
   }
   res@call <- match.call()
+  res@ploidy <- 2
 
   if(length(object) > theoLength) warning("optional content else than pop and pop.names was not converted")
 
@@ -41,7 +42,7 @@ setMethod("old2new", "genpop", function(object){
   res@loc.fac <- as.factor(x$loc.fac)
   res@all.names <- as.list(x$all.names)
   res@call <- match.call()
-
+  
   if(length(object)>7) warning("optional content was not converted")
 
   return(res)
