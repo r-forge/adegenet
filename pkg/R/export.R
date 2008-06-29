@@ -16,7 +16,7 @@
 genind2genotype <- function(x,pop=NULL,res.type=c("matrix","list")){
 
   if(!is.genind(x)) stop("x is not a valid genind object")
-  if(x@ploidy != as.integer(2)) stop("not implemented for non-diploid objects")
+  if(x@ploidy != as.integer(2)) stop("not implemented for non-diploid genotypes")
 
   if(!require(genetics)) stop("genetics package is not required but not installed.")
   if(is.null(pop)) pop <- x@pop
@@ -77,7 +77,7 @@ genind2hierfstat <- function(x,pop=NULL){
     ##  if(!inherits(x,"genind")) stop("x must be a genind object (see ?genind)")
     ##   invisible(validObject(x))
     if(!is.genind(x)) stop("x is not a valid genind object")
-    if(x@ploidy != as.integer(2)) stop("not implemented for non-diploid objects")
+    if(x@ploidy != as.integer(2)) stop("not implemented for non-diploid genotypes")
 
     if(is.null(pop)) pop <- x@pop
     if(is.null(pop)) pop <- as.factor(rep("P1",nrow(x@tab)))
@@ -129,36 +129,34 @@ genind2df <- function(x, pop=NULL, sep="", usepop=TRUE){
       pop <- x@pop
       levels(pop) <- x@pop.names
   }
-  ## if(is.null(pop)) pop <- as.factor(rep("P1",nrow(x@tab))) # no longer used
-  
+
   # make one table by locus from x@tab
   kX <- seploc(x,res.type="matrix")
+  kX <- lapply(kX, function(X) round(X*x@ploidy)) # take data as numbers of alleles
+  ## (kX is a list of nloc tables)
   
-  # kX is a list of nloc tables
-  
-  # function to recode a genotype in form "A1/A2" from frequencies
+  ## function to recode a genotype in form "A1[sep]...[sep]Ak" from frequencies
   recod <- function(vec,lab){
-      vec <- as.logical(vec)
-      sumVec <- sum(vec)
-      if(is.na(sumVec)) {
-          return(NA)
-      } else if(sumVec==2){ # heteroZ
-          return(paste(lab[vec], collapse=sep))
-      } else if(sumVec==1){ # homoZ
-          return(paste(lab[vec],lab[vec],sep=sep))
-      } else return(NA)
+      if(any(is.na(vec))) return(NA)
+      res <- paste( rep(lab,vec), collapse=sep)
+      return(res)
   }
-  
-  ##  recod <- function(vec,lab){ ## old version, new one is faster
-  ##     if(all(is.na(vec))) return(NA)
-  ##     if(round(sum(vec),10) != 1) return(NA)
-  ##     temp <- c(which(vec==0.5),which(vec==1))
-  ##     if(length(temp)==0) return(NA)
-  ##     lab <- lab[temp]
-  ##     res <- paste(lab[1],lab[length(lab)],sep=sep)
-  ##     return(res)
+
+
+  ## OLD VERSION
+  ##   recod <- function(vec,lab){
+  ##       vec <- as.logical(vec)
+  ##       sumVec <- sum(vec)
+  ##       if(is.na(sumVec)) {
+  ##           return(NA)
+  ##       } else if(sumVec==2){ # heteroZ
+  ##           return(paste(lab[vec], collapse=sep))
+  ##       } else if(sumVec==1){ # homoZ
+  ##           return(paste(lab[vec],lab[vec],sep=sep))
+  ##       } else return(NA)
   ##   }
- 
+  
+
   # kGen is a list of nloc vectors of genotypes
   kGen <- lapply(1:length(kX), function(i) apply(kX[[i]],1,recod,x@all.names[[i]]))
   names(kGen) <- x@loc.names
@@ -167,6 +165,6 @@ genind2df <- function(x, pop=NULL, sep="", usepop=TRUE){
 
   ## handle pop here
   if(!is.null(pop) & usepop) res <- cbind.data.frame(pop,res)
-  
+
   return(res)
 }
