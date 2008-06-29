@@ -36,8 +36,8 @@
 =====================
 * implement different levels of ploidy in genind / genpop objects.
   - put some stop where needed when ploidy!=2 is not handled
-  - adapt intput functions to different degree of ploidy
-  - adapt genind2df
+  - adapt intput functions to different degree of ploidy -- done (TJ)
+  - adapt genind2df -- done (TJ)
   - look for other functions to adapt
 * implement classical Fst sensu Weir 1996
 
@@ -67,7 +67,7 @@
 * export to geneticsBase -- same thing
 * see where code needs tuning, and use C/C++
 * implement global.rtest and local.rtest for genind/genpop objects
-* Implement method "scale" for genind / genpop objects
-* Implement dudi wrappers for genind / genpop objects
+* Implement method "scale" for genind / genpop objects -- done (TJ)
+* Implement dudi wrappers for genind / genpop objects -- one step (automatic coercion as data.frames) (TJ)
 * Check the formulae provided for Reynolds (consistent with Felsenstein's
 formulae, not straightforward reading the original article)
