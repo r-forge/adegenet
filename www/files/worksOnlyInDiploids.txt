@@ -1,0 +1,27 @@
+=== Functions that are implemented for diploid genotypes only ===
+- fstat (d)
+- gstat.randtest (d)
+- HWE.test.genind (d)
+- hybridize (+)
+- read.genetix (d)
+- read.fstat (d)
+- read.genpop (d)
+- read.structure (+)
+- import2genind (d)
+- propShared (=)
+
+
+
+== legend ==
+- (d): likely definitive, unless wholly recoded; concerns functions
+that rely on other software that do not support different levels of
+ploidy.
+
+- (=): can be done, is on the TODO list, but several difficulties
+  exist.
+
+- (+): can be done, is on the TODO list.
+
+
+
+Last update: 29/06/2008
