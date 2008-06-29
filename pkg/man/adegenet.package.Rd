@@ -99,7 +99,7 @@
   \tabular{ll}{
     Package: \tab adegenet\cr
     Type: \tab Package\cr
-    Version: \tab 1.1-3\cr
+    Version: \tab 1.2-0\cr
     Date: \tab 2008-MM-DD\cr
     License: \tab GPL (>=2)
   }  
