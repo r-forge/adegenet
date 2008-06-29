@@ -1,0 +1,8 @@
+	locTruc	locYo	LocMiss	loc11
+gen1	3	04	NA	11
+gen2	03	4	NA	10
+toto	NA	05	NA	10
+youpi	45	01	NA	NA
+foo	02	04	NA	11
+mrNA	NA	NA	NA	NA
+last	04	04	NA	09
