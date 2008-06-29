@@ -111,7 +111,8 @@ setMethod ("summary", "genind", function(object, ...){
 
   res$pop.nall <- apply(temp,1,function(r) sum(r!=0,na.rm=TRUE))
 
-  res$NA.perc <- 100*sum(is.na(x@tab))/prod(dim(x@tab))
+  ##  res$NA.perc <- 100*sum(is.na(x@tab))/prod(dim(x@tab)) <- wrong
+  res$NA.perc <- 100*(1-mean(propTyped(x,by="both")))
 
   ## handle heterozygosity
   if(x@ploidy > 1){
@@ -182,7 +183,17 @@ setMethod ("summary", "genpop", function(object, ...){
 
   res$pop.nall <- apply(x@tab,1,function(r) sum(r>0,na.rm=TRUE))
 
-  res$NA.perc <- 100*sum(is.na(x@tab))/prod(dim(x@tab))
+  ##  res$NA.perc <- 100*sum(is.na(x@tab))/prod(dim(x@tab)) <- old version
+  mean.w <- function(x,w=rep(1/length(x),length(x))){
+      x <- x[!is.na(x)]
+      w <- w[!is.na(x)]
+      w <- w/sum(w)
+      return(sum(x*w))
+  }
+  
+  w <- apply(x@tab,1,sum,na.rm=TRUE) # weights for populations
+  res$NA.perc <- 100*(1-mean.w(propTyped(x), w=w))
+  ## res$NA.perc <- 100*(1-mean(propTyped(x,by="both"))) <- old
 
   # print to screen
   listlab <- c("# Number of populations: ",
