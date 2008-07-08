@@ -75,3 +75,4 @@
 * Implement dudi wrappers for genind / genpop objects -- one step (automatic coercion as data.frames) (TJ)
 * Check the formulae provided for Reynolds (consistent with Felsenstein's
 formulae, not straightforward reading the original article)
+* Implement wrappers for spatial function (Moran's I, Mantel's correlogram, etc.).
