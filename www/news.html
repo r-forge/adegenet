@@ -12,35 +12,49 @@
  style="font-weight: bold;"></span></big></big><span
  style="font-weight: bold;"></span><span style="font-weight: bold;"></span><span
  style="color: rgb(255, 0, 0);"></span><br>
-<span style="font-weight: bold;"></span><span style="font-weight: bold;"><big>Incoming</big></span><span
- style="font-weight: bold;"> <img alt="" src="images/new.png"
- style="width: 80px; height: 37px;"></span><span
- style="font-weight: bold;"></span><span style="font-weight: bold;"></span><br>
-<span style="font-weight: bold;"></span>The next version of adegenet is
-<span style="color: rgb(255, 0, 0);">adegenet is
-1.2-0 </span>for R.2.7.0. It is mostly achieved, and awaits testing by
-courageous users by before being released on CRAN. Big news is: the
-package now handles <span style="font-weight: bold;">different levels
-of ploidy</span>, which explains the change from 1.1-2 to 1.2. A few
-new features will be added with this version, like the computation of
-proportions of available (i.e., typed) data by individual/population,
-markers, or both.<br>
-<br>
 <br>
 <span style="font-weight: bold;"><big>Today</big> </span><span
  style="font-weight: bold;"></span><span style="font-weight: bold;"></span><br>
 <span style="font-weight: bold;"></span>Current
 version of <span style="color: rgb(255, 0, 0);">adegenet is
-1.1-2 </span>for R.2.7.0.<br>
+1.2-0 </span>for R.2.7.1.<br>
 You can install the devel version from <a
  href="https://r-forge.r-project.org/scm/?group_id=120">R-Forge</a>.<br>
 See the current <a href="files/ChangeLog">ChangeLog</a> and <a
  href="https://r-forge.r-project.org/plugins/scmsvn/viewcvs.php/*checkout*/pkg/TODO?rev=121&amp;root=adegenet">TODO
 list</a> of the package.<br>
 <br>
+<span style="font-weight: bold;">09/07/2008 <img
+ style="width: 80px; height: 37px;" alt="" src="images/new.png"></span><span
+ style="font-weight: bold;"></span><br>
+<big>New adegenet version (<span style="color: rgb(255, 0, 0);">1.2-0</span>)
+has been released for R.2.7.1 !</big><br>
+<span style="color: rgb(255, 0, 0);"><span style="color: rgb(0, 0, 0);">This
+major release implements various levels of ploidy and adds some new
+features (see </span></span><a href="files/ChangeLog">ChangeLog</a><span
+ style="color: rgb(255, 0, 0);"><span style="color: rgb(0, 0, 0);">
+file):<br>
+&nbsp;&nbsp;&nbsp; - </span><span style="font-family: monospace;">df2genind</span></span>
+now handles a 'sep' argument, specifying a separator between the input
+alleles. This extends current input capabilities to a wider range of
+software.<br>
+&nbsp;&nbsp;&nbsp; - <span style="color: rgb(255, 0, 0);"><span
+ style="color: rgb(0, 0, 0);"></span><span
+ style="font-family: monospace;">scaleGen</span></span> is a function
+similar to 'scale' for genind/genpop objects. Various scalings adapted
+to genetic markers are proposed.<br>
+&nbsp;&nbsp;&nbsp; - <span style="color: rgb(255, 0, 0);"><span
+ style="color: rgb(0, 0, 0);"></span><span
+ style="font-family: monospace;">propTyped</span></span> is a function
+giving the the proportion of non-missing data in different ways; this
+is particularly useful to detect structuring in missing data.<br>
+&nbsp;&nbsp;&nbsp; - various coercion method are now available,
+implemented as methods for 'as' and as old S3 coercion (e.g.,
+'as.data.frame([myGenindObject])'). Coercion to matrix, data.frame and
+ktab (from ade4 package).<br>
+&nbsp; <br>
 <span style="font-weight: bold;">02/06/2008 </span><span
- style="font-weight: bold;"><img alt="" src="images/new.png"
- style="width: 80px; height: 37px;"></span><br>
+ style="font-weight: bold;"></span><br>
 <big>New adegenet version (<span style="color: rgb(255, 0, 0);">1.1-2</span>)
 has been released for R.2.7.0 !</big><br>
 <span style="color: rgb(255, 0, 0);"><span style="color: rgb(0, 0, 0);">This
@@ -70,8 +84,7 @@ etc.) and prints the corresponding items.<span
 </span><span style="color: rgb(255, 0, 0);"><span
  style="color: rgb(0, 0, 0);"></span></span><span
  style="font-weight: bold;"><br>
-30/04/2008 </span><span style="font-weight: bold;"><img alt=""
- src="images/new.png" style="width: 80px; height: 37px;"></span><br>
+30/04/2008 </span><span style="font-weight: bold;"></span><br>
 The new function '<span
  style="font-family: monospace; color: rgb(255, 0, 0);">propShared</span>'
 is available from the devel version of adegenet. It computes the <span
