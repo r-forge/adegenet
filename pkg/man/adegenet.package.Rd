@@ -100,7 +100,7 @@
     Package: \tab adegenet\cr
     Type: \tab Package\cr
     Version: \tab 1.2-1\cr
-    Date: \tab 2008-MM-DD\cr
+    Date: \tab 2008-07-08\cr
     License: \tab GPL (>=2)
   }  
 }
