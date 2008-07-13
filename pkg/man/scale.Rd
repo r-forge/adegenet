@@ -47,7 +47,31 @@
 }
 \author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
 \examples{
+## load data
+data(microbov)
+obj <- genind2genpop(microbov)
 
+## compare different scaling
+X1 <- scaleGen(obj)
+X2 <- scaleGen(obj,met="bin")
+
+if(require(ade4)){
+## compute PCAs
+pcaObj <- dudi.pca(obj,scale=FALSE,scannf=FALSE) # pca with no scaling
+pcaX1 <- dudi.pca(X1,scale=FALSE,scannf=FALSE) # pca with usual scaling
+pcaX2 <- dudi.pca(X2,scale=FALSE,scannf=FALSE) # pca with scaling for binomial variance
+
+## change signs of loadings if needed
+if(cor(pcaX1$c1[,1],pcaX2$c1[,1]) < 0) {pcaX1$c1[,1] <- -pcaX1$c1[,1]}
+if(cor(pcaX1$c1[,2],pcaX2$c1[,2]) < 0) {pcaX1$c1[,2] <- -pcaX1$c1[,2]}
+
+## graphics
+par(mfrow=c(2,2))
+barplot(pcaObj$eig,main="Eigenvalues\n no scaling")
+barplot(pcaX1$eig,main="Eigenvalues\n usual scaling")
+barplot(pcaX2$eig,main="Eigenvalues\n 'binomial' scaling")
+s.match(pcaX1$c1,pcaX2$c1,clab=0,sub="usual -> binom")
+}
 }
 \keyword{methods}
 \keyword{manip}
