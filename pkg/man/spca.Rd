@@ -126,7 +126,7 @@ plot.nb=TRUE, edit.nb=FALSE ,truenames=TRUE, d1=NULL, d2=NULL, k=NULL,
 \references{
 Jombart, T., Devillard, S., Dufour, A.-B. and Pontier, D.
 Revealing cryptic spatial patterns in genetic variability by a new
-multivariate method. Submitted to \emph{Heredity}.
+multivariate method. \emph{Heredity}, \bold{101}, 92--103.
 
 Wartenberg, D. E. (1985) Multivariate spatial correlation: a method for
 exploratory geographical analysis. \emph{Geographical Analysis},
