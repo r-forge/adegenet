@@ -1,3 +1,19 @@
+			CHANGES IN ADEGENET VERSION 1.2-1
+
+
+NEW FEATURES
+
+	o documentation of scaleGen provides an example of usefulness of
+	an appropriate scaling in PCA
+
+BUG FIXES
+
+	o fixed the recognition of NAs in df2genind
+
+	o fixed the call to inherits in spca (returned value changes in R-devel)
+
+
+
 			CHANGES IN ADEGENET VERSION 1.2-0
 
 
@@ -20,8 +36,6 @@ NEW FEATURES
 
 	o implemented propTyped, a function giving the proportion of
 	non-missing data in different ways.
-
-
 
 BUG FIXES
 
