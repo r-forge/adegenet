@@ -15,16 +15,7 @@ chooseCN <- function(xy,ask=TRUE, type=NULL, result.type="nb", d1=NULL, d2=NULL,
   d1.first <- d1
   d2.first <- d2
   k.first <- k
-  
-  ## check for uniqueness of coordinates
-  x <- xy[,1]
-  y <- xy[,2]
-  temp <- table(x,y)
-  if(any(temp>1) & (!is.null(type) && type!=7)){ # coords need not be unique if type==7 (inverse distances)
-    xy <- jitter(xy)
-    warning("Random noise was added to xy as duplicated coordinates existed.")
-  }
-  
+
   ## handle type argument
   if(!is.null(type)){
       type <- as.integer(type)
@@ -32,6 +23,16 @@ chooseCN <- function(xy,ask=TRUE, type=NULL, result.type="nb", d1=NULL, d2=NULL,
       ask <- FALSE
   }
 
+  ## check for uniqueness of coordinates
+  x <- xy[,1]
+  y <- xy[,2]
+  temp <- table(x,y)
+  if(any(temp>1) & (!is.null(type) && !type %in% c(5,7))){ # coords need not be unique if type==5 or 7
+      xy <- jitter(xy)
+      warning("Random noise was added to xy as duplicated coordinates existed.")
+  }
+
+  
   if(is.null(type) & !ask) { type <- 1 }
   
   ### begin large while ###
