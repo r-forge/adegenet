@@ -4,9 +4,10 @@
 \title{Function to choose a connection network}
 \description{The function \code{chooseCN} is a simple interface to
   build a connection network (CN) from xy coordinates. The user chooses
-  from 6 types of graph. \code{chooseCN} calls functions from
-  appropriate packages, handles non-unique coordinates and returns a
-  connection network either with classe \code{nb} or \code{listw}.  
+  from 6 types of graph and one additional weighting scheme.
+  \code{chooseCN} calls functions from appropriate packages, handles
+  non-unique coordinates and returns a connection network either with
+  classe \code{nb} or \code{listw}.
 }
 \usage{
 chooseCN(xy, ask = TRUE, type = NULL, result.type = "nb", d1 = NULL, 
