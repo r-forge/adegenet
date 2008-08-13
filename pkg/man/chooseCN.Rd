@@ -25,7 +25,9 @@ chooseCN(xy, ask = TRUE, type = NULL, result.type = "nb", d1 = NULL,
   \item{d1}{the minimum distance between any two neighbours. Used if
     \code{type=5.}}
   \item{d2}{the maximum distance between any two neighbours. Used if
-    \code{type=5}.}
+    \code{type=5}. Can also be a character: "dmin" for the minimum
+    distance so that each site has at least one connection, or "dmax" to
+  have all sites connected (despite the later has no sense).}
   \item{k}{the number of neighbours per point. Used if
     \code{type=6}.}
   \item{a}{the exponent of the inverse distance matrix. Used if
