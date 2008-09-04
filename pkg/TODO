@@ -30,7 +30,7 @@
 
 # DOCUMENTATION ISSUES:
 =======================
-*
+* make a tutorial for the sPCA
 
 
 # NEW IMPLEMENTATIONS:
@@ -44,7 +44,7 @@
 
 
 
-# LOW PRIORITY / MINOR BUGS
+# LOW PRIORITY / MINOR ISSUES
 ===========================
 ===========================
 * in spca, when nfposi=0, the returned object actually contains what corresponds to nfposi=1. Comes from multispati in ade4. To correct in ade4.
