@@ -1,4 +1,4 @@
-colorplot <- function(xy, X, axes=1:ncol(X), add.plot=TRUE, ...){
+colorplot <- function(xy, X, axes=1:ncol(X), add.plot=FALSE, defaultLevel=0, ...){
 
     ## some checks
     if(any(is.na(xy))) stop("NAs exist in xy")
@@ -7,7 +7,7 @@ colorplot <- function(xy, X, axes=1:ncol(X), add.plot=TRUE, ...){
     X <- as.matrix(X[,axes,drop=FALSE])
     if(any(is.na(X))) stop("NAs exist in X")
     if(!is.numeric(X)) stop("X is not numeric")
-
+    if(defaultLevel < 0 | defaultLevel>1) stop("defaultLevel must be between 0 and 1")
 
     ## function mapping x to [0,+inf[
     f1 <- function(x){
@@ -19,8 +19,8 @@ colorplot <- function(xy, X, axes=1:ncol(X), add.plot=TRUE, ...){
     X <- apply(X, 2, f1)
 
     v1 <- X[,1]
-    if(ncol(X)==2) {v2 <- X[,2]} else {v2 <- 0}
-    if(ncol(X)==3) {v2 <- X[,3]} else {v3 <- 0}
+    if(ncol(X)==2) {v2 <- X[,2]} else {v2 <- defaultLevel}
+    if(ncol(X)==3) {v2 <- X[,3]} else {v3 <- defaultLevel}
 
     ## find the colors
     col <- rgb(v1, v2, v3, maxColorValue=max(X))
