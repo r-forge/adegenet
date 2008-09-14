@@ -103,6 +103,13 @@ plotaux(dat4,spca4,lab=dat4$other$sup.pop,sub="dat4 - sPCA glob1",pos="bottomlef
 plotaux(dat4,pca4,lab=dat4$other$sup.pop,sub="dat4 - PCA axis2",pos="bottomleft",csub=2,axis=2)
 plotaux(dat4,spca4,lab=dat4$other$sup.pop,sub="dat4 - sPCA loc1",pos="bottomleft",csub=2,axis=2)
 
+# color plot
+colorplot(spca3, cex=4, main="colorplot sPCA dat3")
+text(spca3$xy[,1], spca3$xy[,2], dat3$pop)
+
+colorplot(spca4, cex=4, main="colorplot sPCA dat4")
+text(spca4$xy[,1], spca4$xy[,2], dat4$other$sup.pop)
+
 # detach data
 detach(spcaIllus)
 }

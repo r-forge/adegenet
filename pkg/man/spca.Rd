@@ -5,6 +5,7 @@
 \alias{summary.spca}
 \alias{plot.spca}
 \alias{screeplot.spca}
+\alias{colorplot.spca}
 \title{Spatial principal component analysis}
 \description{These functions are designed to perform a spatial principal
   component analysis and to display the results. They call upon
@@ -15,8 +16,8 @@
   
   - \code{print.spca}: prints the spca content\cr
   
-  - \code{summary.spca}: gives variance and autocorrelation
-  statistics\cr
+  - \code{summary.spca}: gives variance and autocorrelation\cr
+  statistics
   
   - \code{plot.spca}: usefull graphics (connection network, 3 different
   representations of map of scores, eigenvalues barplot and
@@ -24,11 +25,14 @@
   
   - \code{screeplot.spca}: decomposes spca eigenvalues into variance and
   autocorrelation\cr
+
+  - \code{colorplot.spca}: represents principal components of sPCA in
+  space using the RGB system.\cr
 }
 \usage{
-spca(obj, xy=NULL, cn=NULL, scale=FALSE, scannf=TRUE, nfposi=1, nfnega=1, type=NULL, ask=TRUE,
-plot.nb=TRUE, edit.nb=FALSE ,truenames=TRUE, d1=NULL, d2=NULL, k=NULL,
-  a=NULL, dmin=NULL)
+spca(obj, xy=NULL, cn=NULL, scale=FALSE, scannf=TRUE, nfposi=1,
+  nfnega=1, type=NULL, ask=TRUE,plot.nb=TRUE, edit.nb=FALSE
+  ,truenames=TRUE, d1=NULL, d2=NULL, k=NULL, a=NULL, dmin=NULL)
 
 \method{print}{spca}(x, \dots)
 
@@ -37,6 +41,8 @@ plot.nb=TRUE, edit.nb=FALSE ,truenames=TRUE, d1=NULL, d2=NULL, k=NULL,
 \method{plot}{spca}(x, axis = 1, \dots)
 
 \method{screeplot}{spca}(x, \dots, main=NULL)
+
+\method{colorplot}{spca}(x, axes=1:ncol(x$li), useLag=FALSE, \dots)
 }
 \arguments{
   \item{obj}{a \code{genind} or \code{genpop} object.}
@@ -87,6 +93,10 @@ plot.nb=TRUE, edit.nb=FALSE ,truenames=TRUE, d1=NULL, d2=NULL, k=NULL,
   \item{main}{a title for the screeplot; if NULL, a default one is
     used.}
   \item{\dots}{further arguments passed to other methods.}
+  \item{axes}{the index of the columns of X to be represented. Up to
+    three axes can be chosen.}
+  \item{useLag}{a logical stating whether the lagged components
+    (\code{x\$ls}) should be used instead of the components (\code{x\$li}).}
 }
 \details{The spatial principal component analysis (sPCA) is designed to
   investigate spatial patterns in the genetic variability. Given
