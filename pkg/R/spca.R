@@ -398,3 +398,28 @@ screeplot.spca <- function(x,...,main=NULL){
   
   return(invisible(match.call()))
 }
+
+
+
+
+
+###################
+# colorplot method
+###################
+colorplot.spca <- function(x, axes=1:ncol(x$li), useLag=FALSE, ...){
+    ## some checks
+    if(!any(inherits(x,"spca"))) stop("x in not a spca object.")
+
+    ## get args to be passed to colorplot
+    xy <- x$xy
+
+    if(useLag) {
+        X <- as.matrix(x$ls)
+    } else {
+        X <- as.matrix(x$li)
+    }
+
+    ## call to colorplot
+    colorplot(xy, X, axes, ...)
+
+} # end colorplot.spca
