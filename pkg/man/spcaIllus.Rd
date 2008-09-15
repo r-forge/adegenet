@@ -44,6 +44,7 @@ if(require(spdep) & require(ade4)){
 
 data(spcaIllus)
 attach(spcaIllus)
+opar <- par(no.readonly=TRUE)
 ## comparison PCA vs sPCA
 
 # PCA
@@ -104,6 +105,7 @@ plotaux(dat4,pca4,lab=dat4$other$sup.pop,sub="dat4 - PCA axis2",pos="bottomleft"
 plotaux(dat4,spca4,lab=dat4$other$sup.pop,sub="dat4 - sPCA loc1",pos="bottomleft",csub=2,axis=2)
 
 # color plot
+par(opar)
 colorplot(spca3, cex=4, main="colorplot sPCA dat3")
 text(spca3$xy[,1], spca3$xy[,2], dat3$pop)
 
