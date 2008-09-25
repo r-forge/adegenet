@@ -193,7 +193,7 @@ setMethod("$<-","genpop",function(x,name,value) {
 ###############
 ## genind
 setMethod("[","genind",
-          function(x, i, j, ..., treatOther=TRUE, drop=FALSE) {
+          function(x, i, j, ..., loc=NULL, treatOther=TRUE, drop=FALSE) {
 
               if (missing(i)) i <- TRUE
               if (missing(j)) j <- TRUE
@@ -206,7 +206,17 @@ setMethod("[","genind",
                   pop <- temp$pop
                   pop <- factor(pop[i])
               }
-             
+
+              ## handle loc argument
+              if(!is.null(loc)){
+                  loc <- as.character(loc)
+                  temp <- !loc %in% x@loc.fac
+                  if(any(temp)) { # si mauvais loci
+                      warning(paste("the following specified loci do not exist:", loc[temp]))
+                  }
+                  j <- x$loc.fac %in% loc
+              } # end loc argument
+              
               prevcall <- match.call()
               tab <- tab[i, j, ...,drop=FALSE]
               
@@ -239,13 +249,23 @@ setMethod("[","genind",
 
 ## genpop
 setMethod("[","genpop", 
-          function(x, i, j, ..., treatOther=TRUE, drop=FALSE) {
+          function(x, i, j, ..., loc=NULL, treatOther=TRUE, drop=FALSE) {
 
               if (missing(i)) i <- TRUE
               if (missing(j)) j <- TRUE
 
               tab <- truenames(x) 
-             
+
+              ## handle loc argument
+              if(!is.null(loc)){
+                  loc <- as.character(loc)
+                  temp <- !loc %in% x@loc.fac
+                  if(any(temp)) { # si mauvais loci
+                      warning(paste("the following specified loci do not exist:", loc[temp]))
+                  }
+                  j <- x$loc.fac %in% loc
+              } # end loc argument
+
               prevcall <- match.call()
               tab <- tab[i, j, ...,drop=FALSE]
               

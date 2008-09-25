@@ -26,7 +26,8 @@
 
 # CODE ISSUES:
 ==============
-* fix bug 1.2-2.01 (read.structure issue)
+* fix bug 1.2-2.01 (read.structure issue) -- fixed: was not a bug, just a mispecification in arguments
+
 
 # DOCUMENTATION ISSUES:
 =======================
