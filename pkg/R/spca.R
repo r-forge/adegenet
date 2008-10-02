@@ -72,8 +72,10 @@ spca <- function(obj, xy=NULL, cn=NULL, scale=FALSE, scannf=TRUE, nfposi=1, nfne
   }
 
   if(truenames){
-    rownames(X) <- rownames(truenames(obj))
-    colnames(X) <- colnames(truenames(obj))   
+      temp <- truenames(obj) # ! can return a list or a matrix
+      if(is.list(temp)) {temp <- temp$tab}
+      rownames(X) <- rownames(temp)
+      colnames(X) <- colnames(temp)
   }
 
   # perform analyses
@@ -95,11 +97,16 @@ spca <- function(obj, xy=NULL, cn=NULL, scale=FALSE, scannf=TRUE, nfposi=1, nfne
   posaxes <- if(nfposi>0) {1:nfposi} else NULL
   negaxes <- if(nfnega>0) {(length(spcaX$eig)-nfnega+1):length(spcaX$eig)} else NULL
   keptaxes <- c(posaxes,negaxes)
-      
+
+  ## set names of different components
   colnames(spcaX$c1) <- paste("Axis",keptaxes)
   colnames(spcaX$li) <- paste("Axis",keptaxes)
   colnames(spcaX$ls) <- paste("Axis",keptaxes)
-
+  row.names(spcaX$c1) <- colnames(X)
+  colnames(spcaX$as) <- colnames(spcaX$c1)
+  temp <- row.names(spcaX$as)
+  row.names(spcaX$as) <- paste("PCA",temp)
+  
   class(spcaX) <- "spca"
 
   return(spcaX)
