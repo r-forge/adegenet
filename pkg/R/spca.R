@@ -16,9 +16,9 @@
 ################
 # Function spca
 ################
-spca <- function(obj, xy=NULL, cn=NULL, scale=FALSE, scannf=TRUE, nfposi=1, nfnega=1, type=NULL,
-                 ask=TRUE, plot.nb=TRUE, edit.nb=FALSE ,truenames=TRUE, d1=NULL, d2=NULL, k=NULL,
-                 a=NULL, dmin=NULL) {
+spca <- function(obj, xy=NULL, cn=NULL, scale=FALSE, scale.method=c("sigma","binom"), scannf=TRUE,
+                 nfposi=1, nfnega=1, type=NULL, ask=TRUE, plot.nb=TRUE, edit.nb=FALSE ,
+                 truenames=TRUE, d1=NULL, d2=NULL, k=NULL, a=NULL, dmin=NULL){
   
   if(!any(inherits(obj,c("genind","genpop")))) stop("obj must be a genind or genpop object.")
   invisible(validObject(obj))
@@ -55,31 +55,16 @@ spca <- function(obj, xy=NULL, cn=NULL, scale=FALSE, scannf=TRUE, nfposi=1, nfne
   if(ncol(xy) != 2) stop("xy does not have two columns.")
   if(nrow(xy) != nrow(obj@tab)) stop("obj@tab and xy must have the same row numbers.")
 
-  ## prepare data
-  f1 <- function(vec){
-    m <- mean(vec,na.rm=TRUE)
-    vec[is.na(vec)] <- m
-    return(vec)
-  }
-
-  if(is.genind(obj)) { X <- obj@tab }
-  if(is.genpop(obj)) { X <- makefreq(obj, quiet=TRUE)$tab }
-
-  ## handle NAs
-  if(any(is.na(X))){
+  ## handle NAs warning
+  if(any(is.na(obj@tab))){
       warning("NAs in data are automatically replaced (to mean allele frequency")
-      X <- apply(X,2,f1)
   }
 
-  if(truenames){
-      temp <- truenames(obj) # ! can return a list or a matrix
-      if(is.list(temp)) {temp <- temp$tab}
-      rownames(X) <- rownames(temp)
-      colnames(X) <- colnames(temp)
-  }
-
-  # perform analyses
-  pcaX <- dudi.pca(X, center=TRUE, scale=scale, scannf=FALSE)
+  ## handle NAs, centring and scaling  
+  X <- scaleGen(obj, center=TRUE, scale=scale, method=scale.method, missing="mean", truenames=truenames)
+  
+  ## perform analyses
+  pcaX <- dudi.pca(X, center=FALSE, scale=FALSE, scannf=FALSE)
 
   spcaX <- multispati(dudi=pcaX, listw=resCN, scannf=scannf, nfposi=nfposi, nfnega=nfnega)
 
