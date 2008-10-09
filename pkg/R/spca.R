@@ -107,7 +107,7 @@ spca <- function(obj, xy=NULL, cn=NULL, scale=FALSE, scale.method=c("sigma","bin
 ######################
 print.spca <- function(x, ...){
   cat("\t########################################\n")
-  cat("\t# Spatial principal component analysis #\n")
+  cat("\t# spatial Principal Component Analysis #\n")
   cat("\t########################################\n")
   cat("class: ")
   cat(class(x))
@@ -137,7 +137,7 @@ print.spca <- function(x, ...){
   cat("\n")
   sumry <- array("", c(4, 4), list(1:4, c("data.frame", "nrow", "ncol", "content")))
   sumry[1, ] <- c("$c1", nrow(x$c1), ncol(x$c1), "principal axes: scaled vectors of alleles loadings")
-  sumry[2, ] <- c("$li", nrow(x$li), ncol(x$li), "principal components: coordinates of entities")
+  sumry[2, ] <- c("$li", nrow(x$li), ncol(x$li), "principal components: coordinates of entities ('scores')")
   sumry[3, ] <- c("$ls", nrow(x$ls), ncol(x$ls), 'lag vector of principal components')
   sumry[4, ] <- c("$as", nrow(x$as), ncol(x$as), 'pca axes onto spca axes')
   
