@@ -477,16 +477,16 @@ read.genepop <- function(file,missing=NA,quiet=FALSE){
 ############################
 # Function read.structure
 ############################
-read.structure <- function(file, n.ind=NULL, n.loc=NULL,  onerowperind=FALSE, col.lab=NULL, col.pop=NULL, col.others=NULL, row.marknames=NULL, NA.char="-9", pop=NULL, missing=NA, ask=TRUE, quiet=FALSE){
+read.structure <- function(file, n.ind=NULL, n.loc=NULL,  onerowperind=NULL, col.lab=NULL, col.pop=NULL, col.others=NULL, row.marknames=NULL, NA.char="-9", pop=NULL, missing=NA, ask=TRUE, quiet=FALSE){
   
   if(!file.exists(file)) stop("Specified file does not exist.")
   if(!toupper(.readExt(file)) %in% c("STR","STRU")) stop("File extension .stru expected")
 
   ## set defaults for non optional arguments without default values
   if(!ask){
-      if(is.null(col.lab)) col.lab <- 0
-      if(is.null(col.pop)) col.pop <- 0
-      if(is.null(row.marknames)) row.marknames <- 0
+      if(is.null(col.lab)) col.lab <- as.integer(0)
+      if(is.null(col.pop)) col.pop <- as.integer(0)
+      if(is.null(row.marknames)) row.marknames <- as.integer(0)
   }
   
   ## required questions
@@ -494,7 +494,7 @@ read.structure <- function(file, n.ind=NULL, n.loc=NULL,  onerowperind=FALSE, co
     cat("\n How many genotypes are there? ")
     n.ind <- as.integer(readLines(n = 1))
   }
-
+ 
   if(is.null(n.loc)){
     cat("\n How many markers are there? ")
     n.loc <- as.integer(readLines(n = 1))
@@ -522,7 +522,7 @@ read.structure <- function(file, n.ind=NULL, n.loc=NULL,  onerowperind=FALSE, co
   }  
 
   if(is.null(onerowperind)){
-    cat("\n Use the option 'onerowperind' (y/n)? ")
+    cat("\n Are genotypes coded by a single row (y/n)? ")
     onerowperind <- toupper(readLines(n = 1))
     if(onerowperind == "Y") {
       onerowperind <- TRUE
