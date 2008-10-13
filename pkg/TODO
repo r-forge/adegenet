@@ -27,6 +27,8 @@
 # CODE ISSUES:
 ==============
 * fix bug 1.2-2.01 (read.structure issue) -- fixed: was due to the default of "onerowperind" argument.
+* fix bug 1.2-2.02 (read.genetix issue)
+* fix bug 1.2-2.03 (monmonier issue)
 
 
 # DOCUMENTATION ISSUES:
@@ -37,7 +39,7 @@
 # NEW IMPLEMENTATIONS:
 =====================
 * color plot for the sPCA results, based on RGB representation of Cavalli-Sforza -- done(TJ)
-* loadingplot -- done(TJ)
+* loadingplot for plotting loadings of one axis -- done(TJ)
 * adegenetTutorial function which opens the online tutorials
 * allow for the use of na.replace and scaleGen in spca function -- done (TJ)
 
