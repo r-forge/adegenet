@@ -38,7 +38,7 @@ spca(obj, xy=NULL, cn=NULL, scale=FALSE, scale.method=c("sigma","binom"), scannf
 
 \method{summary}{spca}(object, \dots, printres=TRUE)
 
-\method{plot}{spca}(x, axis = 1, \dots)
+\method{plot}{spca}(x, axis = 1, useLag=FALSE, \dots)
 
 \method{screeplot}{spca}(x, \dots, main=NULL)
 

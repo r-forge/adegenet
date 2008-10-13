@@ -282,7 +282,7 @@ summary.spca <- function (object, ..., printres=TRUE) {
 #####################
 # Function plot.spca
 #####################
-plot.spca <- function (x, axis = 1, ...){
+plot.spca <- function (x, axis = 1, useLag=FALSE, ...){
     if (!inherits(x, "spca")) stop("Use only with 'spca' objects.")
 
     if(!require(ade4)) stop("ade4 package is required.")
@@ -295,7 +295,13 @@ plot.spca <- function (x, axis = 1, ...){
 
     n <- nrow(x$li)
     xy <- x$xy
-    z <- x$ls[,axis]
+
+    ## handle useLag argument
+    if(useLag){
+        z <- x$ls[,axis]
+    } else {
+        z <- x$li[,axis]
+    } # end if useLag
     nfposi <- x$nfposi
     nfnega <- x$nfnega
     ## handle neig parameter - hide cn if nore than 100 links
