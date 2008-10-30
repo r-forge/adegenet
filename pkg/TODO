@@ -29,20 +29,20 @@
 * fix bug 1.2-2.01 (read.structure issue) -- fixed: was due to the default of "onerowperind" argument.
 * fix bug 1.2-2.02 (read.genetix issue)
 * fix bug 1.2-2.03 (monmonier issue)
-
+* fix request 1.2-2.04 (implement adjusted heretozygosity in summary)
 
 # DOCUMENTATION ISSUES:
 =======================
-* make a tutorial for the sPCA
+* make a tutorial for the sPCA -- done (TJ)
 
 
 # NEW IMPLEMENTATIONS:
 =====================
 * color plot for the sPCA results, based on RGB representation of Cavalli-Sforza -- done(TJ)
-* loadingplot for plotting loadings of one axis -- done(TJ)
-* adegenetTutorial function which opens the online tutorials
+* loadingplot for plotting loadings of one axis -- done (TJ)
+* adegenetTutorial function which opens the online tutorials -- done (TJ)
 * allow for the use of na.replace and scaleGen in spca function -- done (TJ)
-
+* add rupica dataset -- done (TJ)
 
 
 # TESTING:
