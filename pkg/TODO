@@ -65,6 +65,8 @@
 - hybridize
 - read.structure
 - propShared
+* Permit specification of a matrix of spatial weights in spca.
+*
 
 
 # LONG TERM
