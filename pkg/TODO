@@ -27,7 +27,7 @@
 # CODE ISSUES:
 ==============
 * fix bug 1.2-2.01 (read.structure issue) -- fixed: was due to the default of "onerowperind" argument.
-* fix bug 1.2-2.02 (read.genetix issue)
+* fix bug 1.2-2.02 (read.genetix issue) -- fixed: was due to an error in the data file (wrong nloc); now read.genetix corrects that automatically and issues a warning. (TJ)
 * fix bug 1.2-2.03 (monmonier issue)
 * fix request 1.2-2.04 (implement adjusted heretozygosity in summary)
 
