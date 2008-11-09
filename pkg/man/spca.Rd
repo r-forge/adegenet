@@ -28,11 +28,17 @@
 
   - \code{colorplot.spca}: represents principal components of sPCA in
   space using the RGB system.\cr
+
+  A tutorial describes how to perform a sPCA: see
+  \url{http://adegenet.r-forge.r-project.org/files/tutorial-spca.pdf} or
+  type \code{adegenetTutorial(which="spca")}.
 }
 \usage{
-spca(obj, xy=NULL, cn=NULL, scale=FALSE, scale.method=c("sigma","binom"), scannf=TRUE, nfposi=1,
-  nfnega=1, type=NULL, ask=TRUE,plot.nb=TRUE, edit.nb=FALSE
-  ,truenames=TRUE, d1=NULL, d2=NULL, k=NULL, a=NULL, dmin=NULL)
+spca(obj, xy=NULL, cn=NULL, matWeight=NULL,
+     scale=FALSE, scale.method=c("sigma","binom"),
+     scannf=TRUE, nfposi=1, nfnega=1,
+     type=NULL, ask=TRUE, plot.nb=TRUE, edit.nb=FALSE,
+     truenames=TRUE, d1=NULL, d2=NULL, k=NULL, a=NULL, dmin=NULL)
 
 \method{print}{spca}(x, \dots)
 
@@ -50,11 +56,14 @@ spca(obj, xy=NULL, cn=NULL, scale=FALSE, scale.method=c("sigma","binom"), scannf
     coordinates. Seeked from obj\$other\$xy if it exists when xy is not
     provided. Can be NULL if a \code{nb} object is provided in
     \code{cn}.\cr
-    Longitude/latitude coordinates should be converted first by a given projection (see See
-    Also section).}
+    Longitude/latitude coordinates should be converted first by a given
+    projection (see See Also section).}
   \item{cn}{a connection network of the class 'nb' (package spdep). Can
     be NULL if xy is provided. Can be easily obtained using the function
-    chooseCN.}
+    chooseCN (see details).}
+  \item{matWeight}{a square matrix of spatial weights, indicating the
+    spatial proximities between entities. If provided, this argument
+    prevails over \code{cn} (see details).}
   \item{scale}{a logical indicating whether alleles should be scaled to
     unit variance (TRUE) or not (FALSE, default).}
   \item{scale.method}{a character string indicating the method used for
@@ -101,13 +110,20 @@ spca(obj, xy=NULL, cn=NULL, scale=FALSE, scale.method=c("sigma","binom"), scannf
   \item{useLag}{a logical stating whether the lagged components
     (\code{x\$ls}) should be used instead of the components (\code{x\$li}).}
 }
-\details{The spatial principal component analysis (sPCA) is designed to
+\details{
+  The spatial principal component analysis (sPCA) is designed to
   investigate spatial patterns in the genetic variability. Given
   multilocus genotypes (individual level) or allelic frequency
   (population level) and spatial coordinates, it finds individuals (or
   population) scores maximizing the product of variance and spatial
   autocorrelation (Moran's I). Large positive and negative eigenvalues
-  correspond to global and local structures. 
+  correspond to global and local structures.\cr
+
+  Spatial weights can be obtained in several ways, depending how the
+  arguments \code{xy}, \code{cn}, and \code{matWeight} are set.\cr
+  When several acceptable ways are used at the same time, priority is as
+  follows:\cr
+  \code{matWeight} >  \code{cn} > \code{xy} \cr
 }
 \value{The class \code{spca} are given to lists with the following
   components:\cr
