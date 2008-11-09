@@ -28,89 +28,100 @@ spca <- function(obj, xy=NULL, cn=NULL, matWeight=NULL,
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     if(!require(spdep, quiet=TRUE)) stop("spdep library is required.")
 
-  ## spatial coordinates
-  if(is.null(xy) & !is.null(obj$other$xy)) xy <- obj$other$xy
-  if(is.data.frame(xy)) xy <- as.matrix(xy)
-  if(!is.null(xy) & !is.matrix(xy)) stop("wrong 'xy' provided")
+    ## handle xy coordinates
+    if(is.null(xy) & (inherits(cn,"nb") & !inherits(cn,"listw")) ){
+                     xy <- attr(cn,"xy")  # xy can be retrieved from a nb object (not from listw)
+                 }
+    if(is.null(xy) & !is.null(obj$other$xy)) {
+        xy <- obj$other$xy # xy from @other$xy if it exists
+    }
+    if(is.null(xy)) stop("xy coordinates are not provided")
+    if(is.data.frame(xy)) {
+        xy <- as.matrix(xy)
+    }
+    if(!is.matrix(xy)) stop("wrong 'xy' provided")
+    if(ncol(xy) != 2) stop("xy does not have two columns.")
+    if(nrow(xy) != nrow(obj@tab)) stop("obj@tab and xy must have the same row numbers.")
 
-  appel <- match.call()
 
-  ## connection network from xy coordinates
-  if(is.null(cn)) {
-      if(is.null(xy)) stop("'xy' and 'cn' are both missing")
-      resCN <- chooseCN(xy=xy, ask=ask, type=type, plot.nb=plot.nb, edit.nb=edit.nb,
-                        result.type="listw", d1=d1, d2=d2, k=k, a=a, dmin=dmin)
-  } else if(is.null(matWeight)) { # connection network is provided without matWeight
+    appel <- match.call()
 
-      ## cn is a 'pure' nb object (i.e., nb but not listw)
-      if(inherits(cn,"nb") & !inherits(cn,"listw")) {
-          xy <- attr(cn,"xy") # xy coords can be retrieved from cn of class nb (not from listw)
-          cn <- nb2listw(cn, style="W", zero.policy=TRUE)
-      }
+    ## == To find the spatial weights ==
+    resCN <- NULL
 
-      ## cn is not a recognized object
-      if(!inherits(cn,"listw")) {
-          stop("cn does not have a recognized class ('nb' or 'listw', package spdep)")
-      } else {
-          ## cn is a listw, but not a nb object.
-          if(is.null(xy)) stop("listw object provided as 'cn' without providing 'xy'")
-          resCN <- cn
-      }
-  } else {
-  ## matrix of spatial weights (matWeight)
-      if(!is.matrix(matWeight)) stop("matWeight is not a matrix")
-      if(!is.numeric(matWeight)) stop("matWeight is not numeric")
-      if(nrow(matWeight) != ncol(matWeight)) stop("matWeight is not square")
-      if(nrow(matWeight) != nrow(obj@tab)) stop("dimension of datWeight does not match genetic data")
-      diag(matWeight) <- 0
-      matWeight <- prop.table(matWeight, 1)
-      resCN <- listw2mat(matWeight)
-  }
+    ## connection network from matWeight
+    if(!is.null(matWeight)){
+        if(!is.matrix(matWeight)) stop("matWeight is not a matrix")
+        if(!is.numeric(matWeight)) stop("matWeight is not numeric")
+        if(nrow(matWeight) != ncol(matWeight)) stop("matWeight is not square")
+        if(nrow(matWeight) != nrow(obj@tab)) stop("dimension of datWeight does not match genetic data")
+        diag(matWeight) <- 0
+        matWeight <- prop.table(matWeight, 1)
+        resCN <- mat2listw(matWeight)
+        resCN$style <- "W"
 
-  ## check xy coordinates
-  if(ncol(xy) != 2) stop("xy does not have two columns.")
-  if(nrow(xy) != nrow(obj@tab)) stop("obj@tab and xy must have the same row numbers.")
+    }
 
-  ## handle NAs warning
-  if(any(is.na(obj@tab))){
-      warning("NAs in data are automatically replaced (to mean allele frequency")
-  }
+    ## connection network from cn argument
+    if(is.null(resCN) & !is.null(cn)) {
+        if(inherits(cn,"nb")) {
+            if(!inherits(cn,"listw")){ # cn is a 'pure' nb object (i.e., nb but not listw)
+                cn <- nb2listw(cn, style="W", zero.policy=TRUE)
+            }
+            resCN <- cn
+        } else stop("cn does not have a recognized class")
+    }
 
-  ## handle NAs, centring and scaling
-  X <- scaleGen(obj, center=TRUE, scale=scale, method=scale.method, missing="mean", truenames=truenames)
 
-  ## perform analyses
-  pcaX <- dudi.pca(X, center=FALSE, scale=FALSE, scannf=FALSE)
+    ## connection network from xy coordinates
+    if(is.null(resCN)) {
+        resCN <- chooseCN(xy=xy, ask=ask, type=type, plot.nb=plot.nb, edit.nb=edit.nb,
+                          result.type="listw", d1=d1, d2=d2, k=k, a=a, dmin=dmin)
+    }
 
-  spcaX <- multispati(dudi=pcaX, listw=resCN, scannf=scannf, nfposi=nfposi, nfnega=nfnega)
+    ## == spatial weights are done ==
 
-  nfposi <- spcaX$nfposi
-  nfnega <- spcaX$nfnega
 
-  spcaX$xy <- xy
-  rownames(spcaX$xy) <- rownames(spcaX$li)
-  colnames(spcaX$xy) <- c("x","y")
+    ## handle NAs warning
+    if(any(is.na(obj@tab))){
+        warning("NAs in data are automatically replaced (to mean allele frequency")
+    }
 
-  spcaX$lw <- resCN
+    ## handle NAs, centring and scaling
+    X <- scaleGen(obj, center=TRUE, scale=scale, method=scale.method, missing="mean", truenames=truenames)
 
-  spcaX$call <- appel
+    ## perform analyses
+    pcaX <- dudi.pca(X, center=FALSE, scale=FALSE, scannf=FALSE)
 
-  posaxes <- if(nfposi>0) {1:nfposi} else NULL
-  negaxes <- if(nfnega>0) {(length(spcaX$eig)-nfnega+1):length(spcaX$eig)} else NULL
-  keptaxes <- c(posaxes,negaxes)
+    spcaX <- multispati(dudi=pcaX, listw=resCN, scannf=scannf, nfposi=nfposi, nfnega=nfnega)
 
-  ## set names of different components
-  colnames(spcaX$c1) <- paste("Axis",keptaxes)
-  colnames(spcaX$li) <- paste("Axis",keptaxes)
-  colnames(spcaX$ls) <- paste("Axis",keptaxes)
-  row.names(spcaX$c1) <- colnames(X)
-  colnames(spcaX$as) <- colnames(spcaX$c1)
-  temp <- row.names(spcaX$as)
-  row.names(spcaX$as) <- paste("PCA",temp)
+    nfposi <- spcaX$nfposi
+    nfnega <- spcaX$nfnega
 
-  class(spcaX) <- "spca"
+    spcaX$xy <- xy
+    rownames(spcaX$xy) <- rownames(spcaX$li)
+    colnames(spcaX$xy) <- c("x","y")
 
-  return(spcaX)
+    spcaX$lw <- resCN
+
+    spcaX$call <- appel
+
+    posaxes <- if(nfposi>0) {1:nfposi} else NULL
+    negaxes <- if(nfnega>0) {(length(spcaX$eig)-nfnega+1):length(spcaX$eig)} else NULL
+    keptaxes <- c(posaxes,negaxes)
+
+    ## set names of different components
+    colnames(spcaX$c1) <- paste("Axis",keptaxes)
+    colnames(spcaX$li) <- paste("Axis",keptaxes)
+    colnames(spcaX$ls) <- paste("Axis",keptaxes)
+    row.names(spcaX$c1) <- colnames(X)
+    colnames(spcaX$as) <- colnames(spcaX$c1)
+    temp <- row.names(spcaX$as)
+    row.names(spcaX$as) <- paste("PCA",temp)
+
+    class(spcaX) <- "spca"
+
+    return(spcaX)
 
 } # end spca
 
