@@ -13,16 +13,11 @@
 }
 \usage{data(rupica)}
 \format{
-    \code{rupica} is a genind object with 6 supplementary components
+    \code{rupica} is a genind object with 3 supplementary components
     inside the \code{@other} slot:
     \describe{
         \item{xy}{a matrix containing the spatial coordinates of the genotypes.}
-        \item{sex}{a factor (F: female; M: male) giving the sex of each individual.}
-	\item{age}{an integer giving the age of each individual.}
-	\item{behav}{a factor (resid: resident; disp: likely to
-	  disperse) stating whether an individual is likely to disperse
-	  or not (based on its age and sex).}
-	\item{mnt}{a raster map of elevation, with the \code{asc} format
+     	\item{mnt}{a raster map of elevation, with the \code{asc} format
 	  from the \code{adehabitat} package.}
 	\item{showBauges}{a function to display the map of elevation
 	  with an appropriate legend (use \code{showBauges()}).}
