@@ -1,0 +1,59 @@
+--------------------------------------------------------------------------------
+EASYPOP (v. 2.0.1)
+Author: F. Balloux
+Available at: http://www.unil.ch/izea/softwares/easypop.html
+--------------------------------------------------------------------------------
+
+Ploidy level ? (0=haplo-diploid; 1=haploid; 2=diploid)
+2
+Two sexes?:y/n
+n
+Random mating?:y/n
+y
+Number of populations ?
+2
+Same number of individuals in each populations ?:y/n
+y
+Number of individuals ?
+1000
+Same migration scheme over all simulation? (y/n)
+y
+proportion of migration?(between 0 and 1)
+0.001
+Number of loci ?
+20
+Free recombination between loci?:y/n
+y
+Do all loci have the same mutation scheme?:y/n
+y
+Mutation rate ?(between 0 and 1, e.g. 0.0001) 
+0.0001
+Mutation model
+1= Kam,(same probability to mutate to any allelic state)
+2= Ssm, (single step mutation model)
+3= Mixed model of Ssm with a proportion of Kam mutation events)
+4= Mixed model of Ssm with a proportion of double step mutation events)
+1
+Number of possible allelic states ?(below 1000) 
+50
+Variability of the initial population
+1= Maximal, (randomly assigned alleles)
+2= Minimal, (all individuals start with the same allele)
+1
+Number of generations ?
+1000
+Do you want the complete dataset in the '.dat' and '.gen' result files ?:y/n
+y
+Do you want a file giving the complete pedigree of the simulation ?:y/n
+(Please notice that this file can be very huge and will slow down simulations)
+n
+Name of the file?
+2pop
+Number of replicates? (between 1 and 999)
+1
+
+
+replicate:  1
+
+  1000   900   800   700   600   500   400   300   200   100
+finished

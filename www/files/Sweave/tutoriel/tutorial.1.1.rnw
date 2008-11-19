@@ -1,0 +1,532 @@
+% On lui donne l'en-tete
+\input{enTeteTJ}
+
+\setboolean{tutorial}{true}
+\newcommand{\titrefiche}{A tutorial for the  R package \texttt{adegenet}}
+\newcommand{\shorttitle}{\texttt{adegenet} tutorial}
+\newcommand{\sommairefiche}{ }
+\newcommand{\auteurfiche}{T. JOMBART}
+\newcommand{\rcmd}[1]{\textcolor{red}{\texttt{#1}}}
+
+%infos générales du document
+\title{\titrefiche}
+\author{\auteurfiche}
+\date{April 2006 - Version 1.0}
+
+
+% debut du document proprement dit
+\begin{document}
+\input{styleTJ}
+\selectlanguage{english}
+
+%% Les options par défaut de Sweave, ici on lui dit de mettre les figures dans le 
+%% dossier "figs" avec le préfixe, histoire de ne pas avoir trop de 
+%% fichiers dans le dossier de travail. On lui dit aussi qu'il y a une figure par défaut, 
+%% qu'on ne veut les figures en EPS, et on lui donne la taille par défaut des figures 
+%% (en pouces) pour R, mais PAS pour le document final.
+
+\SweaveOpts{prefix.string = figs/figure, fig = FALSE, eps = FALSE, pdf = TRUE, png = FALSE, width = 6, height = 6}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% DEBUT DU DOCUMENT 
+
+\maketitle
+% Pour éviter les problèmes de couleur...
+\color{black}
+\noindent
+{\small For any questions or comments, please send an email to: \\ \url{jombart@biomserv.univ-lyon1.fr}.}
+\tableofcontents
+\SweaveOpts{prefix.string = figs/analyse, fig = FALSE, eps = FALSE, pdf = TRUE, png = FALSE, width = 6, height = 6}
+\newpage
+\color{black}
+
+\newpage
+\section{Introduction}
+This tutorial proposes a short visit through functionalities of the \rcmd{adegenet} package for R \citep{tj400,np145}.
+The purpose of this package is to facilitate the multivariate analysis of molecular marker data, especially using the \rcmd{ade4} package \citep{tj311}.
+Data can be imported from popular softwares like GENETIX, or converted from simple data frame of genotypes.
+\rcmd{adegenet} also aims at providing a platform from which to use easily methods provided by other R packages \citep[e.g., ][]{tj510}.
+Indeed, if it is possible to perform various genetic data analyses using R, data formats often differ from one package to another, and conversions are sometimes far from easy and straightforward.
+\\
+
+In this tutorial, I first present the two object classes used in \rcmd{adegenet}, namely \rcmd{genind} (genotypes of individuals) and \rcmd{genpop} (genotypes grouped by populations).
+Then, several topics will be tackled using reproductible examples.
+
+\section{First steps}
+\subsection{Installing the package}
+Current version of the package is 1.0, and is compatible with R 2.4.1 and 2.5.
+Here the \rcmd{adegenet} package is installed along with other recommended packages.
+<<inst,eval=F>>= 
+install.packages("adegenet",dep=TRUE)
+install.packages("ade4",dep=TRUE)
+install.packages("hierfstat",dep=TRUE)
+install.packages("genetics",dep=TRUE)
+@ 
+Then the first step is to load the package:
+<<>>=
+library(adegenet)
+@ 
+
+\subsection{Object classes}
+Two classes of objects are defined, depending on the scale at which the genetic information is stored:
+\rcmd{genind} is used for individual genotypes, whereas \rcmd{genpop} is used for alleles numbers counted by populations.
+Note that the term 'population', here and later, is employed in a broad sense: it simply refers to any grouping of individuals.
+
+\subsubsection{genind objects} 
+These objects can be obtained by importation from foreign softwares or by conversion from a table of allelic frequencies (see 'importing data').
+<<genind>>=
+data(nancycats)
+is.genind(nancycats)
+nancycats
+@ 
+A \rcmd{genind} object is a list of several components (see ?genind).
+The main one is a table of allelic frequencies of individuals (in rows) for every alleles in every loci.
+Being frequencies, data sum to one per locus, giving the score of 1 for an homozygote and 0.5 for an heterozygote.
+For instance:
+<<>>=
+nancycats$tab[10:18,1:10]
+@ 
+Individual '010' is an homozygote for the allele 09 at locus 1, while '018' is an heterozygote with alleles 06 and 09.
+For an homogeneity purpose, generic labels are given to individuals, locus, alleles and eventually population.
+The true names are stored in the object (components \rcmd{\$[...].names} where ... can be 'ind', 'loc', 'all' or 'pop').
+For instance :
+<<>>=
+nancycats$loc.names
+@ 
+gives the true marker names, and 
+<<>>=
+nancycats$all.names[[3]]
+@ 
+gives the allele names for marker 3.
+\\
+
+Note that optional components are also allowed, but will not be given generic names.
+The component \$pop (a factor giving a grouping of individuals) is particular in that the behaviour of many functions will check automatically for it and adapt accordingly.
+In fact, each time an argument 'pop' is required by a function, it is first seeked in the object.
+For instance, using the function \rcmd{genind2genpop} to convert \rcmd{nancycats} to a \rcmd{genpop} object, there is no need to give a 'pop' argument as it exists in the \rcmd{genind} object:
+<<>>=
+table(nancycats$pop)
+catpop <- genind2genpop(nancycats)
+@ 
+
+Other additional components can be stored (like here, spatial coordinates of populations in \$xy) but will not be passed during any conversion (\rcmd{catpop} has no \$xy).
+
+Finally, a \rcmd{genind} object generally contains its matched call, \textit{i.e.} the instruction that created itself.
+This is not the case, however, for objects loaded using \rcmd{data}.
+When call is available, it can be used to regenerate an object.
+<<>>=
+nancycats$call
+obj <- genetix2genind(system.file("files/nancycats.gtx",package="adegenet"))
+obj$call
+toto <- eval(obj$call)
+identical(obj,toto)
+@ 
+
+\subsubsection{genpop objects}
+We use the previously built \rcmd{genpop} object:
+<<>>=
+catpop
+is.genpop(catpop)
+catpop$tab[1:5,1:10]
+@ 
+The matrix \$tab contains alleles counts per population (here, cat colonies).
+These objects are otherwise very similar to \rcmd{genind} in their structure, and possess generic names, true names, and the matched call.
+
+\section{Various topics}
+\subsection{Importing data}
+Presently, data importation is available from GENETIX (.gtx), Fstat (.dat) and Genepop (.gen) files.
+Note that Easypop data simulation software provides both .dat and .gen files.
+In all cases, only \rcmd{genind} will be produced.
+The associated functions are \rcmd{genetix2genind}, \rcmd{fstat2genind} and \rcmd{genepop2genind}.
+For simplification, one can use the generic function \rcmd{import2genind} which detects a file format from its extension and uses the appropriate routine.
+For instance:
+<<import>>=
+obj1 <- genetix2genind(system.file("files/nancycats.gtx",package="adegenet"))
+obj2 <- import2genind(system.file("files/nancycats.gtx", package="adegenet"))
+obj1
+obj2
+@
+
+However, it happens that data are available in other formats.
+Generally, these can be expressed as a individuals x markers table where each element is a character string coding 2 alleles.
+Such data are interpretable when all strings contain 2,4 or 6 characters. 
+For instance, "11" will be an homozygote 1/1, "1209" will be an heterozygote 12/09. 
+The function \rcmd{genetix2genind} can convert such data.
+<<>>=
+args(genetix2genind)
+@ 
+In such case, the X argument is used after reading the data using \rcmd{read.table}.
+Here I provide an example using a data set from the library hierfstat.
+<<>>=
+library(hierfstat)
+toto <- read.fstat.data(paste(.path.package("hierfstat"),"/data/diploid.dat",sep="",collapse=""),nloc=5)
+head(toto)
+@ 
+\rcmd{toto} is a data frame containing genotypes and a population factor.
+<<>>= 
+obj <- genetix2genind(X=toto[,-1],pop=toto[,1])
+obj
+@ 
+
+
+Lastly,  \rcmd{genind} or \rcmd{genpop} objects can be obtained from a data matrix similar to the \rcmd{\$tab} component (respectively, alleles frequencies and alleles counts).
+Such action is achieved by  \rcmd{as.genind} and \rcmd{as.genpop}.
+Here an example is provided for \rcmd{as.genpop} using dataset from ade4: 
+<<>>=
+library(ade4)
+data(microsatt)
+microsatt$tab[10:15,12:15]
+@ 
+\rcmd{microsatt\$tab} contains alleles counts, and can therefore be used to make a \rcmd{genpop} object.
+<<>>=
+toto <- as.genpop(microsatt$tab)
+toto
+@ 
+
+
+\subsection{Using summaries}
+Both \rcmd{genind} and \rcmd{genpop} objects have a summary providing basic information about data.
+Informations are both printed and invisibly returned as a list.
+
+<<summary,fig=T,png=FALSE,pdf=T,size=.8>>=
+toto <- summary(nancycats)
+names(toto)
+
+par(mfrow=c(2,2))
+
+plot(toto$pop.eff,toto$pop.nall,xlab="Colonies sample size",ylab="Number of alleles",main="Alleles numbers and sample sizes",type="n")
+text(toto$pop.eff,toto$pop.nall,lab=names(toto$pop.eff))
+
+barplot(toto$loc.nall,ylab="Number of alleles", main="Number of alleles per locus")
+
+barplot(toto$Hexp-toto$Hobs,main="Heterozygosity: expected-observed",ylab="Hexp - Hobs")
+
+barplot(toto$pop.eff,main="Sample sizes per population",ylab="Number of genotypes",las=3)
+@ 
+
+Is mean observed H significantly lower than mean expected H ?
+
+<<>>=
+bartlett.test(list(toto$Hexp,toto$Hobs))
+t.test(toto$Hexp,toto$Hobs,pair=T,var.equal=TRUE,alter="greater")
+@ 
+Yes.
+
+
+\subsection{Testing for structuration among populations}
+The G-statistic test \citep{tj511} is implemented for \rcmd{genind} objects and produces a \rcmd{randtest} object (package ade4).
+The function to use is \rcmd{gstat.randtest}, and requires the package \emph{hierfstat}.:
+<<>>=
+library(ade4)
+toto <- gstat.randtest(nancycats,nsim=99)
+toto
+plot(toto)
+@ 
+Now that the test is performed, one can ask for F statistics.
+To get these, data are first converted to be used in the hierfstat package:
+<<>>=
+library(hierfstat)
+toto <- genind2hierfstat(nancycats)
+head(toto)
+varcomp.glob(toto$pop,toto[,-1])
+@ 
+F statistics are provided in \$F; for instance, here, $F_{st}$ is $0.083$.
+
+\subsection{Testing for Hardy-Weinberg equilibrium}
+The Hardy-Weinberg equilibrium test is implemented for \rcmd{genind} objects.
+The function to use is \rcmd{HWE.test.genind}, and requires the package \emph{genetics}.
+Here we first produce a matrix of p-values (\rcmd{res="matrix"}) using parametric test.
+Monte Carlo procedure are more reliable but also more computer-intensive (use \rcmd{permut=TRUE}). 
+<<HWE>>=
+toto <- HWE.test.genind(nancycats,res="matrix")
+dim(toto)
+@ 
+One test is performed per locus and population, \textit{i.e.} 153 tests in this case.
+Thus, the first question is: which tests are highly significant?
+<<>>=
+colnames(toto)
+which(toto<0.0001,TRUE)
+@ 
+Here only 4 tests indicate departure from HW.
+Rows give populations, columns give markers.
+Now complete tests are returned, but the significant ones are already known. 
+<<>>=
+toto <- HWE.test.genind(nancycats,res="full")
+toto$fca23$P06
+toto$fca90$P10
+toto$fca96$P10
+toto$fca37$P13
+@ 
+
+
+\subsection{Performing a Principal Component Analysis on \rcmd{genind} objects}
+The tables contained in \rcmd{genind} objects can be submitted to a Principal Component Analysis (PCA) to seek a typology of individuals.
+Such analysis is straightforward using \textit{adegenet} to prepare data and \textit{ade4} for the analysis \textit{per se}.
+One has first to replace missing data.
+Putting each missing observation at the mean of the concerned allele frequency seems the best choice (NA will be stuck at the origin).
+<<pcaexpl>>=
+data(microbov)
+any(is.na(microbov$tab))
+@ 
+There are missing data.
+Assuming that these are evenly distributed (for illustration purpose only!), we replace them.
+Note that during conversion to \rcmd{genind}, automatic replacement for missing data is available.
+This is not the case here as data are already imported and original file is not available.
+<<>>=
+f1 <- function(v){
+v[is.na(v)] <- mean(v,na.rm=TRUE)
+return(v)
+}
+
+microbov$tab <- apply(microbov$tab,2,f1)
+any(is.na(microbov$tab))
+@   
+Well. Now, the analysis can be performed. Data are centred but not scaled as units are the same.
+<<fig=T,size=.4>>=
+pca1 <- dudi.pca(microbov$tab,cent=TRUE,scale=FALSE,scannf=FALSE,nf=3)
+barplot(pca1$eig[1:50],main="Eigenvalues")
+@ 
+Here we represent the genotypes and 95\% inertia ellipses for populations. 
+<<fig=T,size=.6>>=
+s.class(pca1$li,microbov$pop,lab=microbov$pop.names,sub="PCA 1-2",csub=2)
+add.scatter.eig(pca1$eig[1:20],nf=3,xax=1,yax=2,posi="top")
+@ 
+
+\noindent This plane shows that the main structuring is between African an French breeds, the second structure reflecting genetic diversity among African breeds.
+The third axis reflects the diversity among French breeds:  
+Overall, all breeds seem well differentiated.
+<<fig=T,size=.6>>=
+s.class(pca1$li,microbov$pop,xax=1,yax=3,lab=microbov$pop.names,sub="PCA 1-3",csub=2)
+add.scatter.eig(pca1$eig[1:20],nf=3,xax=1,yax=3,posi="top")
+@ 
+
+
+\subsection{Performing a Correspondance Analysis on \rcmd{genpop} objects}
+Being contingency tables, the tables contained in \rcmd{genpop} objects can be submitted to a Correspondance Analysis (CA) to seek a typology of populations.
+The approach is very similar to the previous one for PCA.
+Missing data are first replaced during convertion from \rcmd{genind}.
+<<caexpl,fig=T,size=.4>>=
+data(microbov)
+toto <- genind2genpop(microbov,missing="replace")
+ca1 <- dudi.coa(as.data.frame(toto$tab),scannf=FALSE,nf=3)
+barplot(ca1$eig,main="Eigenvalues")
+@ 
+
+Now we display the resulting typologies:
+<<fig=T,size=.6>>=
+s.label(ca1$li,lab=toto$pop.names,sub="CA 1-2",csub=2)
+add.scatter.eig(ca1$eig,nf=3,xax=1,yax=2,posi="top")
+@ 
+
+<<fig=T,size=.6>>=
+s.label(ca1$li,xax=1,yax=3,lab=toto$pop.names,sub="CA 1-3",csub=2)
+add.scatter.eig(ca1$eig,nf=3,xax=2,yax=3,posi="bottomright")
+@ 
+
+\noindent Once again, axes are to be interpreted separately in terms of continental differentiation, a among-breed diversities. 
+
+
+\subsection{Analyzing a single locus}
+Here the emphasis is put on analyzing a single locus using different methods.
+Any marker can be isolated using the \rcmd{seploc} instruction.
+<<pca>>=
+data(nancycats)
+toto <- seploc(nancycats,truenames=TRUE)
+X <- toto$fca90
+@ 
+\rcmd{fca90.ind} is a table containing only genotypes for the marker fca90.
+It can be analyzed, for instance, using an inter-class PCA.
+This analyzis provides a typology of individuals having maximal inter-colonies variance.
+<<fig=T,png=F,pdf=T, size=.6>>=
+library(ade4)
+
+pcaX <- dudi.pca(X,cent=T,scale=F,scannf=FALSE)
+pcabetX <- between(pcaX,nancycats$pop,scannf=FALSE)
+s.arrow(pcabetX$c1,xlim=c(-.9,.9))
+s.class(pcabetX$ls,nancycats$pop,cell=0,cstar=0,add.p=T)
+sunflowerplot(X %*% as.matrix(pcabetX$c1),add=T)
+add.scatter.eig(pcabetX$eig,xax=1,yax=2,posi="bottomright")
+@ 
+Here the differences between individuals are mainly expressed by three alleles: 199, 197 and 193.
+However, there is no clear structuration to be seen at an individual level.
+Is $F_{st}$ significant taking only this marker into account?
+We perform the G-statistic test and enventually compute the corresponding F statistics.
+
+<<>>= 
+fca90.ind <- as.genind(X,pop=nancycats$pop)
+gstat.randtest(fca90.ind,nsim=999)
+F <- varcomp(genind2hierfstat(fca90.ind))$F
+rownames(F) <- c("tot","pop")
+colnames(F) <- c("pop","ind")
+F
+@ 
+In this case the information is best summarized by F statistics than by an ordination method.
+It is likely because all colonies are differentiated but none forming groups of related colonies.
+
+\subsection{Testing for isolation by distance}
+Isolation by distance (IBD) is tested using Mantel test between a matrix of genetic distances and a matrix of geographic distances.
+It can be tested using individuals as well as populations.
+This example uses cat colonies.
+We use Edwards' distance \textit{versus} Euclidean distances between colonies. 
+<<ibd,fig=T,size=.35>>=
+data(nancycats)
+toto <- genind2genpop(nancycats,miss="0")
+Dgen <- dist.genpop(toto,method=2)
+Dgeo <- dist(nancycats$xy)
+library(ade4)
+ibd <- mantel.randtest(Dgen,Dgeo)
+ibd
+plot(ibd)
+@ 
+Isolation by distance is indeed significant.
+
+\subsection{Using Monmonier's algorithm to define genetic boundaries}
+Monmonier's algorithm \citep{tj433} was originally designed to find boundaries of maximum differences between contiguous polygons of a tesselation.
+As such, the method was basically used in geographical analysis.
+More recently, \cite{np120} suggested that this algorithm could be employed to detect genetic boundaries among georeferecend genotypes (or populations).
+This algorithm is implemented using a more general approach than the initial one in \rcmd{adegenet}.
+
+Instead of using Voronoi tesselation as in original version, the functions \rcmd{monmonier} and \rcmd{optimize.monmonier} can handle various neighbouring graphs such as Delaunay triangulation, Gabriel's graph, Relative Neighbours graph, etc. 
+These graphs defined spatial connectivity among 'points' (genotypes or populations), any couple of points being neighbours (if connected) or not.
+Another information is given by a set of markers which define genetic distances among these 'points'.
+The aim of Monmonier's algorithm is to find the path through the strongest genetic distances between neighbours.
+A more complete description of the principle of this algorithm will be found in the documentation of \rcmd{monmonier}.
+Indeed, the very purpose of this tutorial is simply to show how it can be used on genetic data.
+\\
+
+Let's take the example from the function's manpage and detail it.
+The dataset used is \rcmd{sim2pop}. 
+
+<<mon1,fig=TRUE,size=.6>>=
+data(sim2pop)
+sim2pop
+summary(sim2pop$pop)
+
+temp <- sim2pop$pop
+levels(temp) <- c(17,19)
+temp <- as.numeric(as.character(temp))
+plot(sim2pop$xy,pch=temp,cex=1.5,xlab='x',ylab='y')
+legend("topright",leg=c("Pop A", "Pop B"),pch=c(17,19))
+@ 
+
+There are two sampled populations in this dataset, with inequal sample sizes (100 and 30).
+Twenty microsatellite-like loci are available for all genotypes (no missing data).
+So, what do \rcmd{monmonier} ask for?
+<<mon2>>=
+args(monmonier)
+@ 
+
+\noindent The first argument (\rcmd{xy}) is a matrix of geographic coordinates, already stored in \rcmd{sim2pop}.
+Next argument is an object of class \rcmd{dist}, which is basically a distance matrix cut in half.
+For now, we will use the classical Euclidean distance among alleles frequencies of genotypes.
+This is obtained by:
+<<mon3>>=
+D <- dist(sim2pop$tab)
+@ 
+
+\noindent The next argument (\rcmd{cn}) is a connection network.
+As existing routines to build such networks are spread over several packages, the function \rcmd{chooseCN} will help you choose one.
+This is an interactive function, so difficult to demonstrate here (see \rcmd{?chooseCN}).
+Here we ask the function not to ask for a choice (\rcmd{ask=FALSE}) and select the second type of graph which is the one of Gabriel (\rcmd{type=2}).
+<<mon4,fig=TRUE>>=
+gab <- chooseCN(sim2pop$xy,ask=FALSE,type=2)
+@ 
+
+\noindent The obtained network is automatically plotted by the function.
+It seems we are now ready to proceed to the algorithm.
+<<mon5,eval=FALSE>>= 
+ mon1 <- monmonier(sim2pop$xy,D,gab$cn)
+@ 
+\begin{center}
+\includegraphics[width=.5\textwidth]{figs/monthres1.png}
+\end{center}
+
+\noindent This plot shows all local differences sorted in decreasing order.
+The idea behind this is that a significant boundary would cause local differences to decrease abruptly after the boundary.This should be used to choose the \emph{threshold} difference for the algorithm to stop.
+Here, no boundary is visible: we stop.
+\\
+
+Why do the algorithm fail to find a boundary?
+Either because there is no genetic differentiation to be found, or because the signal differentiating both populations is too weak to overcome the random noise in genetic distances.
+What is the $F_{st}$ between the two samples?
+<<>>=
+library(hierfstat)
+temp <- genind2hierfstat(sim2pop)
+varcomp.glob(temp[,1],temp[,-1])$F
+@ 
+
+\noindent This value is somewhat moderate ($F_{st}=0.038$).
+Is it significant?
+
+<<fig=TRUE>>=
+gtest <- gstat.randtest(sim2pop)
+gtest
+plot(gtest)
+@ 
+
+\noindent Yes, it is very significant.
+The two samples are indeed genetically differenciated.
+So, can Monmonier's algorithm find a boundary between the two populations?
+Yes, if we get rid of the random noise.
+This can be achieved using simple ordination method like Principal Coordinates Analysis.
+
+<<mon6,fig=TRUE>>=
+library(ade4)
+pco1 <- dudi.pco(D,scannf=FALSE,nf=1)
+barplot(pco1$eig,main="Eigenvalues")
+@ 
+
+\noindent We retain only the first eigenvalue.
+The corresponding coordinates are used to redefine the genetic distances among genotypes.
+The algorithm is then rerunned.
+<<mon7>>=
+D <- dist(pco1$li)
+@ 
+<<mon8,eval=FALSE>>= 
+mon1 <- monmonier(sim2pop$xy,D,gab$cn)
+@ 
+\begin{center}
+\includegraphics[width=.5\textwidth]{figs/monthres2.png}
+\end{center}
+
+<<mon9,echo=FALSE>>=
+mon1 <- monmonier(sim2pop$xy,D,gab$cn,scan=FALSE)
+mon1
+@ 
+
+\noindent This may take some time... but never more than a few minutes (less than 5) on an 'ordinary' personnal computer.
+The object \rcmd{mon1} contains the whole information about the boundaries found.
+As several boundaries can be seeked at the same time (argument \rcmd{nrun}), you have to specify about which run and which direction you want to get informations (values of differences or path coordinates).
+For instance:
+<<mon10>>=
+names(mon1)
+names(mon1$run1)
+mon1$run1$dir1
+@ 
+
+Finally, you can plot very simply the obtained boundary using the method \rcmd{plot}:
+<<fig=TRUE>>=
+plot(mon1)
+@ 
+
+\noindent see arguments in \rcmd{?plot.monmonier} to customize this representation.
+Last, we can compare the infered boundary with the actual distribution of populations:
+<<fig=TRUE,size=.7>>=
+plot(mon1,add.arrows=FALSE,bwd=8) 
+
+temp <- sim2pop$pop
+levels(temp) <- c(17,19)
+temp <- as.numeric(as.character(temp))
+points(sim2pop$xy,pch=temp,cex=1.3)
+legend("topright",leg=c("Pop A", "Pop B"),pch=c(17,19))
+@
+
+\noindent Not too bad...
+
+\bibliography{biblioTJ}
+\bibliographystyle{jtbnew}
+
+\end{document}
