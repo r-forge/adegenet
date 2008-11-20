@@ -17,16 +17,16 @@ if(!inherits(dist,"dist")) stop('Argument \'dist\' must be a distance matrix of 
 if(nrow(xy) != nrow(as.matrix(dist))) stop('Number of sites and number of observations differ')
 
 ## set to TRUE to debug
-## DEBUG <- TRUE
+DEBUG <- FALSE
 
-## if(DEBUG) {
-##     plot.nb(cn, xy, col="grey", points=FALSE)
-##     if(exists("x1")) {
-##         x1 <<- x1
-##         s.value(xy,x1,add.p=TRUE)
-##     }
-##     text(xy,lab=1:nrow(xy),font=2,col="darkgreen")
-## }
+if(DEBUG) {
+    plot.nb(cn, xy, col="grey", points=FALSE)
+    if(exists("x1")) {
+        x1 <<- x1
+        s.value(xy,x1,add.p=TRUE)
+    }
+    text(xy,lab=1:nrow(xy),font=2,col="darkgreen")
+}
 
 ## PRECISION of the xy coordinates (in digits)
 ## used when coordinates are inputed in C code.
@@ -154,9 +154,13 @@ checkNext <- function(M,N,A,B,C,D,segMat=allSeg,toRemove=NULL,curDir=NULL){
     ## The segment that was just drawn before is removed from the checks for crossing (messy code 2)
     if(!is.null(curDir)){
         prevSeg <- grep(paste("dir",curDir,sep=""),rownames(subsetSeg))
-        if(length(prevSeg)>0){
+        if(length(prevSeg)>0){ # this is not the 1st seg. in this dir
             prevSeg <- prevSeg[length(prevSeg)]
             subsetSeg <- segMat[-prevSeg,,drop=FALSE]
+        } else { # this is the 1st seg. in this direction -> rm 1st seg of other dir
+            otherDir <- ifelse(curDir==1L, 2, 1)
+            prevSeg <- grep(paste("dir",otherDir,"-1-2",sep=""),rownames(subsetSeg))
+            if(length(prevSeg)>0) { subsetSeg <- segMat[-prevSeg,,drop=FALSE] }
         }
     }
 
@@ -209,9 +213,9 @@ checkNext <- function(M,N,A,B,C,D,segMat=allSeg,toRemove=NULL,curDir=NULL){
     } else {temp <- 0}
 
     ## for debugging
-    ##  if(DEBUG) {
-    ##             if(temp==1)  cat("\n can't go there (code",temp,")") else cat("\n new segment ok (code",temp,")")
-    ##         }
+     if(DEBUG) {
+                if(temp==1)  cat("\n can't go there (code",temp,")") else cat("\n new segment ok (code",temp,")")
+            }
 
     ## if a code 1 or 3 is returned, CheckAllSeg returns FALSE
     ## else it returns TRUE
@@ -277,17 +281,17 @@ for(run in 1:nrun){
     ## 4) get back to 1)
     while(keepExpanding){
         hasExpanded <- FALSE # used to test if it is relevant to check for looping
-        ##  if(DEBUG){
-        ##                     points(currentDir1$M[1],currentDir1$M[2],col="white",pch=20)
-        ##                     points(currentDir2$M[1],currentDir2$M[2],col="white",pch=20)
-        ##                 }
+         if(DEBUG){
+                            points(currentDir1$M[1],currentDir1$M[2],col="white",pch=20)
+                            points(currentDir2$M[1],currentDir2$M[2],col="white",pch=20)
+                        }
         if(s1 <= nrow(matSegVal)) { currentDir1 <- getNext(s1) }
         if(s2 <= nrow(matSegVal)) { currentDir2 <- getNext(s2) }
-        ##  if(DEBUG){
-        ##                     cat("\n\n ## dir1: trying edge",currentDir1$A[1],"-",currentDir1$B[1])
-        ##                     points(currentDir1$M[1],currentDir1$M[2],col="blue",pch=20)
-        ##                     readline("\npress enter")
-        ##                 }
+         if(DEBUG){
+                            cat("\n\n ## dir1: trying edge",currentDir1$A[1],"-",currentDir1$B[1])
+                            points(currentDir1$M[1],currentDir1$M[2],col="blue",pch=20)
+                            readline("\npress enter")
+                        }
 
         ## first direction (dir1)
         if( currentDir1$val > Dlim && s1 <= nrow(matSegVal)) {
@@ -311,19 +315,19 @@ for(run in 1:nrun){
                 ## add 1 to the boundary length
                 current.bd.length <- current.bd.length + 1
                 hasExpanded <- TRUE
-                ## if(DEBUG) {
-                ##                                     arrows(result[[run]]$dir1[[i1-1]]$M[1], result[[run]]$dir1[[i1-1]]$M[2],
-                ##                                            result[[run]]$dir1[[i1]]$M[1], result[[run]]$dir1[[i1]]$M[2],col="blue")
-                ##                                 }
+                if(DEBUG) {
+                                                    arrows(result[[run]]$dir1[[i1-1]]$M[1], result[[run]]$dir1[[i1-1]]$M[2],
+                                                           result[[run]]$dir1[[i1]]$M[1], result[[run]]$dir1[[i1]]$M[2],col="blue")
+                                                }
 
             } else{ s1 <- s1+1 }
         } # end "if( currentDir1$val>Dlim)"
 
-        ##   if(DEBUG){
-        ##                     cat("\n\n ## dir2: trying edge",currentDir2$A[1],"-",currentDir2$B[1])
-        ##                     points(currentDir2$M[1],currentDir2$M[2],col="red",pch=20)
-        ##                     readline("\npress enter")
-        ##                 }
+          if(DEBUG){
+                            cat("\n\n ## dir2: trying edge",currentDir2$A[1],"-",currentDir2$B[1])
+                            points(currentDir2$M[1],currentDir2$M[2],col="red",pch=20)
+                            readline("\npress enter")
+                        }
 
         ## second direction (dir2)
         if( currentDir2$val > Dlim  && s2 <= nrow(matSegVal)) {
@@ -346,10 +350,10 @@ for(run in 1:nrun){
                 ## add 1 to the boundary length
                 current.bd.length <- current.bd.length + 1
                 hasExpanded <- TRUE
-                ##  if(DEBUG){
-                ##                                     arrows(result[[run]]$dir2[[i2-1]]$M[1], result[[run]]$dir2[[i2-1]]$M[2],
-                ##                                            result[[run]]$dir2[[i2]]$M[1], result[[run]]$dir2[[i2]]$M[2],col="red",cex=2)
-                ##                                 }
+                 if(DEBUG){
+                                                    arrows(result[[run]]$dir2[[i2-1]]$M[1], result[[run]]$dir2[[i2-1]]$M[2],
+                                                           result[[run]]$dir2[[i2]]$M[1], result[[run]]$dir2[[i2]]$M[2],col="red",cex=2)
+                                                }
 
             } else{ s2 <- s2+1 }
         } # end "if( currentDir2$val>Dlim)"
@@ -388,14 +392,14 @@ for(run in 1:nrun){
         }
 
         ## output for debugging
-        ##  if(DEBUG) {
-        ##             cat("\n","s1:",s1,"s2:",s2,"i1:",i1,"i2:",i2,"D1:",
-        ##                 currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
-        ##                 "nrow(matSegVal)",nrow(matSegVal),"\n")
-        ##             cat("\n","D1:",currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
-        ##                 "cur.bd.le:", current.bd.length,"max length:", bd.length,"\n",
-        ##                 "s1:",s1,"s2:",s2,"maxS:",nrow(matSegVal))
-        ##         }
+         if(DEBUG) {
+                    cat("\n","s1:",s1,"s2:",s2,"i1:",i1,"i2:",i2,"D1:",
+                        currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
+                        "nrow(matSegVal)",nrow(matSegVal),"\n")
+                    cat("\n","D1:",currentDir1$val,"D2:",currentDir2$val,"Dlim:",Dlim,
+                        "cur.bd.le:", current.bd.length,"max length:", bd.length,"\n",
+                        "s1:",s1,"s2:",s2,"maxS:",nrow(matSegVal))
+                }
 
     } # end of one given run
 
