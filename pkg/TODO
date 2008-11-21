@@ -31,7 +31,7 @@
 * fix bug 1.2-2.03 (monmonier issue) -- fixed: was a non-detected code 2 due to intersection check with previously drawn segment (was not always removed). (TJ)
 * fix request 1.2-2.04 (implement adjusted heretozygosity in summary)
 * fix bug 1.2-2.05 (monmonier is such a pain is the ass)
-* !! comment the if(DEBUG) in monmonier when it is fixed
+* !! comment the if(DEBUG) in monmonier when it is fixed -- fixed, done and done (TJ)
 
 # DOCUMENTATION ISSUES:
 =======================
