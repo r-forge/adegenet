@@ -45,6 +45,7 @@
 * adegenetTutorial function which opens the online tutorials -- done (TJ)
 * allow for the use of na.replace and scaleGen in spca function -- done (TJ)
 * add rupica dataset -- done (TJ)
+* enable reading data from URL (import2genind, read.[...]).
 
 
 # TESTING:
