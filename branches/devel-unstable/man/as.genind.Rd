@@ -1,0 +1,61 @@
+\encoding{UTF-8}
+\name{genind constructor}
+\alias{genind-methods}
+\alias{genind}
+\alias{as.genind}
+\alias{is.genind}
+\title{genind constructor}
+\description{Constructor for \linkS4class{genind} objects.\cr
+  The function \code{genind} creates a \linkS4class{genind} object from
+  a matrix of allelic frequency where genotypes are in rows and alleles
+  in columns. This table must have correct names for rows and
+  columns.\cr
+
+  The function \code{as.genind} is an alias for \code{genind} function.\cr
+ 
+  \code{is.genind} tests if an object is a valid genind object.\cr
+
+  Note: to get the manpage about \linkS4class{genind}, please type
+  'class ? genind'.
+}
+
+\usage{
+genind(tab,pop=NULL,prevcall=NULL, ploidy=2, type="codom")
+as.genind(tab,pop=NULL,prevcall=NULL, ploidy=2, type="codom")
+is.genind(x)
+}
+
+\arguments{
+  \item{tab}{A table corresponding to the @tab slot of a genind object,
+  with individuals in rows and alleles in columns.
+    Its content depends on \code{type} (type of marker).\cr
+    - 'codom': table contains allele frequencies (numeric values summing
+  to 1).\cr
+    - 'PA': table contains presence/absences (0,1).
+  }
+  \item{pop}{a factor giving the population of each genotype in 'x'}
+  \item{prevcall}{call of an object}
+  \item{ploidy}{an integer indicating the degree of ploidy of
+    the genotypes. Beware: 2 is not an integer, but as.integer(2) is.}
+  \item{\code{type}:}{ a character string indicating the type of
+      marker: 'codom' stands for 'codominant' (e.g. microstallites,
+      allozymes); 'PA' stands for 'presence/absence' (e.g. AFLP).}
+  \item{x}{an object}
+}
+\value{
+  For \code{genind} and \code{as.genind}, a genind object. For \code{is.genind}, a logical.
+}
+\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr}}
+\seealso{
+  \code{"\linkS4class{genind}"}, and \code{\link{import2genind}} for
+  importing from various types of file.
+}
+\examples{
+data(nancycats)
+nancycats@loc.names
+
+# isolate one marker, fca23
+obj <- seploc(nancycats)$"fca23"
+obj
+}
+\keyword{manip}
