@@ -652,7 +652,7 @@ read.structure <- function(file, n.ind=NULL, n.loc=NULL,  onerowperind=NULL, col
 
     ## other variables
     if(!is.null(col.others)){
-        X.other <- mat[col.others]
+        X.other <- mat[,col.others]
     }
 
     ## transformations if onerowperind is FALSE
