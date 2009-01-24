@@ -37,7 +37,7 @@ genind2df(x,pop=NULL, sep="", usepop=TRUE)
   \item{pop}{an optional factor giving the population of each individual.}
   \item{missing}{can be NA, 0 or "mean". See details section.}
   \item{ploidy}{an integer indicating the degree of ploidy of the genotypes.}
-  \item{\code{type}:}{ a character string indicating the type of
+  \item{type}{ a character string indicating the type of
       marker: 'codom' stands for 'codominant' (e.g. microstallites,
       allozymes); 'domin' stands for 'dominant' (e.g. AFLP, RAPD).}
   \item{x}{a \linkS4class{genind} object}

@@ -38,9 +38,9 @@ is.genind(x)
   \item{prevcall}{call of an object}
   \item{ploidy}{an integer indicating the degree of ploidy of
     the genotypes. Beware: 2 is not an integer, but as.integer(2) is.}
-  \item{\code{type}:}{ a character string indicating the type of
-      marker: 'codom' stands for 'codominant' (e.g. microstallites,
-      allozymes); 'PA' stands for 'presence/absence' (e.g. AFLP).}
+  \item{type}{ a character string indicating the type of
+    marker: 'codom' stands for 'codominant' (e.g. microstallites,
+    allozymes); 'PA' stands for 'presence/absence' (e.g. AFLP).}
   \item{x}{an object}
 }
 \value{
