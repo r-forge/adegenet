@@ -9,7 +9,7 @@ setMethod ("show", "genind", function(object){
   cat("   #####################")
   cat("\n- genotypes of individuals - \n")
   cat("\nS4 class: ", as.character(class(x)))
-  
+
   cat("\n@call: ")
   print(x@call)
 
@@ -17,18 +17,19 @@ setMethod ("show", "genind", function(object){
   len <- 7
 
   cat("\n@tab: ", nrow(x@tab), "x", ncol(x@tab), "matrix of genotypes\n" )
- 
+
   cat("\n@ind.names: vector of ", length(x@ind.names), "individual names")
   cat("\n@loc.names: vector of ", length(x@loc.names), "locus names")
   cat("\n@loc.nall: number of alleles per locus")
   cat("\n@loc.fac: locus factor for the ", ncol(x@tab), "columns of @tab")
   cat("\n@all.names: list of ", length(x@all.names), "components yielding allele names for each locus")
   cat("\n@ploidy: ",x@ploidy)
-  
+  cat("\n@type: ",x@type)
+
   cat("\n\nOptionnal contents: ")
   cat("\n@pop: ", ifelse(is.null(x@pop), "- empty -", "factor giving the population of each individual"))
   cat("\n@pop.names: ", ifelse(is.null(x@pop.names), "- empty -", "factor giving the population of each individual"))
- 
+
   cat("\n\n@other: ")
   if(!is.null(x@other)){
     cat("a list containing: ")
@@ -36,9 +37,9 @@ setMethod ("show", "genind", function(object){
   } else {
     cat("- empty -\n")
   }
-  
+
   cat("\n")
-} 
+}
 ) # end show method for genind
 
 
@@ -55,20 +56,22 @@ setMethod ("show", "genpop", function(object){
   cat("       #####################")
   cat("\n- Alleles counts for populations - \n")
   cat("\nS4 class: ", as.character(class(x)))
-  
+
   cat("\n@call: ")
   print(x@call)
 
   p <- ncol(x@tab)
 
   cat("\n@tab: ", nrow(x@tab), "x", ncol(x@tab), "matrix of alleles counts\n" )
-  
+
   cat("\n@pop.names: vector of ", length(x@pop.names), "population names")
   cat("\n@loc.names: vector of ", length(x@loc.names), "locus names")
   cat("\n@loc.nall: number of alleles per locus")
   cat("\n@loc.fac: locus factor for the ", ncol(x@tab), "columns of @tab")
   cat("\n@all.names: list of ", length(x@all.names), "components yielding allele names for each locus")
- 
+  cat("\n@ploidy: ",x@ploidy)
+  cat("\n@type: ",x@type)
+
   cat("\n\n@other: ")
   if(!is.null(x@other)){
     cat("a list containing: ")
@@ -76,10 +79,10 @@ setMethod ("show", "genpop", function(object){
   } else {
     cat("- empty -\n")
   }
-  
+
   cat("\n")
-  
-} 
+
+}
 ) # end show method for genpop
 
 
@@ -123,16 +126,16 @@ setMethod ("summary", "genind", function(object, ...){
           H <- mean(H,na.rm=TRUE)
           return(H)
       }
-      
+
       res$Hobs <- unlist(lapply(temp,f1))
-      
+
       ## auxiliary function to compute expected heterozygosity
       ## freq is a vector of frequencies
       f2 <- function(freq){
           H <- 1-sum(freq*freq,na.rm=TRUE)
           return(H)
       }
-      
+
       temp <- genind2genpop(x,pop=rep(1,nrow(x@tab)),quiet=TRUE)
       temp <- makefreq(temp,quiet=TRUE)$tab
       temp.names <- colnames(temp)
@@ -140,13 +143,13 @@ setMethod ("summary", "genind", function(object, ...){
       names(temp) <- temp.names
       temp <- split(temp,x@loc.fac)
       ## temp is a list of alleles frequencies (one element per locus)
-      
-      res$Hexp <- unlist(lapply(temp,f2))  
+
+      res$Hexp <- unlist(lapply(temp,f2))
   } else { # no possible heterozygosity for haploid genotypes
       res$Hobs <- 0
       res$Xexp <- 0
   }
-  
+
   ## print to screen
   listlab <- c("# Total number of genotypes: ",
                "# Population sample sizes: ",
@@ -160,7 +163,7 @@ setMethod ("summary", "genind", function(object, ...){
     cat("\n",listlab[i],"\n")
     print(res[[i]])
   }
-  
+
   return(invisible(res))
 }) # end summary.genind
 
@@ -174,7 +177,7 @@ setMethod ("summary", "genind", function(object, ...){
 setMethod ("summary", "genpop", function(object, ...){
   x <- object
   if(!inherits(x,"genpop")) stop("To be used with a genpop object")
-  
+
   res <- list()
 
   res$npop <- nrow(x@tab)
@@ -190,7 +193,7 @@ setMethod ("summary", "genpop", function(object, ...){
       w <- w/sum(w)
       return(sum(x*w))
   }
-  
+
   w <- apply(x@tab,1,sum,na.rm=TRUE) # weights for populations
   res$NA.perc <- 100*(1-mean.w(propTyped(x), w=w))
   ## res$NA.perc <- 100*(1-mean(propTyped(x,by="both"))) <- old
@@ -205,10 +208,10 @@ setMethod ("summary", "genpop", function(object, ...){
     cat("\n",listlab[i],"\n")
     print(res[[i]])
   }
-  
+
   return(invisible(res))
 
-} 
+}
 )# end summary.genpop
 
 

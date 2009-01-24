@@ -20,18 +20,26 @@
 }
 
 \usage{
-genind(tab,pop=NULL,prevcall=NULL, ploidy=2)
-as.genind(tab,pop=NULL,prevcall=NULL, ploidy=2)
+genind(tab,pop=NULL,prevcall=NULL, ploidy=2, type="codom")
+as.genind(tab,pop=NULL,prevcall=NULL, ploidy=2, type="codom")
 is.genind(x)
 }
 
 \arguments{
-  \item{tab}{a individuals x alleles matrix of genotypes coded as
-    allelic frequencies, i.e. like in a genind object}
+  \item{tab}{A table corresponding to the @tab slot of a genind object,
+  with individuals in rows and alleles in columns.
+    Its content depends on \code{type} (type of marker).\cr
+    - 'codom': table contains allele frequencies (numeric values summing
+  to 1).\cr
+    - 'PA': table contains presence/absences (0,1).
+  }
   \item{pop}{a factor giving the population of each genotype in 'x'}
   \item{prevcall}{call of an object}
   \item{ploidy}{an integer indicating the degree of ploidy of
     the genotypes. Beware: 2 is not an integer, but as.integer(2) is.}
+  \item{\code{type}:}{ a character string indicating the type of
+      marker: 'codom' stands for 'codominant' (e.g. microstallites,
+      allozymes); 'PA' stands for 'presence/absence' (e.g. AFLP).}
   \item{x}{an object}
 }
 \value{

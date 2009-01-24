@@ -12,9 +12,8 @@
 ##############################################
 
 
-
 ################
-# Function spca
+# spca genind
 ################
 spca <- function(obj, xy=NULL, cn=NULL, matWeight=NULL,
                  scale=FALSE, scale.method=c("sigma","binom"),

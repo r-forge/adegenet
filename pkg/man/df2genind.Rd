@@ -21,7 +21,8 @@
  such a data.frame.
  }
 \usage{
-df2genind(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, pop=NULL, missing=NA, ploidy=2)
+df2genind(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL,
+ pop=NULL, missing=NA, ploidy=2, type=c("codom","PA"))
 genind2df(x,pop=NULL, sep="", usepop=TRUE)
 }
 \arguments{
@@ -36,6 +37,9 @@ genind2df(x,pop=NULL, sep="", usepop=TRUE)
   \item{pop}{an optional factor giving the population of each individual.}
   \item{missing}{can be NA, 0 or "mean". See details section.}
   \item{ploidy}{an integer indicating the degree of ploidy of the genotypes.}
+ \item{\code{type}:}{ a character string indicating the type of
+      marker: 'codom' (default) stands for 'codominant' (e.g. microstallites,
+      allozymes); 'PA' stands for 'presence/absence' (e.g. SNP, AFLP).}
   \item{x}{a \linkS4class{genind} object}
   \item{usepop}{a logical stating whether the population (argument \code{pop}
     or \code{x@pop} should be used (TRUE, default) or not (FALSE).}

@@ -13,16 +13,20 @@
   It contains several components described in the 'slots' section).\cr
   The \code{summary} of a \code{genind} object invisibly returns a list of component.
   The function \code{.valid.genind} is for internal use.
-  The function \code{genind} creates an empty valid genind object.
+  The function \code{genind} creates a genind object from a valid table
+  of alleles corresponding to the \code{@tab} slot.
   Note that as in other S4 classes, slots are accessed using @ instead
   of \$.
 }
 \section{Slots}{
   \describe{
-    \item{\code{tab}:}{matrix of genotypes -in rows- for all alleles -in
-      columns-. Values are frequency: '0' if the genotype does not have
+    \item{\code{tab}:}{matrix of genotypes (in rows) for all alleles (in
+      columns). The table differs depending on the \code{@type} slot:\cr
+      - 'codom': values are frequencies ; '0' if the genotype does not have
       the corresponding allele, '1' for an homozygote and 0.5 for an
-      heterozygte.Rows and columns are given generic names.}
+      heterozygte.\cr
+      - 'PA': values are presence/absence of alleles.\cr
+      In all cases, rows and columns are given generic names.}
     \item{\code{loc.names}:}{character vector containing the real names of the loci}
     \item{\code{loc.fac}:}{locus factor for the columns of \code{tab}}
     \item{\code{loc.nall}:}{integer vector giving the number of alleles per locus}
@@ -33,6 +37,9 @@
       converted from .dat files will contain empty \code{ind.names}.}
     \item{\code{ploidy}:}{ an integer indicating the degree of ploidy of
       the genotypes. Beware: 2 is not an integer, but as.integer(2) is.}
+    \item{\code{type}:}{ a character string indicating the type of
+      marker: 'codom' stands for 'codominant' (e.g. microstallites,
+      allozymes); 'PA' stands for 'presence/absence' (e.g. AFLP).}
     \item{\code{pop}:}{(optional) factor giving the population of each individual}
     \item{\code{pop.names}:}{(optional) vector giving the real names of the
       populations}

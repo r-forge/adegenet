@@ -27,6 +27,11 @@
     \item{\code{all.names}:}{list having one component per locus, each containing a character vector of alleles names}
     \item{\code{call}:}{the matched call}
     \item{\code{pop.names}:}{character vector containing the real names of the populations}
+    \item{\code{ploidy}:}{ an integer indicating the degree of ploidy of
+      the genotypes. Beware: 2 is not an integer, but as.integer(2) is.}
+    \item{\code{type}:}{ a character string indicating the type of
+      marker: 'codom' stands for 'codominant' (e.g. microstallites,
+      allozymes); 'PA' stands for 'presence/absence' (e.g. AFLP).}
     \item{\code{other}:}{(optional) a list containing other information}
   }
 }
