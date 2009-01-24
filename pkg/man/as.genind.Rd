@@ -20,8 +20,8 @@
 }
 
 \usage{
-genind(tab,pop=NULL,prevcall=NULL, ploidy=2, type=c("codom","PA"))
-as.genind(tab,pop=NULL,prevcall=NULL, ploidy=2, type=c("codom","PA"))
+genind(tab,pop=NULL,prevcall=NULL, ploidy=2, type=c("codom","domin"))
+as.genind(tab,pop=NULL,prevcall=NULL, ploidy=2, type=c("codom","domin"))
 is.genind(x)
 }
 
