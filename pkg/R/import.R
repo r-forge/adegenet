@@ -40,7 +40,7 @@
 #####################
 # Function df2genind
 #####################
-df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, pop=NULL, missing=NA, ploidy=2, type=c("codom","PA")){
+df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, pop=NULL, missing=NA, ploidy=2, type=c("codom","domin")){
 
     if(is.data.frame(X)) X <- as.matrix(X)
     if (!inherits(X, "matrix")) stop ("X is not a matrix")

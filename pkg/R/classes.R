@@ -200,7 +200,7 @@ setClass("indInfo", representation(ind.names = "character",
     }
 
     ## check type of marker
-    if(!object@type %in% c("codom","PA") ){
+    if(!object@type %in% c("codom","domin") ){
         cat("\nunknowon type of marker\n")
         return(FALSE)
     }
@@ -278,7 +278,7 @@ setMethod("names", signature(x = "genpop"), function(x){
 # Function genind
 ##################
 ## constructor of a genind object
-genind <- function(tab,pop=NULL,prevcall=NULL,ploidy=2,type=c("codom","PA")){
+genind <- function(tab,pop=NULL,prevcall=NULL,ploidy=2,type=c("codom","domin")){
 
   X <- as.matrix(tab)
   if(is.null(colnames(X))) stop("tab columns have no name.")
@@ -394,7 +394,7 @@ as.genind <- genind
 ##################
 # Function genpop
 ##################
-genpop <- function(tab,prevcall=NULL,ploidy=as.integer(2),type=c("codom","PA")){
+genpop <- function(tab,prevcall=NULL,ploidy=as.integer(2),type=c("codom","domin")){
 
   X <- as.matrix(tab)
   if(is.null(colnames(X))) stop("tab columns have no name.")
