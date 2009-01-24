@@ -20,7 +20,7 @@
 }
 \usage{
 genpop(tab,prevcall=NULL, ploidy=as.integer(2), type=c("codom","domin"))
-as.genpop(tab, type=c("codom","domin"), prevcall=NULL)
+as.genpop(tab, prevcall=NULL, ploidy=as.integer(2), type=c("codom","domin"))
 is.genpop(x)
 }
 \arguments{
