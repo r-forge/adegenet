@@ -28,12 +28,12 @@ is.genpop(x)
     i.e. like in a genpop object}  
   \item{prevcall}{call of an object}
   \item{ploidy}{an integer indicating the degree of ploidy of
-      the genotypes. Beware: 2 is not an integer, but as.integer(2) is.}
-    \item{\code{type}:}{ a character string indicating the type of
-      marker: 'codom' stands for 'codominant' (e.g. microstallites,
-      allozymes); 'domin' stands for 'dominant' (e.g. AFLP, RAPD).}
-    \item{x}{an object}
-  }
+    the genotypes. Beware: 2 is not an integer, but as.integer(2) is.}
+  \item{type}{a character string indicating the type of
+    marker: 'codom' stands for 'codominant' (e.g. microstallites,
+    allozymes); 'domin' stands for 'dominant' (e.g. AFLP, RAPD).}
+  \item{x}{an object}
+}
 \value{
   For \code{genpop} and \code{as.genpop}, a genpop object. For \code{is.genpop}, a logical.
 }
