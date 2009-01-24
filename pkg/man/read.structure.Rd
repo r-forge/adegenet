@@ -64,7 +64,7 @@ read.structure(file, n.ind=NULL, n.loc=NULL,  onerowperind=NULL, col.lab=NULL, c
 \author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
 \examples{
 obj <- read.structure(system.file("files/nancycats.str",package="adegenet"),
-  n.ind=237, n.loc=9, col.lab=1, col.pop=2, ask=FALSE)
+  onerowperind=FALSE, n.ind=237, n.loc=9, col.lab=1, col.pop=2, ask=FALSE)
 
 obj
 }
