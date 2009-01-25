@@ -9,6 +9,8 @@ setMethod("scaleGen", "genind", function(x, center=TRUE, scale=TRUE,
     THRES <- 1e-10
     method <- match.arg(method)
     missing <- match.arg(missing)
+    checkType(x)
+    if(method=="binom" & x@type=="PA") stop("This scaling is not available for presence/absence markers.")
 
     ## handle "missing" arg
     if(missing %in% c("0","mean")){
@@ -62,6 +64,8 @@ setMethod("scaleGen", "genpop", function(x, center=TRUE, scale=TRUE,
     THRES <- 1e-10
     method <- match.arg(method)
     missing <- match.arg(missing)
+    checkType(x)
+    if(method=="binom" & x@type=="PA") stop("This scaling is not available for presence/absence markers.")
 
     ## make allele frequencies here
     if(x@type=="codom"){
