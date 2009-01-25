@@ -10,7 +10,9 @@ hybridize <- function(x1, x2, n, pop=NULL, res.type=c("genind","df","STRUCTURE")
     if(!is.genind(x2)) stop("x2 is not a valid genind object")
     if(x1@ploidy != as.integer(2)) stop("not implemented for non-diploid genotypes")
     if(x2@ploidy != as.integer(2)) stop("not implemented for non-diploid genotypes")
-    
+    checkType(x1)
+    checkType(x2)
+
     n <- as.integer(n)
     res.type <- match.arg(res.type)
     if(!all(x1@loc.names==x2@loc.names)) stop("names of markers in x1 and x2 do not correspond")
@@ -19,7 +21,7 @@ hybridize <- function(x1, x2, n, pop=NULL, res.type=c("genind","df","STRUCTURE")
     n1 <- nrow(x1$tab)
     n2 <- nrow(x2$tab)
     k <- length(x1$loc.names)
- 
+
     #### get frequencies for each locus
     y1 <- genind2genpop(x1,pop=factor(rep(1,n1)),missing="0",quiet=TRUE)
     freq1 <- makefreq(y1,quiet=TRUE)$tab
@@ -37,8 +39,8 @@ hybridize <- function(x1, x2, n, pop=NULL, res.type=c("genind","df","STRUCTURE")
     kX2 <- lapply(freq2, function(v) t(rmultinom(n,1,v)))
     names(kX2) <- x2$loc.names
     for(i in 1:k) { colnames(kX2[[i]]) <- x2$all.names[[i]]}
-  
-    ## tab1 / tab2 are cbinded tables 
+
+    ## tab1 / tab2 are cbinded tables
     tab1 <- cbind.data.frame(kX1)
     ## gam 1/2 are genind containing gametes
     ## gam 1
@@ -49,7 +51,7 @@ hybridize <- function(x1, x2, n, pop=NULL, res.type=c("genind","df","STRUCTURE")
     gam1@loc.nall <- x1@loc.nall
     gam1 <- genind2df(gam1,sep="/",usepop=FALSE)
     gam1 <- as.matrix(gam1)
-    
+
     ## gam 2
     tab2 <- cbind.data.frame(kX2)
     ## gam 1/2 are genind containing gametes
@@ -107,14 +109,14 @@ hybridize <- function(x1, x2, n, pop=NULL, res.type=c("genind","df","STRUCTURE")
         names(res) <- x1@loc.names
         row.names(res) <- .genlab(hyb.label,n)
         if(is.null(pop)){ # if pop is not provided, merge the two parent populations
-            pop <- paste(deparse(substitute(x1)) , deparse(substitute(x2)), sep="-") 
+            pop <- paste(deparse(substitute(x1)) , deparse(substitute(x2)), sep="-")
         }
         pop <- factor(rep(pop,n))
-        
+
         res <- df2genind(res, pop=pop)
         res@call <- match.call()
-        
+
         return(res)
     }
-    
+
 } # end hybridize
