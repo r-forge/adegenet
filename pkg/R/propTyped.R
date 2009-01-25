@@ -9,6 +9,7 @@ setGeneric("propTyped", function(x,...){
 
 setMethod("propTyped","genind", function(x, by=c("ind","loc","both")){
 
+    checkType(x)
     by <- match.arg(by)
 
     ## auxil function f1
@@ -44,8 +45,10 @@ setMethod("propTyped","genind", function(x, by=c("ind","loc","both")){
 
 
 
+
 setMethod("propTyped","genpop", function(x, by=c("pop","loc","both")){
 
+    checkType(x)
     by <- match.arg(by)
 
     ## auxil function f1

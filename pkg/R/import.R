@@ -13,28 +13,6 @@
 ##
 ##################################################################
 
-#######################
-# Function rmspaces
-#######################
-# removes spaces and tab at the begining and the end of each element of charvec
-.rmspaces <- function(charvec){
-    charvec <- gsub("^([[:blank:]]+)","",charvec)
-    charvec <- gsub("([[:blank:]]+)$","",charvec)
-    return(charvec)
-}
-
-
-
-###################
-# Function readExt
-###################
-.readExt <- function(char){
-    temp <- as.character(char)
-    temp <- unlist(strsplit(char,"[.]"))
-    res <- temp[length(temp)]
-    return(res)
-}
-
 
 
 #####################
@@ -47,10 +25,10 @@ df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, p
 
     res <- list()
     type <- match.arg(type)
+    checkType(type)
 
     ## type PA
     if(toupper(type)=="PA"){
-        warning("experimental mode for presence/absence")
         mode(X) <- "numeric"
 
         ## pop optionnelle
@@ -293,7 +271,7 @@ df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, p
 ########################################
 read.genetix <- function(file=NULL,missing=NA,quiet=FALSE) {
     if(!quiet) cat("\n Converting data from GENETIX to a genind object... \n")
-
+ 
 
     ## read from file
     ## if(!file.exists(file)) stop("Specified file does not exist.") <- not needed

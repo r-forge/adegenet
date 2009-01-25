@@ -22,6 +22,20 @@
 
 
 ###################
+# Function readExt
+###################
+.readExt <- function(char){
+    temp <- as.character(char)
+    temp <- unlist(strsplit(char,"[.]"))
+    res <- temp[length(temp)]
+    return(res)
+}
+
+
+
+
+
+###################
 # Function .genlab
 ###################
 # recursive function to have labels of constant length
@@ -86,18 +100,29 @@ adegenetTutorial <- function(which=c("general","spca")){
 ############
 # checkType
 ############
-checkType <- function(x){
-    markType <- x@type
+checkType <- function(markType=x@type){
+
     if(markType=="codom") return() # always ok for codominant markers
 
     currCall <- match.call()
     currFunction <- sub("[[:space:]]*[(].*","",currCall)
 
     ## names of functions which are ok for dominant markers
-    dominOk <- c("genind","genpop","genind2genpop","summary","na.replace","nLoc")
+    PAOk <- c("genind","genpop","genind2genpop","summary",
+                 "truenames","seppop","na.replace","nLoc")
 
-    if(! currFunction %in% dominOk){
-        msgError <- paste(currFunction,"is not implemented for dominant markers")
+    PAWarn <- c("df2genind")
+
+    ## function exists but is experimental
+    if(currFunction %in% PAWarn){
+        msg <- paste(currFunction,"is implemented but experimental presence/absence markers")
+        warning(msg)
+        return()
+    }
+
+    ## function not implemented
+    if(! currFunction %in% PAOk){
+        msgError <- paste(currFunction,"is not implemented for presence/absence markers")
         stop(msgError)
     } else return() # else, ok.
 } # end checkType
