@@ -87,7 +87,7 @@ adegenetTutorial <- function(which=c("general","spca")){
 # checkType
 ############
 checkType <- function(markType){
-    if(markType=="codom") return()
+    if(markType=="codom") return() # always ok for codominant markers
 
     currCall <- match.call()
     currFunction <- sub("[[:space:]]*[(].*","",currCall)
@@ -98,6 +98,6 @@ checkType <- function(markType){
     if(! currFunction %in% dominOk){
         msgError <- paste(currFunction,"is not implemented for dominant markers")
         stop(msgError)
-    }
+    } else return() # else, ok.
 } # end checkType
 
