@@ -13,23 +13,23 @@
 setGeneric("truenames", function(x) standardGeneric("truenames"))
 
 setMethod("truenames", signature(x="genind"), function(x){
+    checkType(x)
+    X <- x@tab
+    if(!all(x@ind.names=="")) {rownames(X) <- x@ind.names}
 
-  X <- x@tab
-  if(!all(x@ind.names=="")) {rownames(X) <- x@ind.names}
+    labcol <- rep(x@loc.names,x@loc.nall)
+    labcol <- paste(labcol,unlist(x@all.names),sep=".")
+    colnames(X) <- labcol
 
-  labcol <- rep(x@loc.names,x@loc.nall)
-  labcol <- paste(labcol,unlist(x@all.names),sep=".")
-  colnames(X) <- labcol
+    if(!is.null(x@pop)){
+        pop <- x@pop
+        levels(pop) <- x@pop.names
+        return(list(tab=X,pop=pop))
+    }
 
-  if(!is.null(x@pop)){
-    pop <- x@pop
-    levels(pop) <- x@pop.names
-    return(list(tab=X,pop=pop))
-  }
-
-  return(X)
+    return(X)
 }
-)
+          )
 
 
 
@@ -39,15 +39,16 @@ setMethod("truenames", signature(x="genind"), function(x){
 # Method truenames for genpop
 ##############################
 setMethod("truenames",signature(x="genpop"), function(x){
+    checkType(x)
 
-  X <- x@tab
-  if(!all(x@pop.names=="")) {rownames(X) <- x@pop.names}
+    X <- x@tab
+    if(!all(x@pop.names=="")) {rownames(X) <- x@pop.names}
 
-  labcol <- rep(x@loc.names,x@loc.nall)
-  labcol <- paste(labcol,unlist(x@all.names),sep=".")
-  colnames(X) <- labcol
+    labcol <- rep(x@loc.names,x@loc.nall)
+    labcol <- paste(labcol,unlist(x@all.names),sep=".")
+    colnames(X) <- labcol
 
-  return(X)
+    return(X)
 })
 
 
@@ -59,44 +60,45 @@ setMethod("truenames",signature(x="genpop"), function(x){
 setGeneric("seploc", function(x, ...) standardGeneric("seploc"))
 
 setMethod("seploc", signature(x="genind"), function(x,truenames=TRUE,res.type=c("genind","matrix")){
+    checkType(x)
 
-  if(!is.genind(x)) stop("x is not a valid genind object")
-  res.type <- match.arg(res.type)
-  if(res.type=="genind") { truenames <- TRUE }
+    if(!is.genind(x)) stop("x is not a valid genind object")
+    res.type <- match.arg(res.type)
+    if(res.type=="genind") { truenames <- TRUE }
 
-  temp <- x@loc.fac
-  nloc <- length(levels(temp))
-  levels(temp) <- 1:nloc
+    temp <- x@loc.fac
+    nloc <- length(levels(temp))
+    levels(temp) <- 1:nloc
 
-  kX <- list()
+    kX <- list()
 
-  for(i in 1:nloc){
-    kX[[i]] <- matrix(x@tab[,temp==i],ncol=x@loc.nall[i])
+    for(i in 1:nloc){
+        kX[[i]] <- matrix(x@tab[,temp==i],ncol=x@loc.nall[i])
 
-    if(!truenames){
-      rownames(kX[[i]]) <- rownames(x@tab)
-      colnames(kX[[i]]) <- paste(names(x@loc.names)[i],names(x@all.names[[i]]),sep=".")
-    }else{
-      rownames(kX[[i]]) <- x@ind.names
-      colnames(kX[[i]]) <- paste(x@loc.names[i],x@all.names[[i]],sep=".")
+        if(!truenames){
+            rownames(kX[[i]]) <- rownames(x@tab)
+            colnames(kX[[i]]) <- paste(names(x@loc.names)[i],names(x@all.names[[i]]),sep=".")
+        }else{
+            rownames(kX[[i]]) <- x@ind.names
+            colnames(kX[[i]]) <- paste(x@loc.names[i],x@all.names[[i]],sep=".")
+        }
     }
-  }
 
-  if(truenames) {
-    names(kX) <- x@loc.names
-  } else{
-    names(kX) <- names(x@loc.names)
-  }
+    if(truenames) {
+        names(kX) <- x@loc.names
+    } else{
+        names(kX) <- names(x@loc.names)
+    }
 
-  prevcall <- match.call()
-  if(res.type=="genind"){
-      kX <- lapply(kX, genind, pop=x@pop, prevcall=prevcall)
-      for(i in 1:length(kX)){
-          kX[[i]]@other <- x@other
-      }
-  }
+    prevcall <- match.call()
+    if(res.type=="genind"){
+        kX <- lapply(kX, genind, pop=x@pop, prevcall=prevcall)
+        for(i in 1:length(kX)){
+            kX[[i]]@other <- x@other
+        }
+    }
 
-  return(kX)
+    return(kX)
 })
 
 
@@ -105,44 +107,45 @@ setMethod("seploc", signature(x="genind"), function(x,truenames=TRUE,res.type=c(
 # Method seploc for genpop
 ###########################
 setMethod("seploc", signature(x="genpop"), function(x,truenames=TRUE,res.type=c("genpop","matrix")){
+    checkType(x)
 
-  if(!is.genpop(x)) stop("x is not a valid genpop object")
-  res.type <- match.arg(res.type)
-  if(res.type=="genpop") { truenames <- TRUE }
+    if(!is.genpop(x)) stop("x is not a valid genpop object")
+    res.type <- match.arg(res.type)
+    if(res.type=="genpop") { truenames <- TRUE }
 
-  temp <- x@loc.fac
-  nloc <- length(levels(temp))
-  levels(temp) <- 1:nloc
+    temp <- x@loc.fac
+    nloc <- length(levels(temp))
+    levels(temp) <- 1:nloc
 
-  kX <- list()
+    kX <- list()
 
-  for(i in 1:nloc){
-    kX[[i]] <- matrix(x@tab[,temp==i],ncol=x@loc.nall[i])
+    for(i in 1:nloc){
+        kX[[i]] <- matrix(x@tab[,temp==i],ncol=x@loc.nall[i])
 
-    if(!truenames){
-      rownames(kX[[i]]) <- rownames(x@tab)
-      colnames(kX[[i]]) <- paste(names(x@loc.names)[i],names(x@all.names[[i]]),sep=".")
-    }else{
-      rownames(kX[[i]]) <- x@pop.names
-      colnames(kX[[i]]) <- paste(x@loc.names[i],x@all.names[[i]],sep=".")
+        if(!truenames){
+            rownames(kX[[i]]) <- rownames(x@tab)
+            colnames(kX[[i]]) <- paste(names(x@loc.names)[i],names(x@all.names[[i]]),sep=".")
+        }else{
+            rownames(kX[[i]]) <- x@pop.names
+            colnames(kX[[i]]) <- paste(x@loc.names[i],x@all.names[[i]],sep=".")
+        }
     }
-  }
 
-  if(truenames) {
-    names(kX) <- x@loc.names
-  } else{
-    names(kX) <- names(x@loc.names)
-  }
+    if(truenames) {
+        names(kX) <- x@loc.names
+    } else{
+        names(kX) <- names(x@loc.names)
+    }
 
-  prevcall <- match.call()
-  if(res.type=="genpop"){
-      kX <- lapply(kX, genpop, prevcall=prevcall)
-      for(i in 1:length(kX)){
-          kX[[i]]@other <- x@other
-      }
-  }
+    prevcall <- match.call()
+    if(res.type=="genpop"){
+        kX <- lapply(kX, genpop, prevcall=prevcall)
+        for(i in 1:length(kX)){
+            kX[[i]]@other <- x@other
+        }
+    }
 
-  return(kX)
+    return(kX)
 })
 
 
@@ -297,6 +300,7 @@ setGeneric("seppop", function(x, ...) standardGeneric("seppop"))
 
 ## genind
 setMethod("seppop", signature(x="genind"), function(x,pop=NULL,truenames=TRUE,res.type=c("genind","matrix")){
+    checkType(x)
 
     ## misc checks
     if(!is.genind(x)) stop("x is not a valid genind object")
@@ -340,6 +344,7 @@ setGeneric("na.replace", function(x, ...) standardGeneric("na.replace"))
 
 ## genind method
 setMethod("na.replace", signature(x="genind"), function(x,method, quiet=FALSE){
+    checkType(x)
 
     ## preliminary stuff
     validObject(x)
@@ -380,6 +385,7 @@ setMethod("na.replace", signature(x="genind"), function(x,method, quiet=FALSE){
 
 ## genpop method
 setMethod("na.replace", signature(x="genpop"), function(x,method, quiet=FALSE){
+    checkType(x)
 
     ## preliminary stuff
     validObject(x)

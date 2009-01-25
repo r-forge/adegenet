@@ -94,7 +94,7 @@ checkType <- function(x){
     currFunction <- sub("[[:space:]]*[(].*","",currCall)
 
     ## names of functions which are ok for dominant markers
-    dominOk <- c("genind","genpop","genind2genpop","na.replace","nLoc")
+    dominOk <- c("genind","genpop","genind2genpop","summary","na.replace","nLoc")
 
     if(! currFunction %in% dominOk){
         msgError <- paste(currFunction,"is not implemented for dominant markers")
