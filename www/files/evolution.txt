@@ -7,3 +7,4 @@ Version	DocSize Functions Datasets
 1.1-2	62	76	  8
 1.2-0	67	97	  8
 1.2-1	68	97	  8
+1.2-2	72	100	  10
