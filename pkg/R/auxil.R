@@ -100,7 +100,12 @@ adegenetTutorial <- function(which=c("general","spca")){
 ############
 # checkType
 ############
-checkType <- function(markType=x@type){
+checkType <- function(x){
+    if(is.character(x)){
+        markType <- x
+    } else {
+        markType <- x@type
+    }
 
     if(markType=="codom") return() # always ok for codominant markers
 
@@ -109,7 +114,7 @@ checkType <- function(markType=x@type){
 
     ## names of functions which are ok for dominant markers
     PAOk <- c("genind","genpop","genind2genpop","summary",
-                 "truenames","seppop","na.replace","nLoc")
+                 "truenames","seppop","na.replace","nLoc","scaleGen","spca")
 
     PAWarn <- c("df2genind")
 

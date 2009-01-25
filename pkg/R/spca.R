@@ -24,8 +24,10 @@ spca <- function(obj, xy=NULL, cn=NULL, matWeight=NULL,
     ## first checks
     if(!any(inherits(obj,c("genind","genpop")))) stop("obj must be a genind or genpop object.")
     invisible(validObject(obj))
+    checkType(obj)
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     if(!require(spdep, quiet=TRUE)) stop("spdep library is required.")
+
 
     ## handle xy coordinates
     if(is.null(xy) & (inherits(cn,"nb") & !inherits(cn,"listw")) ){
