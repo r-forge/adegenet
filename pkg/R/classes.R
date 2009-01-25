@@ -22,36 +22,36 @@
 
 
 
-#######################
-# Function rmspaces
-#######################
-# removes spaces and tab at the begining and the end of each element of charvec
-.rmspaces <- function(charvec){
-    charvec <- gsub("^([[:blank:]]*)([[:space:]]*)","",charvec)
-    charvec <- gsub("([[:blank:]]*)([[:space:]]*)$","",charvec)
-    return(charvec)
-}
+## #######################
+## # Function rmspaces
+## #######################
+## # removes spaces and tab at the begining and the end of each element of charvec
+## .rmspaces <- function(charvec){
+##     charvec <- gsub("^([[:blank:]]*)([[:space:]]*)","",charvec)
+##     charvec <- gsub("([[:blank:]]*)([[:space:]]*)$","",charvec)
+##     return(charvec)
+## }
 
 
 
-###################
-# Function .genlab
-###################
-# recursive function to have labels of constant length
-# base = a character string
-# n = number of labels
-.genlab <- function(base, n) {
-  f1 <- function(cha,n){
-    if(nchar(cha)<n){
-      cha <- paste("0",cha,sep="")
-      return(f1(cha,n))
-    } else {return(cha)}
-  }
-  w <- as.character(1:n)
-  max0 <- max(nchar(w))
-  w <- sapply(w, function(cha) f1(cha,max0))
-  return(paste(base,w,sep=""))
-}
+## ###################
+## # Function .genlab
+## ###################
+## # recursive function to have labels of constant length
+## # base = a character string
+## # n = number of labels
+## .genlab <- function(base, n) {
+##   f1 <- function(cha,n){
+##     if(nchar(cha)<n){
+##       cha <- paste("0",cha,sep="")
+##       return(f1(cha,n))
+##     } else {return(cha)}
+##   }
+##   w <- as.character(1:n)
+##   max0 <- max(nchar(w))
+##   w <- sapply(w, function(cha) f1(cha,max0))
+##   return(paste(base,w,sep=""))
+## }
 
 
 
@@ -63,7 +63,7 @@
 ###############################################################
 ###############################################################
 
-#.initAdegenetClasses <- function(){
+##.initAdegenetClasses <- function(){
 
 
 ####################
@@ -85,6 +85,7 @@ setClassUnion("intOrNum", c("integer","numeric","NULL"))
   # of the length of each component
   p <- ncol(object@tab)
   k <- length(unique(object@loc.names))
+
 
   if(!is.null(object@loc.fac)){
       if(length(object@loc.fac) != p) {
@@ -203,7 +204,7 @@ setClass("indInfo", representation(ind.names = "character",
 
     ## check type of marker
     if(!object@type %in% c("codom","domin") ){
-        cat("\nunknowon type of marker\n")
+        cat("\nunknown type of marker\n")
         return(FALSE)
     }
 
@@ -239,6 +240,18 @@ setClass("popInfo", representation(pop.names = "character", ploidy = "integer",
     if(any(temp>1)) {
         warning("\nduplicate names in pop.names:\n")
         print(temp[temp>1])
+    }
+
+     ## check ploidy
+    if(object@ploidy < as.integer(1)){
+        cat("\nploidy inferior to 1\n")
+        return(FALSE)
+    }
+
+    ## check type of marker
+    if(!object@type %in% c("codom","domin") ){
+        cat("\nunknown type of marker\n")
+        return(FALSE)
     }
 
     return(TRUE)
@@ -281,108 +294,105 @@ setMethod("names", signature(x = "genpop"), function(x){
 ##################
 ## constructor of a genind object
 genind <- function(tab,pop=NULL,prevcall=NULL,ploidy=2,type=c("codom","domin")){
+    ## handle arguments
+    X <- as.matrix(tab)
+    if(is.null(colnames(X))) stop("tab columns have no name.")
+    if(is.null(rownames(X))) {rownames(X) <- 1:nrow(X)}
 
-  X <- as.matrix(tab)
-  if(is.null(colnames(X))) stop("tab columns have no name.")
-  if(is.null(rownames(X))) {rownames(X) <- 1:nrow(X)}
+    type <- match.arg(type)
+    ploidy <- as.integer(ploidy)
 
-  type <- match.arg(type)
+    ## labels for individuals
+    nind <- nrow(X)
+    ind.names <- .rmspaces(rownames(X))
+    ind.codes <- .genlab("", nind)
+    names(ind.names) <- ind.codes
 
-  # labels for individuals
-  nind <- nrow(X)
-  ind.names <- .rmspaces(rownames(X))
-  ind.codes <- .genlab("", nind)
-  names(ind.names) <- ind.codes
+    ## labels for loci
+    ## and loc.nall
+    if(type=="codom"){
+        temp <- colnames(X)
+        temp <- gsub("[.].*$","",temp)
+        temp <- .rmspaces(temp)
+        ## beware !!! Function 'table' gives ordred output.
+        loc.names <- unique(temp)
+        loc.nall <-  table(temp)[match(loc.names,names(table(temp)))]
+        loc.nall <- as.integer(loc.nall)
 
-  # labels for loci
-  # and loc.nall
-  if(type=="codom"){
-      temp <- colnames(X)
-      temp <- gsub("[.].*$","",temp)
-      temp <- .rmspaces(temp)
-      ## beware !!! Function 'table' gives ordred output.
-      loc.names <- unique(temp)
-      loc.nall <-  table(temp)[match(loc.names,names(table(temp)))]
-      loc.nall <- as.integer(loc.nall)
+        nloc <- length(loc.names)
+        loc.codes <- .genlab("L",nloc)
 
-      nloc <- length(loc.names)
-      loc.codes <- .genlab("L",nloc)
+        names(loc.names) <- loc.codes
 
-      names(loc.names) <- loc.codes
+        names(loc.nall) <- loc.codes
 
-      names(loc.nall) <- loc.codes
+        ## loc.fac
+        loc.fac <- rep(loc.codes,loc.nall)
 
-      ## loc.fac
-      loc.fac <- rep(loc.codes,loc.nall)
+        ## alleles name
+        temp <- colnames(X)
+        temp <- gsub("^.*[.]","",temp)
+        temp <- .rmspaces(temp)
+        all.names <- split(temp,loc.fac)
+        all.codes <- lapply(all.names,function(e) .genlab("",length(e)))
+        for(i in 1:length(all.names)){
+            names(all.names[[i]]) <- all.codes[[i]]
+        }
 
-      ## alleles name
-      temp <- colnames(X)
-      temp <- gsub("^.*[.]","",temp)
-      temp <- .rmspaces(temp)
-      all.names <- split(temp,loc.fac)
-      all.codes <- lapply(all.names,function(e) .genlab("",length(e)))
-      for(i in 1:length(all.names)){
-          names(all.names[[i]]) <- all.codes[[i]]
-      }
+        rownames(X) <- ind.codes
+        colnames(X) <- paste(loc.fac,unlist(all.codes),sep=".")
+        loc.fac <- as.factor(loc.fac)
+    } else { # end if type=="codom" <=> if type=="domin"
+        nloc <- ncol(X)
+        loc.codes <- .genlab("N", nloc)
+        colnames(X) <- loc.codes
+        loc.names <-colnames(X)
+        names(loc.names) <- loc.codes
+        loc.fac <- NULL
+        all.names <- NULL
+        loc.nall <- NULL
+    }
 
-      rownames(X) <- ind.codes
-      colnames(X) <- paste(loc.fac,unlist(all.codes),sep=".")
-      loc.fac <- as.factor(loc.fac)
-  } else { # end if type=="codom"
-      nloc <- ncol(X)
-      loc.codes <- .genlab("N", nloc)
-      colnames(X) <- loc.codes
-      loc.names <-colnames(X)
-      names(loc.names) <- loc.codes
-      loc.fac <- NULL
-      all.names <- NULL
-      loc.nall <- NULL
-  }
-  # This was used in S3 version
-  #
-  #res <- list( tab=X, ind.names=ind.names, loc.names=loc.names,
-  #            loc.nall=loc.nall, loc.fac=loc.fac, all.names=all.names )
+    ## Ideally I should use an 'initialize' method here
+    res <- new("genind")
+    res@tab <- X
+    res@ind.names <- ind.names
+    res@loc.names <- loc.names
+    res@loc.nall <- loc.nall
+    res@loc.fac <- loc.fac
+    res@all.names <- all.names
 
-  # Ideally I should use an 'initialize' method here
-  res <- new("genind")
-  res@tab <- X
-  res@ind.names <- ind.names
-  res@loc.names <- loc.names
-  res@loc.nall <- loc.nall
-  res@loc.fac <- loc.fac
-  res@all.names <- all.names
+    ## populations name (optional)
+    ## beware, keep levels of pop sorted in
+    ## there order of appearance
+    if(!is.null(pop)) {
+        # convert pop to a factor if it is not
+        if(!is.factor(pop)) {pop <- factor(pop)}
+        pop.lab <- .genlab("P",length(levels(pop)) )
+        # put pop levels in appearance order
+        pop <- as.character(pop)
+        pop <- factor(pop, levels=unique(pop))
+        temp <- pop
+        # now levels are correctly ordered
+        levels(pop) <- pop.lab
+        res@pop <- pop
+        pop.names <- as.character(levels(temp))
+        names(pop.names) <- as.character(levels(res@pop))
+        res@pop.names <- pop.names
+    }
 
-  # populations name (optional)
-  # beware, keep levels of pop sorted in
-  # there order of appearance
-  if(!is.null(pop)) {
-      # convert pop to a factor if it is not
-      if(!is.factor(pop)) {pop <- factor(pop)}
-      pop.lab <- .genlab("P",length(levels(pop)) )
-      # put pop levels in appearance order
-      pop <- as.character(pop)
-      pop <- factor(pop, levels=unique(pop))
-      temp <- pop
-      # now levels are correctly ordered
-      levels(pop) <- pop.lab
-      res@pop <- pop
-      pop.names <- as.character(levels(temp))
-      names(pop.names) <- as.character(levels(res@pop))
-      res@pop.names <- pop.names
-  }
+    ## ploidy
+    plo <- as.integer(ploidy)
+    if(plo < as.integer(1)) stop("ploidy inferior to 1")
+    res@ploidy <- plo
 
-  ## ploidy
-  plo <- as.integer(ploidy)
-  if(plo < as.integer(1)) stop("ploidy inferior to 1")
-  res@ploidy <- plo
+    ## type of marker
+    res@type <- as.character(type)
 
-  ## type of marker
-  res@type <- as.character(type)
+    if(is.null(prevcall)) {prevcall <- match.call()}
+    res@call <- prevcall
 
-  if(is.null(prevcall)) {prevcall <- match.call()}
-  res@call <- prevcall
-
-  return(res)
+    return(res)
 
 } # end genind
 
