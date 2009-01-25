@@ -19,8 +19,8 @@
   'class ? genpop'.
 }
 \usage{
-genpop(tab,prevcall=NULL, ploidy=as.integer(2), type=c("codom","domin"))
-as.genpop(tab, prevcall=NULL, ploidy=as.integer(2), type=c("codom","domin"))
+genpop(tab,prevcall=NULL, ploidy=as.integer(2), type=c("codom","PA"))
+as.genpop(tab, prevcall=NULL, ploidy=as.integer(2), type=c("codom","PA"))
 is.genpop(x)
 }
 \arguments{
@@ -31,7 +31,7 @@ is.genpop(x)
     the genotypes. Beware: 2 is not an integer, but as.integer(2) is.}
   \item{type}{a character string indicating the type of
     marker: 'codom' stands for 'codominant' (e.g. microstallites,
-    allozymes); 'domin' stands for 'dominant' (e.g. AFLP, RAPD).}
+    allozymes); 'PA' stands for 'presence/absence' (e.g. AFLP, RAPD).}
   \item{x}{an object}
 }
 \value{
