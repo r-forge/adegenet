@@ -408,70 +408,80 @@ as.genind <- genind
 ##################
 genpop <- function(tab,prevcall=NULL,ploidy=as.integer(2),type=c("codom","domin")){
 
-  X <- as.matrix(tab)
-  if(is.null(colnames(X))) stop("tab columns have no name.")
-  if(is.null(rownames(X))) {rownames(X) <- 1:nrow(X)}
+    ## handle args
+    X <- as.matrix(tab)
+    if(is.null(colnames(X))) stop("tab columns have no name.")
+    if(is.null(rownames(X))) {rownames(X) <- 1:nrow(X)}
 
-  # labels for populations
-  npop <- nrow(X)
-  pop.names <- .rmspaces(rownames(X))
-  pop.codes <- .genlab("P", npop)
-  names(pop.names) <- pop.codes
+    type <- match.arg(type)
+    ploidy <- as.integer(ploidy)
 
-  # labels for loci
-  # and loc.nall
-  temp <- colnames(X)
-  temp <- gsub("[.].*$","",temp)
-  temp <- .rmspaces(temp)
-  # beware !!! Function 'table' gives ordred output.
-  loc.names <- unique(temp)
-  loc.nall <-  table(temp)[match(loc.names,names(table(temp)))]
-  loc.nall <- as.integer(loc.nall)
+    ## labels for populations
+    npop <- nrow(X)
+    pop.names <- .rmspaces(rownames(X))
+    pop.codes <- .genlab("P", npop)
+    names(pop.names) <- pop.codes
 
-  nloc <- length(loc.names)
-  loc.codes <- .genlab("L",nloc)
+    ## labels for loci
+    ## and loc.nall
+    if(type=="codom"){
+        temp <- colnames(X)
+        temp <- gsub("[.].*$","",temp)
+        temp <- .rmspaces(temp)
+        # beware !!! Function 'table' gives ordred output.
+        loc.names <- unique(temp)
+        loc.nall <-  table(temp)[match(loc.names,names(table(temp)))]
+        loc.nall <- as.integer(loc.nall)
 
-  names(loc.names) <- loc.codes
+        nloc <- length(loc.names)
+        loc.codes <- .genlab("L",nloc)
 
-  names(loc.nall) <- loc.codes
+        names(loc.names) <- loc.codes
 
-  # loc.fac
-  loc.fac <- rep(loc.codes,loc.nall)
+        names(loc.nall) <- loc.codes
 
-  # alleles name
-  temp <- colnames(X)
-  temp <- gsub("^.*[.]","",temp)
-  temp <- .rmspaces(temp)
-  all.names <- split(temp,loc.fac)
-  all.codes <- lapply(all.names,function(e) .genlab("",length(e)))
-  for(i in 1:length(all.names)){
-    names(all.names[[i]]) <- all.codes[[i]]
-  }
+        ## loc.fac
+        loc.fac <- rep(loc.codes,loc.nall)
 
-  rownames(X) <- pop.codes
-  colnames(X) <- paste(loc.fac,unlist(all.codes),sep=".")
-  loc.fac <- as.factor(loc.fac)
+        ## alleles name
+        temp <- colnames(X)
+        temp <- gsub("^.*[.]","",temp)
+        temp <- .rmspaces(temp)
+        all.names <- split(temp,loc.fac)
+        all.codes <- lapply(all.names,function(e) .genlab("",length(e)))
+        for(i in 1:length(all.names)){
+            names(all.names[[i]]) <- all.codes[[i]]
+        }
 
-  # Old S3 version
-  #
-  #res <- list( tab=X, pop.names=pop.names, loc.names=loc.names,
-  #            loc.nall=loc.nall, loc.fac=loc.fac, all.names=all.names )
+        rownames(X) <- pop.codes
+        colnames(X) <- paste(loc.fac,unlist(all.codes),sep=".")
+        loc.fac <- as.factor(loc.fac)
+    } else { # end if type=="codom" <=> if type=="domin"
+        nloc <- ncol(X)
+        loc.codes <- .genlab("N", nloc)
+        colnames(X) <- loc.codes
+        loc.names <-colnames(X)
+        names(loc.names) <- loc.codes
+        loc.fac <- NULL
+        all.names <- NULL
+        loc.nall <- NULL
+    }
 
-  res <- new("genpop")
+    res <- new("genpop")
 
-  res@tab <- X
-  res@pop.names <- pop.names
-  res@loc.names <- loc.names
-  res@loc.nall <- loc.nall
-  res@loc.fac <- loc.fac
-  res@all.names <- all.names
-  res@ploidy <- ploidy
-  res@type <- as.character(type)
+    res@tab <- X
+    res@pop.names <- pop.names
+    res@loc.names <- loc.names
+    res@loc.nall <- loc.nall
+    res@loc.fac <- loc.fac
+    res@all.names <- all.names
+    res@ploidy <- ploidy
+    res@type <- as.character(type)
 
-  if(is.null(prevcall)) {prevcall <- match.call()}
-  res@call <- prevcall
+    if(is.null(prevcall)) {prevcall <- match.call()}
+    res@call <- prevcall
 
-  return(res)
+    return(res)
 
 } # end genpop
 
