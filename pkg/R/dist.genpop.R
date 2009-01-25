@@ -13,11 +13,14 @@
 ############################
 # S3 method dist for genpop
 ############################
-dist.genpop <- function(x, method = 1, diag = FALSE, upper = FALSE) { 
+dist.genpop <- function(x, method = 1, diag = FALSE, upper = FALSE) {
 
   if(!is.genpop(x)) stop("x is not a valid genpop object")
 
-    
+  ## check marker type
+  checkType(x)
+
+
   METHODS = c("Nei","Edwards","Reynolds","Rodgers","Provesti")
   if (all((1:5)!=method)) {
     cat("1 = Nei 1972\n")
@@ -35,7 +38,7 @@ dist.genpop <- function(x, method = 1, diag = FALSE, upper = FALSE) {
   X <- makefreq(x,missing="mean",quiet=TRUE)$tab
   # X is a matrix of allelic frequencies
   nlig <- nrow(X)
-  
+
   if (method == 1) { # Nei
     d <- X%*%t(X)
     vec <- sqrt(diag(d))
@@ -71,7 +74,7 @@ dist.genpop <- function(x, method = 1, diag = FALSE, upper = FALSE) {
         daux <- sqrt(.5*daux)
         return(daux)
       }
-      
+
       d <- matrix(0,nlig,nlig)
       for(i in 1:length(kX)) {
         d <- d + dcano(kX[[i]])
@@ -86,7 +89,7 @@ dist.genpop <- function(x, method = 1, diag = FALSE, upper = FALSE) {
         return(resloc/(2*nloc))
       }
       d <- unlist(lapply(w0,loca))
-    } 
+    }
     attr(d, "Size") <- nlig
     attr(d, "Labels") <- x@pop.names
     attr(d, "Diag") <- diag
@@ -95,5 +98,5 @@ dist.genpop <- function(x, method = 1, diag = FALSE, upper = FALSE) {
     attr(d, "call") <- match.call()
     class(d) <- "dist"
     return(d)
-    
+
 } # end method dist for genpop
