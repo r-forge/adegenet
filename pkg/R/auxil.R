@@ -86,7 +86,8 @@ adegenetTutorial <- function(which=c("general","spca")){
 ############
 # checkType
 ############
-checkType <- function(markType){
+checkType <- function(x){
+    markType <- x@type
     if(markType=="codom") return() # always ok for codominant markers
 
     currCall <- match.call()

@@ -17,6 +17,7 @@ genind2genotype <- function(x,pop=NULL,res.type=c("matrix","list")){
 
   if(!is.genind(x)) stop("x is not a valid genind object")
   if(x@ploidy != as.integer(2)) stop("not implemented for non-diploid genotypes")
+  checkType(x)
 
   if(!require(genetics)) stop("genetics package is not required but not installed.")
   if(is.null(pop)) pop <- x@pop
@@ -70,6 +71,8 @@ genind2genotype <- function(x,pop=NULL,res.type=c("matrix","list")){
 
 
 
+
+
 ############################
 # Function genind2hierfstat
 ############################
@@ -78,6 +81,7 @@ genind2hierfstat <- function(x,pop=NULL){
     ##   invisible(validObject(x))
     if(!is.genind(x)) stop("x is not a valid genind object")
     if(x@ploidy != as.integer(2)) stop("not implemented for non-diploid genotypes")
+    checkType(x)
 
     if(is.null(pop)) pop <- x@pop
     if(is.null(pop)) pop <- as.factor(rep("P1",nrow(x@tab)))
@@ -124,6 +128,7 @@ genind2hierfstat <- function(x,pop=NULL){
 genind2df <- function(x, pop=NULL, sep="", usepop=TRUE){
 
   if(!is.genind(x)) stop("x is not a valid genind object")
+  checkType(x)
 
   if(is.null(pop)) {
       pop <- x@pop
