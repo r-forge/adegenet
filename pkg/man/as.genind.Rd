@@ -20,8 +20,8 @@
 }
 
 \usage{
-genind(tab,pop=NULL,prevcall=NULL, ploidy=2, type=c("codom","domin"))
-as.genind(tab,pop=NULL,prevcall=NULL, ploidy=2, type=c("codom","domin"))
+genind(tab,pop=NULL,prevcall=NULL, ploidy=2, type=c("codom","PA"))
+as.genind(tab,pop=NULL,prevcall=NULL, ploidy=2, type=c("codom","PA"))
 is.genind(x)
 }
 
@@ -31,7 +31,7 @@ is.genind(x)
     Its content depends on \code{type} (type of marker).\cr
     - 'codom': table contains allele frequencies (numeric values summing
   to 1).\cr
-    - 'domin': table contains binary values, which indicate
+    - 'PA': table contains binary values, which indicate
   presence(1)/absence(0) of alleles.\cr
   }
   \item{pop}{a factor giving the population of each genotype in 'x'}

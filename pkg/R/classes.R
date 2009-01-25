@@ -203,7 +203,7 @@ setClass("indInfo", representation(ind.names = "character",
     }
 
     ## check type of marker
-    if(!object@type %in% c("codom","domin") ){
+    if(!object@type %in% c("codom","PA") ){
         cat("\nunknown type of marker\n")
         return(FALSE)
     }
@@ -249,7 +249,7 @@ setClass("popInfo", representation(pop.names = "character", ploidy = "integer",
     }
 
     ## check type of marker
-    if(!object@type %in% c("codom","domin") ){
+    if(!object@type %in% c("codom","PA") ){
         cat("\nunknown type of marker\n")
         return(FALSE)
     }
@@ -293,7 +293,7 @@ setMethod("names", signature(x = "genpop"), function(x){
 # Function genind
 ##################
 ## constructor of a genind object
-genind <- function(tab,pop=NULL,prevcall=NULL,ploidy=2,type=c("codom","domin")){
+genind <- function(tab,pop=NULL,prevcall=NULL,ploidy=2,type=c("codom","PA")){
     ## handle arguments
     X <- as.matrix(tab)
     if(is.null(colnames(X))) stop("tab columns have no name.")
@@ -342,7 +342,7 @@ genind <- function(tab,pop=NULL,prevcall=NULL,ploidy=2,type=c("codom","domin")){
         rownames(X) <- ind.codes
         colnames(X) <- paste(loc.fac,unlist(all.codes),sep=".")
         loc.fac <- as.factor(loc.fac)
-    } else { # end if type=="codom" <=> if type=="domin"
+    } else { # end if type=="codom" <=> if type=="PA"
         nloc <- ncol(X)
         loc.codes <- .genlab("N", nloc)
         colnames(X) <- loc.codes
@@ -406,7 +406,7 @@ as.genind <- genind
 ##################
 # Function genpop
 ##################
-genpop <- function(tab,prevcall=NULL,ploidy=as.integer(2),type=c("codom","domin")){
+genpop <- function(tab,prevcall=NULL,ploidy=as.integer(2),type=c("codom","PA")){
 
     ## handle args
     X <- as.matrix(tab)
@@ -456,7 +456,7 @@ genpop <- function(tab,prevcall=NULL,ploidy=as.integer(2),type=c("codom","domin"
         rownames(X) <- pop.codes
         colnames(X) <- paste(loc.fac,unlist(all.codes),sep=".")
         loc.fac <- as.factor(loc.fac)
-    } else { # end if type=="codom" <=> if type=="domin"
+    } else { # end if type=="codom" <=> if type=="PA"
         nloc <- ncol(X)
         loc.codes <- .genlab("N", nloc)
         colnames(X) <- loc.codes
