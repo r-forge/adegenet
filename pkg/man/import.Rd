@@ -4,9 +4,10 @@
 \alias{import2genind}
 \title{ Importing data from several softwares to a genind object}
 \description{
-  Their are two ways to import genotyping data to a \linkS4class{genind} object: from
-  a data.frame with a given format (see \code{\link{df2genind}}, or from a file with a
-  recognized extension.\cr
+  Their are several ways to import genotype data to a
+  \linkS4class{genind} object: i) from a data.frame with a given format
+  (see \code{\link{df2genind}}), ii) from a file with a recognized
+  extension, or iii) from an alignement of sequences (see \code{\link{DNAbin2genind}}).\cr
   
   The function \code{import2genind} detects the extension of
   the file given in argument and seeks for an appropriate import

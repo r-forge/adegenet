@@ -92,8 +92,14 @@ df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, p
 
     ## find or check the number of coding characters, 'ncode'
     if(is.null(sep)){
-        if(!is.null(ncode)) {if(ncode <  max(nchar(X)) ) stop("some character strings exceed the provided ncode.")}
-        if(is.null(ncode)) { ncode <- max(nchar(X)) }
+        if(!is.null(ncode)) {
+            temp <- nchar(X[!is.na(X)])
+            if(ncode <  max(temp) ) stop("some character strings exceed the provided ncode.")
+        }
+        if(is.null(ncode)) {
+            temp <- nchar(X[!is.na(X)])
+            ncode <- max(temp)
+        }
         if((ncode %% ploidy)>0) stop(paste(ploidy,"alleles cannot be coded by a total of",
                                            ncode,"characters", sep=" "))
     }
