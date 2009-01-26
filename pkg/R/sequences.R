@@ -38,7 +38,7 @@ DNAbin2genind <- function(x, pop=NULL, exp.char=c("a","t","g","c"), na.char=NULL
         if(is.null(exp.char)) stop("both exp.char and na.char are NULL")
         temp <- paste(exp.char, collapse="", sep="")
         if(any(exp.char=="-")) {
-            temp <- paste("-",temp, sep="") # string '-' must start the regexp
+            temp <- paste("-",temp, sep="") # string '-' must begin the regexp
         }
         temp <- paste("[^", temp, "]", sep="") # anything but the expected is NA
         x <- gsub(temp,NA,x)
