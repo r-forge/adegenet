@@ -12,13 +12,15 @@
   - alignement (seqinr package): to come...
 }
 \usage{
-DNAbin2genind(x, pop=NULL, na.char=c("n","-","?"))
+DNAbin2genind(x, pop=NULL, na.char=c("n","-","?"), polyThres=1/100)
 }
 \arguments{
  \item{x}{an object containing aligned sequences.}
  \item{pop}{an optional factor giving the population to which each sequence belongs.}
  \item{na.char}{a character vector providing values that should be
- considered as NA.}
+   considered as NA.}
+ \item{polyThres}{the minimum frequency of a minor allele for a locus to
+  be considered as polymorphic (defaults to 0.01).}
 }
 
 \value{an object of the class \linkS4class{genind}}

@@ -10,7 +10,7 @@
 ################
 # DNAbin2genind
 ################
-DNAbin2genind <- function(x, pop=NULL, na.char=c("n","-","?")){
+DNAbin2genind <- function(x, pop=NULL, na.char=c("n","-","?"), polyThres=1/100){
 
     ## misc checks
     if(!inherits(x,"DNAbin")) stop("x is not a DNAbin object")
@@ -33,17 +33,19 @@ DNAbin2genind <- function(x, pop=NULL, na.char=c("n","-","?")){
         colnames(x) <- 1:ncol(x)
     }
 
-    ## keep only columns with polymorphism (i.e., SNPs)
-    f1 <- function(vec){
-        if(length(unique(vec))==1) return(FALSE)
-        return(TRUE)
-    }
-
-    toKeep <- apply(x, 2, f1)
-    x <- x[,toKeep]
-
     ## replace NAs
     x[x %in% na.char] <- NA
+
+    ## keep only columns with polymorphism (i.e., SNPs)
+    isPoly <- function(vec){
+        N <- sum(!is.na(vec)) # N: number of sequences
+        temp <- table(vec)/N
+        if(sum(temp > polyThres) >= 2) return(TRUE)
+        return(FALSE)
+    }
+
+    toKeep <- apply(x, 2, isPoly)
+    x <- x[,toKeep]
 
     ## build output
     res <- df2genind(x, pop=pop, ploidy=1, ncode=1)
