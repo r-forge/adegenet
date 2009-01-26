@@ -12,13 +12,15 @@
   - alignement (seqinr package): to come...
 }
 \usage{
-DNAbin2genind(x, pop=NULL, na.char=c("n","-","?"), polyThres=1/100)
+DNAbin2genind(x, pop=NULL, exp.char=c("a","t","g","c"), na.char=NULL, polyThres=1/100)
 }
 \arguments{
  \item{x}{an object containing aligned sequences.}
  \item{pop}{an optional factor giving the population to which each sequence belongs.}
- \item{na.char}{a character vector providing values that should be
-   considered as NA.}
+ \item{exp.char}{a vector of single character providing expected values;
+  all other characters will be turned to NA.}
+ \item{na.char}{a vector of single characters providing values that should be
+   considered as NA. If not NULL, this is used instead of \code{exp.char}.}
  \item{polyThres}{the minimum frequency of a minor allele for a locus to
   be considered as polymorphic (defaults to 0.01).}
 }

@@ -10,7 +10,7 @@
 ################
 # DNAbin2genind
 ################
-DNAbin2genind <- function(x, pop=NULL, na.char=c("n","-","?"), polyThres=1/100){
+DNAbin2genind <- function(x, pop=NULL, exp.char=c("a","t","g","c"), na.char=NULL, polyThres=1/100){
 
     ## misc checks
     if(!inherits(x,"DNAbin")) stop("x is not a DNAbin object")
@@ -34,7 +34,22 @@ DNAbin2genind <- function(x, pop=NULL, na.char=c("n","-","?"), polyThres=1/100){
     }
 
     ## replace NAs
-    x[x %in% na.char] <- NA
+    if(is.null(na.char)){
+        if(is.null(exp.char)) stop("both exp.char and na.char are NULL")
+        temp <- paste(exp.char, collapse="", sep="")
+        if(any(exp.char=="-")) {
+            temp <- paste("-",temp, sep="") # string '-' must start the regexp
+        }
+        temp <- paste("[^", temp, "]", sep="") # anything but the expected is NA
+        x <- gsub(temp,NA,x)
+    } else {
+        temp <- paste(na.char, collapse="", sep="")
+        if(any(na.char=="-")) {
+            temp <- paste("-",temp, sep="") # string '-' must start the regexp
+        }
+        temp <- paste("[", temp, "]", sep="")
+        x <- gsub(temp,NA,x)
+    }
 
     ## keep only columns with polymorphism (i.e., SNPs)
     isPoly <- function(vec){
