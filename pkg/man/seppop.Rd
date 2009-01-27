@@ -1,6 +1,6 @@
 \encoding{UTF-8}
 \docType{methods}
-\name{seploc}
+\name{seppop}
 \alias{seppop}
 \alias{seppop-methods}
 \alias{seppop,ANY-method}
