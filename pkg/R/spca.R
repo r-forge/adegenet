@@ -85,7 +85,7 @@ spca <- function(obj, xy=NULL, cn=NULL, matWeight=NULL,
 
     ## handle NAs warning
     if(any(is.na(obj@tab))){
-        warning("NAs in data are automatically replaced (to mean allele frequency")
+        warning("NAs in data are automatically replaced (to mean allele frequency)")
     }
 
     ## handle NAs, centring and scaling
