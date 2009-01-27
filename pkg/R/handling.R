@@ -481,10 +481,10 @@ repool <- function(...){
 #############
 # selpopsize
 #############
-setGeneric("selpop", function(x, ...) standardGeneric("selpop"))
+setGeneric("selpopsize", function(x, ...) standardGeneric("selpopsize"))
 
 ## genind method ##
-setMethod("selpop", signature(x="genind"), function(x,pop=NULL,nMin=10){
+setMethod("selpopsize", signature(x="genind"), function(x,pop=NULL,nMin=10){
 
     ## misc checks
     checkType(x)
