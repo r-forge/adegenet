@@ -59,7 +59,7 @@ genind2genpop <- function(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE){
 
   prevcall <- match.call()
 
-  res <- genpop(tab=tabcount, prevcall=prevcall)
+  res <- genpop(tab=tabcount, prevcall=prevcall, ploidy=x@ploidy, type=x@type)
   res@other <- x@other
 
   if(missing != "NA"){
