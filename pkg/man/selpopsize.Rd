@@ -31,7 +31,7 @@
 data(microbov)
 
 table(pop(microbov))
-obj <- selpopsize(microbov, 50)
+obj <- selpopsize(microbov, n=50)
 
 obj
 table(pop(obj))
