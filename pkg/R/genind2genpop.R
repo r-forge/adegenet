@@ -1,7 +1,8 @@
 #########################
 # Function genind2genpop
 #########################
-genind2genpop <- function(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE){
+genind2genpop <- function(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
+                          proceed.other=FALSE, other.action=mean){
 
   if(!is.genind(x)) stop("x is not a valid genind object")
   checkType(x)
@@ -60,7 +61,28 @@ genind2genpop <- function(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE){
   prevcall <- match.call()
 
   res <- genpop(tab=tabcount, prevcall=prevcall, ploidy=x@ploidy, type=x@type)
+
+  ## handle @other here
   res@other <- x@other
+  if(proceed.other){
+      ## auxiliary function doing the job
+      f1 <- function(e){
+          N <- row(x@tab)
+          if(is.vector(e) & is.numeric(e) & length(e)==N){ # numeric vector
+              res <- tapply(e, pop, other.action)
+              return(res)
+          } else if(is.matrix(e) & is.numeric(e) & nrow(e)==N){ # numeric matrix
+              res <- apply(e, 2, function(vec) tapply(vec, pop, other.action))
+              return(res)
+          } else if(is.data.frame(e) & nrow(e)==N & all(sapply(e,is.numeric)) ){ # df of numeric vectors
+              res <- lapply(e, function(vec) tapply(vec, pop, other.action))
+              res <- data.frame(res)
+              return(res)
+          } else return(e)
+      } # end f1
+
+      res@other <- lapply(res@other, f1)
+  } # end if(proceed.other)
 
   if(missing != "NA"){
       res <- na.replace(res, method=missing, quiet=quiet)
