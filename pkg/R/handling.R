@@ -212,7 +212,7 @@ setMethod("[","genind",
               prevcall <- match.call()
               tab <- tab[i, j, ...,drop=FALSE]
 
-              res <- genind(tab,pop=pop,prevcall=prevcall)
+              res <- genind(tab,pop=pop,prevcall=prevcall, ploidy=x@ploidy, type=x@type)
 
               ## handle 'other' slot
               nOther <- length(x@other)
