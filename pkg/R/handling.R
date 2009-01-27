@@ -305,11 +305,13 @@ setMethod("seppop", signature(x="genind"), function(x,pop=NULL,truenames=TRUE,re
     ## misc checks
     if(!is.genind(x)) stop("x is not a valid genind object")
     if(is.null(pop)) { # pop taken from @pop
+        if(is.null(x@pop)) stop("pop not provided and x@pop is empty")
         pop <- x@pop
         levels(pop) <- x@pop.names
+    } else{
+        pop <- factor(pop)
     }
 
-    if(is.null(pop)) stop("pop not provided and x@pop is empty")
 
     res.type <- match.arg(res.type)
     if(res.type=="genind") { truenames <- TRUE }
@@ -475,10 +477,47 @@ repool <- function(...){
 
 
 
+
+#############
+# selpopsize
+#############
+setGeneric("selpop", function(x, ...) standardGeneric("selpop"))
+
+## genind method ##
+setMethod("selpop", signature(x="genind"), function(x,pop=NULL,nMin=10){
+
+    ## misc checks
+    checkType(x)
+    if(!is.genind(x)) stop("x is not a valid genind object")
+    if(is.null(pop)) { # pop taken from @pop
+        if(is.null(x@pop)) stop("pop not provided and x@pop is empty")
+        pop <- x@pop
+        levels(pop) <- x@pop.names
+    } else{
+        pop <- factor(pop)
+    }
+
+    ## select retained individuals
+    effPop <- table(pop)
+    popOk <- names(effPop)[effPop >= nMin]
+    toKeep <- pop %in% popOk
+
+    ## build result
+    res <- x[toKeep]
+    pop(res) <- pop[toKeep]
+
+    return(res)
+}) # end selpop
+
+
+
+
+
+
+
 ######################
 ## miscellanous utils
 ######################
-
 
 #######
 # nLoc
@@ -499,3 +538,49 @@ setMethod("nLoc","genpop", function(x,...){
     return(length(x@loc.names))
 })
 
+
+
+
+
+######
+# pop
+######
+setGeneric("pop", function(x) {
+  standardGeneric("pop")
+})
+
+
+
+setGeneric("pop<-",
+           function(x, value) {
+               standardGeneric("pop<-")
+           })
+
+
+
+setMethod("pop","genind", function(x){
+    if(is.null(x@pop)) return(NULL)
+    res <- x@pop
+    levels(res) <- x@pop.names
+    return(res)
+})
+
+
+
+setReplaceMethod("pop", "genind", function(x, value) {
+    if(length(value) != nrow(x$tab)) stop("wrong length for population factor")
+
+    ## coerce to factor (put levels in their order of appearance)
+    newPop <- as.character(value)
+    newPop <- factor(newPop, levels=unique(newPop))
+
+    ## generic labels
+    newPop.lab <- .genlab("P",length(levels(newPop)) )
+
+    ## construct output
+    x$pop.names <- levels(newPop)
+    levels(newPop) <- newPop.lab
+    x$pop <- newPop
+
+    return(x)
+})

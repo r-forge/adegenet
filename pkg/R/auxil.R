@@ -114,7 +114,7 @@ checkType <- function(x){
 
     ## names of functions which are ok for dominant markers
     PAOk <- c("genind","genpop","genind2genpop","summary",
-                 "truenames","seppop","na.replace","nLoc","scaleGen","spca")
+                 "truenames","seppop","na.replace","nLoc","scaleGen","spca","selpop")
 
     PAWarn <- c("df2genind")
 
