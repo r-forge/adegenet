@@ -7,9 +7,17 @@
 \alias{$<-,genpop-method}
 \alias{[,genind-method}
 \alias{[,genpop-method}
+\alias{nLoc}
+\alias{nLoc,genind-method}
+\alias{nLoc,genpop-method}
+\alias{pop}
+\alias{pop<-}
+\alias{pop,genind-method}
+\alias{pop<-,genind-method}
 \title{ Accessors for adegenet objects}
 \description{
-  Several accessors for \linkS4class{genind} or
+  An accessor is a function that allows to interact with slots of an
+  object in a convenient way. Several accessors are available for \linkS4class{genind} or
   \linkS4class{genpop} objects. The operator "\$" and "\$<-" are used to
   access the slots, being equivalent to "@" and "@<-".\cr
 
@@ -30,7 +38,14 @@
   The argument \code{treatOther} handles the treatment of objects in the
   \code{@other} slot (see details).
 }
-\usage{
+\section{Methods}{
+  \describe{
+    \item{nLoc}{returns the number of loci of the object}
+    \item{pop}{returns the population factor of the object, using true
+      (as opposed to generic) levels.}
+    \item{pop<-}{replacement method for the \code{@pop} slot of an
+  object. The content of \code{@pop} and \code{@pop.names} is updated automatically.}
+  }
 }
 \value{
   A \linkS4class{genind} or \linkS4class{genpop} object.
@@ -82,5 +97,16 @@ colonies@other$aChar <- "This will not be proceeded"
 colonies123 <- colonies[1:3]
 colonies
 colonies@other$xy
+
+# illustrate pop
+obj <- nancycats[sample(1:100,10)]
+obj$pop
+obj$pop.names
+pop(obj)
+pop(obj) <- rep(c('b','a'), each=5)
+obj$pop
+obj$pop.names
+pop(obj)
+
 }
 \keyword{manip}
