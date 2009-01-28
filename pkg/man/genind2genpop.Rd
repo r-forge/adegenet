@@ -6,7 +6,7 @@
   (genind) into alleles counts per population (genpop).}
 \usage{
 genind2genpop(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
-              proceed.other=FALSE, other.action=mean)
+              process.other=FALSE, other.action=mean)
 }
 \arguments{
   \item{x}{an object of class \code{genind}.}
@@ -16,9 +16,9 @@ genind2genpop(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
   \item{missing}{can be "NA", "0", or "chi2". See details for more information.}
   \item{quiet}{logical stating whether a conversion message must be
     printed (TRUE,default) or not (FALSE).}
-  \item{proceed.other}{a logical indicating whether the \code{@other}
-    slot should be proceeded (see details).}
-  \item{other.action}{a function to be used when proceeding the
+  \item{process.other}{a logical indicating whether the \code{@other}
+    slot should be processed (see details).}
+  \item{other.action}{a function to be used when processing the
     \code{@other} slot. By default, 'mean' is used.}
 }
 \details{
@@ -36,12 +36,12 @@ genind2genpop(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
   Chi-squared test. This is obtained by the product of the margins
   sums divided by the total number of alleles.\cr
   
-  === proceeding the \code{@other} slot ===\cr
+  === processing the \code{@other} slot ===\cr
   Essentially, \code{genind2genpop} is about aggregating data per
   population. The function can do the same for all numeric items in the
   \code{@other} slot provided they have the same length (for vectors) or
   the same number of rows (matrix-like objects) as the number of
-  genotypes. When the case is encountered and if \code{proceed.other} is
+  genotypes. When the case is encountered and if \code{process.other} is
   TRUE, then these objects are processed using the function defined in
   \code{other.action} per population. For instance, spatial coordinates
   of genotypes would be averaged to obtain population coordinates.
@@ -62,14 +62,14 @@ genind2genpop(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
   catpop
   summary(catpop)
 
-## proceeding the @other slot
+## processing the @other slot
 data(sim2pop)
 sim2pop$other$foo <- letters
 sim2pop
 dim(sim2pop$other$xy) # matches the number of genotypes
 sim2pop$other$foo # does not match the number of genotypes
 
-obj <- genind2genpop(sim2pop, proceed.other=TRUE)
+obj <- genind2genpop(sim2pop, process.other=TRUE)
 obj$other # the new xy is the populations' centre
 
 pch <- as.numeric(pop(sim2pop))
