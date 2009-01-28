@@ -66,7 +66,7 @@ genind2genpop <- function(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
   res@other <- x@other
   if(proceed.other){
       ## auxiliary function doing the job
-      f1 <- function(e){
+      fOther <- function(e){
           N <- row(x@tab)
           if(is.vector(e) & is.numeric(e) & length(e)==N){ # numeric vector
               res <- tapply(e, pop, other.action)
@@ -81,7 +81,7 @@ genind2genpop <- function(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
           } else return(e)
       } # end f1
 
-      res@other <- lapply(res@other, f1)
+      res@other <- lapply(res@other, fOther)
   } # end if(proceed.other)
 
   if(missing != "NA"){
