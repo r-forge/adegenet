@@ -2,7 +2,7 @@
 # Function genind2genpop
 #########################
 genind2genpop <- function(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
-                          proceed.other=FALSE, other.action=mean){
+                          process.other=FALSE, other.action=mean){
 
   if(!is.genind(x)) stop("x is not a valid genind object")
   checkType(x)
@@ -64,7 +64,7 @@ genind2genpop <- function(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
 
   ## handle @other here
   res@other <- x@other
-  if(proceed.other){
+  if(process.other){
       ## auxiliary function doing the job
       fOther <- function(e){
           N <- nrow(x@tab)
@@ -84,7 +84,7 @@ genind2genpop <- function(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
       } # end fOther
 
       res@other <- lapply(res@other, fOther)
-  } # end if(proceed.other)
+  } # end if(process.other)
 
   if(missing != "NA"){
       res <- na.replace(res, method=missing, quiet=quiet)
