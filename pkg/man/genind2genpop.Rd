@@ -55,11 +55,30 @@ genind2genpop(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
   \linkS4class{genind}, \linkS4class{genpop}, \code{\link{na.replace}}
 }
 \examples{
+## simple conversion
   data(nancycats)
   nancycats
   catpop <- genind2genpop(nancycats)
   catpop
   summary(catpop)
+
+## proceeding the @other slot
+data(sim2pop)
+sim2pop$other$foo <- letters
+sim2pop
+dim(sim2pop$other$xy) # matches the number of genotypes
+sim2pop$other$foo # does not match the number of genotypes
+
+obj <- genind2genpop(sim2pop, proceed.other=TRUE)
+obj$other # the new xy is the populations' centre
+
+pch <- as.numeric(pop(sim2pop))
+col <- pop(sim2pop)
+levels(col) <- c("blue","red")
+col <- as.character(col)
+plot(sim2pop$other$xy, pch=pch, col=col)
+text(obj$other$xy, lab=row.names(obj$other$xy), col=c("blue","red"), cex=2, font=2)
+
 }
 \keyword{classes}
 \keyword{manip}

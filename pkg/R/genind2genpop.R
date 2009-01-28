@@ -67,16 +67,18 @@ genind2genpop <- function(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
   if(proceed.other){
       ## auxiliary function doing the job
       fOther <- function(e){
-          N <- row(x@tab)
-          if(is.vector(e) & is.numeric(e) & length(e)==N){ # numeric vector
+          N <- nrow(x@tab)
+          if(is.vector(e) && is.numeric(e) && length(e)==N){ # numeric vector
               res <- tapply(e, pop, other.action)
               return(res)
-          } else if(is.matrix(e) & is.numeric(e) & nrow(e)==N){ # numeric matrix
+          } else if(is.matrix(e) && is.numeric(e) && nrow(e)==N){ # numeric matrix
               res <- apply(e, 2, function(vec) tapply(vec, pop, other.action))
+              colnames(res) <- colnames(e)
               return(res)
-          } else if(is.data.frame(e) & nrow(e)==N & all(sapply(e,is.numeric)) ){ # df of numeric vectors
+          } else if(is.data.frame(e) && nrow(e)==N && all(sapply(e,is.numeric)) ){ # df of numeric vectors
               res <- lapply(e, function(vec) tapply(vec, pop, other.action))
               res <- data.frame(res)
+              names(res) <- names(e)
               return(res)
           } else return(e)
       } # end fOther
