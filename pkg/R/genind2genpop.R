@@ -79,7 +79,7 @@ genind2genpop <- function(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
               res <- data.frame(res)
               return(res)
           } else return(e)
-      } # end f1
+      } # end fOther
 
       res@other <- lapply(res@other, fOther)
   } # end if(proceed.other)
