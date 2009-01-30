@@ -66,7 +66,15 @@ o import SNPs from sequence data -- done <DNAbin2genind> (TJ)
 # TESTING:
 ==========
 * test reading from url files.
-
+* MANDATORY: run some decent testing of AFLP data management:
+- df2genind
+- genind
+- genind2genpop
+- summary
+- na.replace
+- scaleGen
+- propTyped
+- ...
 
 
 # LOW PRIORITY / MINOR ISSUES
