@@ -109,11 +109,11 @@ checkType <- function(x){
 
     if(markType=="codom") return() # always ok for codominant markers
 
-    currCall <- match.call()
+    currCall <- as.character(sys.call(sys.parent()))[1]
     currFunction <- sub("[[:space:]]*[(].*","",currCall)
 
     ## names of functions which are ok for dominant markers
-    PAOk <- c("genind","genpop","genind2genpop","summary",
+    PAOk <- c("genind","genpop","genind2genpop","summary","df2genind",
                  "truenames","seppop","na.replace","nLoc","scaleGen","spca","selpop")
 
     PAWarn <- c("df2genind")
