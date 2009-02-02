@@ -17,6 +17,13 @@ dist.genpop <- function(x, method = 1, diag = FALSE, upper = FALSE) {
 
   if(!is.genpop(x)) stop("x is not a valid genpop object")
 
+  ## haploidy kludge (have to get rid of that later)
+  if(x@ploidy==as.integer(1)){
+  x@tab <- x@tab * 2
+  x@ploidy <- as.integer(2)
+  }
+
+
   ## check marker type
   checkType(x)
 
