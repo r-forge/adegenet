@@ -15,7 +15,8 @@
   It can also be a matrix of genotypes corresponding to the x\$tab.\cr
 }
 \usage{
-\S4method{seppop}{genind}(x,pop=NULL,truenames=TRUE,res.type=c("genind","matrix"))
+\S4method{seppop}{genind}(x,pop=NULL,truenames=TRUE,res.type=c("genind","matrix"),
+  drop=FALSE)
 }
 \arguments{
   \item{x}{a \linkS4class{genind} object}
@@ -25,8 +26,11 @@
     used (TRUE, default) instead of generic labels (FALSE); used if
     res.type is "matrix".}
   \item{res.type}{a character indicating the type of returned results,
-      a list of \linkS4class{genind} object (default) or a matrix of data
-      corresponding to the 'tab' slots.}
+    a list of \linkS4class{genind} object (default) or a matrix of data
+    corresponding to the 'tab' slots.}
+  \item{drop}{a logical stating whether alleles that are no longer
+  present in a subset of data should be discarded (TRUE) or kept anyway
+  (FALSE, default).}
 }
 \value{
   According to 'rse.type': a list of \linkS4class{genind} object
