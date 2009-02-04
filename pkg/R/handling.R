@@ -210,7 +210,14 @@ setMethod("[","genind",
               } # end loc argument
 
               prevcall <- match.call()
+
               tab <- tab[i, j, ...,drop=FALSE]
+
+              if(drop){
+                  allNb <- apply(tab, 2, sum, na.rm=TRUE) # allele absolute frequencies
+                  toKeep <- (allNb > 1e-10)
+                  tab <- tab[,toKeep, drop=FALSE]
+              }
 
               res <- genind(tab,pop=pop,prevcall=prevcall, ploidy=x@ploidy, type=x@type)
 
@@ -260,6 +267,12 @@ setMethod("[","genpop",
 
               prevcall <- match.call()
               tab <- tab[i, j, ...,drop=FALSE]
+
+              if(drop){
+                  allNb <- apply(tab, 2, sum, na.rm=TRUE) # allele absolute frequencies
+                  toKeep <- (allNb > 1e-10)
+                  tab <- tab[,toKeep, drop=FALSE]
+              }
 
               res <- genpop(tab,prevcall=prevcall)
 
@@ -510,6 +523,71 @@ setMethod("selpopsize", signature(x="genind"), function(x,pop=NULL,nMin=10){
 }) # end selpop
 
 
+
+
+
+#########
+# isPoly
+#########
+setGeneric("isPoly", function(x, ...) standardGeneric("isPoly"))
+
+## genind method ##
+setMethod("isPoly", signature(x="genind"), function(x, by=c("locus","allele"), thres=1/100){
+
+    ## misc checks
+    checkType(x)
+    if(!is.genind(x)) stop("x is not a valid genind object")
+    by <- match.arg(by)
+
+    ## main computations
+    allNb <- apply(x@tab, 2, sum, na.rm=TRUE) # allele absolute frequencies
+
+    if(by=="locus"){
+        f1 <- function(vec){
+            if(sum(vec) < 1e-10) return(FALSE)
+            vec <- vec/sum(vec, na.rm=TRUE)
+            if(sum(vec >= thres) >= 2) return(TRUE)
+            return(FALSE)
+        }
+
+        toKeep <- tapply(allNb, x@loc.fac, f1)
+    } else { # i.e. if mode==allele
+        toKeep <- (allNb >= thres)
+    }
+
+    return(toKeep)
+}) # end isPoly
+
+
+
+
+
+## genpop method ##
+setMethod("isPoly", signature(x="genpop"), function(x, by=c("locus","allele"), thres=1/100){
+
+    ## misc checks
+    checkType(x)
+    if(!is.genpop(x)) stop("x is not a valid genind object")
+    by <- match.arg(by)
+
+    ## main computations
+    allNb <- apply(x@tab, 2, sum, na.rm=TRUE) # alleles absolute frequencies
+
+    if(by=="locus"){
+        f1 <- function(vec){
+            if(sum(vec) < 1e-10) return(FALSE)
+            vec <- vec/sum(vec, na.rm=TRUE)
+            if(sum(vec >= thres) >= 2) return(TRUE)
+            return(FALSE)
+        }
+
+        toKeep <- tapply(allNb, x@loc.fac, f1)
+    } else { # i.e. if mode==allele
+        toKeep <- allNb >= thres
+    }
+
+    return(toKeep)
+}) # end isPoly
 
 
 
