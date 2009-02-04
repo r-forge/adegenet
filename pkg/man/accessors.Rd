@@ -34,9 +34,14 @@
   specified in the \code{loc} argument (using generic names, not true
   names; in this example, only the first and the third locus would be
   retained)\cr
-  
+  - "obj[1:3, drop=TRUE]" returns the first 3 genotypes/populations of
+  "obj", but retaining only alleles that are present in this subset (as
+  opposed to keeping all alleles of "obj", which is the default
+  behavior).\cr
+
   The argument \code{treatOther} handles the treatment of objects in the
-  \code{@other} slot (see details).
+  \code{@other} slot (see details). The argument \code{drop} can be set
+  to TRUE to drop alleles that are no longer represented in the subset.
 }
 \section{Methods}{
   \describe{
@@ -59,9 +64,14 @@
   handled through the argument \code{treatOther}, a logical defaulting
   to TRUE. If set to FALSE, the \code{@other} component is not
   returned.\cr
+  
   Note that only matrix-like, vector-like and lists can be proceeded in
   \code{@other}. Other kind of objects will issue a warning an be
   returned as they are.\cr
+
+  The \code{drop} argument can be set to TRUE to retain only alleles
+  that are present in the subset. To achieve better control of
+  polymorphism of the data, see \code{\link{isPoly}}.
 }
 \examples{
 data(nancycats)
@@ -90,6 +100,10 @@ obj$loc.names
 nancycats[loc=c("L2","L7")]
 obj$loc.fac 
 obj$loc.names
+
+# using 'drop':
+truenames(nancycats[1:2])$tab
+truenames(nancycats[1:2, drop=TRUE])$tab
 
 # illustrate how 'other' slot is handled
 colonies <- genind2genpop(nancycats)
