@@ -312,7 +312,7 @@ setMethod("[","genpop",
 setGeneric("seppop", function(x, ...) standardGeneric("seppop"))
 
 ## genind
-setMethod("seppop", signature(x="genind"), function(x,pop=NULL,truenames=TRUE,res.type=c("genind","matrix")){
+setMethod("seppop", signature(x="genind"), function(x,pop=NULL,truenames=TRUE,res.type=c("genind","matrix"), drop=FALSE){
     checkType(x)
 
     ## misc checks
@@ -332,7 +332,7 @@ setMethod("seppop", signature(x="genind"), function(x,pop=NULL,truenames=TRUE,re
     ## pop <- x@pop # comment to take pop arg into account
 
     ## make a list of genind objects
-    kObj <- lapply(levels(pop), function(lev) x[pop==lev, ])
+    kObj <- lapply(levels(pop), function(lev) x[pop==lev, , drop=drop])
     names(kObj) <- levels(pop)
 
     ## res is a list of genind
