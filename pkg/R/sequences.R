@@ -63,7 +63,7 @@ DNAbin2genind <- function(x, pop=NULL, exp.char=c("a","t","g","c"), na.char=NULL
     x <- x[,toKeep]
 
     ## build output
-    res <- df2genind(x, pop=pop, ploidy=1, ncode=1)
+    res <- df2genind(x, pop=pop, ploidy=1, ncode=1, type="codom")
     res$call <- match.call()
 
     return(res)
