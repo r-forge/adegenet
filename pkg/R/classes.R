@@ -22,40 +22,6 @@
 
 
 
-## #######################
-## # Function rmspaces
-## #######################
-## # removes spaces and tab at the begining and the end of each element of charvec
-## .rmspaces <- function(charvec){
-##     charvec <- gsub("^([[:blank:]]*)([[:space:]]*)","",charvec)
-##     charvec <- gsub("([[:blank:]]*)([[:space:]]*)$","",charvec)
-##     return(charvec)
-## }
-
-
-
-## ###################
-## # Function .genlab
-## ###################
-## # recursive function to have labels of constant length
-## # base = a character string
-## # n = number of labels
-## .genlab <- function(base, n) {
-##   f1 <- function(cha,n){
-##     if(nchar(cha)<n){
-##       cha <- paste("0",cha,sep="")
-##       return(f1(cha,n))
-##     } else {return(cha)}
-##   }
-##   w <- as.character(1:n)
-##   max0 <- max(nchar(w))
-##   w <- sapply(w, function(cha) f1(cha,max0))
-##   return(paste(base,w,sep=""))
-## }
-
-
-
-
 
 ###############################################################
 ###############################################################
