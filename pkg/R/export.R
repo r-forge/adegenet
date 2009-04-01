@@ -1,6 +1,6 @@
 ############################################
-# 
-# Functions to transform a genind object 
+#
+# Functions to transform a genind object
 # into other R classes
 #
 # Thibaut Jombart
@@ -23,11 +23,11 @@ genind2genotype <- function(x,pop=NULL,res.type=c("matrix","list")){
   if(is.null(pop)) pop <- x@pop
   if(is.null(pop)) pop <- as.factor(rep("P1",nrow(x@tab)))
   res.type <- tolower(res.type[1])
-  
+
   # make one table by locus from x@tab
   kX <- seploc(x,res.type="matrix")
   # kX is a list of nloc tables
-  
+
   # function to recode a genotype in form "A1/A2" from frequencies
   recod <- function(vec,lab){
     if(all(is.na(vec))) return(NA)
@@ -65,7 +65,7 @@ genind2genotype <- function(x,pop=NULL,res.type=c("matrix","list")){
     res <- cbind.data.frame(kGen)
     res <- makeGenotypes(res,convert=1:ncol(res))
   } else stop("Unknown res.type requested.")
-  
+
   return(res)
 }
 
@@ -85,7 +85,7 @@ genind2hierfstat <- function(x,pop=NULL){
 
     if(is.null(pop)) pop <- x@pop
     if(is.null(pop)) pop <- as.factor(rep("P1",nrow(x@tab)))
-    
+
     ## make one table by locus from x@tab
     kX <- seploc(x,res.type="matrix")
     ## kX is a list of nloc tables
@@ -100,7 +100,7 @@ genind2hierfstat <- function(x,pop=NULL){
     for(i in 1:nrmzero) {
         all.names <- lapply(all.names,function(e) gsub("^0","",e))
     }
-    
+
     ## function to recode a genotype in form "A1A2" (as integers) from frequencies
     recod <- function(vec,lab){
         if(all(is.na(vec))) return(NA)
@@ -135,11 +135,24 @@ genind2df <- function(x, pop=NULL, sep="", usepop=TRUE){
       levels(pop) <- x@pop.names
   }
 
+  ## PA case ##
+  if(x@type=="PA"){
+      temp <- truenames(x)
+      if(is.list(temp)){
+          res <- cbind.data.frame(pop=temp[[2]],temp[[1]])
+      } else{
+          res <- temp
+      }
+
+      return(res)
+  }
+
+  ## codom case ##
   # make one table by locus from x@tab
   kX <- seploc(x,res.type="matrix")
   kX <- lapply(kX, function(X) round(X*x@ploidy)) # take data as numbers of alleles
   ## (kX is a list of nloc tables)
-  
+
   ## function to recode a genotype in form "A1[sep]...[sep]Ak" from frequencies
   recod <- function(vec,lab){
       if(any(is.na(vec))) return(NA)
@@ -147,20 +160,6 @@ genind2df <- function(x, pop=NULL, sep="", usepop=TRUE){
       return(res)
   }
 
-
-  ## OLD VERSION
-  ##   recod <- function(vec,lab){
-  ##       vec <- as.logical(vec)
-  ##       sumVec <- sum(vec)
-  ##       if(is.na(sumVec)) {
-  ##           return(NA)
-  ##       } else if(sumVec==2){ # heteroZ
-  ##           return(paste(lab[vec], collapse=sep))
-  ##       } else if(sumVec==1){ # homoZ
-  ##           return(paste(lab[vec],lab[vec],sep=sep))
-  ##       } else return(NA)
-  ##   }
-  
 
   # kGen is a list of nloc vectors of genotypes
   kGen <- lapply(1:length(kX), function(i) apply(kX[[i]],1,recod,x@all.names[[i]]))

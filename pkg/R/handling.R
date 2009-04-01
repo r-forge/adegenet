@@ -654,6 +654,12 @@ setMethod("pop","genind", function(x){
 
 
 setReplaceMethod("pop", "genind", function(x, value) {
+    if(is.null(value)){
+        x@pop <- NULL
+        x@pop.names <- NULL
+        return(x)
+    }
+
     if(length(value) != nrow(x$tab)) stop("wrong length for population factor")
 
     ## coerce to factor (put levels in their order of appearance)
