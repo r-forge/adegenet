@@ -321,7 +321,7 @@ setGeneric("seppop", function(x, ...) standardGeneric("seppop"))
 
 ## genind
 setMethod("seppop", signature(x="genind"), function(x,pop=NULL,truenames=TRUE,res.type=c("genind","matrix"), drop=FALSE){
-    checkType(x)
+    ## checkType(x)
 
     ## misc checks
     if(!is.genind(x)) stop("x is not a valid genind object")
@@ -465,11 +465,13 @@ repool <- function(...){
     temp <- sapply(x,function(e) e$ploidy)
     if(length(unique(temp)) != as.integer(1)) stop("objects have different levels of ploidy")
 
+
+
     ## extract info
     listTab <- lapply(x,genind2df,usepop=FALSE)
     getPop <- function(obj){
         if(is.null(obj$pop)) return(factor(rep(NA,nrow(obj$tab))))
-      pop <- obj$pop
+        pop <- obj$pop
         levels(pop) <- obj$pop.names
         return(pop)
     }
@@ -479,7 +481,7 @@ repool <- function(...){
     pop <- unlist(listPop, use.name=FALSE)
     pop <- factor(pop)
 
-  ## handle genotypes
+    ## handle genotypes
     markNames <- colnames(listTab[[1]])
     listTab <- lapply(listTab, function(tab) tab[,markNames]) # resorting of the tabs
 
@@ -489,7 +491,7 @@ repool <- function(...){
         tab <- rbind(tab,listTab[[i]])
     }
 
-    res <- df2genind(tab,pop=pop)
+    res <- df2genind(tab, pop=pop, ploidy=x[[1]]@ploidy, type=x[[1]]@type)
     res$call <- match.call()
 
     return(res)
