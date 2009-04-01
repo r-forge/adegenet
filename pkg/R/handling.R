@@ -483,7 +483,7 @@ repool <- function(...){
 
     ## handle genotypes
     markNames <- colnames(listTab[[1]])
-    listTab <- lapply(listTab, function(tab) tab[,markNames]) # resorting of the tabs
+    listTab <- lapply(listTab, function(tab) tab[,markNames,drop=FALSE]) # resorting of the tabs
 
     ## bind all tabs by rows
     tab <- listTab[[1]]
