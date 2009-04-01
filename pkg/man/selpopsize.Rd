@@ -1,18 +1,18 @@
 \encoding{UTF-8}
 \docType{methods}
-\name{selpopsize}
-\alias{selpopsize}
-\alias{selpopsize-methods}
-\alias{selpopsize,ANY-method}
-\alias{selpopsize,genind-method}
+\name{selPopSize}
+\alias{selPopSize}
+\alias{selPopSize-methods}
+\alias{selPopSize,ANY-method}
+\alias{selPopSize,genind-method}
 \title{ Select genotypes of well-represented populations}
 \description{
-  The function \code{selpopsize} checks the sample size of each population in
+  The function \code{selPopSize} checks the sample size of each population in
   a \linkS4class{genind} object and keeps only genotypes of populations
   having a given minimum size.
 }
 \usage{
-\S4method{selpopsize}{genind}(x,pop=NULL,nMin=10)
+\S4method{selPopSize}{genind}(x,pop=NULL,nMin=10)
 }
 \arguments{
   \item{x}{a \linkS4class{genind} object}
@@ -31,7 +31,7 @@
 data(microbov)
 
 table(pop(microbov))
-obj <- selpopsize(microbov, n=50)
+obj <- selPopSize(microbov, n=50)
 
 obj
 table(pop(obj))

@@ -14,6 +14,9 @@
 \alias{pop<-}
 \alias{pop,genind-method}
 \alias{pop<-,genind-method}
+\alias{locNames}
+\alias{locNames,genind-method}
+\alias{locNames,genpop-method}
 \title{ Accessors for adegenet objects}
 \description{
   An accessor is a function that allows to interact with slots of an
@@ -49,8 +52,23 @@
     \item{pop}{returns the population factor of the object, using true
       (as opposed to generic) levels.}
     \item{pop<-}{replacement method for the \code{@pop} slot of an
-  object. The content of \code{@pop} and \code{@pop.names} is updated automatically.}
+      object. The content of \code{@pop} and \code{@pop.names} is updated
+      automatically.}
+    \item{locNames}{returns the true names of markers and/or alleles.}
   }
+}
+\usage{
+nLoc(x, \dots)
+pop(x)
+locNames(x)
+\S4method{locNames}{genind,genpop}(x, withAlleles=FALSE, \dots)
+}
+\arguments{
+  \item{x}{a \linkS4class{genind} or a \linkS4class{genpop} object.}
+  \item{withAlleles}{a logical indicating whether the result should be
+    of the form [locus name].[allele name], instead of [locus name].}
+  \item{\dots}{further arguments to be passed to other methods
+  (currently not used).}
 }
 \value{
   A \linkS4class{genind} or \linkS4class{genpop} object.
@@ -121,6 +139,10 @@ pop(obj) <- rep(c('b','a'), each=5)
 obj$pop
 obj$pop.names
 pop(obj)
+
+# illustrate locNames
+locNames(obj)
+locNames(obj, withAlleles=TRUE)
 
 }
 \keyword{manip}

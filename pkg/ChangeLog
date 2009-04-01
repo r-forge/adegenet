@@ -1,3 +1,41 @@
+			CHANGES IN ADEGENET VERSION 1.2-3
+
+
+NEW FEATURES
+
+	o implement handling of presence/absence markers. genind and
+	genpop object now have a 'type' attribute to differentiate between
+	codominant markers (e.g. microsatellite), which is the default
+	type, and presence/absence data (e.g. AFLP). Functions in adegenet
+	now behave according to the type of markers being used.
+
+	o SNP can now be obtained from sequence data, stored as DNAbin
+	(see E. Paradis's package 'ape'). They can be selected to verify
+	any given degree of polymorphism.
+
+	o 'hybridize' can now be used for genotypes having any even degree
+	of ploidy (e.g. tetraploid genotypes).
+
+	o the new function 'pop' can be used to retrieve and set the pop
+	slot of genind object.
+
+	o the new function 'selPopSize' allows one to select a subset of
+	genotypes belonging to well-sampled populations, as defined by a
+	threshold sample size.
+
+	o the new accessor 'locNames' can be used to retrieve real labels
+	of markers and/or alleles.
+
+	o the loadingplot has been modified to allow specifying x axis, so
+	that scoring SNPs along their sequence is now possible. 
+
+
+BUG FIXES
+
+	o no bug to fix this version!
+
+
+
 			CHANGES IN ADEGENET VERSION 1.2-2
 
 

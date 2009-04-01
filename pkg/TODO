@@ -40,7 +40,7 @@
 # NEW IMPLEMENTATIONS:
 =====================
 
-*o* implement handling of presence/absence data -- mostly done, but mostly issues a (fair) error (TJ)
+o implement handling of presence/absence data -- done (TJ)
 o add a type argument to genind/genpop objects -- done (TJ)
 o make all the required subsequent changes in the package: -- all done, some checks cannot harm (TJ)
 - class definition and checks
@@ -59,14 +59,14 @@ o make all the required subsequent changes in the package: -- all done, some che
 - propTyped
 - hybridize
 - repool
-o select genotypes by population sample size -- done <selpopsize> (TJ)
+o select genotypes by population sample size -- done <selPopSize> (TJ)
 o import SNPs from sequence data -- done <DNAbin2genind> (TJ)
 
 
 # TESTING:
 ==========
-* test reading from url files.
-* MANDATORY: run some decent testing of AFLP data management:
+o test reading from url files. 
+o MANDATORY: run some decent testing of AFLP data management: -- done
 - df2genind
 - genind
 - genind2genpop
@@ -85,7 +85,7 @@ o import SNPs from sequence data -- done <DNAbin2genind> (TJ)
 * check all examples and look for possible improvements
 * Implement a method to merge different markers for the same individuals
 *o* Build accessors for:
-- marker names
+- marker names -- done <locNames> (TJ)
 - indiv names
 - pop names/factor -- done <pop> (TJ) 
 - spatial coords
@@ -93,7 +93,7 @@ o import SNPs from sequence data -- done <DNAbin2genind> (TJ)
 * Return a spatial object from monmonier (class sp?)
 * implement classical Fst sensu Weir 1996 ? Or wait for EP to do it...
 * Implement different levels of ploidy in:
-- hybridize
+- hybridize - done (TJ)
 - read.structure
 - propShared
 
