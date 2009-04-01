@@ -101,7 +101,7 @@ adegenetTutorial <- function(which=c("general","spca")){
 # checkType
 ############
 ##
-## WARNING: this does not work with all S3/S4 methods
+## WARNING: this does not work with S4 methods
 ##
 checkType <- function(x){
     if(is.character(x)){
@@ -120,7 +120,7 @@ checkType <- function(x){
     }
 
     ## names of functions which are ok for dominant markers
-    PAOk <- c("genind","genpop","genind2genpop","summary","df2genind",
+    PAOk <- c("genind","genpop","genind2genpop","summary","df2genind", "genind2df",
                  "truenames","seppop","na.replace","nLoc","scaleGen","spca","selpop")
 
     PAWarn <- c("df2genind")
