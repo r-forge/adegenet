@@ -64,7 +64,7 @@ genind2df(x,pop=NULL, sep="", usepop=TRUE)
   a matrix of biallelic genotypes for \code{genind2df}}
 \seealso{\code{\link{import2genind}}, \code{\link{read.genetix}},
   \code{\link{read.fstat}}, \code{\link{read.structure}}}
-\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
+\author{Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
 df <- data.frame(loc1=c("11","11","12","32"),
 loc2=c(NA,"34","55","15"),loc3=c("22","22","21","22"))

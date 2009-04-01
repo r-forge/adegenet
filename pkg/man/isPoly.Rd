@@ -24,7 +24,7 @@
  \value{
    A vector of logicals.
 }
-\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
+\author{Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
 data(nancycats)
 isPoly(nancycats,by="loc", thres=0.1)

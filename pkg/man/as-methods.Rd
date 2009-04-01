@@ -49,7 +49,7 @@
     class and the returned object is of the new class \code{"Class"}.}
 }
 }
-\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr}}
+\author{Thibaut Jombart \email{t.jombart@imperial.ac.uk}}
 \examples{
 data(microbov)
 x <- na.replace(microbov,method="0")

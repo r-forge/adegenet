@@ -46,7 +46,7 @@ is.genind(x)
 \value{
   For \code{genind} and \code{as.genind}, a genind object. For \code{is.genind}, a logical.
 }
-\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr}}
+\author{Thibaut Jombart \email{t.jombart@imperial.ac.uk}}
 \seealso{
   \code{"\linkS4class{genind}"}, and \code{\link{import2genind}} for
   importing from various types of file.

@@ -119,7 +119,7 @@
     License: \tab GPL (>=2)
   }  
 }
-\author{Thibaut Jombart <jombart@biomserv.univ-lyon1.fr>\cr
+\author{Thibaut Jombart <t.jombart@imperial.ac.uk>\cr
 with contributions of Peter Solymos}
 \references{
 Jombart T. (2008) adegenet: a R package for the multivariate analysis of genetic markers

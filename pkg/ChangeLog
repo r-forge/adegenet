@@ -16,6 +16,9 @@ NEW FEATURES
 	o 'hybridize' can now be used for genotypes having any even degree
 	of ploidy (e.g. tetraploid genotypes).
 
+	o the new function 'isPoly' checks which loci are polymorphic, or
+	which alleles contribute to polymorphism.
+
 	o the new function 'pop' can be used to retrieve and set the pop
 	slot of genind object.
 

@@ -31,7 +31,7 @@ DNAbin2genind(x, pop=NULL, exp.char=c("a","t","g","c"), na.char=NULL, polyThres=
   \code{\link{read.fstat}}, \code{\link{read.structure}},
   \code{\link{read.genepop}}, \code{\link[pkg:ape]{DNAbin}}.
 }
-\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
+\author{Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
 if(require(ape)){
 data(woodmouse)

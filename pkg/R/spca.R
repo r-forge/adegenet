@@ -7,7 +7,7 @@
 # generic functions were derived from
 # those of multispati class (ade4)
 #
-# T. Jombart (jombart@biomserv.univ-lyon1.fr)
+# T. Jombart (t.jombart@imperial.ac.uk)
 # 31 may 2007
 ##############################################
 

@@ -5,7 +5,7 @@
 # by Daniel Chessel
 #
 # Thibaut Jombart
-# jombart@biomserv.univ-lyon1.fr
+# t.jombart@imperial.ac.uk
 ###################################
 
 

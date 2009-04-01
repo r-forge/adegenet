@@ -52,7 +52,7 @@ Class \code{"\linkS4class{popInfo}"}, directly.
 \references{}
 \seealso{\code{\link{as.genpop}}, \code{\link{is.genpop}},\code{\link{makefreq}}, \code{\link{genind}}, \code{\link{import2genind}}, \code{\link{read.genetix}}, \code{\link{read.genepop}}, \code{\link{read.fstat}}, \code{\link{na.replace}}
 }
-\author{ Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
+\author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
 obj1 <- import2genind(system.file("files/nancycats.gen",
 package="adegenet"))

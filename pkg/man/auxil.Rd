@@ -36,7 +36,7 @@ adegenetTutorial(which=c("general","spca"))
 \value{
   For \code{.genlab}, a character vector of size "n".
 }
-\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
+\author{Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
 \dontrun{
 ## this opens the adegenet website

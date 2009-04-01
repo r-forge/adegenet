@@ -25,7 +25,7 @@
 \value{
   A  \linkS4class{genind} object.
 }
-\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
+\author{Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \seealso{\code{\link{seploc}}, \code{\link{repool}}}
 \examples{
 data(microbov)

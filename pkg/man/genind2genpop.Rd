@@ -50,7 +50,7 @@ genind2genpop(x,pop=NULL,missing=c("NA","0","chi2"),quiet=FALSE,
   A genpop object. The component @other in 'x' is passed to the created
   genpop object.
 }
-\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr}}
+\author{Thibaut Jombart \email{t.jombart@imperial.ac.uk}}
 \seealso{
   \linkS4class{genind}, \linkS4class{genpop}, \code{\link{na.replace}}
 }
