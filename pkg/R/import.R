@@ -25,24 +25,31 @@ df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, p
 
     res <- list()
     type <- match.arg(type)
-    checkType(type)
+    ## checkType(type)
 
-    ## type PA
+
+    ## type-independent stuff ##
+    n <- nrow(X)
+    nloc <- ncol(X)
+    ploidy <- as.integer(ploidy)
+    if(ploidy < 1L) stop("ploidy cannot be less than 1")
+
+    if(is.null(ind.names)) {ind.names <- rownames(X)}
+    if(is.null(loc.names)) {loc.names <- colnames(X)}
+
+    ## pop optionnelle
+    if(!is.null(pop)){
+        if(length(pop)!= n) stop("length of factor pop differs from nrow(X)")
+        pop <- as.factor(pop)
+    }
+
+
+    ## PA case ##
     if(toupper(type)=="PA"){
+        ## preliminary stuff
         mode(X) <- "numeric"
-
-        ## pop optionnelle
-        if(!is.null(pop)){
-            if(length(pop)!= n) stop("length of factor pop differs from nrow(X)")
-            pop <- as.factor(pop)
-        }
-
-        if(!is.null(ind.names)) rownames(X) <- ind.names
-        if(!is.null(loc.names)) colnames(X) <- loc.names
-
-        ## handle entirely non-typed loci and individuals
-        X <- gsub("^0*$",NA,X)
-        X <- gsub("(NA)+",NA,X)
+        rownames(X) <- ind.names
+        colnames(X) <- loc.names
 
         ## Erase entierely non-typed loci
         temp <- apply(X,2,function(c) all(is.na(c)))
@@ -73,22 +80,12 @@ df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, p
         return(res)
     } # end type PA
 
+
+    ## codom case ##
+
     ## make sure X is in character mode
     mode(X) <- "character"
 
-    n <- nrow(X)
-    nloc <- ncol(X)
-    ploidy <- as.integer(ploidy)
-    if(ploidy < as.integer(1)) stop("ploidy cannot be less than 1")
-
-    if(is.null(ind.names)) {ind.names <- rownames(X)}
-    if(is.null(loc.names)) {loc.names <- colnames(X)}
-
-    ## pop optionnelle
-    if(!is.null(pop)){
-      if(length(pop)!= n) stop("length of factor pop differs from nrow(X)")
-      pop <- as.factor(pop)
-    }
 
     ## find or check the number of coding characters, 'ncode'
     if(is.null(sep)){
