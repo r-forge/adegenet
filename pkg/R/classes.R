@@ -301,29 +301,30 @@ genind <- function(tab,pop=NULL,prevcall=NULL,ploidy=2,type=c("codom","PA")){
 
     type <- match.arg(type)
     ploidy <- as.integer(ploidy)
-
-    ## labels for individuals
     nind <- nrow(X)
-    ind.names <- .rmspaces(rownames(X))
+
+
+    ## HANDLE LABELS ##
+
+    ## loc names is not type-dependent
+    temp <- colnames(X)
+    temp <- gsub("[.].*$","",temp)
+    temp <- .rmspaces(temp)
+    loc.names <- unique(temp)
+    nloc <- length(loc.names)
+    loc.codes <- .genlab("L",nloc)
+    names(loc.names) <- loc.codes
+
+    ## ind names is not type-dependent either
     ind.codes <- .genlab("", nind)
+    rownames(X) <- ind.codes
+    ind.names <- .rmspaces(rownames(X))
     names(ind.names) <- ind.codes
 
-    ## labels for loci
-    ## and loc.nall
     if(type=="codom"){
-        temp <- colnames(X)
-        temp <- gsub("[.].*$","",temp)
-        temp <- .rmspaces(temp)
-        ## beware !!! Function 'table' gives ordred output.
-        loc.names <- unique(temp)
+        ## loc.nall
         loc.nall <-  table(temp)[match(loc.names,names(table(temp)))]
         loc.nall <- as.integer(loc.nall)
-
-        nloc <- length(loc.names)
-        loc.codes <- .genlab("L",nloc)
-
-        names(loc.names) <- loc.codes
-
         names(loc.nall) <- loc.codes
 
         ## loc.fac
@@ -339,15 +340,10 @@ genind <- function(tab,pop=NULL,prevcall=NULL,ploidy=2,type=c("codom","PA")){
             names(all.names[[i]]) <- all.codes[[i]]
         }
 
-        rownames(X) <- ind.codes
         colnames(X) <- paste(loc.fac,unlist(all.codes),sep=".")
         loc.fac <- as.factor(loc.fac)
     } else { # end if type=="codom" <=> if type=="PA"
-        nloc <- ncol(X)
-        loc.codes <- .genlab("N", nloc)
         colnames(X) <- loc.codes
-        loc.names <-colnames(X)
-        names(loc.names) <- loc.codes
         loc.fac <- NULL
         all.names <- NULL
         loc.nall <- NULL
