@@ -583,42 +583,42 @@ setMethod("isPoly", signature(x="genind"), function(x, by=c("locus","allele"), t
 
 
 
-## genpop method ##
-setMethod("isPoly", signature(x="genpop"), function(x, by=c("locus","allele"), thres=1/100){
+## ## genpop method ##
+## setMethod("isPoly", signature(x="genpop"), function(x, by=c("locus","allele"), thres=1/100){
 
-    ## misc checks
-    checkType(x)
-    if(!is.genpop(x)) stop("x is not a valid genind object")
-    by <- match.arg(by)
-
-
-    ## main computations ##
-    ## PA case ##
-    if(x@type=="PA") {
-        allNb <- apply(x@tab, 2, mean, na.rm=TRUE) # allele frequencies
-        toKeep <- (allNb >= thres) & (allNb <= (1-thres))
-        return(toKeep)
-    }
+##     ## misc checks
+##     checkType(x)
+##     if(!is.genpop(x)) stop("x is not a valid genind object")
+##     by <- match.arg(by)
 
 
-    ## codom case ##
-    allNb <- apply(x@tab, 2, sum, na.rm=TRUE) # alleles absolute frequencies
+##     ## main computations ##
+##     ## ## PA case ##
+## ##     if(x@type=="PA") {
+## ##         allNb <- apply(x@tab, 2, mean, na.rm=TRUE) # allele frequencies
+## ##         toKeep <- (allNb >= thres) & (allNb <= (1-thres))
+## ##         return(toKeep)
+## ##     }
 
-    if(by=="locus"){
-        f1 <- function(vec){
-            if(sum(vec) < 1e-10) return(FALSE)
-            vec <- vec/sum(vec, na.rm=TRUE)
-            if(sum(vec >= thres) >= 2) return(TRUE)
-            return(FALSE)
-        }
 
-        toKeep <- tapply(allNb, x@loc.fac, f1)
-    } else { # i.e. if mode==allele
-        toKeep <- allNb >= thres
-    }
+##     ## codom case ##
+##     allNb <- apply(x@tab, 2, sum, na.rm=TRUE) # alleles absolute frequencies
 
-    return(toKeep)
-}) # end isPoly
+##     if(by=="locus"){
+##         f1 <- function(vec){
+##             if(sum(vec) < 1e-10) return(FALSE)
+##             vec <- vec/sum(vec, na.rm=TRUE)
+##             if(sum(vec >= thres) >= 2) return(TRUE)
+##             return(FALSE)
+##         }
+
+##         toKeep <- tapply(allNb, x@loc.fac, f1)
+##     } else { # i.e. if mode==allele
+##         toKeep <- allNb >= thres
+##     }
+
+##     return(toKeep)
+## }) # end isPoly
 
 
 
