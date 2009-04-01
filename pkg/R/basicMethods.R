@@ -126,20 +126,44 @@ setMethod ("show", "genpop", function(object){
 ############################
 setMethod ("summary", "genind", function(object, ...){
   x <- object
-  if(!inherits(x,"genind")) stop("To be used with a genind object")
+  if(!is.genind(x)) stop("Provided object is not a valid genind.")
+
+
   if(is.null(x@pop)){
     x@pop <- factor(rep(1,nrow(x@tab)))
     x@pop.names <- ""
     names(x@pop.names) <- "P1"
   }
 
+  ## BUILD THE OUTPUT ##
+  ## type-independent stuff
   res <- list()
 
   res$N <- nrow(x@tab)
 
   res$pop.eff <- as.numeric(table(x@pop))
-  names(res$pop.eff) <- names(x@pop.names)
+  names(res$pop.eff) <- x@pop.names
 
+  ## PA case ##
+  if(x@type=="PA"){
+      ## % of missing data
+      res$NA.perc <- 100*sum(is.na(x@tab))/prod(dim(x@tab))
+
+      ## display and return
+      listlab <- c("# Total number of genotypes: ",
+                   "# Population sample sizes: ",
+                   "# Percentage of missing data: ")
+      cat("\n",listlab[1],res[[1]],"\n")
+      for(i in 2:3){
+          cat("\n",listlab[i],"\n")
+          print(res[[i]])
+      }
+
+      return(invisible(res))
+  }
+
+
+  ## codom case ##
   res$loc.nall <- x@loc.nall
 
   temp <- genind2genpop(x,quiet=TRUE)@tab
