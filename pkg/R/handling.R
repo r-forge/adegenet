@@ -662,3 +662,39 @@ setReplaceMethod("pop", "genind", function(x, value) {
 
     return(x)
 })
+
+
+
+
+
+###########
+# locNames
+###########
+setGeneric("locNames", function(x,...){
+    standardGeneric("locNames")
+})
+
+
+
+setMethod("locNames","genind", function(x, withAlleles=FALSE, ...){
+    ## return simply locus names
+    if(x@type=="PA" | !withAlleles) return(x@loc.names)
+
+    ## return locus.allele
+    res <- rep(x@loc.names, x@loc.nall)
+    res <- paste(res,unlist(x@all.names),sep=".")
+    return(res)
+})
+
+
+
+setMethod("locNames","genpop", function(x, withAlleles=FALSE, ...){
+    ## return simply locus names
+    if(x@type=="PA" | !withAlleles) return(x@loc.names)
+
+    ## return locus.allele
+    res <- rep(x@loc.names, x@loc.nall)
+    res <- paste(res,unlist(x@all.names),sep=".")
+    return(res)
+})
+
