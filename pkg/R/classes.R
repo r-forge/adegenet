@@ -317,9 +317,10 @@ genind <- function(tab,pop=NULL,prevcall=NULL,ploidy=2,type=c("codom","PA")){
 
     ## ind names is not type-dependent either
     ind.codes <- .genlab("", nind)
-    rownames(X) <- ind.codes
     ind.names <- .rmspaces(rownames(X))
     names(ind.names) <- ind.codes
+    rownames(X) <- ind.codes
+
 
     if(type=="codom"){
         ## loc.nall
@@ -411,29 +412,31 @@ genpop <- function(tab,prevcall=NULL,ploidy=as.integer(2),type=c("codom","PA")){
 
     type <- match.arg(type)
     ploidy <- as.integer(ploidy)
-
-    ## labels for populations
     npop <- nrow(X)
-    pop.names <- .rmspaces(rownames(X))
-    pop.codes <- .genlab("P", npop)
-    names(pop.names) <- pop.codes
 
-    ## labels for loci
-    ## and loc.nall
+
+    ## HANDLE LABELS ##
+
+    ## loc names is not type-dependent
+    temp <- colnames(X)
+    temp <- gsub("[.].*$","",temp)
+    temp <- .rmspaces(temp)
+    loc.names <- unique(temp)
+    nloc <- length(loc.names)
+    loc.codes <- .genlab("L",nloc)
+    names(loc.names) <- loc.codes
+
+    ## pop names is not type-dependent either
+    pop.codes <- .genlab("", npop)
+    pop.names <- .rmspaces(rownames(X))
+    names(pop.names) <- pop.codes
+    rownames(X) <- pop.codes
+
+    ## type-dependent stuff
     if(type=="codom"){
-        temp <- colnames(X)
-        temp <- gsub("[.].*$","",temp)
-        temp <- .rmspaces(temp)
-        # beware !!! Function 'table' gives ordred output.
-        loc.names <- unique(temp)
+        ## loc.nall
         loc.nall <-  table(temp)[match(loc.names,names(table(temp)))]
         loc.nall <- as.integer(loc.nall)
-
-        nloc <- length(loc.names)
-        loc.codes <- .genlab("L",nloc)
-
-        names(loc.names) <- loc.codes
-
         names(loc.nall) <- loc.codes
 
         ## loc.fac
@@ -453,11 +456,7 @@ genpop <- function(tab,prevcall=NULL,ploidy=as.integer(2),type=c("codom","PA")){
         colnames(X) <- paste(loc.fac,unlist(all.codes),sep=".")
         loc.fac <- as.factor(loc.fac)
     } else { # end if type=="codom" <=> if type=="PA"
-        nloc <- ncol(X)
-        loc.codes <- .genlab("N", nloc)
         colnames(X) <- loc.codes
-        loc.names <-colnames(X)
-        names(loc.names) <- loc.codes
         loc.fac <- NULL
         all.names <- NULL
         loc.nall <- NULL
