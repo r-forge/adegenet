@@ -234,10 +234,31 @@ setMethod ("summary", "genpop", function(object, ...){
   x <- object
   if(!inherits(x,"genpop")) stop("To be used with a genpop object")
 
+  ## BUILD THE OUTPUT ##
+  ## type-independent stuff
   res <- list()
 
   res$npop <- nrow(x@tab)
 
+  ## PA case ##
+  if(x@type=="PA"){
+      ## % of missing data
+      res$NA.perc <- 100*sum(is.na(x@tab))/prod(dim(x@tab))
+
+      ## display and return
+      listlab <- c("# Total number of genotypes: ",
+                   "# Percentage of missing data: ")
+      cat("\n",listlab[1],res[[1]],"\n")
+      for(i in 2){
+          cat("\n",listlab[i],"\n")
+          print(res[[i]])
+      }
+
+      return(invisible(res))
+  }
+
+
+  ## codom case ##
   res$loc.nall <- x@loc.nall
 
   res$pop.nall <- apply(x@tab,1,function(r) sum(r>0,na.rm=TRUE))
