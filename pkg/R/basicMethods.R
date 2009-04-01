@@ -20,9 +20,25 @@ setMethod ("show", "genind", function(object){
 
   cat("\n@ind.names: vector of ", length(x@ind.names), "individual names")
   cat("\n@loc.names: vector of ", length(x@loc.names), "locus names")
-  cat("\n@loc.nall: number of alleles per locus")
-  cat("\n@loc.fac: locus factor for the ", ncol(x@tab), "columns of @tab")
-  cat("\n@all.names: list of ", length(x@all.names), "components yielding allele names for each locus")
+
+  if(!is.null(x@loc.nall)){
+      cat("\n@loc.nall: number of alleles per locus")
+  } else {
+      cat("\n@loc.nall: NULL")
+  }
+
+  if(!is.null(x@loc.fac)){
+      cat("\n@loc.fac: locus factor for the ", ncol(x@tab), "columns of @tab")
+  } else {
+      cat("\n@loc.fac: NULL")
+  }
+
+  if(!is.null(x@all.names)){
+      cat("\n@all.names: list of ", length(x@all.names), "components yielding allele names for each locus")
+  } else {
+      cat("\n@all.names: NULL")
+  }
+
   cat("\n@ploidy: ",x@ploidy)
   cat("\n@type: ",x@type)
 
@@ -66,9 +82,25 @@ setMethod ("show", "genpop", function(object){
 
   cat("\n@pop.names: vector of ", length(x@pop.names), "population names")
   cat("\n@loc.names: vector of ", length(x@loc.names), "locus names")
-  cat("\n@loc.nall: number of alleles per locus")
-  cat("\n@loc.fac: locus factor for the ", ncol(x@tab), "columns of @tab")
-  cat("\n@all.names: list of ", length(x@all.names), "components yielding allele names for each locus")
+
+  if(!is.null(x@loc.nall)){
+      cat("\n@loc.nall: number of alleles per locus")
+  } else {
+      cat("\n@loc.nall: NULL")
+  }
+
+  if(!is.null(x@loc.fac)){
+      cat("\n@loc.fac: locus factor for the ", ncol(x@tab), "columns of @tab")
+  } else {
+      cat("\n@loc.fac: NULL")
+  }
+
+  if(!is.null(x@all.names)){
+      cat("\n@all.names: list of ", length(x@all.names), "components yielding allele names for each locus")
+  } else {
+      cat("\n@all.names: NULL")
+  }
+
   cat("\n@ploidy: ",x@ploidy)
   cat("\n@type: ",x@type)
 
