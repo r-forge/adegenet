@@ -545,11 +545,22 @@ setGeneric("isPoly", function(x, ...) standardGeneric("isPoly"))
 setMethod("isPoly", signature(x="genind"), function(x, by=c("locus","allele"), thres=1/100){
 
     ## misc checks
-    checkType(x)
+    ## checkType(x)
     if(!is.genind(x)) stop("x is not a valid genind object")
     by <- match.arg(by)
 
-    ## main computations
+
+    ## main computations ##
+
+    ## PA case ##
+    if(x@type=="PA") {
+        allNb <- apply(x@tab, 2, mean, na.rm=TRUE) # allele frequencies
+        toKeep <- (allNb >= thres) & (allNb <= (1-thres))
+        return(toKeep)
+    }
+
+
+    ## codom case ##
     allNb <- apply(x@tab, 2, sum, na.rm=TRUE) # allele absolute frequencies
 
     if(by=="locus"){
@@ -580,7 +591,17 @@ setMethod("isPoly", signature(x="genpop"), function(x, by=c("locus","allele"), t
     if(!is.genpop(x)) stop("x is not a valid genind object")
     by <- match.arg(by)
 
-    ## main computations
+
+    ## main computations ##
+    ## PA case ##
+    if(x@type=="PA") {
+        allNb <- apply(x@tab, 2, mean, na.rm=TRUE) # allele frequencies
+        toKeep <- (allNb >= thres) & (allNb <= (1-thres))
+        return(toKeep)
+    }
+
+
+    ## codom case ##
     allNb <- apply(x@tab, 2, sum, na.rm=TRUE) # alleles absolute frequencies
 
     if(by=="locus"){
