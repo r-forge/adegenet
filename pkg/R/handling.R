@@ -504,13 +504,13 @@ repool <- function(...){
 #############
 # selpopsize
 #############
-setGeneric("selpopsize", function(x, ...) standardGeneric("selpopsize"))
+setGeneric("selPopSize", function(x, ...) standardGeneric("selPopSize"))
 
 ## genind method ##
-setMethod("selpopsize", signature(x="genind"), function(x,pop=NULL,nMin=10){
+setMethod("selPopSize", signature(x="genind"), function(x,pop=NULL,nMin=10){
 
     ## misc checks
-    checkType(x)
+    ## checkType(x)
     if(!is.genind(x)) stop("x is not a valid genind object")
     if(is.null(pop)) { # pop taken from @pop
         if(is.null(x@pop)) stop("pop not provided and x@pop is empty")
@@ -530,7 +530,7 @@ setMethod("selpopsize", signature(x="genind"), function(x,pop=NULL,nMin=10){
     pop(res) <- pop[toKeep]
 
     return(res)
-}) # end selpop
+}) # end selPopSize
 
 
 
