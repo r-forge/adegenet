@@ -36,7 +36,7 @@
   According to 'rse.type': a list of \linkS4class{genind} object
   (default) or a matrix of data corresponding to the 'tab' slots.
 }
-\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
+\author{Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \seealso{\code{\link{seploc}}, \code{\link{repool}}}
 \examples{
 data(microbov)

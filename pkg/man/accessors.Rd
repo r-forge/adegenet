@@ -60,8 +60,9 @@
 \usage{
 nLoc(x, \dots)
 pop(x)
-locNames(x)
-\S4method{locNames}{genind,genpop}(x, withAlleles=FALSE, \dots)
+locNames(x, \dots)
+\S4method{locNames}{genind}(x, withAlleles=FALSE, \dots)
+\S4method{locNames}{genpop}(x, withAlleles=FALSE, \dots)
 }
 \arguments{
   \item{x}{a \linkS4class{genind} or a \linkS4class{genpop} object.}
@@ -73,7 +74,7 @@ locNames(x)
 \value{
   A \linkS4class{genind} or \linkS4class{genpop} object.
 }
-\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
+\author{Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \details{
   The "[" operator can treat elements in the \code{@other} slot as
   well. For instance, if \code{obj@other$xy} contains spatial

@@ -2,7 +2,7 @@
 # adegenet classes definitions. All classes are S4.
 #
 # Thibaut Jombart, November 2007
-# jombart@biomserv.univ-lyon1.fr
+# t.jombart@imperial.ac.uk
 ########################################################################
 
 ###############################

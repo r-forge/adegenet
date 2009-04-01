@@ -4,7 +4,7 @@
 # into other R classes
 #
 # Thibaut Jombart
-# jombart@biomserv.univ-lyon1.fr
+# t.jombart@imperial.ac.uk
 #
 ############################################
 

@@ -66,7 +66,7 @@ Class \code{"\linkS4class{indInfo}"}, directly.
   \code{\link{read.fstat}}, \code{\link{na.replace}}
   
 }
-\author{ Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
+\author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
 showClass("genind")
 

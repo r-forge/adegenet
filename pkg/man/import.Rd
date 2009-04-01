@@ -69,7 +69,7 @@ import2genind(file,missing=NA,quiet=FALSE, \dots)
 \seealso{\code{\link{import2genind}}, \code{\link{read.genetix}},
   \code{\link{read.fstat}}, \code{\link{read.structure}}, \code{\link{read.genepop}}
 }
-\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr} }
+\author{Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
 import2genind(system.file("files/nancycats.gtx",
 package="adegenet"))

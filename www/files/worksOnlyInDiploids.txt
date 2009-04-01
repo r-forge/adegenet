@@ -2,7 +2,6 @@
 - fstat (d)
 - gstat.randtest (d)
 - HWE.test.genind (d)
-- hybridize (+)
 - read.genetix (d)
 - read.fstat (d)
 - read.genpop (d)

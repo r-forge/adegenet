@@ -37,7 +37,7 @@ is.genpop(x)
 \value{
   For \code{genpop} and \code{as.genpop}, a genpop object. For \code{is.genpop}, a logical.
 }
-\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr}}
+\author{Thibaut Jombart \email{t.jombart@imperial.ac.uk}}
 \seealso{
   \code{"\linkS4class{genpop}"}, and \code{\link{genind2genpop}} for
   conversion from a genind to a genpop object.

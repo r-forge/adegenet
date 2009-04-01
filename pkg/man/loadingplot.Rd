@@ -50,7 +50,7 @@ loadingplot(x, at=NULL, threshold=quantile(x,0.75), axis=1, fac=NULL, byfac=FALS
     - var.idx: the indices of observations above the threshold\cr
     - var.values: the values above the threshold\cr
 }
-\author{Thibaut Jombart \email{jombart@biomserv.univ-lyon1.fr}}
+\author{Thibaut Jombart \email{t.jombart@imperial.ac.uk}}
 \examples{
 x <- runif(20)
 names(x) <- letters[1:20]
