@@ -17,8 +17,7 @@ setMethod("truenames", signature(x="genind"), function(x){
     X <- x@tab
     if(!all(x@ind.names=="")) {rownames(X) <- x@ind.names}
 
-    labcol <- rep(x@loc.names,x@loc.nall)
-    labcol <- paste(labcol,unlist(x@all.names),sep=".")
+    labcol <- locNames(x, withAlleles=TRUE)
     colnames(X) <- labcol
 
     if(!is.null(x@pop)){
@@ -44,8 +43,7 @@ setMethod("truenames",signature(x="genpop"), function(x){
     X <- x@tab
     if(!all(x@pop.names=="")) {rownames(X) <- x@pop.names}
 
-    labcol <- rep(x@loc.names,x@loc.nall)
-    labcol <- paste(labcol,unlist(x@all.names),sep=".")
+    labcol <- locNames(x, withAlleles=TRUE)
     colnames(X) <- labcol
 
     return(X)
@@ -60,7 +58,12 @@ setMethod("truenames",signature(x="genpop"), function(x){
 setGeneric("seploc", function(x, ...) standardGeneric("seploc"))
 
 setMethod("seploc", signature(x="genind"), function(x,truenames=TRUE,res.type=c("genind","matrix")){
-    checkType(x)
+    if(x@type=="PA"){
+        msg <- paste("seploc is not implemented for presence/absence markers")
+        cat("\n",msg,"\n")
+        return(invisible())
+    }
+
 
     if(!is.genind(x)) stop("x is not a valid genind object")
     res.type <- match.arg(res.type)
@@ -107,7 +110,12 @@ setMethod("seploc", signature(x="genind"), function(x,truenames=TRUE,res.type=c(
 # Method seploc for genpop
 ###########################
 setMethod("seploc", signature(x="genpop"), function(x,truenames=TRUE,res.type=c("genpop","matrix")){
-    checkType(x)
+     if(x@type=="PA"){
+         msg <- paste("seploc is not implemented for presence/absence markers")
+         cat("\n",msg,"\n")
+         return(invisible())
+    }
+
 
     if(!is.genpop(x)) stop("x is not a valid genpop object")
     res.type <- match.arg(res.type)
@@ -359,7 +367,7 @@ setGeneric("na.replace", function(x, ...) standardGeneric("na.replace"))
 
 ## genind method
 setMethod("na.replace", signature(x="genind"), function(x,method, quiet=FALSE){
-    checkType(x)
+    ## checkType(x)
 
     ## preliminary stuff
     validObject(x)
@@ -400,7 +408,7 @@ setMethod("na.replace", signature(x="genind"), function(x,method, quiet=FALSE){
 
 ## genpop method
 setMethod("na.replace", signature(x="genpop"), function(x,method, quiet=FALSE){
-    checkType(x)
+    ## checkType(x)
 
     ## preliminary stuff
     validObject(x)

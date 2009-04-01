@@ -100,6 +100,9 @@ adegenetTutorial <- function(which=c("general","spca")){
 ############
 # checkType
 ############
+##
+## WARNING: this does not work with all S3/S4 methods
+##
 checkType <- function(x){
     if(is.character(x)){
         markType <- x
@@ -111,6 +114,10 @@ checkType <- function(x){
 
     currCall <- as.character(sys.call(sys.parent()))[1]
     currFunction <- sub("[[:space:]]*[(].*","",currCall)
+    if(currFunction==".local"){
+        warning("Current call not found - stopping check (please report this warning).")
+        return()
+    }
 
     ## names of functions which are ok for dominant markers
     PAOk <- c("genind","genpop","genind2genpop","summary","df2genind",
@@ -131,4 +138,5 @@ checkType <- function(x){
         stop(msgError)
     } else return() # else, ok.
 } # end checkType
+
 
