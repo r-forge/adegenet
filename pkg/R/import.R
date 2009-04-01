@@ -61,7 +61,7 @@ df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, p
         ## Erase entierely non-type individuals
         temp <- apply(X,1,function(r) all(is.na(r)))
         if(any(temp)){
-            X <- X[!temp,]
+            X <- X[!temp,,drop=FALSE]
             pop <- pop[!temp]
             warning("entirely non-type individual(s) deleted")
         }
@@ -69,7 +69,7 @@ df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, p
         ## erase non-polymorphic loci
         temp <- apply(X, 2, function(loc) length(unique(loc[!is.na(loc)]))==1)
         if(any(temp)){
-            X <- X[,!temp]
+            X <- X[,!temp,drop=FALSE]
             warning("non-polymorphic marker(s) deleted")
         }
 
@@ -111,8 +111,8 @@ df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, p
     ## Erase entierely non-typed loci
     temp <- apply(tempX,2,function(c) all(is.na(c)))
     if(any(temp)){
-        X <- X[,!temp]
-        tempX <- tempX[,!temp]
+        X <- X[,!temp,drop=FALSE]
+        tempX <- tempX[,!temp,drop=FALSE]
         loc.names <- loc.names[!temp]
         nloc <- ncol(X)
         warning("entirely non-type marker(s) deleted")
@@ -121,8 +121,8 @@ df2genind <- function(X, sep=NULL, ncode=NULL, ind.names=NULL, loc.names=NULL, p
     ## Erase entierely non-type individuals
     temp <- apply(tempX,1,function(r) all(is.na(r)))
     if(any(temp)){
-        X <- X[!temp,]
-        tempX <- tempX[!temp,]
+        X <- X[!temp,,drop=FALSE]
+        tempX <- tempX[!temp,,drop=FALSE]
         pop <- pop[!temp]
         ind.names <- ind.names[!temp]
         n <- nrow(X)
