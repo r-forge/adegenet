@@ -78,11 +78,34 @@ seqTrack <- function(seq.names, seq.dates, D, k=5, lag=3, ...){
     }
 
 
+    ## expand one path
+    expandOnePath <- function(onePath){ # onePath has a single path (a vector)
+        newPoints <- findAncestors(onePath[length(onePath)]) # get new points
+        if(is.null(newPoints)) return(onePath)
+        res <- lapply(1:length(newPoints), function(i) c(onePath, newPoints)) # duplicate path and add new pts
+        return(res)
+    }
+
+
+    ## check if CURRENTPATH should stop
+    checkEndCurrentPath <- function(){
+        temp <- sapply(CURRENTPATH, function(e) e[length(e)])
+        if(all(seq.dates>))
+
+    }
+
+
+
     ## FIND ONE PATH ##
     findPath <- function(id){
         temp <- findExistingPath(id) # search for an already existing path
         if(!is.null(temp)) return(temp)
 
+        ## WHILE LOOP ##
+        while(!is.null(currentPoint)){
+            checkExist <-
+            if()
+        }
 
         INPATH.up() # update id with known paths
         return(res)
