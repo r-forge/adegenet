@@ -56,7 +56,7 @@ seqTrack <- function(seq.names, seq.dates, D, k=5, lag=3, ...){
         CURRENTPATH <<- CURRENTPATH[pathFac==toKeep]
         CURRENTPATHDIST <<- CURRENTPATHDIST[pathFac==toKeep]
         return()
-    }
+    } # end discardPath
 
 
     ## update id in INPATH
@@ -64,7 +64,7 @@ seqTrack <- function(seq.names, seq.dates, D, k=5, lag=3, ...){
         temp <- unique(unlist(listPaths))
         INPATH <<- union(INPATH,temp)
         return()
-    }
+    } # end INPATH.up
 
 
     ## retrieve an already known path
@@ -75,7 +75,7 @@ seqTrack <- function(seq.names, seq.dates, D, k=5, lag=3, ...){
             res <- res[which(res==id):length(res)] # cut the path
             return(res)
         } else return(NULL)
-    }
+    } # end findExistingPath
 
 
     ## expand one path
@@ -84,30 +84,43 @@ seqTrack <- function(seq.names, seq.dates, D, k=5, lag=3, ...){
         if(is.null(newPoints)) return(onePath)
         res <- lapply(1:length(newPoints), function(i) c(onePath, newPoints)) # duplicate path and add new pts
         return(res)
-    }
+    } # end expandOnePath
 
 
-    ## check if CURRENTPATH should stop
+    ## check if CURRENTPATH should stop (TRUE if yes, FALSE otherwise)
     checkEndCurrentPath <- function(){
-        temp <- sapply(CURRENTPATH, function(e) e[length(e)])
-        if(all(seq.dates>))
+        isEnded <- function(onePath){
+            oldest <- onePath[length(onePath)]
+            temp <- setdiff(id,oldest)
+            if(all(seq.dates[temp] < seq.dates[oldest])) return(TRUE)
+            return(FALSE)
+        }
 
-    }
+        temp <- sapply(CURRENTPATH, checkEndCurrentPath)
+        if(all(temp)) return(TRUE)
+        return(FALSE)
+    } # end checkEndCurrentPath
 
 
 
     ## FIND ONE PATH ##
     findPath <- function(id){
         temp <- findExistingPath(id) # search for an already existing path
-        if(!is.null(temp)) return(temp)
+        if(!is.null(temp)) return(temp) # return existing path if needed
 
         ## WHILE LOOP ##
-        while(!is.null(currentPoint)){
-            checkExist <-
-            if()
+        keepSearching <- TRUE
+        while(keepSearching){
+
+            temp <- findExistingPath(id) # search for an already existing path
+            keepSearching <- !checkEndCurrentPath() # stop searching if all paths are ended
         }
 
         INPATH.up() # update id with known paths
+
+        path.lengths <- sapply(CURRENTPATHDIST, sum)# compute path length
+        toKeep <- which.min(path.lengths) # keep best (shortest) one
+        res <- list(id=CURRENTPATH[[toKeep]], d=CURRENTPATHDIST[[toKeep]]) # return best path
         return(res)
     }
 
