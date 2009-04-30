@@ -97,7 +97,7 @@ seqTrack <- function(seq.names, seq.dates, D, k=5, lag=3, ...){
         }
 
         temp <- sapply(CURRENTPATH, checkEndCurrentPath)
-        if(all(temp)) return(TRUE)
+        if(all(temp)) return(TRUE) # if all paths are ended
         return(FALSE)
     } # end checkEndCurrentPath
 
@@ -111,9 +111,21 @@ seqTrack <- function(seq.names, seq.dates, D, k=5, lag=3, ...){
         ## WHILE LOOP ##
         keepSearching <- TRUE
         while(keepSearching){
+            for(i in length(CURRENTPATH)){
+                temp <- CURRENPATH[[1]]
+
+            }
+
+
 
             temp <- findExistingPath(id) # search for an already existing path
+            if(!is.null(temp))
             keepSearching <- !checkEndCurrentPath() # stop searching if all paths are ended
+
+
+
+
+
         }
 
         INPATH.up() # update id with known paths
