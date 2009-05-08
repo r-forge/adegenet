@@ -30,7 +30,7 @@
 # CODE ISSUES:
 ==============
 * fix request 1.2-2.04 (implement adjusted heretozygosity in summary)
-
+* use packageStartupMessage() instead of cat in .First.lib
 
 # DOCUMENTATION ISSUES:
 =======================
