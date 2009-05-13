@@ -1,60 +1,110 @@
-## #############
-## ## seqTrack
-## #############
-seqTrack <- function(seq.names, seq.dates, D, ...){
+#############
+## seqTrack
+#############
+seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"), ...){
+
     ## CHECKS ##
-    if(!require(graph)) stop("Package graph is not installed")
-    if(!require(RBGL)) stop("Package RBGL is not installed")
+    optim <- match.arg(optim)
+    if(optim=="min"){
+        which.optim <- which.min
+    } else {
+        which.optim <- which.max
+    }
 
     if(length(seq.names) != length(seq.dates)){
         stop("inconsistent length for seq.dates")
     }
 
-    D <- as.matrix(D)
+    W <- as.matrix(W)
 
-    if(length(seq.names) != nrow(D)){
-        stop("inconsistent dimension for D")
+    if(length(seq.names) != nrow(W)){
+        stop("inconsistent dimension for W")
     }
 
-     N <- length(seq.names)
-     id <- 1:N
-    std.time <- as.numeric(seq.dates) # turn dates into numeric
-    std.time <- std.time/sum(std.time) # set max to 1
+    N <- length(seq.names)
+    id <- 1:N
 
 
-    ## BUILD MATRIX OF WEIGHTS ##
-    dist.time <- as.matrix(dist(std.time))
-    W <- D * dist.time
-
-
-    ## CONSTRUCTION OF THE GRAPH ##
-    ## build connections for one point
-    prepGraphOneNode <- function(idx){
-        res <- list(edges, weights)
-        res$edges <- which(seq.dates < seq.dates[idx])
-        res$weights <- W[idx, res$edges]
-        return(res)
+    ## findAncestor
+    findAncestor <- function(idx){ # returns the index of one seq's ancestor
+        candid <- which(seq.dates < seq.dates[idx])
+        if(length(candid)==0) return(list(ances=NA, weight=NA))
+        if(length(candid)==1) return(list(ances=candid, weight=W[idx, candid]))
+        ancesId <- as.numeric(names(which.optim(W[idx, candid])))
+        return(list(ances=ancesId, weight=W[idx, ancesId])) # Id of the ancestor
     }
 
-    ## build the edge list + weights
-    edL <- lapply(id, prepGraphOneNode)
-    names(edL) <- seq.names
 
-    myGraph <- new("graphNEL", nodes=seq.names, edgeL=edL, edgemode="directed")
+    ## BUILD THE OUTPUT ##
+    res <- sapply(id, findAncestor)
+    res <- rbind(id,res)
+    colnames(res) <- seq.names
 
-
-    ## RUN DIJKSTRA ##
-    tempRes <- lapply(seq.names, function(node) sp.between(myGraph, node, seq.names[which.min(seq.dates)]) )
-
-
-    ## RETURN THE RESULT ##
-
-
-}
+    return(res)
+} # end seqTrack
 
 
 
 
+
+
+################
+## plotSeqTrack
+################
+plotSeqTrack <- function(x, xy, useArrows=TRUE, col=NULL,bg="grey", add=FALSE,...){
+
+    ## CHECKS ##
+    if(class(x) != "matrix") stop("x is not a matrix")
+    if(nrow(x) != 3) stop("x does not have two rows")
+    if(ncol(xy) != 2) stop("xy does not have two columns")
+    if(nrow(xy) != ncol(x)) stop("x and xy have inconsistent dimensions")
+
+
+    ## FIND SEGMENTS COORDS ##
+    NA.posi <- which(is.na(x[2,]))
+    from <- unlist(x[2,-NA.posi])
+    to <- unlist(x[1,-NA.posi])
+
+    x.from <- xy[from,1]
+    y.from <- xy[from,2]
+    x.to <- xy[to,1]
+    y.to <- xy[to,2]
+
+    if(useArrows){
+        plotFn <- arrows
+    } else {
+        plotFn <- segments
+    }
+
+
+    ## FIND THE COLOR FOR EDGES ##
+    if(is.null(col)){
+        w <- as.numeric(x[3,-NA.posi])
+        w <- max(w) - w
+        w <- w-min(w)
+        w <- 1+ w/max(w) * 99
+
+        opalette <- palette()
+        on.exit(palette(opalette))
+        palette(heat.colors(100))
+
+        col <- w
+    }
+
+    ## DO THE PLOTTING ##
+    obg <- par("bg")
+    on.exit(par(bg=obg))
+    if(!add){
+        par(bg=bg)
+        plot(xy, type="n")
+    }
+    plotFn(x.from, y.from, x.to, y.to, col=col,...)
+    text(xy,lab=colnames(x), font=2)
+
+    ## RESULT ##
+    res <- data.frame(x.from, y.from, x.to, y.to)
+    return(invisible(res))
+} # end plotSeqTrack
 
 
 
