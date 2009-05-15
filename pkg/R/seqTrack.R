@@ -16,20 +16,22 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"), ...){
     }
 
     if(is.character(seq.dates)){
-        msg <- paste("seq.dates is a character vector; " , 
+        msg <- paste("seq.dates is a character vector; " ,
                      "please convert it as dates using 'as.POSIXct'" ,
                      "\n(making sure dates are given as 'YYYY/MM/DD' or 'YYYY-MM-DD').", sep="")
         stop(msg)
     }
-    
+
+    N <- length(seq.names)
+    id <- 1:N
+
     W <- as.matrix(W)
+    ## rename dimensions using id
+    colnames(W) <- rownames(W) <- id
 
     if(length(seq.names) != nrow(W)){
         stop("inconsistent dimension for W")
     }
-
-    N <- length(seq.names)
-    id <- 1:N
 
 
     ## findAncestor
@@ -58,7 +60,8 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"), ...){
 ################
 ## plotSeqTrack
 ################
-plotSeqTrack <- function(x, xy, useArrows=TRUE, col=NULL,bg="grey", add=FALSE,...){
+plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, dates=NULL,
+                         col=NULL, bg="grey", add=FALSE, quiet=TRUE,...){
 
     ## CHECKS ##
     if(class(x) != "matrix") stop("x is not a matrix")
@@ -68,9 +71,9 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, col=NULL,bg="grey", add=FALSE,..
 
 
     ## FIND SEGMENTS COORDS ##
-    NA.posi <- which(is.na(x[2,]))
-    from <- unlist(x[2,-NA.posi])
-    to <- unlist(x[1,-NA.posi])
+    isNA <- is.na(x[2,])
+    from <- unlist(x[2,!isNA])
+    to <- unlist(x[1,!isNA])
 
     x.from <- xy[from,1]
     y.from <- xy[from,2]
@@ -84,9 +87,12 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, col=NULL,bg="grey", add=FALSE,..
     }
 
 
+    ## handle segments/arrows with length 0 ##
+    nullLength <- (x.from==x.to) & (y.from==y.to)
+
     ## FIND THE COLOR FOR EDGES ##
     if(is.null(col)){
-        w <- as.numeric(x[3,-NA.posi])
+        w <- as.numeric(x[3,!isNA])
         w <- max(w) - w
         w <- w-min(w)
         w <- 1+ w/max(w) * 99
@@ -98,6 +104,48 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, col=NULL,bg="grey", add=FALSE,..
         col <- w
     }
 
+    ## recycle col
+    col <- rep(col,length=length(x.from))
+
+
+    ## HANDLE RANGE OF DATES ##
+    if(!is.null(dateRange)){
+        if(is.null(dates)){
+            stop("dateRange is require without providing dates.")
+        }
+
+        if(is.character(dateRange)){
+            msg <- paste("dateRange is a character vector; " ,
+                     "please convert it as dates using 'as.POSIXct'" ,
+                     "\n(making sure dates are given as 'YYYY/MM/DD' or 'YYYY-MM-DD').", sep="")
+            stop(msg)
+        }
+
+        if(is.character(dates)){
+            msg <- paste("dates is a character vector; " ,
+                         "please convert it as dates using 'as.POSIXct'" ,
+                         "\n(making sure dates are given as 'YYYY/MM/DD' or 'YYYY-MM-DD').", sep="")
+            stop(msg)
+        }
+
+        if(length(dates) != ncol(x)) stop("length of 'dates' does not match number of rows in 'x'")
+
+        toKeep <- (dates > min(dateRange)) & (dates < max(dateRange))
+        if(sum(toKeep)==0) {
+            if(!quiet) cat("\nNo item in the specified date range.\n")
+            return(NULL)
+        }
+
+        ## do the subsetting
+        x.from <- x.from[toKeep]
+        y.from <- y.from[toKeep]
+        x.to <- x.to[toKeep]
+        y.to <- y.to[toKeep]
+        col <- col[toKeep]
+        xy <- xy[toKeep,,drop=FALSE]
+        x <- x[,toKeep,drop=FALSE]
+    }
+
     ## DO THE PLOTTING ##
     obg <- par("bg")
     on.exit(par(bg=obg))
@@ -105,8 +153,12 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, col=NULL,bg="grey", add=FALSE,..
         par(bg=bg)
         plot(xy, type="n")
     }
-    plotFn(x.from, y.from, x.to, y.to, col=col,...)
-    text(xy,lab=colnames(x), font=2)
+
+    suppressWarnings(plotFn(x.from, y.from, x.to, y.to, col=col,...)) # for arrows with length 0
+    if(annot) text(xy,lab=colnames(x), font=2)
+    if(any(nullLength)) {
+        points(x.from[nullLength], y.from[nullLength], cex=2, col=col[nullLength],...)
+    }
 
     ## RESULT ##
     res <- data.frame(x.from, y.from, x.to, y.to)
