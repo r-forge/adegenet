@@ -15,6 +15,13 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"), ...){
         stop("inconsistent length for seq.dates")
     }
 
+    if(is.character(seq.dates)){
+        msg <- paste("seq.dates is a character vector; " , 
+                     "please convert it as dates using 'as.POSIXct'" ,
+                     "\n(making sure dates are given as 'YYYY/MM/DD' or 'YYYY-MM-DD').", sep="")
+        stop(msg)
+    }
+    
     W <- as.matrix(W)
 
     if(length(seq.names) != nrow(W)){
