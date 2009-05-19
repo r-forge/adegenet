@@ -170,23 +170,66 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, date
 
 
 
+
+##############
+## .pAbeforeB
+##############
+##
+## proba that a sequence A, sampled a time Ta,
+## actually preceeded B, sampled at time Tb.
+##
+## - Ta, Tb: sampling times (Ta < Tb)
+## - mu0: mutation rate / site / year
+
+.pAbeforeB <- function(Ta, Tb, mu0){
+    mu <- mu0/365 # mutation rate / site / day
+    t <- 1:1000 # in days
+    Pt <- (1-mu)^(t*seq.length)
+
+    ## define the range of surrounding days
+    timeSep <- Tb-Ta
+    rangeSize <- timeSep + 2000 -1 + 2
+    t <- 1:rangeSize # idx of Ta = 1001; idx of Tb = 1001 + timeSep
+
+    ## define probabilities to observe A (resp, B) by days
+    Pa <- rep(0, rangeSize)
+    Pa[1:2001] <- c(sort(Pt),1,Pt) # proba to observe A for surrounding days
+    Pb  <- rep(0, rangeSize)
+    Pb[timeSep+(1:2001)] <-  c(sort(Pt),1,Pt)  # proba to observe B for surrounding days
+
+    ## compute proba A preceeded B for a given day
+    f1 <- function(day){
+        L <- rangeSize
+        if(day==L) return(0)
+        idSum <- seq(day+1, L, by=1)
+        res <- Pa[day] * sum(Pb[idSum])
+        return(res)
+    } # end f1
+}
+
+
+
+
+
+
+
 #############
 ## checkTime
 #############
 ## x: result of seqTrack
 ## mu0: mutation rate / site / year
 ## p: threshold probability for a sequence not to mutate
-checkTime <- function(x, mu0, seq.dates, seq.length, p=0.95){
+checkTime <- function(x, mu0, seq.dates, seq.length, p=0.99){
     mu <- mu0/365 # mutation rate / site / day
     t <- 0:1000 # in days
     Pt <- (1-mu)^(t*seq.length)
     ##plot(Pt,ylim=c(0,1))
-    nbDays <- min(which.min(Pt>p)-1, 0)
+    nbDays <- which.min(Pt>p)-1
 
-    date.from <- seq.dates[unlist(x[1,])]
-    date.to <- seq.dates[unlist(x[2,])]
+    date.to <- seq.dates[unlist(x[1,])]
+    date.from <- seq.dates[unlist(x[2,])]
 
-    diffDates <- (date.to-date.from) < nbDays*2
+    areUnsure <- (date.to-date.from) < nbDays*2
 
 
 } # end checkTime
