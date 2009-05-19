@@ -170,6 +170,43 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, date
 
 
 
+#############
+## checkTime
+#############
+## x: result of seqTrack
+## mu0: mutation rate / site / year
+## p: threshold probability for a sequence not to mutate
+checkTime <- function(x, mu0, seq.dates, seq.length, p=0.95){
+    mu <- mu0/365 # mutation rate / site / day
+    t <- 0:1000 # in days
+    Pt <- (1-mu)^(t*seq.length)
+    ##plot(Pt,ylim=c(0,1))
+    nbDays <- min(which.min(Pt>p)-1, 0)
+
+    date.from <- seq.dates[unlist(x[1,])]
+    date.to <- seq.dates[unlist(x[2,])]
+
+    diffDates <- (date.to-date.from) < nbDays*2
+
+
+} # end checkTime
+
+
+
+
+
+
+
+###############
+## seqTrack.ml
+###############
+seqTrack.ml <- function(aln, seq.dates, , optim=c("min","max"), ...){
+
+} # end seqTrack.ml
+
+
+
+
 
 
 #########################
