@@ -214,12 +214,12 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, date
 
 
 #############
-## checkTime
+## .checkTime
 #############
 ## x: result of seqTrack
 ## mu0: mutation rate / site / year
 ## p: threshold probability for a sequence not to mutate
-checkTime <- function(x, mu0, seq.dates, seq.length, p=0.99){
+.checkTime <- function(x, mu0, seq.dates, seq.length, p=0.99){
     mu <- mu0/365 # mutation rate / site / day
     t <- 0:1000 # in days
     Pt <- (1-mu)^(t*seq.length)
@@ -229,10 +229,116 @@ checkTime <- function(x, mu0, seq.dates, seq.length, p=0.99){
     date.to <- seq.dates[unlist(x[1,])]
     date.from <- seq.dates[unlist(x[2,])]
 
-    areUnsure <- (date.to-date.from) < nbDays*2
-
+    res <- (date.to-date.from) < nbDays*2
+    return(res)
 
 } # end checkTime
+
+
+
+
+
+
+#####################
+## optimize.seqTrack
+#####################
+optimize.seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
+                              mu0, seq.length, p=0.99, ...){
+
+    ## CHECKS ##
+    optim <- match.arg(optim)
+    if(optim=="min"){
+        which.optim <- which.min
+    } else {
+        which.optim <- which.max
+    }
+
+    if(length(seq.names) != length(seq.dates)){
+        stop("inconsistent length for seq.dates")
+    }
+
+    if(is.character(seq.dates)){
+        msg <- paste("seq.dates is a character vector; " ,
+                     "please convert it as dates using 'as.POSIXct'" ,
+                     "\n(making sure dates are given as 'YYYY/MM/DD' or 'YYYY-MM-DD').", sep="")
+        stop(msg)
+    }
+
+    N <- length(seq.names)
+    id <- 1:N
+
+    W <- as.matrix(W)
+    ## rename dimensions using id
+    colnames(W) <- rownames(W) <- id
+
+    if(length(seq.names) != nrow(W)){
+        stop("inconsistent dimension for W")
+    }
+
+
+    ## AUXILIARY FUNCTIONS ##
+    valRes <- function(res){
+        return(sum(unlist(res[3,]), na.rm=TRUE))
+    }
+
+    useNewRes <- function(oldRes,newRes, optim){
+        if(optim=="min"){
+            res <- valRes(oldRes) > valRes(newRes)
+        } else {
+            res <- valRes(oldRes) < valRes(newRes)
+        }
+
+        return(res)
+    }
+
+
+    ## FIND INITIAL SEQTRACK RESULT ##
+    res.ini <- seqTrack(seq.names, seq.dates, W, optim=c("min","max"))
+
+
+    ## LOOK FOR AMBIGUOUS DATES ##
+    isAmbig <- .checkTime(res.ini, mu0, seq.dates, seq.length, p=0.99)
+    if(!any(isAmbig)){
+        cat("\nNo ambiguity in dates was found; unique solution returned.\n")
+        return(res)
+    }
+
+
+    ## DEFINE NEW TEMPORAL ORDER ##
+    permutDate <- function(res, id, newDates){ # id: segment whose vertices are permuted
+        idAnc <- unlist(res[2,id])
+        idDes <- unlist(res[1,id])
+        temp <- newDates[idAnc]
+        newDates[idAnc] <- newDates[idDes]
+        newDates[idDes] <- temp
+        return(newDates)
+    }
+
+
+    ## DO THE OPTIMISATION ##
+    res.cur <- res.ini # initialization
+    idToPermut <- which(isAmbig) # indices of segments to permut
+    dates.cur <- order(seq.dates) # order matching initial one
+    permuted <- integer(0) # keeps track of permutated segments (by the index of the descendent)
+
+    for(i in idToPermut){
+        dates.new <- permutDate(res.cur, i, dates.cur) # new temporal order
+        res.new <- seqTrack(seq.names, newDates, W, optim=c("min","max")) # new result
+        if(useNewRes(res.cur, res.new, optim)){ # keep the best result
+            res.cur <- res.new
+            dates.cur <- dates.new
+            permuted <- c(permuted, i)
+        }
+    }
+
+
+    ## RESULT ##
+    res <- res.cur
+    nperm <- length(permuted)
+    cat("\nBest result found after",nperm,"permutations of ambiguous dates\n")
+    return(res)
+
+} # optimize.seqTrack
 
 
 
