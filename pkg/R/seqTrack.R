@@ -46,8 +46,10 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"), ...){
 
     ## BUILD THE OUTPUT ##
     res <- sapply(id, findAncestor)
-    res <- rbind(id,res)
-    colnames(res) <- seq.names
+    res <- data.frame(ances=unlist(res[1,]), weight=unlist(res[2,]))
+    ances.date <- seq.dates[res[,1]]
+    res <- cbind.data.frame(id,res, date=seq.dates, ances.date)
+    rownames(res) <- seq.names
 
     return(res)
 } # end seqTrack
@@ -61,30 +63,28 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"), ...){
 ## plotSeqTrack
 ################
 plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, dates=NULL,
-                         col=NULL, bg="grey", add=FALSE, quiet=TRUE,...){
+                         col=NULL, bg="grey", add=FALSE, quiet=TRUE,
+                         showAmbiguous=FALSE, mu0=NULL, seq.length=NULL, p=0.99,...){
 
     ## CHECKS ##
     if(class(x) != "matrix") stop("x is not a matrix")
-    if(nrow(x) != 3) stop("x does not have two rows")
+    if(ncol(x) != 5) stop("x does not have two rows")
     if(ncol(xy) != 2) stop("xy does not have two columns")
-    if(nrow(xy) != ncol(x)) stop("x and xy have inconsistent dimensions")
+    if(nrow(xy) != nrow(x)) stop("x and xy have inconsistent dimensions")
+    if(showAmbiguous & (is.null(mu0) | is.null(seq.length) |is.null(dates)) ){
+        stop("showAmbiguous is TRUE, but dates, mu0, and seq.length are not all provided.")
+    }
 
 
     ## FIND SEGMENTS COORDS ##
-    isNA <- is.na(x[2,])
-    from <- unlist(x[2,!isNA])
-    to <- unlist(x[1,!isNA])
+    isNA <- is.na(x[,2])
+    from <- unlist(x[!isNA,2])
+    to <- unlist(x[!isNA,1])
 
     x.from <- xy[from,1]
     y.from <- xy[from,2]
     x.to <- xy[to,1]
     y.to <- xy[to,2]
-
-    if(useArrows){
-        plotFn <- arrows
-    } else {
-        plotFn <- segments
-    }
 
 
     ## handle segments/arrows with length 0 ##
@@ -92,7 +92,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, date
 
     ## FIND THE COLOR FOR EDGES ##
     if(is.null(col)){
-        w <- as.numeric(x[3,!isNA])
+        w <- as.numeric(x[!isNA,3])
         w <- max(w) - w
         w <- w-min(w)
         w <- 1+ w/max(w) * 99
@@ -143,7 +143,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, date
         y.to <- y.to[toKeep]
         col <- col[toKeep]
         xy <- xy[toKeep,,drop=FALSE]
-        x <- x[,toKeep,drop=FALSE]
+        x <- x[toKeep,,drop=FALSE]
     }
 
     ## DO THE PLOTTING ##
@@ -154,7 +154,16 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, date
         plot(xy, type="n")
     }
 
-    suppressWarnings(plotFn(x.from, y.from, x.to, y.to, col=col,...)) # for arrows with length 0
+    if(useArrows){
+        arr.length <- rep(0.25, length(x.from))
+        if(showAmbiguous){
+            hideArrow <- .ambigDates(x, mu0, dates, seq.length, p)
+            arr.length[hideArrow] <- 0
+        }
+        arrows(x.from, y.from, x.to, y.to, col=col, angle=15, length=arr.length,...)
+    } else{
+
+    }
     if(annot) text(xy,lab=colnames(x), font=2)
     if(any(nullLength)) {
         points(x.from[nullLength], y.from[nullLength], cex=2, col=col[nullLength],...)
@@ -219,16 +228,16 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, date
 ## x: result of seqTrack
 ## mu0: mutation rate / site / year
 ## p: threshold probability for a sequence not to mutate
-.ambigDates <- function(x, mu0, seq.dates, seq.length, p=0.99){
+.ambigDates <- function(x, mu0, seq.length, p=0.99){
     mu <- mu0/365 # mutation rate / site / day
     t <- 0:1000 # in days
     Pt <- (1-mu)^(t*seq.length)
     ##plot(Pt,ylim=c(0,1))
     nbDays <- which.min(Pt>p)-1
 
-    isNA <- is.na(unlist(x[2,]))
-    date.to <- seq.dates[unlist(x[1,])]
-    date.from <- seq.dates[unlist(x[2,])]
+    isNA <- is.na(unlist(x[,2]))
+    date.to <- x$date
+    date.from <- x$ances.date
 
     res <- (date.to-date.from) < nbDays*2
     res[is.na(res)] <- FALSE
@@ -280,7 +289,7 @@ optimize.seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
 
     ## AUXILIARY FUNCTIONS ##
     valRes <- function(res){
-        return(sum(unlist(res[3,]), na.rm=TRUE))
+        return(sum(unlist(res[,3]), na.rm=TRUE))
     }
 
     useNewRes <- function(oldRes,newRes, optim){
@@ -351,7 +360,7 @@ optimize.seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
 ###############
 ## seqTrack.ml
 ###############
-seqTrack.ml <- function(aln, seq.dates, , optim=c("min","max"), ...){
+seqTrack.ml <- function(aln, seq.dates, optim=c("min","max"), ...){
 
 } # end seqTrack.ml
 
