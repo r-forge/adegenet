@@ -213,23 +213,25 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, date
 
 
 
-#############
-## .checkTime
-#############
+###############
+## .ambigDates
+###############
 ## x: result of seqTrack
 ## mu0: mutation rate / site / year
 ## p: threshold probability for a sequence not to mutate
-.checkTime <- function(x, mu0, seq.dates, seq.length, p=0.99){
+.ambigDates <- function(x, mu0, seq.dates, seq.length, p=0.99){
     mu <- mu0/365 # mutation rate / site / day
     t <- 0:1000 # in days
     Pt <- (1-mu)^(t*seq.length)
     ##plot(Pt,ylim=c(0,1))
     nbDays <- which.min(Pt>p)-1
 
+    isNA <- is.na(unlist(x[2,]))
     date.to <- seq.dates[unlist(x[1,])]
     date.from <- seq.dates[unlist(x[2,])]
 
     res <- (date.to-date.from) < nbDays*2
+    res[is.na(res)] <- FALSE
     return(res)
 
 } # end checkTime
@@ -297,7 +299,7 @@ optimize.seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
 
 
     ## LOOK FOR AMBIGUOUS DATES ##
-    isAmbig <- .checkTime(res.ini, mu0, seq.dates, seq.length, p=0.99)
+    isAmbig <- .ambigDates(res.ini, mu0, seq.dates, seq.length, p=0.99)
     if(!any(isAmbig)){
         cat("\nNo ambiguity in dates was found; unique solution returned.\n")
         return(res)
@@ -333,7 +335,7 @@ optimize.seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
 
 
     ## RESULT ##
-    res <- res.cur
+    res <- list(res=res.cur, permutID=permuted, newDates=dates.cur)
     nperm <- length(permuted)
     cat("\nBest result found after",nperm,"permutations of ambiguous dates\n")
     return(res)
