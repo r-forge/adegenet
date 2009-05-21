@@ -223,7 +223,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
 
 ##############
-## .pAbeforeB
+## .pAbeforeB # no longer used, never totally finished
 ##############
 ##
 ## proba that a sequence A, sampled a time Ta,
@@ -232,32 +232,56 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## - Ta, Tb: sampling times (Ta < Tb)
 ## - mu0: mutation rate / site / year
 
-.pAbeforeB <- function(Ta, Tb, mu0){
+## .pAbeforeB <- function(Ta, Tb, mu0){
+##     mu <- mu0/365 # mutation rate / site / day
+##     t <- 1:1000 # in days
+##     Pt <- (1-mu)^(t*seq.length)
+
+##     ## define the range of surrounding days
+##     timeSep <- Tb-Ta
+##     rangeSize <- timeSep + 2000 -1 + 2
+##     t <- 1:rangeSize # idx of Ta = 1001; idx of Tb = 1001 + timeSep
+
+##     ## define probabilities to observe A (resp, B) by days
+##     Pa <- rep(0, rangeSize)
+##     Pa[1:2001] <- c(sort(Pt),1,Pt) # proba to observe A for surrounding days
+##     Pb  <- rep(0, rangeSize)
+##     Pb[timeSep+(1:2001)] <-  c(sort(Pt),1,Pt)  # proba to observe B for surrounding days
+
+##     ## compute proba A preceeded B for a given day
+##     f1 <- function(day){
+##         L <- rangeSize
+##         if(day==L) return(0)
+##         idSum <- seq(day+1, L, by=1)
+##         res <- Pa[day] * sum(Pb[idSum])
+##         return(res)
+##     } # end f1
+## }
+
+
+
+#############
+## .dTimeSeq
+#############
+.dTimeSeq <- function(mu0, L, maxNbDays=100){
     mu <- mu0/365 # mutation rate / site / day
-    t <- 1:1000 # in days
+    t <- 0:maxNbDays # in days added / substracted
     Pt <- (1-mu)^(t*seq.length)
-
-    ## define the range of surrounding days
-    timeSep <- Tb-Ta
-    rangeSize <- timeSep + 2000 -1 + 2
-    t <- 1:rangeSize # idx of Ta = 1001; idx of Tb = 1001 + timeSep
-
-    ## define probabilities to observe A (resp, B) by days
-    Pa <- rep(0, rangeSize)
-    Pa[1:2001] <- c(sort(Pt),1,Pt) # proba to observe A for surrounding days
-    Pb  <- rep(0, rangeSize)
-    Pb[timeSep+(1:2001)] <-  c(sort(Pt),1,Pt)  # proba to observe B for surrounding days
-
-    ## compute proba A preceeded B for a given day
-    f1 <- function(day){
-        L <- rangeSize
-        if(day==L) return(0)
-        idSum <- seq(day+1, L, by=1)
-        res <- Pa[day] * sum(Pb[idSum])
-        return(res)
-    } # end f1
+    t <- c(-rev(t[-1]), t)
+    Pt <- c(rev(Pt[-1]), Pt)
+    return(list(t, Pt))
 }
 
+
+#############
+## .rTimeSeq
+#############
+.rTimeSeq <- function(n, mu0, L, maxNbDays=100){
+    temp <- .dTimeSeq(mu0, L, maxNbDays)
+    p <- temp[[2]]/sum(temp[[2]])
+    res <- sample(temp[[1]], size=n, replace=TRUE, prob=p)
+    return(res)
+}
 
 
 
@@ -295,8 +319,8 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 #####################
 ## optimize.seqTrack
 #####################
-optimize.seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
-                              mu0, seq.length, p=0.99, ...){
+optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"),
+                              proxMat=NULL, mu0, seq.length, p=0.99, ...){
 
     ## CHECKS ##
     optim <- match.arg(optim)
@@ -321,6 +345,11 @@ optimize.seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
     id <- 1:N
 
     W <- as.matrix(W)
+
+    if(!is.null(proxMat) && !identical(dim(proxMat),dim(W))) {
+        stop("proxMat is provided but its dimensions are inconsistent with that of W")
+    }
+
     ## rename dimensions using id
     colnames(W) <- rownames(W) <- id
 
@@ -330,65 +359,77 @@ optimize.seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
 
 
     ## AUXILIARY FUNCTIONS ##
-    valRes <- function(res){
-        return(sum(unlist(res[,3]), na.rm=TRUE))
-    }
+    ## valRes <- function(res){
+    ##         return(sum(unlist(res[,3]), na.rm=TRUE))
+    ##     }
 
-    useNewRes <- function(oldRes,newRes, optim){
-        if(optim=="min"){
-            res <- valRes(oldRes) > valRes(newRes)
-        } else {
-            res <- valRes(oldRes) < valRes(newRes)
-        }
+    ##     useNewRes <- function(oldRes,newRes, optim){
+    ##         if(optim=="min"){
+    ##             res <- valRes(oldRes) > valRes(newRes)
+    ##         } else {
+    ##             res <- valRes(oldRes) < valRes(newRes)
+    ##         }
 
-        return(res)
-    }
+    ##         return(res)
+    ##     }
 
 
     ## FIND INITIAL SEQTRACK RESULT ##
     res.ini <- seqTrack(seq.names, seq.dates, W, optim=c("min","max"))
 
-
-    ## LOOK FOR AMBIGUOUS DATES ##
-    isAmbig <- .ambigDates(res.ini, mu0, seq.dates, seq.length, p=0.99)
-    if(!any(isAmbig)){
-        cat("\nNo ambiguity in dates was found; unique solution returned.\n")
-        return(res)
+    ## to compare results
+    use.new.res <- function(res.old, res.new){
+        if(optim=="min"){
+            return(sum(res.old$weight, na.rm=TRUE) > sum(res.new$weight, na.rm=TRUE))
+        } else {
+            return(sum(res.old$weight, na.rm=TRUE) < sum(res.new$weight, na.rm=TRUE))
+        }
     }
 
 
-    ## DEFINE NEW TEMPORAL ORDER ##
-    permutDate <- function(res, id, newDates){ # id: segment whose vertices are permuted
-        idAnc <- unlist(res[2,id])
-        idDes <- unlist(res[1,id])
-        temp <- newDates[idAnc]
-        newDates[idAnc] <- newDates[idDes]
-        newDates[idDes] <- temp
-        return(newDates)
-    }
+    ##  ## LOOK FOR AMBIGUOUS DATES ##
+    ##     isAmbig <- .ambigDates(res.ini, mu0, seq.length, p=0.99)
+    ##     if(!any(isAmbig)){
+    ##         cat("\nNo ambiguity in dates was found; unique solution returned.\n")
+    ##         return(res)
+    ##     }
+
+
+    ## ## DEFINE NEW TEMPORAL ORDER ##
+    ##     permutDate <- function(res, id, newDates){ # id: segment whose vertices are permuted
+    ##         idAnc <- unlist(res[2,id])
+    ##         idDes <- unlist(res[1,id])
+    ##         temp <- newDates[idAnc]
+    ##         newDates[idAnc] <- newDates[idDes]
+    ##         newDates[idDes] <- temp
+    ##         return(newDates)
+    ##     }
 
 
     ## DO THE OPTIMISATION ##
-    res.cur <- res.ini # initialization
-    idToPermut <- which(isAmbig) # indices of segments to permut
-    dates.cur <- order(seq.dates) # order matching initial one
-    permuted <- integer(0) # keeps track of permutated segments (by the index of the descendent)
+    RANGE.DATES <- diff(range(seq.dates)) # time window of the sample, in days
+    NB.DATES.TO.SIM <- length(seq.dates)
 
-    for(i in idToPermut){
-        dates.new <- permutDate(res.cur, i, dates.cur) # new temporal order
-        res.new <- seqTrack(seq.names, newDates, W, optim=c("min","max")) # new result
-        if(useNewRes(res.cur, res.new, optim)){ # keep the best result
-            res.cur <- res.new
-            dates.cur <- dates.new
-            permuted <- c(permuted, i)
+
+    ## for loop is not to slow for < 1e6 rep
+    ## and allows not to handle huge objects
+    ## (which would grow exponentially)
+
+    res.best <- res.cur # initialization
+    valRes <- numeric(nsim)
+
+    for(i in 1:nsim){
+        myDates <- .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=2*RANGE.DATES)
+        res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W, optim=optim, proxMat=proxMat, ...)
+        valRes[i] <- sum(res.new$weight)
+        if(use.new.res(res.best, res.new)){
+            res.best <- res.new
         }
     }
 
 
     ## RESULT ##
-    res <- list(res=res.cur, permutID=permuted, newDates=dates.cur)
-    nperm <- length(permuted)
-    cat("\nBest result found after",nperm,"permutations of ambiguous dates\n")
+    res <- list(best=res.best, valsim=valRes)
     return(res)
 
 } # optimize.seqTrack
@@ -405,6 +446,23 @@ optimize.seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
 seqTrack.ml <- function(aln, seq.dates, optim=c("min","max"), ...){
 
 } # end seqTrack.ml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
