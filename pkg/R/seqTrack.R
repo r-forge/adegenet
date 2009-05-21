@@ -320,7 +320,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## optimize.seqTrack
 #####################
 optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"),
-                              proxMat=NULL, mu0, seq.length, p=0.99, ...){
+                              proxMat=NULL, mu0, seq.length, ...){
 
     ## CHECKS ##
     optim <- match.arg(optim)
@@ -415,13 +415,13 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"
     ## and allows not to handle huge objects
     ## (which would grow exponentially)
 
-    res.best <- res.cur # initialization
+    res.best <- res.ini # initialization
     valRes <- numeric(nsim)
 
     for(i in 1:nsim){
-        myDates <- .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=2*RANGE.DATES)
+        myDates <- seq.dates + .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=2*RANGE.DATES)
         res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W, optim=optim, proxMat=proxMat, ...)
-        valRes[i] <- sum(res.new$weight)
+        valRes[i] <- sum(res.new$weight,na.rm=TRUE)
         if(use.new.res(res.best, res.new)){
             res.best <- res.new
         }
