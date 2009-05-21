@@ -25,6 +25,8 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
         stop(msg)
     }
 
+    W <- as.matrix(W)
+
     if(!is.null(proxMat) && !identical(dim(proxMat),dim(W))) {
         stop("proxMat is provided but its dimensions are inconsistent with that of W")
     }
@@ -35,6 +37,9 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
     W <- as.matrix(W)
     ## rename dimensions using id
     colnames(W) <- rownames(W) <- id
+    if(!is.null(proxMat)){
+        colnames(proxMat) <- rownames(proxMat) <- id
+    }
 
     if(length(seq.names) != nrow(W)){
         stop("inconsistent dimension for W")
