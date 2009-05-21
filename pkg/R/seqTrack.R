@@ -1,13 +1,16 @@
 #############
 ## seqTrack
 #############
-seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"), ...){
+seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
+                     proxMat=NULL, ...){
 
     ## CHECKS ##
     optim <- match.arg(optim)
     if(optim=="min"){
+        optim <- min
         which.optim <- which.min
     } else {
+        optim <- max
         which.optim <- which.max
     }
 
@@ -22,6 +25,10 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"), ...){
         stop(msg)
     }
 
+    if(!is.null(proxMat) && !identical(dim(proxMat),dim(W))) {
+        stop("proxMat is provided but its dimensions are inconsistent with that of W")
+    }
+
     N <- length(seq.names)
     id <- 1:N
 
@@ -34,12 +41,47 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"), ...){
     }
 
 
+
+    ## AUXILIARY FUNCTIONS ##
+    ## test equality in floats
+    test.equal <- function(val,vec){
+        return(abs(val-vec) < 1e-12)
+    }
+
+
+    ## return the names of optimal value(s) in a named vector
+    which.is.optim <- function(vec){
+        res <- names(vec)[test.equal(optim(vec), vec)]
+        return(res)
+    }
+
+
+    ## select among different possible ancestors
+    selAmongAncestors <- function(idx,ances){
+        ## Choose the most otherwise connected ancestor, given proxMat
+        if(!is.null(proxMat)){ # if we've got no other info
+            toKeep <- test.equal(max(proxMat[idx,ances]), proxMat[idx,ances])
+            ances <- ances[toKeep]
+        }
+
+        ## If several ancestors remain, take the oldest.
+        if(length(ances)>1){
+            ances <- ances[which.min(seq.dates[ances])]
+        }
+
+        return(ances)
+    }
+
+
     ## findAncestor
     findAncestor <- function(idx){ # returns the index of one seq's ancestor
         candid <- which(seq.dates < seq.dates[idx])
         if(length(candid)==0) return(list(ances=NA, weight=NA))
         if(length(candid)==1) return(list(ances=candid, weight=W[idx, candid]))
-        ancesId <- as.numeric(names(which.optim(W[idx, candid])))
+        ancesId <- as.numeric(which.is.optim(W[idx, candid]))
+        if(length(ancesId)>1) {
+            ancesId <- selAmongAncestors(idx,ancesId) # handle several 'best' ancestors
+        }
         return(list(ances=ancesId, weight=W[idx, ancesId])) # Id of the ancestor
     }
 
@@ -62,17 +104,17 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"), ...){
 ################
 ## plotSeqTrack
 ################
-plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, dates=NULL,
+plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
                          col=NULL, bg="grey", add=FALSE, quiet=TRUE,
                          showAmbiguous=FALSE, mu0=NULL, seq.length=NULL, p=0.99,...){
 
     ## CHECKS ##
-    if(class(x) != "matrix") stop("x is not a matrix")
-    if(ncol(x) != 5) stop("x does not have two rows")
+    if(class(x) != "data.frame") stop("x is not a data.frame")
+    if(ncol(x) != 5) stop("x does not have five columns")
     if(ncol(xy) != 2) stop("xy does not have two columns")
     if(nrow(xy) != nrow(x)) stop("x and xy have inconsistent dimensions")
-    if(showAmbiguous & (is.null(mu0) | is.null(seq.length) |is.null(dates)) ){
-        stop("showAmbiguous is TRUE, but dates, mu0, and seq.length are not all provided.")
+    if(showAmbiguous & (is.null(mu0) | is.null(seq.length)) ){
+        stop("showAmbiguous is TRUE, but mu0 and seq.length are not all provided.")
     }
 
 
@@ -110,9 +152,6 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, date
 
     ## HANDLE RANGE OF DATES ##
     if(!is.null(dateRange)){
-        if(is.null(dates)){
-            stop("dateRange is require without providing dates.")
-        }
 
         if(is.character(dateRange)){
             msg <- paste("dateRange is a character vector; " ,
@@ -121,15 +160,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, date
             stop(msg)
         }
 
-        if(is.character(dates)){
-            msg <- paste("dates is a character vector; " ,
-                         "please convert it as dates using 'as.POSIXct'" ,
-                         "\n(making sure dates are given as 'YYYY/MM/DD' or 'YYYY-MM-DD').", sep="")
-            stop(msg)
-        }
-
-        if(length(dates) != ncol(x)) stop("length of 'dates' does not match number of rows in 'x'")
-
+        dates <- x$date
         toKeep <- (dates > min(dateRange)) & (dates < max(dateRange))
         if(sum(toKeep)==0) {
             if(!quiet) cat("\nNo item in the specified date range.\n")
@@ -154,17 +185,23 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, date
         plot(xy, type="n")
     }
 
+    ## ARROWS
     if(useArrows){
-        arr.length <- rep(0.25, length(x.from))
-        if(showAmbiguous){
-            hideArrow <- .ambigDates(x, mu0, dates, seq.length, p)
-            arr.length[hideArrow] <- 0
-        }
-        arrows(x.from, y.from, x.to, y.to, col=col, angle=15, length=arr.length,...)
+        arrows(x.from, y.from, x.to, y.to, col=col, angle=15,...)
     } else{
+    ## SEGMENTS
+        segments(x.from, y.from, x.to, y.to, col=col,...)
+    }
+
+    ## AMBIGUOUS SEGMENTS
+    if(showAmbiguous){
+        isAmbig <- .ambigDates(x, mu0, seq.length, p)
+        isAmbig <- isAmbig[!isNA]
+        segments(x.from[isAmbig], y.from[isAmbig], x.to[isAmbig], y.to[isAmbig], col="green", lty=2,...)
 
     }
-    if(annot) text(xy,lab=colnames(x), font=2)
+
+    if(annot) text(xy,lab=rownames(x), font=2)
     if(any(nullLength)) {
         points(x.from[nullLength], y.from[nullLength], cex=2, col=col[nullLength],...)
     }
@@ -235,7 +272,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL, date
     ##plot(Pt,ylim=c(0,1))
     nbDays <- which.min(Pt>p)-1
 
-    isNA <- is.na(unlist(x[,2]))
+    isNA <- is.na(x[,2])
     date.to <- x$date
     date.from <- x$ances.date
 
