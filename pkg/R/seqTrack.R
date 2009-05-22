@@ -221,7 +221,6 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
 
 
-
 ##############
 ## .pAbeforeB # no longer used, never totally finished
 ##############
@@ -257,6 +256,9 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ##         return(res)
 ##     } # end f1
 ## }
+
+
+
 
 
 
@@ -385,25 +387,6 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"
             return(sum(res.old$weight, na.rm=TRUE) < sum(res.new$weight, na.rm=TRUE))
         }
     }
-
-
-    ##  ## LOOK FOR AMBIGUOUS DATES ##
-    ##     isAmbig <- .ambigDates(res.ini, mu0, seq.length, p=0.99)
-    ##     if(!any(isAmbig)){
-    ##         cat("\nNo ambiguity in dates was found; unique solution returned.\n")
-    ##         return(res)
-    ##     }
-
-
-    ## ## DEFINE NEW TEMPORAL ORDER ##
-    ##     permutDate <- function(res, id, newDates){ # id: segment whose vertices are permuted
-    ##         idAnc <- unlist(res[2,id])
-    ##         idDes <- unlist(res[1,id])
-    ##         temp <- newDates[idAnc]
-    ##         newDates[idAnc] <- newDates[idDes]
-    ##         newDates[idDes] <- temp
-    ##         return(newDates)
-    ##     }
 
 
     ## DO THE OPTIMISATION ##
