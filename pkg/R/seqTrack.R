@@ -122,24 +122,26 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
         stop("showAmbiguous is TRUE, but mu0 and seq.length are not all provided.")
     }
 
+    ## SUBSET DATA (REMOVE NAs) ##
+    isNA <- is.na(x[,2])
+    x <- x[!isNA,,drop=FALSE]
+    xy.all <- xy ## used to retrieve all coordinates
+    xy <- xy[!isNA,,drop=FALSE]
+
 
     ## FIND SEGMENTS COORDS ##
-    isNA <- is.na(x[,2])
-    from <- unlist(x[!isNA,2])
-    to <- unlist(x[!isNA,1])
+    from <- unlist(x[,2])
+    to <- unlist(x[,1])
 
-    x.from <- xy[from,1]
-    y.from <- xy[from,2]
-    x.to <- xy[to,1]
-    y.to <- xy[to,2]
+    x.from <- xy.all[from,1]
+    y.from <- xy.all[from,2]
+    x.to <- xy.all[to,1]
+    y.to <- xy.all[to,2]
 
-
-    ## handle segments/arrows with length 0 ##
-    nullLength <- (x.from==x.to) & (y.from==y.to)
 
     ## FIND THE COLOR FOR EDGES ##
     if(is.null(col)){
-        w <- as.numeric(x[!isNA,3])
+        w <- as.numeric(x[,3])
         w <- max(w) - w
         w <- w-min(w)
         w <- 1+ w/max(w) * 99
@@ -192,7 +194,14 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
     ## ARROWS
     if(useArrows){
-        arrows(x.from, y.from, x.to, y.to, col=col, angle=15,...)
+        arr.length <- rep(.25, length=length(x.from))
+        ##   if(showAmbiguous){
+        ##             isAmbig <- .ambigDates(x, mu0, seq.length, p)
+        ##             isAmbig <- isAmbig[!isNA]
+        ##             arr.length[isAmbig] <- 0
+        ##         }
+        suppressWarnings(arrows(x.from, y.from, x.to, y.to, col=col, angle=15, length=arr.length, ...))
+
     } else{
     ## SEGMENTS
         segments(x.from, y.from, x.to, y.to, col=col,...)
@@ -201,14 +210,20 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     ## AMBIGUOUS SEGMENTS
     if(showAmbiguous){
         isAmbig <- .ambigDates(x, mu0, seq.length, p)
-        isAmbig <- isAmbig[!isNA]
-        segments(x.from[isAmbig], y.from[isAmbig], x.to[isAmbig], y.to[isAmbig], col="green", lty=2,...)
-
+        if(any(isAmbig)){
+            segments(x.from[isAmbig], y.from[isAmbig], x.to[isAmbig], y.to[isAmbig], col="green", lty=2,...)
+        }
     }
 
     if(annot) text(xy,lab=rownames(x), font=2)
+
+
+    ## handle segments/arrows with length 0 ##
+    nullLength <- (x.from==x.to) & (y.from==y.to)
+
     if(any(nullLength)) {
-        points(x.from[nullLength], y.from[nullLength], cex=2, col=col[nullLength],...)
+        sunflowerplot(x.from[nullLength], y.from[nullLength], lwd=2,
+                      col=col[nullLength], seq.col=col[nullLength], add=TRUE, ...)
     }
 
     ## RESULT ##
