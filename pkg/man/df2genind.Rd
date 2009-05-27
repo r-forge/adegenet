@@ -14,7 +14,9 @@
   many characters code each genotypes at a locus, but it is safer to state it
   (\code{ncode} argument). Uncomplete strings are filled with "0" at the
   begining. \cr
-  
+
+  Whenever provided, marker names should not include any dot ('.'), as
+  everything after a dot is removed when parsing marker names.\cr
   
 
   The function \code{genind2df} converts a \linkS4class{genind} back to
