@@ -333,6 +333,34 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
 
 
+##############
+## .pAbeforeB
+##############
+.pAbeforeB <- function(dateA, dateB, mu0, L, maxNbDays=100){
+    temp <- .dTimeSeq(mu0, L, maxNbDays)
+    days <- temp[[1]]
+    p <- temp[[2]]/sum(temp[[2]]) # proba distribution
+
+    nbDaysDiff <- as.integer(difftime(dateA,dateB,units="days")) # dateA - dateB, in days
+    daysA <- days
+    daysB <- days - nbDaysDiff
+
+    f1 <- function(i){ # proba A before B for one day
+        idx <- daysB>daysA[i]
+        res <- p[i] * sum(p[idx])
+        return(res)
+    }
+
+    res <- sapply(1:length(p), f1) # proba for all days
+    res <- sum(res) # sum
+    return(res)
+} # end .pAbeforeB
+
+
+
+
+
+
 #####################
 ## optimize.seqTrack
 #####################
