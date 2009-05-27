@@ -141,17 +141,36 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
     ## FIND THE COLOR FOR EDGES ##
     if(is.null(col)){
-        w <- as.numeric(x[,3])
-        w <- max(w) - w
-        w <- w-min(w)
-        w <- 1+ w/max(w) * 99
+        if(is.null(mu0) & is.null(seq.length)) {
+            col <- "black"
+        } else {
+            w <- .pAbeforeB(x$ances.date, x$date, mu0, seq.length, 1000)
+            w <- max(w) - w
+            w <- w-min(w)
+            w <- 1+ w/max(w) * 99
 
-        opalette <- palette()
-        on.exit(palette(opalette))
-        palette(heat.colors(100))
+            opalette <- palette()
+            on.exit(palette(opalette))
+            palette(heat.colors(100))
 
-        col <- w
+            col <- w
+        }
     }
+
+    ## THIS WAS USED WHEN COLOR REPRESENTED THE NUMBER OF MUTATIONS ##
+    ##  if(is.null(col)){
+    ##         w <- as.numeric(x[,3])
+    ##         w <- max(w) - w
+    ##         w <- w-min(w)
+    ##         w <- 1+ w/max(w) * 99
+
+    ##         opalette <- palette()
+    ##         on.exit(palette(opalette))
+    ##         palette(heat.colors(100))
+
+    ##         col <- w
+    ##     }
+
 
     ## recycle col
     col <- rep(col,length=length(x.from))
@@ -225,6 +244,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
         sunflowerplot(x.from[nullLength], y.from[nullLength], lwd=2,
                       col=col[nullLength], seq.col=col[nullLength], add=TRUE, ...)
     }
+
 
     ## RESULT ##
     res <- data.frame(x.from, y.from, x.to, y.to)
@@ -354,7 +374,11 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     res <- sapply(1:length(p), f1) # proba for all days
     res <- sum(res) # sum
     return(res)
-} # end .pAbeforeB
+}
+
+.pAbeforeB <- Vectorize(.pAbeforeB, vectorize.args=c("dateA","dateB")) ## end .pAbeforeB
+
+
 
 
 
