@@ -249,8 +249,8 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     nullLength <- (x.from==x.to) & (y.from==y.to)
 
     if(any(nullLength) & plot) {
-        sunflowerplot(x.from[nullLength], y.from[nullLength], lwd=2,
-                      col=col[nullLength], seq.col=col[nullLength], add=TRUE, ...)
+        sunflowerplot(x.from[nullLength], y.from[nullLength], seg.lwd=2, size=1/6,
+                      col=col[nullLength], seg.col=col[nullLength], add=TRUE, ...)
     }
 
 
