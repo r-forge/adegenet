@@ -111,7 +111,8 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
 ################
 plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
                          col=NULL, bg="grey", add=FALSE, quiet=TRUE,
-                         showAmbiguous=FALSE, mu0=NULL, seq.length=NULL, p=0.99,...){
+                         showAmbiguous=FALSE, mu0=NULL, seq.length=NULL, p=0.75,
+                         plot=TRUE,...){
 
     ## CHECKS ##
     if(class(x) != "data.frame") stop("x is not a data.frame")
@@ -121,6 +122,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     if(showAmbiguous & (is.null(mu0) | is.null(seq.length)) ){
         stop("showAmbiguous is TRUE, but mu0 and seq.length are not all provided.")
     }
+    isAmbig <- NULL
 
     ## SUBSET DATA (REMOVE NAs) ##
     isNA <- is.na(x[,2])
@@ -145,6 +147,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
             col <- "black"
         } else {
             w <- .pAbeforeB(x$ances.date, x$date, mu0, seq.length, 1000)
+            isAmbig <-  w < p
             w <- max(w) - w
             w <- w-min(w)
             w <- 1+ w/max(w) * 99
@@ -181,8 +184,8 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
         if(is.character(dateRange)){
             msg <- paste("dateRange is a character vector; " ,
-                     "please convert it as dates using 'as.POSIXct'" ,
-                     "\n(making sure dates are given as 'YYYY/MM/DD' or 'YYYY-MM-DD').", sep="")
+                         "please convert it as dates using 'as.POSIXct'" ,
+                         "\n(making sure dates are given as 'YYYY/MM/DD' or 'YYYY-MM-DD').", sep="")
             stop(msg)
         }
 
@@ -201,53 +204,59 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
         col <- col[toKeep]
         xy <- xy[toKeep,,drop=FALSE]
         x <- x[toKeep,,drop=FALSE]
+        if(!is.null(isAmbig)) {
+            isAmbig <- isAmbig[toKeep]
+        }
     }
 
     ## DO THE PLOTTING ##
-    obg <- par("bg")
-    on.exit(par(bg=obg))
-    if(!add){
-        par(bg=bg)
-        plot(xy, type="n")
+    if(plot){
+        obg <- par("bg")
+        on.exit(par(bg=obg))
+        if(!add){
+            par(bg=bg)
+            plot(xy, type="n")
+        }
     }
 
     ## ARROWS
     if(useArrows){
         arr.length <- rep(.25, length=length(x.from))
-        ##   if(showAmbiguous){
-        ##             isAmbig <- .ambigDates(x, mu0, seq.length, p)
-        ##             isAmbig <- isAmbig[!isNA]
-        ##             arr.length[isAmbig] <- 0
-        ##         }
-        suppressWarnings(arrows(x.from, y.from, x.to, y.to, col=col, angle=15, length=arr.length, ...))
+        if(showAmbiguous & any(isAmbig)){
+            arr.length[isAmbig] <- 0
+        }
+        if(plot) suppressWarnings(arrows(x.from, y.from, x.to, y.to, col=col, angle=15, length=arr.length, ...))
 
     } else{
-    ## SEGMENTS
-        segments(x.from, y.from, x.to, y.to, col=col,...)
+        ## SEGMENTS
+        if(plot) segments(x.from, y.from, x.to, y.to, col=col,...)
     }
 
-    ## AMBIGUOUS SEGMENTS
-    if(showAmbiguous){
-        isAmbig <- .ambigDates(x, mu0, seq.length, p)
-        if(any(isAmbig)){
-            segments(x.from[isAmbig], y.from[isAmbig], x.to[isAmbig], y.to[isAmbig], col="green", lty=2,...)
-        }
-    }
+    ## ## AMBIGUOUS SEGMENTS
+    ##     if(showAmbiguous){
+    ##         isAmbig <- .ambigDates(x, mu0, seq.length, p)
+    ##         if(any(isAmbig)){
+    ##             segments(x.from[isAmbig], y.from[isAmbig], x.to[isAmbig], y.to[isAmbig], col="green", lty=2,...)
+    ##         }
+    ##     }
 
-    if(annot) text(xy,lab=rownames(x), font=2)
+    if(annot & plot) text(xy,lab=rownames(x), font=2)
 
 
     ## handle segments/arrows with length 0 ##
     nullLength <- (x.from==x.to) & (y.from==y.to)
 
-    if(any(nullLength)) {
+    if(any(nullLength) & plot) {
         sunflowerplot(x.from[nullLength], y.from[nullLength], lwd=2,
                       col=col[nullLength], seq.col=col[nullLength], add=TRUE, ...)
     }
 
 
     ## RESULT ##
-    res <- data.frame(x.from, y.from, x.to, y.to)
+    res <- data.frame(x.from, y.from, x.to, y.to, col=col)
+    if(!is.null(arr.length)) {
+        res <- cbind.data.frame(res, arr.length)
+    }
     return(invisible(res))
 } # end plotSeqTrack
 
