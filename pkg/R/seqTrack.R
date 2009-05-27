@@ -111,7 +111,7 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
 ################
 plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
                          col=NULL, bg="grey", add=FALSE, quiet=TRUE,
-                         showAmbiguous=FALSE, mu0=NULL, seq.length=NULL, p=0.75,
+                         showAmbiguous=TRUE, mu0=NULL, seq.length=NULL, prob=0.75,
                          plot=TRUE,...){
 
     ## CHECKS ##
@@ -146,15 +146,17 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
         if(is.null(mu0) & is.null(seq.length)) {
             col <- "black"
         } else {
-            w <- .pAbeforeB(x$ances.date, x$date, mu0, seq.length, 1000)
-            isAmbig <-  w < p
-            w <- max(w) - w
-            w <- w-min(w)
-            w <- 1+ w/max(w) * 99
+            w <- .pAbeforeB(x$ances.date, x$date, mu0, seq.length, 200) # beware, lots of steps take time
+            isAmbig <-  w < prob
+            w[w<.5] <- .5
+            w <- (1 - w)
+            w <- w - min(w) # rescale to 0-1
+            w <- 100*w/max(w)  # rescale to 0-100
+            w[w<1] <- 1
 
             opalette <- palette()
             on.exit(palette(opalette))
-            palette(heat.colors(100))
+            palette(heat.colors(51))
 
             col <- w
         }
@@ -265,47 +267,6 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
 
 
-##############
-## .pAbeforeB # no longer used, never totally finished
-##############
-##
-## proba that a sequence A, sampled a time Ta,
-## actually preceeded B, sampled at time Tb.
-##
-## - Ta, Tb: sampling times (Ta < Tb)
-## - mu0: mutation rate / site / year
-
-## .pAbeforeB <- function(Ta, Tb, mu0){
-##     mu <- mu0/365 # mutation rate / site / day
-##     t <- 1:1000 # in days
-##     Pt <- (1-mu)^(t*seq.length)
-
-##     ## define the range of surrounding days
-##     timeSep <- Tb-Ta
-##     rangeSize <- timeSep + 2000 -1 + 2
-##     t <- 1:rangeSize # idx of Ta = 1001; idx of Tb = 1001 + timeSep
-
-##     ## define probabilities to observe A (resp, B) by days
-##     Pa <- rep(0, rangeSize)
-##     Pa[1:2001] <- c(sort(Pt),1,Pt) # proba to observe A for surrounding days
-##     Pb  <- rep(0, rangeSize)
-##     Pb[timeSep+(1:2001)] <-  c(sort(Pt),1,Pt)  # proba to observe B for surrounding days
-
-##     ## compute proba A preceeded B for a given day
-##     f1 <- function(day){
-##         L <- rangeSize
-##         if(day==L) return(0)
-##         idSum <- seq(day+1, L, by=1)
-##         res <- Pa[day] * sum(Pb[idSum])
-##         return(res)
-##     } # end f1
-## }
-
-
-
-
-
-
 #############
 ## .dTimeSeq
 #############
@@ -328,8 +289,6 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     res <- sample(temp[[1]], size=n, replace=TRUE, prob=p)
     return(res)
 }
-
-
 
 
 
