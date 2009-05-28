@@ -259,8 +259,8 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
     ## RESULT ##
     res <- data.frame(x.from, y.from, x.to, y.to, col=col)
-    if(!is.null(arr.length)) {
-        res <- cbind.data.frame(res, arr.length)
+    if(!is.null(isAmbig)) {
+        res <- cbind.data.frame(res, isAmbig)
     }
     return(invisible(res))
 } # end plotSeqTrack
