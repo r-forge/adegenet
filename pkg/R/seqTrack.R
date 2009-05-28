@@ -34,6 +34,8 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
     N <- length(seq.names)
     id <- 1:N
 
+    seq.dates <- as.POSIXct(round.POSIXt(seq.dates,units="days")) # round dates to the day
+
     W <- as.matrix(W)
     ## rename dimensions using id
     colnames(W) <- rownames(W) <- id
@@ -302,7 +304,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     rangeSize <-  as.integer(difftime(dateMax,dateMin, units="days"))
     nbDays <- round(runif(n, min=0, max=rangeSize))
     res <- dateMin + nbDays*3600*24
-    res <- round(res, units="days")
+    res <- as.POSIXct(round(res, units="days"))
     return(res)
 }
 
@@ -400,6 +402,8 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"
 
     N <- length(seq.names)
     id <- 1:N
+
+    seq.dates <- as.POSIXct(round.POSIXt(seq.dates,units="days")) # round dates to the day
 
     W <- as.matrix(W)
 
