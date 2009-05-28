@@ -295,29 +295,43 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
 
 
+#################
+## .rUnifTimeSeq
+#################
+.rUnifTimeSeq <- function(n, dateMin, dateMax){
+    rangeSize <- as.integer(round(diff(c(dateA,dateB))))
+    nbDays <- sample(1:nbDays, n, replace=TRUE)
+    res <- dateMin + nbDays*3600*24
+    res <- round(res, units="days")
+    return(res)
+}
+
+
+
+
 
 ###############
 ## .ambigDates
 ###############
 ## x: result of seqTrack
 ## mu0: mutation rate / site / year
-## p: threshold probability for a sequence not to mutate
-.ambigDates <- function(x, mu0, seq.length, p=0.99){
-    mu <- mu0/365 # mutation rate / site / day
-    t <- 0:1000 # in days
-    Pt <- (1-mu)^(t*seq.length)
-    ##plot(Pt,ylim=c(0,1))
-    nbDays <- which.min(Pt>p)-1
+## ## p: threshold probability for a sequence not to mutate
+## .ambigDates <- function(x, mu0, seq.length, p=0.99){
+##     mu <- mu0/365 # mutation rate / site / day
+##     t <- 0:1000 # in days
+##     Pt <- (1-mu)^(t*seq.length)
+##     ##plot(Pt,ylim=c(0,1))
+##     nbDays <- which.min(Pt>p)-1
 
-    isNA <- is.na(x[,2])
-    date.to <- x$date
-    date.from <- x$ances.date
+##     isNA <- is.na(x[,2])
+##     date.to <- x$date
+##     date.from <- x$ances.date
 
-    res <- (date.to-date.from) < nbDays*2
-    res[is.na(res)] <- FALSE
-    return(res)
+##     res <- (date.to-date.from) < nbDays*2
+##     res[is.na(res)] <- FALSE
+##     return(res)
 
-} # end checkTime
+## } # end checkTime
 
 
 
@@ -360,7 +374,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## optimize.seqTrack
 #####################
 optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"),
-                              proxMat=NULL, mu0, seq.length, ...){
+                              proxMat=NULL, mu0, seq.length, rMissDate=NULL, ...){
 
     ## CHECKS ##
     optim <- match.arg(optim)
@@ -381,6 +395,9 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"
         stop(msg)
     }
 
+    isMissDate <- is.na(seq.dates)
+
+
     N <- length(seq.names)
     id <- 1:N
 
@@ -399,20 +416,6 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"
 
 
     ## AUXILIARY FUNCTIONS ##
-    ## valRes <- function(res){
-    ##         return(sum(unlist(res[,3]), na.rm=TRUE))
-    ##     }
-
-    ##     useNewRes <- function(oldRes,newRes, optim){
-    ##         if(optim=="min"){
-    ##             res <- valRes(oldRes) > valRes(newRes)
-    ##         } else {
-    ##             res <- valRes(oldRes) < valRes(newRes)
-    ##         }
-
-    ##         return(res)
-    ##     }
-
 
     ## FIND INITIAL SEQTRACK RESULT ##
     res.ini <- seqTrack(seq.names, seq.dates, W, optim=c("min","max"))
@@ -428,8 +431,8 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"
 
 
     ## DO THE OPTIMISATION ##
-    RANGE.DATES <- diff(range(seq.dates)) # time window of the sample, in days
-    NB.DATES.TO.SIM <- length(seq.dates)
+    RANGE.DATES <- as.integer(round(diff(range(seq.dates, na.rm=TRUE)))) # time window of the sample, in days
+    NB.DATES.TO.SIM <- sum(!isMissDate)
 
 
     ## for loop is not to slow for < 1e6 rep
@@ -439,12 +442,57 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"
     res.best <- res.ini # initialization
     valRes <- numeric(nsim)
 
-    for(i in 1:nsim){
-        myDates <- seq.dates + .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=2*RANGE.DATES)
-        res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W, optim=optim, proxMat=proxMat, ...)
-        valRes[i] <- sum(res.new$weight,na.rm=TRUE)
-        if(use.new.res(res.best, res.new)){
-            res.best <- res.new
+
+    ## DEFAULT CASE: NO MISSING DATES
+    if(!any(isMissDate)){
+        for(i in 1:nsim){
+            myDates <- seq.dates + .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=2*RANGE.DATES)
+            res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W, optim=optim, proxMat=proxMat, ...)
+            valRes[i] <- sum(res.new$weight,na.rm=TRUE)
+            if(use.new.res(res.best, res.new)){
+                res.best <- res.new
+            }
+        }
+    }
+
+
+    ## OTHER CASE: HANDLE MISSING DATES
+    if(any(isMissDate)){
+
+        ## Handle distribution and its parameters ##
+        argList <- list(...)
+        if(is.null(rMissDate)) {
+            rMissDate <- runif # distribution function
+        }
+        if(is.null(argList$min) & identical(rMissDate, runif)){ # earliest date
+            argList$min <- min(seq.dates,na.rm=TRUE)
+        } else {
+            argList$min[is.na(argList$min)] <- min(seq.dates,na.rm=TRUE) - RANGE.DATES*0.5
+        }
+        if(is.null(argList$max) & identical(rMissDate, runif)){ # latest date
+            argList$max <- max(seq.dates,na.rm=TRUE)
+        } else {
+            argList$max[is.na(argList$max)] <- max(seq.dates,na.rm=TRUE) + RANGE.DATES*0.5
+        }
+
+        argList$n <- sum(isMissDate)
+
+        ## Make simulations ##
+        for(i in 1:nsim){
+            myDates <- seq.dates
+            ## distribution for available dates
+            myDates[!isMissDate] <- myDates[!isMissDate] +
+                .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=2*RANGE.DATES)
+            ## distribution for missing dates
+            myDates[isMissDate] <-  min(seq.dates,na.rm=TRUE) +
+                do.call(rMissDate, argList) * 24*3600
+
+            res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W, optim=optim, proxMat=proxMat, ...)
+
+            valRes[i] <- sum(res.new$weight,na.rm=TRUE)
+            if(use.new.res(res.best, res.new)){
+                res.best <- res.new
+            }
         }
     }
 
