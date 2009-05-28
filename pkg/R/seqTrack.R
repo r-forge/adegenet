@@ -299,8 +299,8 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## .rUnifTimeSeq
 #################
 .rUnifTimeSeq <- function(n, dateMin, dateMax){
-    rangeSize <- as.integer(round(diff(c(dateA,dateB))))
-    nbDays <- sample(1:nbDays, n, replace=TRUE)
+    rangeSize <-  as.integer(difftime(dateMax,dateMin, units="days"))
+    nbDays <- round(runif(n, min=0, max=rangeSize))
     res <- dateMin + nbDays*3600*24
     res <- round(res, units="days")
     return(res)
@@ -374,7 +374,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## optimize.seqTrack
 #####################
 optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"),
-                              proxMat=NULL, mu0, seq.length, rMissDate=NULL, ...){
+                              proxMat=NULL, mu0, seq.length, rMissDate=.rUnifTimeSeq, ...){
 
     ## CHECKS ##
     optim <- match.arg(optim)
@@ -461,18 +461,16 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"
 
         ## Handle distribution and its parameters ##
         argList <- list(...)
-        if(is.null(rMissDate)) {
-            rMissDate <- runif # distribution function
-        }
-        if(is.null(argList$min) & identical(rMissDate, runif)){ # earliest date
-            argList$min <- min(seq.dates,na.rm=TRUE)
+
+        if(is.null(argList$dateMin) & identical(rMissDate, .rUnifTimeSeq)){ # earliest date
+            argList$dateMin <- min(seq.dates,na.rm=TRUE)
         } else {
-            argList$min[is.na(argList$min)] <- min(seq.dates,na.rm=TRUE) - RANGE.DATES*0.5
+            argList$dateMin[is.na(argList$dateMin)] <- min(seq.dates,na.rm=TRUE) - RANGE.DATES*0.5
         }
-        if(is.null(argList$max) & identical(rMissDate, runif)){ # latest date
-            argList$max <- max(seq.dates,na.rm=TRUE)
+        if(is.null(argList$dateMax) & identical(rMissDate, runif)){ # latest date
+            argList$dateMax <- max(seq.dates,na.rm=TRUE)
         } else {
-            argList$max[is.na(argList$max)] <- max(seq.dates,na.rm=TRUE) + RANGE.DATES*0.5
+            argList$dateMax[is.na(argList$dateMax)] <- max(seq.dates,na.rm=TRUE) + RANGE.DATES*0.5
         }
 
         argList$n <- sum(isMissDate)
