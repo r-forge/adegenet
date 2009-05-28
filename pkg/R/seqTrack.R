@@ -450,7 +450,9 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"
     ## DEFAULT CASE: NO MISSING DATES
     if(!any(isMissDate)){
         for(i in 1:nsim){
-            myDates <- seq.dates + .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=2*RANGE.DATES)
+            myDates <- seq.dates +
+                .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=RANGE.DATES)*24*3600
+            myDates <- as.POSIXct(round(myDates, units="days"))
             res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W, optim=optim, proxMat=proxMat, ...)
             valRes[i] <- sum(res.new$weight,na.rm=TRUE)
             if(use.new.res(res.best, res.new)){
@@ -460,42 +462,42 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"
     }
 
 
-    ## OTHER CASE: HANDLE MISSING DATES
-    if(any(isMissDate)){
+    ##  ## OTHER CASE: HANDLE MISSING DATES
+    ##     if(any(isMissDate)){
 
-        ## Handle distribution and its parameters ##
-        argList <- list(...)
+    ##         ## Handle distribution and its parameters ##
+    ##         argList <- list(...)
 
-        if(is.null(argList$dateMin) & identical(rMissDate, .rUnifTimeSeq)){ # earliest date
-            argList$dateMin <- min(seq.dates,na.rm=TRUE)
-        } else {
-            argList$dateMin[is.na(argList$dateMin)] <- min(seq.dates,na.rm=TRUE)
-        }
-        if(is.null(argList$dateMax) & identical(rMissDate, .rUnifTimeSeq)){ # latest date
-            argList$dateMax <- max(seq.dates,na.rm=TRUE)
-        } else {
-            argList$dateMax[is.na(argList$dateMax)] <- max(seq.dates,na.rm=TRUE)
-        }
+    ##         if(is.null(argList$dateMin) & identical(rMissDate, .rUnifTimeSeq)){ # earliest date
+    ##             argList$dateMin <- min(seq.dates,na.rm=TRUE)
+    ##         } else {
+    ##             argList$dateMin[is.na(argList$dateMin)] <- min(seq.dates,na.rm=TRUE)
+    ##         }
+    ##         if(is.null(argList$dateMax) & identical(rMissDate, .rUnifTimeSeq)){ # latest date
+    ##             argList$dateMax <- max(seq.dates,na.rm=TRUE)
+    ##         } else {
+    ##             argList$dateMax[is.na(argList$dateMax)] <- max(seq.dates,na.rm=TRUE)
+    ##         }
 
-        argList$n <- sum(isMissDate)
+    ##         argList$n <- sum(isMissDate)
 
-        ## Make simulations ##
-        for(i in 1:nsim){
-            myDates <- seq.dates
-            ## distribution for available dates
-            myDates[!isMissDate] <- myDates[!isMissDate] +
-                .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=2*RANGE.DATES)
-            ## distribution for missing dates
-            myDates[isMissDate] <- do.call(rMissDate, argList)
+    ##         ## Make simulations ##
+    ##         for(i in 1:nsim){
+    ##             myDates <- seq.dates
+    ##             ## distribution for available dates
+    ##             myDates[!isMissDate] <- myDates[!isMissDate] +
+    ##                 .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=2*RANGE.DATES)
+    ##             ## distribution for missing dates
+    ##             myDates[isMissDate] <- do.call(rMissDate, argList)
 
-            res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W, optim=optim, proxMat=proxMat, ...)
+    ##             res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W, optim=optim, proxMat=proxMat, ...)
 
-            valRes[i] <- sum(res.new$weight,na.rm=TRUE)
-            if(use.new.res(res.best, res.new)){
-                res.best <- res.new
-            }
-        }
-    }
+    ##             valRes[i] <- sum(res.new$weight,na.rm=TRUE)
+    ##             if(use.new.res(res.best, res.new)){
+    ##                 res.best <- res.new
+    ##             }
+    ##         }
+    ##     }
 
 
     ## RESULT ##
