@@ -332,7 +332,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     days <- temp[[1]]
     p <- temp[[2]]/sum(temp[[2]]) # proba distribution
 
-    nbDaysDiff <- as.integer(difftime(dateA,dateB,units="days")) # dateA - dateB, in days
+    nbDaysDiff <- as.integer(round(difftime(dateA,dateB,units="days"))) # dateA - dateB, in days
     daysA <- days
     daysB <- days - nbDaysDiff
 
