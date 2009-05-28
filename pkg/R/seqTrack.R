@@ -222,13 +222,15 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     }
 
     ## ARROWS
-    if(useArrows){
-        arr.length <- rep(.25, length=length(x.from))
-        if(showAmbiguous & any(isAmbig)){
-            arr.length[isAmbig] <- 0
+    if(useArrows & plot){
+        if(showAmbiguous & any(isAmbig)){ # plot arrows & segments
+            suppressWarnings(arrows(x.from[!isAmbig], y.from[!isAmbig],
+                                    x.to[!isAmbig], y.to[!isAmbig], col=col[!isAmbig], angle=15, ...))
+            segments(x.from[isAmbig], y.from[isAmbig],
+                     x.to[isAmbig], y.to[isAmbig], col=col,...)
+        } else{ # plot all arrows
+            suppressWarnings(arrows(x.from, y.from, x.to, y.to, col=col, angle=15, ...))
         }
-        if(plot) suppressWarnings(arrows(x.from, y.from, x.to, y.to, col=col, angle=15, length=arr.length, ...))
-
     } else{
         ## SEGMENTS
         if(plot) segments(x.from, y.from, x.to, y.to, col=col,...)
