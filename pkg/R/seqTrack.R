@@ -148,19 +148,21 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
         if(is.null(mu0) & is.null(seq.length)) {
             col <- "black"
         } else {
-            w <- .pAbeforeB(x$ances.date, x$date, mu0, seq.length, 200) # beware, lots of steps take time
-            isAmbig <-  w < prob
-            w[w<.5] <- .5
-            w <- (1 - w)
-            w <- w - min(w) # rescale to 0-1
-            w <- 100*w/max(w)  # rescale to 0-100
-            w[w<1] <- 1
+            ##  w <- .pAbeforeB(x$ances.date, x$date, mu0, seq.length, 200) # beware, lots of steps take time
+            ##             isAmbig <-  w < prob
+            ##             w[w<.5] <- .5
+            ##             w <- (1 - w)
+            ##             w <- w - min(w) # rescale to 0-1
+            ##             w <- 100*w/max(w)  # rescale to 0-100
+            ##             w[w<1] <- 1
 
             opalette <- palette()
             on.exit(palette(opalette))
-            palette(heat.colors(51))
 
-            col <- w
+            w <- as.integer(round(x$weight))
+            col <- rep("yellow", length(w))
+            col[w <= 1] <- "orange"
+            col[w < 1] <- "red"
         }
     }
 
