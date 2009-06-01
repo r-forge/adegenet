@@ -124,13 +124,22 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     if(showAmbiguous & (is.null(mu0) | is.null(seq.length)) ){
         stop("showAmbiguous is TRUE, but mu0 and seq.length are not all provided.")
     }
+
     isAmbig <- NULL
+
 
     ## SUBSET DATA (REMOVE NAs) ##
     isNA <- is.na(x[,2])
     x <- x[!isNA,,drop=FALSE]
     xy.all <- xy ## used to retrieve all coordinates
     xy <- xy[!isNA,,drop=FALSE]
+
+
+    ## FIND AMBIGUOUS TEMPORAL ORDERING ##
+    if(showAmbiguous){
+        temp <- .pAbeforeB(x$ances.date, x$date, mu0, seq.length)
+        isAmbig <- temp < prob
+    }
 
 
     ## FIND SEGMENTS COORDS ##
@@ -240,13 +249,6 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
         if(plot) segments(x.from, y.from, x.to, y.to, col=col,...)
     }
 
-    ## ## AMBIGUOUS SEGMENTS
-    ##     if(showAmbiguous){
-    ##         isAmbig <- .ambigDates(x, mu0, seq.length, p)
-    ##         if(any(isAmbig)){
-    ##             segments(x.from[isAmbig], y.from[isAmbig], x.to[isAmbig], y.to[isAmbig], col="green", lty=2,...)
-    ##         }
-    ##     }
 
     if(annot & plot) text(xy,lab=rownames(x), font=2)
 
@@ -377,7 +379,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 #####################
 ## optimize.seqTrack
 #####################
-optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, optim=c("min","max"),
+optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, thres, optim=c("min","max"),
                               proxMat=NULL, mu0, seq.length, rMissDate=.rUnifTimeSeq, ...){
 
     ## CHECKS ##
