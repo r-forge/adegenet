@@ -469,8 +469,8 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, thres, optim=c("min
             temp <- val.res(res.new)
             if(ifelse(optim=="min", temp < thres, temp > thres)){
                 ances <- cbind(ances, res.new$ances)
-                date <- cbind(date, res.new$date)
-                ances.date <- cbind(ances.date, res.new$ances.date)
+                date <- cbind(date, as.character(res.new$date))
+                ances.date <- cbind(ances.date, as.character(res.new$ances.date))
                 valRes <- c(valRes, temp)
             }
         }
@@ -516,7 +516,7 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, thres, optim=c("min
 
 
     ## RESULT ##
-    res <- list(best=res.best, valsim=valRes)
+    res <- list(ances=ances, date=date, ances.date=ances.date, valsim=valRes)
     return(res)
 
 } # optimize.seqTrack
