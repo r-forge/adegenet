@@ -388,7 +388,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## 2) VECTORIZE mu0 and seq.length, recycle if needed with a warning
 ## 3) uncomment, adapt, and test code for missing data
 ##
-optimize.seqTrack <- function(nstep, seq.names, seq.dates, W, thres, optim=c("min","max"),
+optimize.seqTrack <- function(nstep, seq.names, seq.dates, W, thres=NULL, optim=c("min","max"),
                               prox.mat=NULL, mu0, seq.length, step.size=1e3,
                               rMissDate=.rUnifTimeSeq, ...){
 
@@ -437,6 +437,13 @@ optimize.seqTrack <- function(nstep, seq.names, seq.dates, W, thres, optim=c("mi
 
     if(length(seq.names) != nrow(W)){
         stop("inconsistent dimension for W")
+    }
+
+
+    ## SET THRESHOLD IF NEEDED ##
+    if(is.null(thres)){
+        thres <- sum(seqtrack(seq.names=seq.names, seq.dates=seq.dates, W=W,
+                                    optim=optim, prox.mat=prox.mat, ...)$weight, na.rm=TRUE)
     }
 
 
