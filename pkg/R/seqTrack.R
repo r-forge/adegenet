@@ -388,7 +388,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## 2) VECTORIZE mu0 and seq.length, recycle if needed with a warning
 ## 3) uncomment, adapt, and test code for missing data
 ##
-optimize.seqTrack <- function(nstep, seq.names, seq.dates, W, thres=NULL, optim=c("min","max"),
+optimize.seqTrack <- function(nstep=10, seq.names, seq.dates, W, thres=NULL, optim=c("min","max"),
                               prox.mat=NULL, mu0, seq.length, step.size=1e3,
                               rMissDate=.rUnifTimeSeq, ...){
 
@@ -442,7 +442,7 @@ optimize.seqTrack <- function(nstep, seq.names, seq.dates, W, thres=NULL, optim=
 
     ## SET THRESHOLD IF NEEDED ##
     if(is.null(thres)){
-        thres <- sum(seqtrack(seq.names=seq.names, seq.dates=seq.dates, W=W,
+        thres <- sum(seqTrack(seq.names=seq.names, seq.dates=seq.dates, W=W,
                                     optim=optim, prox.mat=prox.mat, ...)$weight, na.rm=TRUE)
     }
 
@@ -485,7 +485,7 @@ optimize.seqTrack <- function(nstep, seq.names, seq.dates, W, thres=NULL, optim=
         for(i in 1:nstep){
             ## >> each step contains 'step.size' iterations << ##
             for(j in 1:step.size){
-                myDates <- as.POSIXct(round(newDates[,j], units="days"))
+                myDates <- as.POSIXct(newDates[,j])
 
                 res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W,
                                     optim=optim, prox.mat=prox.mat, ...)
@@ -499,13 +499,31 @@ optimize.seqTrack <- function(nstep, seq.names, seq.dates, W, thres=NULL, optim=
             } # end for j
 
             ## dates: new prior taken from obtained posterior
-            if(optim=="min"){ # define weights for further samplings
-                w <- max(valRes) - valRes
+            if(length(valRes)==0) { # if no simul are retained
+                warning(paste("No simulation was retained at the given threshold at step",i))
             } else {
-                w <- valRes
+                if(optim=="min"){ # define weights for further samplings
+                    w <- max(valRes,na.rm=TRUE) - valRes
+                    w <- w/sum(w)
+                } else {
+                    w <- valRes
+                    w <- w/sum(w)
+                }
+
+
+                ## new dates
+                newDates <- apply(date, 1, function(vec)
+                                  sample(vec, size=step.size, replace=TRUE, prob=w)
+                newDates <- t(newDates)
+
+                ## re-initialize posterior distributions
+                if(i<nstep){
+                    ances <- integer(0)
+                    date <- character(0)
+                    ances.date <- character(0)
+                    valRes <- numeric(0)
+                }
             }
-            newDates <- apply(date, 1, sample, size=step.size, replace=TRUE, prob=w)
-            newDates <- t(newDates)
         }
     }
 
