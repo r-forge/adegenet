@@ -434,16 +434,9 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, thres, optim=c("min
 
     ## AUXILIARY FUNCTIONS ##
 
-    ## FIND INITIAL SEQTRACK RESULT ##
-    res.ini <- seqTrack(seq.names, seq.dates, W, optim=c("min","max"))
-
-    ## to compare results
-    use.new.res <- function(res.old, res.new){
-        if(optim=="min"){
-            return(sum(res.old$weight, na.rm=TRUE) > sum(res.new$weight, na.rm=TRUE))
-        } else {
-            return(sum(res.old$weight, na.rm=TRUE) < sum(res.new$weight, na.rm=TRUE))
-        }
+    ## to compare results -> returns a list of length two: logical, and the value of the res
+    val.res <- function(res){
+        return(sum(res$weight, na.rm=TRUE))
     }
 
 
@@ -456,8 +449,14 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, thres, optim=c("min
     ## and allows not to handle huge objects
     ## (which would grow exponentially)
 
-    res.best <- res.ini # initialization
-    valRes <- numeric(nsim)
+    ##    res.best <- res.ini # initialization
+
+
+    ## DEFINE OUTPUTS ##
+    ances <- integer(0)
+    date <- character(0)
+    ances.date <- character(0)
+    valRes <- numeric(0)
 
 
     ## DEFAULT CASE: NO MISSING DATES
@@ -467,9 +466,12 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, thres, optim=c("min
                 .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=RANGE.DATES)*24*3600
             myDates <- as.POSIXct(round(myDates, units="days"))
             res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W, optim=optim, proxMat=proxMat, ...)
-            valRes[i] <- sum(res.new$weight,na.rm=TRUE)
-            if(use.new.res(res.best, res.new)){
-                res.best <- res.new
+            temp <- val.res(res.new)
+            if(ifelse(optim=="min", temp < thres, temp > thres)){
+                ances <- cbind(ances, res.new$ances)
+                date <- cbind(date, res.new$date)
+                ances.date <- cbind(ances.date, res.new$ances.date)
+                valRes <- c(valRes, temp)
             }
         }
     }
