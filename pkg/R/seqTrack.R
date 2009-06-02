@@ -389,7 +389,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## 3) uncomment, adapt, and test code for missing data
 ##
 optimize.seqTrack <- function(nstep, seq.names, seq.dates, W, thres, optim=c("min","max"),
-                              prox.mat=NULL, mu0, seq.length, step.size=1000,
+                              prox.mat=NULL, mu0, seq.length, step.size=1e3,
                               rMissDate=.rUnifTimeSeq, ...){
 
     ## CHECKS ##
@@ -469,12 +469,12 @@ optimize.seqTrack <- function(nstep, seq.names, seq.dates, W, thres, optim=c("mi
 
     ## DEFAULT CASE: NO MISSING DATES
     if(!any(isMissDate)){
-        ## >> one step of 'step.size simulations', all with same prior << ##
         ## dates initialisation, taken from initial prior
         newDates <- sapply(1:N, function(i)
                            .rTimeSeq(n=step.size, mu0=mu0[i], L=seq.length[i], maxNbDays=RANGE.DATES))
         newDates <- t(newDates)*24*3600 + seq.dates
 
+        ## >> one step of 'step.size simulations', all with same prior << ##
         for(i in 1:nstep){
             ## >> each step contains 'step.size' iterations << ##
             for(j in 1:step.size){
