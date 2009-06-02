@@ -388,8 +388,9 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## 2) VECTORIZE mu0 and seq.length, recycle if needed with a warning
 ## 3) uncomment, adapt, and test code for missing data
 ##
-optimize.seqTrack <- function(nstep=10, seq.names, seq.dates, W, thres=NULL, optim=c("min","max"),
-                              prox.mat=NULL, mu0, seq.length, step.size=1e3,
+optimize.seqTrack <- function(nstep=10, step.size=1e3,
+                              seq.names, seq.dates, W, thres=NULL, optim=c("min","max"),
+                              prox.mat=NULL, mu0, seq.length,
                               rMissDate=.rUnifTimeSeq, ...){
 
     ## CHECKS ##
@@ -513,7 +514,7 @@ optimize.seqTrack <- function(nstep=10, seq.names, seq.dates, W, thres=NULL, opt
 
                 ## new dates
                 newDates <- apply(date, 1, function(vec)
-                                  sample(vec, size=step.size, replace=TRUE, prob=w)
+                                  sample(vec, size=step.size, replace=TRUE, prob=w))
                 newDates <- t(newDates)
 
                 ## re-initialize posterior distributions
