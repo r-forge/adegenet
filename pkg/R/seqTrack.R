@@ -347,6 +347,9 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ##############
 ## .pAbeforeB
 ##############
+##
+## TODO: replace mu0 and L by muA, muB, LA, LB
+##
 .pAbeforeB <- function(dateA, dateB, mu0, L, maxNbDays=100){
     temp <- .dTimeSeq(mu0, L, maxNbDays)
     days <- temp[[1]]
@@ -379,6 +382,12 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 #####################
 ## optimize.seqTrack
 #####################
+##
+## TODO:
+## 1) Change the output to retain xxx simulations
+## 2) VECTORIZE mu0 and seq.length, recycle if needed with a warning
+## 3) uncomment, adapt, and test code for missing data
+##
 optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, thres, optim=c("min","max"),
                               proxMat=NULL, mu0, seq.length, rMissDate=.rUnifTimeSeq, ...){
 
@@ -522,6 +531,16 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, thres, optim=c("min
 seqTrack.ml <- function(aln, seq.dates, optim=c("min","max"), ...){
 
 } # end seqTrack.ml
+
+
+
+
+
+
+
+
+
+
 
 
 
