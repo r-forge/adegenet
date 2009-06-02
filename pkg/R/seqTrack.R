@@ -384,12 +384,13 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 #####################
 ##
 ## TODO:
-## 1) Change the output to retain xxx simulations
+## 1) Change the output to retain xxx simulations | ok.
 ## 2) VECTORIZE mu0 and seq.length, recycle if needed with a warning
 ## 3) uncomment, adapt, and test code for missing data
 ##
-optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, thres, optim=c("min","max"),
-                              proxMat=NULL, mu0, seq.length, rMissDate=.rUnifTimeSeq, ...){
+optimize.seqTrack <- function(nstep, seq.names, seq.dates, W, thres, optim=c("min","max"),
+                              prox.mat=NULL, mu0, seq.length, step.size=1000,
+                              rMissDate=.rUnifTimeSeq, ...){
 
     ## CHECKS ##
     optim <- match.arg(optim)
@@ -415,13 +416,20 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, thres, optim=c("min
 
     N <- length(seq.names)
     id <- 1:N
+    if(length(mu0) < N) { # recycle mu0
+        mu0 <- rep(mu0, length=N)
+    }
+    if(length(seq.length) < N) {# recycle seq.length
+        seq.length <- rep(seq.length, length=N)
+    }
+
 
     seq.dates <- as.POSIXct(round.POSIXt(seq.dates,units="days")) # round dates to the day
 
     W <- as.matrix(W)
 
-    if(!is.null(proxMat) && !identical(dim(proxMat),dim(W))) {
-        stop("proxMat is provided but its dimensions are inconsistent with that of W")
+    if(!is.null(prox.mat) && !identical(dim(prox.mat),dim(W))) {
+        stop("prox.mat is provided but its dimensions are inconsistent with that of W")
     }
 
     ## rename dimensions using id
@@ -461,18 +469,36 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, thres, optim=c("min
 
     ## DEFAULT CASE: NO MISSING DATES
     if(!any(isMissDate)){
-        for(i in 1:nsim){
-            myDates <- seq.dates +
-                .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=RANGE.DATES)*24*3600
-            myDates <- as.POSIXct(round(myDates, units="days"))
-            res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W, optim=optim, proxMat=proxMat, ...)
-            temp <- val.res(res.new)
-            if(ifelse(optim=="min", temp < thres, temp > thres)){
-                ances <- cbind(ances, res.new$ances)
-                date <- cbind(date, as.character(res.new$date))
-                ances.date <- cbind(ances.date, as.character(res.new$ances.date))
-                valRes <- c(valRes, temp)
+        ## >> one step of 'step.size simulations', all with same prior << ##
+        ## dates initialisation, taken from initial prior
+        newDates <- sapply(1:N, function(i)
+                           .rTimeSeq(n=step.size, mu0=mu0[i], L=seq.length[i], maxNbDays=RANGE.DATES))
+        newDates <- t(newDates)*24*3600 + seq.dates
+
+        for(i in 1:nstep){
+            ## >> each step contains 'step.size' iterations << ##
+            for(j in 1:step.size){
+                myDates <- as.POSIXct(round(newDates[,j], units="days"))
+
+                res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W,
+                                    optim=optim, prox.mat=prox.mat, ...)
+                temp <- val.res(res.new)
+                if(ifelse(optim=="min", temp < thres, temp > thres)){
+                    ances <- cbind(ances, res.new$ances)
+                    date <- cbind(date, as.character(res.new$date))
+                    ances.date <- cbind(ances.date, as.character(res.new$ances.date))
+                    valRes <- c(valRes, temp)
+                }
+            } # end for j
+
+            ## dates: new prior taken from obtained posterior
+            if(optim=="min"){ # define weights for further samplings
+                w <- max(valRes) - valRes
+            } else {
+                w <- valRes
             }
+            newDates <- apply(date, 1, sample, size=step.size, replace=TRUE, prob=w)
+            newDates <- t(newDates)
         }
     }
 
@@ -497,7 +523,7 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, thres, optim=c("min
     ##         argList$n <- sum(isMissDate)
 
     ##         ## Make simulations ##
-    ##         for(i in 1:nsim){
+    ##         for(i in 1:nstep){
     ##             myDates <- seq.dates
     ##             ## distribution for available dates
     ##             myDates[!isMissDate] <- myDates[!isMissDate] +
@@ -505,7 +531,7 @@ optimize.seqTrack <- function(nsim, seq.names, seq.dates, W, thres, optim=c("min
     ##             ## distribution for missing dates
     ##             myDates[isMissDate] <- do.call(rMissDate, argList)
 
-    ##             res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W, optim=optim, proxMat=proxMat, ...)
+    ##             res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W, optim=optim, prox.mat=prox.mat, ...)
 
     ##             valRes[i] <- sum(res.new$weight,na.rm=TRUE)
     ##             if(use.new.res(res.best, res.new)){
