@@ -13,7 +13,7 @@ simuFlu <- function(seq.length=100, mu=0.0035,
 
     ## GENERAL VARIABLES ##
     NUCL <- c("a","t","c","g")
-    res <- list(seq=list(), date=integer(), ances=integer())
+    res <- list(seq=list(), dates=integer(), ances=integer())
     toExpand <- logical()
 
 
@@ -65,7 +65,7 @@ simuFlu <- function(seq.length=100, mu=0.0035,
         toExpand[idx] <<- FALSE # this one is no longer to expand
         nbDes <- nb.dupli()
         if(nbDes==0) return(NULL) # stop if no descendant
-        newDates <- date.dupli(date) # find dates for descendants
+        newDates <- sapply(1:nbDes, function(i) date.dupli(date)) # find dates for descendants
         newDates <- newDates[newDates <= Tmax] # don't store future sequences
         nbDes <- length(newDates)
         if(nbDes==0) return(NULL) # stop if no suitable date
@@ -74,6 +74,7 @@ simuFlu <- function(seq.length=100, mu=0.0035,
         res$dates <<- c(res$dates, newDates) # append to general output
         res$ances <<- c(res$ances, rep(idx, nbDes)) # append to general output
         toExpand <<- c(toExpand, rep(TRUE, nbDes))
+        return(NULL)
     }
 
 
@@ -87,8 +88,8 @@ simuFlu <- function(seq.length=100, mu=0.0035,
 
     ## simulations: isn't simplicity beautiful?
     while(any(toExpand)){
-        idx <- which.min(toExpand)
-        expand.one.strain(seq[[idx]], date[idx], idx)
+        idx <- min(which(toExpand))
+        expand.one.strain(res$seq[[idx]], res$dates[idx], idx)
     }
 
     return(res)
