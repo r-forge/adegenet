@@ -7,13 +7,13 @@
 ## mean.t.dupli, sd.t.dupli: average time for transmission and its standard deviation (normal dist)
 ## mean.nb.dupli, sd.nb.dupli: average number of transmissions and its standard deviation (normal dist)
 ##
-simuFlu <- function(N=100, seq.length=100, mu=0.0035,
+simuFlu <- function(seq.length=100, mu=0.0035,
                     Tmax=20, mean.t.dupli=8, sd.t.dupli=2,
                     mean.nb.dupli=3, sd.nb.dupli=1){
 
     ## GENERAL VARIABLES ##
     NUCL <- c("a","t","c","g")
-    res <- list(seq=list(),date=integer())
+    res <- list(seq=list(), date=integer(), ances=integer())
     toExpand <- logical()
 
 
@@ -72,6 +72,7 @@ simuFlu <- function(N=100, seq.length=100, mu=0.0035,
         newSeq <- lapply(1:nbDes, function(i) seq.dupli(seq)) # generate new sequences
         res$seq <<- c(res$seq, newSeq) # append to general output
         res$dates <<- c(res$dates, newDates) # append to general output
+        res$ances <<- c(res$ances, rep(idx, nbDes)) # append to general output
         toExpand <<- c(toExpand, rep(TRUE, nbDes))
     }
 
@@ -81,8 +82,10 @@ simuFlu <- function(N=100, seq.length=100, mu=0.0035,
     ## initialization
     res$seq[[1]] <- gen.seq()
     res$dates[1] <- 0
+    res$ances[1] <- NA
     toExpand <- TRUE
 
+    ## simulations: isn't simplicity beautiful?
     while(any(toExpand)){
         idx <- which.min(toExpand)
         expand.one.strain(seq[[idx]], date[idx], idx)
