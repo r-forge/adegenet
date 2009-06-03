@@ -499,12 +499,9 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
             } # end for j
 
             ## retain a given % (thres) of the dates ##
-            toKeep <- valRes < quantile(valRes, thres) ## NOT WORKING FOR optim==max !!!
+            toKeep <- valRes <= quantile(valRes, thres) ## NOT WORKING FOR optim==max !!!
 
             date <- date[,toKeep,drop=FALSE] # retained posterior
-            newDates <- apply(date, 1, function(vec)
-                              sample(vec, size=step.size, replace=TRUE)) # new prior
-            newDates <- t(newDates)
 
             ## DEBUGING ##
             cat("\ntoKeep:\n")
@@ -513,6 +510,9 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
             print(head(date))
             ## END DEBUGING ##
 
+            newDates <- apply(date, 1, function(vec)
+                              sample(vec, size=step.size, replace=TRUE)) # new prior
+            newDates <- t(newDates)
 
             ## re-initialize posterior distributions
             if(i<nstep){
@@ -585,10 +585,14 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
 
     ## reconstruct the result with new dates
     res <- lapply(1:ncol(date), function(i)
-                   seqTrack(seq.names=seq.names, seq.dates=date[,i], W=W,
+                   seqTrack(seq.names=seq.names, seq.dates=as.POSIXct(date[,i]), W=W,
                                     optim=optim, prox.mat=prox.mat, ...))
     ances <- data.frame(lapply(res, function(e) e$ances))
+    ances <- matrix(as.integer(unlist(ances)), nrow=nrow(ances))
+
     ances.date <- data.frame(lapply(res, function(e) e$ances.date))
+    ances.date <- matrix(as.character(unlist(ances.date)), nrow=nrow(ances.date))
+
 
     res <- list(ances=ances, date=date, ances.date=ances.date, valsim=valRes)
     return(res)
@@ -598,6 +602,19 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
 
 
 
+
+
+
+
+
+
+#################
+## get.consensus
+#################
+get.consensus <- function(listres){
+
+    return(res)
+}
 
 
 
