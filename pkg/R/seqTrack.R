@@ -389,7 +389,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## 3) uncomment, adapt, and test code for missing data
 ##
 optimize.seqTrack <- function(nstep=10, step.size=1e3,
-                              seq.names, seq.dates, W, thres=NULL, optim=c("min","max"),
+                              seq.names, seq.dates, W, thres=0.1, optim=c("min","max"),
                               prox.mat=NULL, mu0, seq.length,
                               rMissDate=.rUnifTimeSeq, ...){
 
@@ -441,11 +441,11 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
     }
 
 
-    ## SET THRESHOLD IF NEEDED ##
-    if(is.null(thres)){
-        thres <- sum(seqTrack(seq.names=seq.names, seq.dates=seq.dates, W=W,
-                                    optim=optim, prox.mat=prox.mat, ...)$weight, na.rm=TRUE)
-    }
+    ## SET THRESHOLD IF NEEDED ## ## NO LONGER USED
+    ##  if(is.null(thres)){
+    ##         thres <- sum(seqTrack(seq.names=seq.names, seq.dates=seq.dates, W=W,
+    ##                                     optim=optim, prox.mat=prox.mat, ...)$weight, na.rm=TRUE)
+    ##     }
 
 
     ## AUXILIARY FUNCTIONS ##
@@ -490,55 +490,59 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
 
                 res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W,
                                     optim=optim, prox.mat=prox.mat, ...)
-                temp <- val.res(res.new)
-                if(ifelse(optim=="min", temp < thres, temp > thres)){
-                    ances <- cbind(ances, res.new$ances)
-                    date <- cbind(date, as.character(res.new$date))
-                    ances.date <- cbind(ances.date, as.character(res.new$ances.date))
-                    valRes <- c(valRes, temp)
-                }
+
+                ##ances <- cbind(ances, res.new$ances) # not needed now
+                date <- cbind(date, as.character(res.new$date))
+                ##ances.date <- cbind(ances.date, as.character(res.new$ances.date)) # not needed now
+                valRes <- c(valRes, val.res(res.new))
+                ##}
             } # end for j
 
-            ## dates: new prior taken from obtained posterior
-            if(length(valRes)==0) { # if no simul are retained
-                warning(paste("No simulation was retained at the given threshold at step",i))
-            } else {
-                ##  if(optim=="min"){ # define weights for further samplings
-                ##                     w <- max(valRes,na.rm=TRUE) - valRes
-                ##                     w <- w/sum(w)
-                ##                 } else {
-                ##                     w <- valRes
-                ##                     w <- w/sum(w)
-                ##                 }
+            ## retain thres% of the dates ##
+            toKeep <- valRes < quantile(valRes, thres) ## NOT WORKING FOR optim==max !!!
+            date <- date[toKeep]
+            newDates <- apply(date, 1, function(vec)
+                              sample(vec, size=step.size, replace=TRUE))
+            newDates <- t(newDates)
+
+            ## re-initialize posterior distributions
+            if(i<nstep){
+                ances <- integer(0)
+                date <- character(0)
+                ances.date <- character(0)
+                valRes <- numeric(0)
+            } # end if
+        } # end for i
+
+        ##  ## dates: new prior taken from obtained posterior
+        ##             if(length(valRes)==0) { # if no simul are retained
+        ##                 warning(paste("No simulation was retained at the given threshold at step",i))
+        ##             } else {
+        ##  if(optim=="min"){ # define weights for further samplings
+        ##                     w <- max(valRes,na.rm=TRUE) - valRes
+        ##                     w <- w/sum(w)
+        ##                 } else {
+        ##                     w <- valRes
+        ##                     w <- w/sum(w)
+        ##                 }
 
 
-                ## new dates
-                ## DEBUGING ##
-                temp <- apply(date,1,function(vec) length(unique(vec)))
-                cat("\n i =", i, "j =", j, "Number of dates per sequence:\n")
-                print(temp)
-                cat("\nHead of date:\n")
-                print(head(date))
-                ## cat("\nProba vector:\n")
-                ## print(w)
-                ## END DEBUGING ##
+        ## new dates
+        ## DEBUGING ##
+        ## temp <- apply(date,1,function(vec) length(unique(vec)))
+        ##                 cat("\n i =", i, "j =", j, "Number of dates per sequence:\n")
+        ##                 print(temp)
+        ##                 cat("\nHead of date:\n")
+        ##                 print(head(date))
+        ## cat("\nProba vector:\n")
+        ## print(w)
+        ## END DEBUGING ##
 
-                ## newDates <- apply(date, 1, function(vec) #  used a weighted sampling
-                ##                                  sample(vec, size=step.size, replace=TRUE, prob=w))
-                newDates <- apply(date, 1, function(vec)
-                                  sample(vec, size=step.size, replace=TRUE))
-                newDates <- t(newDates)
+        ## newDates <- apply(date, 1, function(vec) #  used a weighted sampling
+        ##                                  sample(vec, size=step.size, replace=TRUE, prob=w))
 
-                ## re-initialize posterior distributions
-                if(i<nstep){
-                    ances <- integer(0)
-                    date <- character(0)
-                    ances.date <- character(0)
-                    valRes <- numeric(0)
-                }
-            }
-        }
-    }
+
+    } # end if(!any(isMissDate))
 
 
     ##  ## OTHER CASE: HANDLE MISSING DATES
