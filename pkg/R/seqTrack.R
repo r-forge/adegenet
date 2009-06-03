@@ -503,18 +503,30 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
             if(length(valRes)==0) { # if no simul are retained
                 warning(paste("No simulation was retained at the given threshold at step",i))
             } else {
-                if(optim=="min"){ # define weights for further samplings
-                    w <- max(valRes,na.rm=TRUE) - valRes
-                    w <- w/sum(w)
-                } else {
-                    w <- valRes
-                    w <- w/sum(w)
-                }
+                ##  if(optim=="min"){ # define weights for further samplings
+                ##                     w <- max(valRes,na.rm=TRUE) - valRes
+                ##                     w <- w/sum(w)
+                ##                 } else {
+                ##                     w <- valRes
+                ##                     w <- w/sum(w)
+                ##                 }
 
 
                 ## new dates
+                ## DEBUGING ##
+                temp <- apply(date,1,function(vec) length(unique(vec)))
+                cat("\n i =", i, "j =", j, "Number of dates per sequence:\n")
+                print(temp)
+                cat("\nHead of date:\n")
+                print(head(date))
+                ## cat("\nProba vector:\n")
+                ## print(w)
+                ## END DEBUGING ##
+
+                ## newDates <- apply(date, 1, function(vec) #  used a weighted sampling
+                ##                                  sample(vec, size=step.size, replace=TRUE, prob=w))
                 newDates <- apply(date, 1, function(vec)
-                                  sample(vec, size=step.size, replace=TRUE, prob=w))
+                                  sample(vec, size=step.size, replace=TRUE))
                 newDates <- t(newDates)
 
                 ## re-initialize posterior distributions
