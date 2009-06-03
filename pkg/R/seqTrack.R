@@ -389,7 +389,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## 3) uncomment, adapt, and test code for missing data
 ##
 optimize.seqTrack <- function(nstep=10, step.size=1e3,
-                              seq.names, seq.dates, W, thres=0.1, optim=c("min","max"),
+                              seq.names, seq.dates, W, thres=0.2, optim=c("min","max"),
                               prox.mat=NULL, mu0, seq.length,
                               rMissDate=.rUnifTimeSeq, ...){
 
@@ -498,12 +498,21 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
                 ##}
             } # end for j
 
-            ## retain thres% of the dates ##
+            ## retain a given % (thres) of the dates ##
             toKeep <- valRes < quantile(valRes, thres) ## NOT WORKING FOR optim==max !!!
-            date <- date[,toKeep] # retained posterior
+
+            date <- date[,toKeep,drop=FALSE] # retained posterior
             newDates <- apply(date, 1, function(vec)
                               sample(vec, size=step.size, replace=TRUE)) # new prior
             newDates <- t(newDates)
+
+            ## DEBUGING ##
+            cat("\ntoKeep:\n")
+            print(toKeep)
+            cat("\nhead date (posterior):\n")
+            print(head(date))
+            ## END DEBUGING ##
+
 
             ## re-initialize posterior distributions
             if(i<nstep){
@@ -512,6 +521,7 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
                 ## ances.date <- character(0) # not needed now
                 valRes <- numeric(0)
             } # end if
+
         } # end for i
 
         ##  ## dates: new prior taken from obtained posterior
@@ -529,16 +539,6 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
         ## newDates <- apply(date, 1, function(vec) #  used a weighted sampling
         ##                                  sample(vec, size=step.size, replace=TRUE, prob=w))
 
-
-        ## DEBUGING ##
-        ## temp <- apply(date,1,function(vec) length(unique(vec)))
-        ##                 cat("\n i =", i, "j =", j, "Number of dates per sequence:\n")
-        ##                 print(temp)
-        ##                 cat("\nHead of date:\n")
-        ##                 print(head(date))
-        ## cat("\nProba vector:\n")
-        ## print(w)
-        ## END DEBUGING ##
 
     } # end if(!any(isMissDate))
 
