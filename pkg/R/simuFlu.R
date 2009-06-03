@@ -3,13 +3,13 @@
 ###########
 ##
 ## N: number of sequences to simulate
-## Tmax: periode of time to simulate
-## mean.t.dupli, sd.t.dupli: average time for transmission and its standard deviation (normal dist)
-## mean.nb.dupli, sd.nb.dupli: average number of transmissions and its standard deviation (normal dist)
+## Tmax: periode of time to simulatet
+## mean.gen.time, sd.gen.time: average time for transmission and its standard deviation (normal dist)
+## mean.repro, sd.repro: average number of transmissions and its standard deviation (normal dist)
 ##
-simuFlu <- function(seq.length=100, mu=0.0035,
-                    Tmax=20, mean.t.dupli=8, sd.t.dupli=2,
-                    mean.nb.dupli=3, sd.nb.dupli=1){
+simuFlu <- function(seq.length=1500, mu=0.0035,
+                    Tmax=30, mean.gen.time=2.5, sd.gen.time=0.5,
+                    mean.repro=1.5, sd.repro=1){
 
     ## GENERAL VARIABLES ##
     NUCL <- c("a","t","c","g")
@@ -41,7 +41,7 @@ simuFlu <- function(seq.length=100, mu=0.0035,
 
     ## how many days before duplication occurs ?
     time.dupli <- function(){
-        res <- round(rnorm(1, mean=mean.t.dupli, sd=sd.t.dupli))
+        res <- round(rnorm(1, mean=mean.gen.time, sd=sd.gen.time))
         res[res<0] <- 0
         return(res)
     }
@@ -53,8 +53,8 @@ simuFlu <- function(seq.length=100, mu=0.0035,
     }
 
     ## how many duplication/transmission occur?
-    nb.dupli <- function(){
-        res <- round(rnorm(1, mean=mean.nb.dupli, sd=sd.nb.dupli))
+    nb.desc <- function(){
+        res <- round(rnorm(1, mean=mean.repro, sd=sd.repro))
         res[res<0] <- 0
         return(res)
     }
@@ -63,7 +63,7 @@ simuFlu <- function(seq.length=100, mu=0.0035,
     ## MAIN SUB-FUNCTION: EXPANDING FROM ONE SEQUENCE ##
     expand.one.strain <- function(seq, date, idx){
         toExpand[idx] <<- FALSE # this one is no longer to expand
-        nbDes <- nb.dupli()
+        nbDes <- nb.desc()
         if(nbDes==0) return(NULL) # stop if no descendant
         newDates <- sapply(1:nbDes, function(i) date.dupli(date)) # find dates for descendants
         newDates <- newDates[newDates <= Tmax] # don't store future sequences
@@ -92,6 +92,8 @@ simuFlu <- function(seq.length=100, mu=0.0035,
         expand.one.strain(res$seq[[idx]], res$dates[idx], idx)
     }
 
+
+    ## RETURN OUTPUT ##
     return(res)
 
 } # end simuFlu
