@@ -500,16 +500,16 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
 
             ## retain thres% of the dates ##
             toKeep <- valRes < quantile(valRes, thres) ## NOT WORKING FOR optim==max !!!
-            date <- date[toKeep]
+            date <- date[,toKeep] # retained posterior
             newDates <- apply(date, 1, function(vec)
-                              sample(vec, size=step.size, replace=TRUE))
+                              sample(vec, size=step.size, replace=TRUE)) # new prior
             newDates <- t(newDates)
 
             ## re-initialize posterior distributions
             if(i<nstep){
-                ances <- integer(0)
+                ## ances <- integer(0) # not needed now
                 date <- character(0)
-                ances.date <- character(0)
+                ## ances.date <- character(0) # not needed now
                 valRes <- numeric(0)
             } # end if
         } # end for i
@@ -526,8 +526,10 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
         ##                     w <- w/sum(w)
         ##                 }
 
+        ## newDates <- apply(date, 1, function(vec) #  used a weighted sampling
+        ##                                  sample(vec, size=step.size, replace=TRUE, prob=w))
 
-        ## new dates
+
         ## DEBUGING ##
         ## temp <- apply(date,1,function(vec) length(unique(vec)))
         ##                 cat("\n i =", i, "j =", j, "Number of dates per sequence:\n")
@@ -537,10 +539,6 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
         ## cat("\nProba vector:\n")
         ## print(w)
         ## END DEBUGING ##
-
-        ## newDates <- apply(date, 1, function(vec) #  used a weighted sampling
-        ##                                  sample(vec, size=step.size, replace=TRUE, prob=w))
-
 
     } # end if(!any(isMissDate))
 
@@ -584,6 +582,14 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
 
 
     ## RESULT ##
+
+    ## reconstruct the result with new dates
+    res <- lapply(1:ncol(date), function(i)
+                   seqTrack(seq.names=seq.names, seq.dates=date[,i], W=W,
+                                    optim=optim, prox.mat=prox.mat, ...))
+    ances <- data.frame(lapply(res, function(e) e$ances))
+    ances.date <- data.frame(lapply(res, function(e) e$ances.date))
+
     res <- list(ances=ances, date=date, ances.date=ances.date, valsim=valRes)
     return(res)
 
