@@ -9,7 +9,7 @@
 ## mean.repro, sd.repro: average number of transmissions and its standard deviation (normal dist)
 ##
 haploSim <- function(seq.length=1000, mu=0.0001,
-                    Tmax=30, mean.gen.time=5, sd.gen.time=1,
+                    Tmax=50, mean.gen.time=5, sd.gen.time=1,
                     mean.repro=2, sd.repro=1,
                     max.nb.haplo=1e4){
 
@@ -130,7 +130,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     ## SHAPE AND RETURN OUTPUT ##
     ## shift ances as characters to indices in others slots
     res$ances <- match(res$ances, rownames(res$seq))
-    if(any(is.na(res$ances))){
+    if(sum(is.na(res$ances))>1){ # there is always one trivial NA for the root
         warning("NA introduced when converting ances to indices, likely indicating a bug")
     }
 
@@ -153,14 +153,22 @@ print.haploSim <- function(x, ...){
     cat("\t\n= simulated haplotypes =")
     cat("\t\n=  (haploSim object)   =")
     cat("\t\n========================\n")
-    cat("\nsize :", length(x$ances))
+
+    cat("\nSize :", length(x$ances),"haplotypes")
+    cat("\nHaplotype length :", ncol(x$seq),"nucleotids")
+    cat("\nProportion of NA ancestors :", round(mean(is.na(x$ances)),5), "\n")
+
+
+    cat("\n= Content =")
     for(i in 1:length(x)){
-        cat(names(x)[i],":\n")
-        if(names(x)[i]=="seq") {
-        } else print(head(x[[i]]))
+        cat("\n")
+
+        cat(paste("$", names(x)[i], sep=""),"\n")
+        if(names(x)[i]!="seq") {
+            print(head(x[[i]]))
+        } else print(x[[i]])
     }
 
-    cat("\nPercentage of NA ancestors", sum(is.na(x$ances)))
 
     return(NULL)
 }
