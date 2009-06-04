@@ -19,7 +19,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
 
     ## GENERAL VARIABLES ##
     NUCL <- as.DNAbin(c("a","t","c","g"))
-    res <- list(seq=as.matrix(as.DNAbin(character(0))), dates=integer(), ances=integer())
+    res <- list(seq=as.matrix(as.DNAbin(character(0))), dates=integer(), ances=character())
     toExpand <- logical()
     mu <- mu/365 # mutation rate by day
 
@@ -48,7 +48,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
 
     ## what is the name of the new sequences?
     seqname.gen <- function(nb.new.seq){
-        res <- as.integer(rownames(res$seq)) + 1:nb.new.seq
+        res <- max(as.integer(rownames(res$seq)), 0) + 1:nb.new.seq
         return(as.character(res))
     }
 
@@ -81,7 +81,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         res$seq <<- res$res[toKeep,]
         res$date <<- res$date[toKeep]
         res$ances <<- res$ances[toKeep]
-        res$ances[res$ances %in% removed.strains] <- NA
+        res$ances[as.character(res$ances) %in% removed.strains] <- NA
 
         return(NULL)
     }
@@ -97,11 +97,11 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         nbDes <- length(newDates)
         if(nbDes==0) return(NULL) # stop if no suitable date
         newSeq <- lapply(1:nbDes, function(i) seq.dupli(seq)) # generate new sequences
-        newSeq <- Reduce(rbind, newSeq) # list DNAbin -> matrix with nbDes rows
+        newSeq <- Reduce(rbind, newSeq) # list DNAbin -> matrix DNAbin with nbDes rows
         rownames(newSeq) <- seqname.gen(nbDes) # find new labels for these new sequences
         res$seq <<- rbind(res$seq, newSeq) # append to general output
         res$dates <<- c(res$dates, newDates) # append to general output
-        res$ances <<- c(res$ances, rep(idx, nbDes)) # append to general output
+        res$ances <<- c(res$ances, rep(rownames(res$seq)[idx], nbDes)) # append to general output
         toExpand <<- c(toExpand, rep(TRUE, nbDes))
         return(NULL)
     }
@@ -110,7 +110,8 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     ## PERFORM SIMULATIONS ##
 
     ## initialization
-    res$seq[[1]] <- gen.seq()
+    res$seq <- as.matrix(gen.seq())
+    rownames(res$seq) <- "1"
     res$dates[1] <- 0
     res$ances[1] <- NA
     toExpand <- TRUE
@@ -118,12 +119,18 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     ## simulations: isn't simplicity beautiful?
     while(any(toExpand)){
         idx <- min(which(toExpand))
-        expand.one.strain(res$seq[[idx]], res$dates[idx], idx)
+        expand.one.strain(res$seq[idx,], res$dates[idx], idx)
         resize.result()
     }
 
 
     ## SHAPE AND RETURN OUTPUT ##
+    ## shift ances as characters to indices in others slots
+    res$ances <- match(res$ances, rownames(res$seq))
+    if(any(is.na(res$ances))){
+        warning("NA introduced when converting ances to indices, likely indicating a bug")
+    }
+
     class(res) <- "haploSim"
     return(res)
 
