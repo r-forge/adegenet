@@ -1,21 +1,23 @@
-###########
-## simuFlu
-###########
+############
+## haploSim
+############
 ##
 ## N: number of sequences to simulate
+## mu: mutation rate per nucleotid per year
 ## Tmax: periode of time to simulatet
 ## mean.gen.time, sd.gen.time: average time for transmission and its standard deviation (normal dist)
 ## mean.repro, sd.repro: average number of transmissions and its standard deviation (normal dist)
 ##
-simuFlu <- function(seq.length=1500, mu=0.0035,
+haploSim <- function(seq.length=1500, mu=0.0035,
                     Tmax=30, mean.gen.time=2.5, sd.gen.time=0.5,
-                    mean.repro=1.5, sd.repro=1){
+                    mean.repro=1.5, sd.repro=1,
+                    max.nb.strain=1e4){
 
     ## GENERAL VARIABLES ##
     NUCL <- c("a","t","c","g")
     res <- list(seq=list(), dates=integer(), ances=integer())
     toExpand <- logical()
-
+    mu <- mu/365 # mutation rate by day
 
     ## AUXILIARY FUNCTIONS ##
     ## generate sequence from scratch
@@ -59,6 +61,12 @@ simuFlu <- function(seq.length=1500, mu=0.0035,
         return(res)
     }
 
+    ## check result size and bound it
+    resize.result <- function(){
+        if(length(res$date) < max.nb.strain) return(NULL)
+
+    }
+
 
     ## MAIN SUB-FUNCTION: EXPANDING FROM ONE SEQUENCE ##
     expand.one.strain <- function(seq, date, idx){
@@ -96,4 +104,4 @@ simuFlu <- function(seq.length=1500, mu=0.0035,
     ## RETURN OUTPUT ##
     return(res)
 
-} # end simuFlu
+} # end haploSim
