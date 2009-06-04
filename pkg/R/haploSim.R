@@ -11,7 +11,7 @@
 haploSim <- function(seq.length=1000, mu=0.0001,
                     Tmax=50, mean.gen.time=5, sd.gen.time=1,
                     mean.repro=2, sd.repro=1,
-                    max.nb.haplo=1e4){
+                    max.nb.haplo=1e3){
 
     ## CHECKS ##
     if(!require(ape)) stop("The ape package is required.")
@@ -134,10 +134,10 @@ haploSim <- function(seq.length=1000, mu=0.0001,
 
     ## SHAPE AND RETURN OUTPUT ##
     ## shift ances as characters to indices in others slots
-    cat("\nres$ances\n")
-    print(res$ances)
-    cat("\nres$seq names\n")
-    print(rownames(res$seq))
+    ##     cat("\nres$ances\n")
+    ##     print(res$ances)
+    ##     cat("\nres$seq names\n")
+    ##     print(rownames(res$seq))
 
     nbAncesNAOk <- sum(is.na(res$ances))
     res$ances <- match(res$ances, rownames(res$seq))
