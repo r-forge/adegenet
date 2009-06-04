@@ -76,14 +76,19 @@ haploSim <- function(seq.length=1000, mu=0.0001,
 
     ## check result size and resize it if needed
     resize.result <- function(){
-        curSize <- length(res$date)
-        if(curSize < max.nb.haplo) return(NULL)
-        toKeep <- sample(1:curSize, size=max.nb.haplo, replace=FALSE)
+        curSize <- length(res$dates)
+        if(curSize <= max.nb.haplo) return(NULL)
+        toKeep <- rep(FALSE, curSize)
+        toKeep[sample(1:curSize, size=max.nb.haplo, replace=FALSE)] <- TRUE
         removed.strains <- rownames(res$seq)[!toKeep]
         res$seq <<- res$seq[toKeep,]
-        res$date <<- res$date[toKeep]
+        res$dates <<- res$dates[toKeep]
         res$ances <<- res$ances[toKeep]
-        res$ances[as.character(res$ances) %in% removed.strains] <- NA
+        toExpand <<- toExpand[toKeep]
+        temp <- as.character(res$ances) %in% removed.strains
+        if(any(temp)) {
+            res$ances[temp] <<- NA
+        }
 
         return(NULL)
     }
@@ -129,8 +134,14 @@ haploSim <- function(seq.length=1000, mu=0.0001,
 
     ## SHAPE AND RETURN OUTPUT ##
     ## shift ances as characters to indices in others slots
+    cat("\nres$ances\n")
+    print(res$ances)
+    cat("\nres$seq names\n")
+    print(rownames(res$seq))
+
+    nbAncesNAOk <- sum(is.na(res$ances))
     res$ances <- match(res$ances, rownames(res$seq))
-    if(sum(is.na(res$ances))>1){ # there is always one trivial NA for the root
+    if(sum(is.na(res$ances))> nbAncesNAOk){ # in case non-NA ancestors are not in res$seq
         warning("NA introduced when converting ances to indices, likely indicating a bug")
     }
 
@@ -165,7 +176,7 @@ print.haploSim <- function(x, ...){
 
         cat(paste("$", names(x)[i], sep=""),"\n")
         if(names(x)[i]!="seq") {
-            cat(head(x[[i]],10), "...\n")
+            cat(head(x[[i]],10), ifelse(length(x[[i]])>10,"...",""),"\n")
         } else print(x[[i]])
     }
 
