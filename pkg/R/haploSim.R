@@ -234,7 +234,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         res$dates[1] <- 0
         res$ances[1] <- NA
         res$xy <- matrix(xy.gen(), nrow=1)
-        colnames(res$xy) <- xy
+        colnames(res$xy) <- c("x","y")
         toExpand <- TRUE
 
         ## simulations: isn't simplicity beautiful?
@@ -287,9 +287,12 @@ print.haploSim <- function(x, ...){
         cat("\n")
 
         cat(paste("$", names(x)[i], sep=""),"\n")
-        if(names(x)[i]!="seq") {
-            cat(head(x[[i]],10), ifelse(length(x[[i]])>10,"...",""),"\n")
-        } else print(x[[i]])
+        if(names(x)[i]=="seq") {
+            print(x[[i]])
+        } else if(names(x)[i]=="xy"){
+            print(head(x[[i]]))
+            if(nrow(x[[i]]>6)) cat("    ...\n")
+        } else cat(head(x[[i]],6), ifelse(length(x[[i]])>6,"...",""),"\n")
     }
 
 
