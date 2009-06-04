@@ -26,7 +26,9 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     ## AUXILIARY FUNCTIONS ##
     ## generate sequence from scratch
     gen.seq <- function(){
-        return(sample(NUCL, size=seq.length, replace=TRUE))
+        res <- list(sample(NUCL, size=seq.length, replace=TRUE))
+        class(res) <- "DNAbin"
+        return(res)
     }
 
     ## create substitutions for defined SNPs
@@ -97,7 +99,8 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         nbDes <- length(newDates)
         if(nbDes==0) return(NULL) # stop if no suitable date
         newSeq <- lapply(1:nbDes, function(i) seq.dupli(seq)) # generate new sequences
-        newSeq <- Reduce(rbind, newSeq) # list DNAbin -> matrix DNAbin with nbDes rows
+        class(newSeq) <- "DNAbin" # lists of DNAbin vectors must also have class "DNAbin"
+        newSeq <- as.matrix(newSeq) # list DNAbin -> matrix DNAbin with nbDes rows
         rownames(newSeq) <- seqname.gen(nbDes) # find new labels for these new sequences
         res$seq <<- rbind(res$seq, newSeq) # append to general output
         res$dates <<- c(res$dates, newDates) # append to general output
