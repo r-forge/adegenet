@@ -13,9 +13,13 @@ haploSim <- function(seq.length=1000, mu=0.0001,
                     mean.repro=2, sd.repro=1,
                     max.nb.haplo=1e4){
 
+    ## CHECKS ##
+    if(!require(ape)) stop("The ape package is required.")
+
+
     ## GENERAL VARIABLES ##
-    NUCL <- c("a","t","c","g")
-    res <- list(seq=list(), dates=integer(), ances=integer())
+    NUCL <- as.DNAbin(c("a","t","c","g"))
+    res <- list(seq=as.matrix(as.DNAbin(character(0))), dates=integer(), ances=integer())
     toExpand <- logical()
     mu <- mu/365 # mutation rate by day
 
@@ -28,6 +32,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     ## create substitutions for defined SNPs
     substi <- function(snp){
         res <- sapply(snp, function(e) sample(setdiff(NUCL,e),1))
+        class(res) <- "DNAbin"
         return(res)
     }
 
@@ -39,6 +44,12 @@ haploSim <- function(seq.length=1000, mu=0.0001,
             res[toChange] <- substi(res[toChange])
         }
         return(res)
+    }
+
+    ## what is the name of the new sequences?
+    seqname.gen <- function(nb.new.seq){
+        res <- as.integer(rownames(res$seq)) + 1:nb.new.seq
+        return(as.character(res))
     }
 
     ## how many days before duplication occurs ?
@@ -66,8 +77,8 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         curSize <- length(res$date)
         if(curSize < max.nb.haplo) return(NULL)
         toKeep <- sample(1:curSize, size=max.nb.haplo, replace=FALSE)
-        removed.strains <- res$seq[!toKeep]
-        res$seq <<- res$res[toKeep]
+        removed.strains <- rownames(res$seq)[!toKeep]
+        res$seq <<- res$res[toKeep,]
         res$date <<- res$date[toKeep]
         res$ances <<- res$ances[toKeep]
         res$ances[res$ances %in% removed.strains] <- NA
@@ -86,7 +97,9 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         nbDes <- length(newDates)
         if(nbDes==0) return(NULL) # stop if no suitable date
         newSeq <- lapply(1:nbDes, function(i) seq.dupli(seq)) # generate new sequences
-        res$seq <<- c(res$seq, newSeq) # append to general output
+        newSeq <- Reduce(rbind, newSeq) # list DNAbin -> matrix with nbDes rows
+        rownames(newSeq) <- seqname.gen(nbDes) # find new labels for these new sequences
+        res$seq <<- rbind(res$seq, newSeq) # append to general output
         res$dates <<- c(res$dates, newDates) # append to general output
         res$ances <<- c(res$ances, rep(idx, nbDes)) # append to general output
         toExpand <<- c(toExpand, rep(TRUE, nbDes))
@@ -110,7 +123,34 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     }
 
 
-    ## RETURN OUTPUT ##
+    ## SHAPE AND RETURN OUTPUT ##
+    class(res) <- "haploSim"
     return(res)
 
 } # end haploSim
+
+
+
+
+
+
+##################
+## print.haploSim
+##################
+print.haploSim <- function(x, ...){
+
+    cat("\t\n========================")
+    cat("\t\n= simulated haplotypes =")
+    cat("\t\n=  (haploSim object)   =")
+    cat("\t\n========================\n")
+    cat("\nsize :", length(x$ances))
+    for(i in 1:length(x)){
+        cat(names(x)[i],":\n")
+        if(names(x)[i]=="seq") {
+        } else print(head(x[[i]]))
+    }
+
+    cat("\nPercentage of NA ancestors", sum(is.na(x$ances)))
+
+    return(NULL)
+}
