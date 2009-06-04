@@ -26,7 +26,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
 
     ## AUXILIARY FUNCTIONS ##
     ## generate sequence from scratch
-    gen.seq <- function(){
+    seq.gen <- function(){
         res <- list(sample(NUCL, size=seq.length, replace=TRUE))
         class(res) <- "DNAbin"
         return(res)
@@ -75,6 +75,32 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         return(res)
     }
 
+      ## where does an haplotype emerges in the first place?
+    xy.gen <- function(){
+        return(sample(1:grid.size, size=2, replace=TRUE))
+    }
+
+    ## where does a transmission occur (destination)?
+    if(is.null(lambdaMat.xy)){ # use universal lambda param
+        xy.dupli <- function(cur.xy, nbLoc){
+            mvt <- rpois(2*nbLoc, lambda.xy) * sample(c(-1,1), size=2*nbLoc, replace=TRUE)
+            res <- t(matrix(mvt, nrow=2) + as.vector(cur.xy))
+            res[res < 1] <- 1
+            res[res > grid.size] <- grid.size
+            return(res)
+        }
+    } else { # use location-dependent lambda param
+        xy.dupli <- function(cur.xy){
+            lambda.xy <- lambdaMat.xy[cur.xy[1] , cur.xy[2]]
+            mvt <- rpois(2, lambda.xy) * sample(c(-1,1), size=2, replace=TRUE)
+            res <- cur.xy + mvt
+            res[res < 1] <- 1
+            res[res > grid.size] <- grid.size
+            return(res)
+        }
+    }
+
+
     ## check result size and resize it if needed
     resize.result <- function(){
         curSize <- length(res$dates)
@@ -112,32 +138,6 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         }
 
         return(NULL)
-    }
-
-
-    ## where does an haplotype emerges in the first place?
-    gen.xy <- function(){
-        return(sample(1:grid.size, size=2, replace=TRUE))
-    }
-
-    ## where does a transmission occur (destination)?
-    if(is.null(lambdaMat.xy)){ # use universal lambda param
-        dupli.xy <- function(cur.xy, nbLoc){
-            mvt <- rpois(2*nbLoc, lambda.xy) * sample(c(-1,1), size=2*nbLoc, replace=TRUE)
-            res <- t(matrix(mvt, nrow=2) + as.vector(cur.xy))
-            res[res < 1] <- 1
-            res[res > grid.size] <- grid.size
-            return(res)
-        }
-    } else { # use location-dependent lambda param
-        dupli.xy <- function(cur.xy){
-            lambda.xy <- lambdaMat.xy[cur.xy[1] , cur.xy[2]]
-            mvt <- rpois(2, lambda.xy) * sample(c(-1,1), size=2, replace=TRUE)
-            res <- cur.xy + mvt
-            res[res < 1] <- 1
-            res[res > grid.size] <- grid.size
-            return(res)
-        }
     }
 
 
@@ -179,7 +179,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         res$seq <<- rbind(res$seq, newSeq) # append to general output
         res$dates <<- c(res$dates, newDates) # append to general output
         res$ances <<- c(res$ances, rep(rownames(res$seq)[idx], nbDes)) # append to general output
-        res$xy <<- rbind(res$xy, dupli.xy(cur.xy, nbDes))
+        res$xy <<- rbind(res$xy, xy.dupli(cur.xy, nbDes))
         toExpand <<- c(toExpand, rep(TRUE, nbDes))
         return(NULL)
     }
@@ -191,7 +191,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     ## PERFORM SIMULATIONS - NON SPATIAL CASE ##
     if(!geo.sim){
         ## initialization
-        res$seq <- as.matrix(gen.seq())
+        res$seq <- as.matrix(seq.gen())
         rownames(res$seq) <- "1"
         res$dates[1] <- 0
         res$ances[1] <- NA
@@ -229,11 +229,11 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         }
 
         ## initialization
-        res$seq <- as.matrix(gen.seq())
+        res$seq <- as.matrix(seq.gen())
         rownames(res$seq) <- "1"
         res$dates[1] <- 0
         res$ances[1] <- NA
-        res$xy <- matrix(gen.xy(), nrow=1)
+        res$xy <- matrix(xy.gen(), nrow=1)
         colnames(res$xy) <- xy
         toExpand <- TRUE
 
@@ -295,19 +295,3 @@ print.haploSim <- function(x, ...){
 
     return(NULL)
 } # end print.haploSim
-
-
-
-
-
-
-##################
-## assign.coords
-##################
-assign.coords <- function(x, ){
-    ## CHECKS ##
-
-
-
-
-} # end assign.coords
