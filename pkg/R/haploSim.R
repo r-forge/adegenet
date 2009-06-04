@@ -9,9 +9,9 @@
 ## mean.repro, sd.repro: average number of transmissions and its standard deviation (normal dist)
 ##
 haploSim <- function(seq.length=1000, mu=0.0001,
-                    Tmax=50, mean.gen.time=5, sd.gen.time=1,
-                    mean.repro=2, sd.repro=1,
-                    max.nb.haplo=1e3){
+                     Tmax=50, mean.gen.time=5, sd.gen.time=1,
+                     mean.repro=2, sd.repro=1, max.nb.haplo=1e3,
+                     geo.sim=TRUE, grid.size=10, lambda.xy=0.5, lambdaMat.xy=NULL){
 
     ## CHECKS ##
     if(!require(ape)) stop("The ape package is required.")
@@ -22,6 +22,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     res <- list(seq=as.matrix(as.DNAbin(character(0))), dates=integer(), ances=character())
     toExpand <- logical()
     mu <- mu/365 # mutation rate by day
+
 
     ## AUXILIARY FUNCTIONS ##
     ## generate sequence from scratch
@@ -93,8 +94,55 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         return(NULL)
     }
 
+    ## check result size and resize it if needed - spatial version
+    resize.result.xy <- function(){
+        curSize <- length(res$dates)
+        if(curSize <= max.nb.haplo) return(NULL)
+        toKeep <- rep(FALSE, curSize)
+        toKeep[sample(1:curSize, size=max.nb.haplo, replace=FALSE)] <- TRUE
+        removed.strains <- rownames(res$seq)[!toKeep]
+        res$seq <<- res$seq[toKeep,]
+        res$dates <<- res$dates[toKeep]
+        res$ances <<- res$ances[toKeep]
+        res$xy <<- res$xy[toKeep,,drop=FALSE]
+        toExpand <<- toExpand[toKeep]
+        temp <- as.character(res$ances) %in% removed.strains
+        if(any(temp)) {
+            res$ances[temp] <<- NA
+        }
 
-    ## MAIN SUB-FUNCTION: EXPANDING FROM ONE SEQUENCE ##
+        return(NULL)
+    }
+
+
+    ## where does an haplotype emerges in the first place?
+    gen.xy <- function(){
+        return(sample(1:grid.size, size=2, replace=TRUE))
+    }
+
+    ## where does a transmission occur (destination)?
+    if(is.null(lambdaMat.xy)){ # use universal lambda param
+        dupli.xy <- function(cur.xy, nbLoc){
+            mvt <- rpois(2*nbLoc, lambda.xy) * sample(c(-1,1), size=2*nbLoc, replace=TRUE)
+            res <- t(matrix(mvt, nrow=2) + as.vector(cur.xy))
+            res[res < 1] <- 1
+            res[res > grid.size] <- grid.size
+            return(res)
+        }
+    } else { # use location-dependent lambda param
+        dupli.xy <- function(cur.xy){
+            lambda.xy <- lambdaMat.xy[cur.xy[1] , cur.xy[2]]
+            mvt <- rpois(2, lambda.xy) * sample(c(-1,1), size=2, replace=TRUE)
+            res <- cur.xy + mvt
+            res[res < 1] <- 1
+            res[res > grid.size] <- grid.size
+            return(res)
+        }
+    }
+
+
+
+    ## MAIN SUB-FUNCTION: EXPANDING FROM ONE SEQUENCE - NON SPATIAL ##
     expand.one.strain <- function(seq, date, idx){
         toExpand[idx] <<- FALSE # this one is no longer to expand
         nbDes <- nb.desc()
@@ -115,40 +163,104 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     }
 
 
-    ## PERFORM SIMULATIONS ##
-
-    ## initialization
-    res$seq <- as.matrix(gen.seq())
-    rownames(res$seq) <- "1"
-    res$dates[1] <- 0
-    res$ances[1] <- NA
-    toExpand <- TRUE
-
-    ## simulations: isn't simplicity beautiful?
-    while(any(toExpand)){
-        idx <- min(which(toExpand))
-        expand.one.strain(res$seq[idx,], res$dates[idx], idx)
-        resize.result()
+    ## 2nd MAIN SUB-FUNCTION: EXPANDING FROM ONE SEQUENCE - SPATIAL ##
+    expand.one.strain.xy <- function(seq, date, idx, cur.xy){
+        toExpand[idx] <<- FALSE # this one is no longer to expand
+        nbDes <- nb.desc()
+        if(nbDes==0) return(NULL) # stop if no descendant
+        newDates <- sapply(1:nbDes, function(i) date.dupli(date)) # find dates for descendants
+        newDates <- newDates[newDates <= Tmax] # don't store future sequences
+        nbDes <- length(newDates)
+        if(nbDes==0) return(NULL) # stop if no suitable date
+        newSeq <- lapply(1:nbDes, function(i) seq.dupli(seq)) # generate new sequences
+        class(newSeq) <- "DNAbin" # lists of DNAbin vectors must also have class "DNAbin"
+        newSeq <- as.matrix(newSeq) # list DNAbin -> matrix DNAbin with nbDes rows
+        rownames(newSeq) <- seqname.gen(nbDes) # find new labels for these new sequences
+        res$seq <<- rbind(res$seq, newSeq) # append to general output
+        res$dates <<- c(res$dates, newDates) # append to general output
+        res$ances <<- c(res$ances, rep(rownames(res$seq)[idx], nbDes)) # append to general output
+        res$xy <<- rbind(res$xy, dupli.xy(cur.xy, nbDes))
+        toExpand <<- c(toExpand, rep(TRUE, nbDes))
+        return(NULL)
     }
 
 
-    ## SHAPE AND RETURN OUTPUT ##
-    ## shift ances as characters to indices in others slots
-    ##     cat("\nres$ances\n")
-    ##     print(res$ances)
-    ##     cat("\nres$seq names\n")
-    ##     print(rownames(res$seq))
 
-    nbAncesNAOk <- sum(is.na(res$ances))
-    res$ances <- match(res$ances, rownames(res$seq))
-    if(sum(is.na(res$ances))> nbAncesNAOk){ # in case non-NA ancestors are not in res$seq
-        warning("NA introduced when converting ances to indices, likely indicating a bug")
-    }
 
-    class(res) <- "haploSim"
-    return(res)
+
+    ## PERFORM SIMULATIONS - NON SPATIAL CASE ##
+    if(!geo.sim){
+        ## initialization
+        res$seq <- as.matrix(gen.seq())
+        rownames(res$seq) <- "1"
+        res$dates[1] <- 0
+        res$ances[1] <- NA
+        toExpand <- TRUE
+
+        ## simulations: isn't simplicity beautiful?
+        while(any(toExpand)){
+            idx <- min(which(toExpand))
+            expand.one.strain(res$seq[idx,], res$dates[idx], idx)
+            resize.result()
+        }
+
+
+        ## SHAPE AND RETURN OUTPUT ##
+        nbAncesNAOk <- sum(is.na(res$ances))
+        res$ances <- match(res$ances, rownames(res$seq))
+        if(sum(is.na(res$ances))> nbAncesNAOk){ # in case non-NA ancestors are not in res$seq
+            warning("NA introduced when converting ances to indices, likely indicating a bug")
+        }
+
+        class(res) <- "haploSim"
+        return(res)
+
+    } # END NON-SPATIAL SIMULATIONS
+
+
+
+
+    ## PERFORM SIMULATIONS - SPATIAL CASE ##
+    if(geo.sim){
+        ## some checks
+        if(!is.null(lambdaMat.xy)) {
+            if(nrow(lambdaMax.xy) != ncol(lambdaMat.xy)) stop("lambdaMat.xy is not a square matrix")
+            if(nrow(lambdaMax.xy) != grid.size) stop("dimension of lambdaMat.xy does not match grid size")
+        }
+
+        ## initialization
+        res$seq <- as.matrix(gen.seq())
+        rownames(res$seq) <- "1"
+        res$dates[1] <- 0
+        res$ances[1] <- NA
+        res$xy <- matrix(gen.xy(), nrow=1)
+        colnames(res$xy) <- xy
+        toExpand <- TRUE
+
+        ## simulations: isn't simplicity beautiful?
+        while(any(toExpand)){
+            idx <- min(which(toExpand))
+            expand.one.strain.xy(res$seq[idx,], res$dates[idx], idx, res$xy[idx,])
+            resize.result.xy()
+        }
+
+
+        ## SHAPE AND RETURN OUTPUT ##
+        nbAncesNAOk <- sum(is.na(res$ances))
+        res$ances <- match(res$ances, rownames(res$seq))
+        if(sum(is.na(res$ances))> nbAncesNAOk){ # in case non-NA ancestors are not in res$seq
+            warning("NA introduced when converting ances to indices, likely indicating a bug")
+        }
+
+        class(res) <- "haploSim"
+        return(res)
+
+    } # end SPATIAL SIMULATIONS
+
 
 } # end haploSim
+
+
 
 
 
@@ -182,4 +294,20 @@ print.haploSim <- function(x, ...){
 
 
     return(NULL)
-}
+} # end print.haploSim
+
+
+
+
+
+
+##################
+## assign.coords
+##################
+assign.coords <- function(x, ){
+    ## CHECKS ##
+
+
+
+
+} # end assign.coords
