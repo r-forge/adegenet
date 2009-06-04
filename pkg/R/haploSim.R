@@ -8,10 +8,10 @@
 ## mean.gen.time, sd.gen.time: average time for transmission and its standard deviation (normal dist)
 ## mean.repro, sd.repro: average number of transmissions and its standard deviation (normal dist)
 ##
-haploSim <- function(seq.length=1500, mu=0.0035,
-                    Tmax=30, mean.gen.time=2.5, sd.gen.time=0.5,
-                    mean.repro=1.5, sd.repro=1,
-                    max.nb.strain=1e4){
+haploSim <- function(seq.length=1000, mu=0.0001,
+                    Tmax=30, mean.gen.time=5, sd.gen.time=1,
+                    mean.repro=2, sd.repro=1,
+                    max.nb.haplo=1e4){
 
     ## GENERAL VARIABLES ##
     NUCL <- c("a","t","c","g")
@@ -61,10 +61,18 @@ haploSim <- function(seq.length=1500, mu=0.0035,
         return(res)
     }
 
-    ## check result size and bound it
+    ## check result size and resize it if needed
     resize.result <- function(){
-        if(length(res$date) < max.nb.strain) return(NULL)
+        curSize <- length(res$date)
+        if(curSize < max.nb.haplo) return(NULL)
+        toKeep <- sample(1:curSize, size=max.nb.haplo, replace=FALSE)
+        removed.strains <- res$seq[!toKeep]
+        res$seq <<- res$res[toKeep]
+        res$date <<- res$date[toKeep]
+        res$ances <<- res$ances[toKeep]
+        res$ances[res$ances %in% removed.strains] <- NA
 
+        return(NULL)
     }
 
 
@@ -98,6 +106,7 @@ haploSim <- function(seq.length=1500, mu=0.0035,
     while(any(toExpand)){
         idx <- min(which(toExpand))
         expand.one.strain(res$seq[[idx]], res$dates[idx], idx)
+        resize.result()
     }
 
 
