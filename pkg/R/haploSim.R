@@ -80,7 +80,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         if(curSize < max.nb.haplo) return(NULL)
         toKeep <- sample(1:curSize, size=max.nb.haplo, replace=FALSE)
         removed.strains <- rownames(res$seq)[!toKeep]
-        res$seq <<- res$res[toKeep,]
+        res$seq <<- res$seq[toKeep,]
         res$date <<- res$date[toKeep]
         res$ances <<- res$ances[toKeep]
         res$ances[as.character(res$ances) %in% removed.strains] <- NA
@@ -156,8 +156,8 @@ print.haploSim <- function(x, ...){
 
     cat("\nSize :", length(x$ances),"haplotypes")
     cat("\nHaplotype length :", ncol(x$seq),"nucleotids")
-    cat("\nProportion of NA ancestors :", round(mean(is.na(x$ances)),5), "\n")
-
+    cat("\nProportion of NA ancestors :", signif(mean(is.na(x$ances)),5))
+    cat("\nNumber of known ancestors :", sum(!is.na(x$ances)), "\n")
 
     cat("\n= Content =")
     for(i in 1:length(x)){
@@ -165,7 +165,7 @@ print.haploSim <- function(x, ...){
 
         cat(paste("$", names(x)[i], sep=""),"\n")
         if(names(x)[i]!="seq") {
-            print(head(x[[i]]))
+            cat(head(x[[i]],10), "...\n")
         } else print(x[[i]])
     }
 
