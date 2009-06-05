@@ -343,7 +343,7 @@ na.omit.haploSim <- function(object, ...){
 ## labels.haploSim
 ##################
 labels.haploSim <- function(object, ...){
-    return(rownames(x$seq))
+    return(rownames(object$seq))
 }
 
 
@@ -388,7 +388,7 @@ optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
     if(is.null(prevCall$mu)){
         mu0 <- 0.0001
     } else {
-        mu0 <- prevCall$mu
+        mu0 <- eval(prevCall$mu)
     }
 
     res <- optimize.seqTrack.default(x=myX, seq.names=seq.names, seq.dates=seq.dates,
