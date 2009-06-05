@@ -302,6 +302,8 @@ print.haploSim <- function(x, ...){
 
 
 
+
+
 ##############
 ## [.haploSim
 ##############
@@ -314,6 +316,8 @@ print.haploSim <- function(x, ...){
 
     return(res)
 }
+
+
 
 
 
@@ -330,3 +334,27 @@ na.omit.haploSim <- function(object, ...){
 
     return(res)
 }
+
+
+
+
+##################
+## labels.haploSim
+##################
+labels.haploSim <- function(object, ...){
+    return(rownames(x$seq))
+}
+
+
+
+#######################
+## as.POSIXct.haploSim
+#######################
+as.POSIXct.haploSim <- function(x, tz="", origin=as.POSIXct("2000/01/01"), ...){
+    res <- as.POSIXct.numeric(x$dates*24*3600, origin=origin)
+    return(res)
+}
+
+
+
+
