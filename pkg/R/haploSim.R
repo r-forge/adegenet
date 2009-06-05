@@ -399,7 +399,7 @@ optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
 ################
 ## plotHaploSim
 ################
-plotHaploSim <- function(x, annot=TRUE, dateRange=NULL, col=NULL, bg="grey", add=FALSE, ...){
+plotHaploSim <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", add=FALSE, ...){
 
     ## SOME CHECKS ##
     if(class(x)!="haploSim") stop("x is not a haploSim object")
@@ -407,18 +407,28 @@ plotHaploSim <- function(x, annot=TRUE, dateRange=NULL, col=NULL, bg="grey", add
 
 
     ## CONVERSION TO A SEQTRACK-LIKE OBJECT ##
+    x.ori <- x
+    x <- na.omit(x)
+    toSetToNA <- x$dates==min(x$dates)
     xy <- x$xy
     res <- list()
     res$id <- labels(x)
     res <- as.data.frame(res)
     res$ances <- x$ances
+    res$ances[toSetToNA] <- NA
     res$weight <- 1 # ??? have to recompute that...
-    res$date <- x$dates
-    res$ances.date <- x$dates[x$ances]
+    res$weight[toSetToNA] <- NA
+    res$date <- as.POSIXct(x.ori)[labels(x)]
+    res$ances.date <- as.POSIXct(x.ori)[x$ances]
+
+    ## set results as indices rather than labels
+    res$ances <- match(res$ances, res$id)
+    res$id <- 1:length(res$id)
 
 
     ## CALL TO PLOTSEQTRACK ##
-    out <- plotSeqTrack(res, annot=annot, dateRange=dateRange, col=col, bg=bg, add=add, ...)
+    out <- plotSeqTrack(res, xy=xy, annot=annot, dateRange=dateRange,
+                        col=col, bg=bg, add=add, showAmbiguous=FALSE, ...)
 
     return(invisible(out))
 
