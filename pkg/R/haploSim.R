@@ -253,6 +253,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         }
 
         class(res) <- "haploSim"
+        res$call <- match.call()
         return(res)
 
     } # end SPATIAL SIMULATIONS
@@ -280,14 +281,14 @@ print.haploSim <- function(x, ...){
     cat("\nSize :", length(x$ances),"haplotypes")
     cat("\nHaplotype length :", ncol(x$seq),"nucleotids")
     cat("\nProportion of NA ancestors :", signif(mean(is.na(x$ances)),5))
-    cat("\nNumber of known ancestors :", sum(!is.na(x$ances)), "\n")
+    cat("\nNumber of known ancestors :", sum(!is.na(x$ances)))
 
-    cat("\n= Content =")
+    cat("\n\n= Content =")
     for(i in 1:length(x)){
         cat("\n")
 
         cat(paste("$", names(x)[i], sep=""),"\n")
-        if(names(x)[i]=="seq") {
+        if(names(x)[i] %in% c("seq","call")) {
             print(x[[i]])
         } else if(names(x)[i]=="xy"){
             print(head(x[[i]]))
@@ -358,3 +359,34 @@ as.POSIXct.haploSim <- function(x, tz="", origin=as.POSIXct("2000/01/01"), ...){
 
 
 
+#####################
+## seqTrack.haploSim
+#####################
+seqTrack.haploSim <- function(x, optim=c("min","max"), proxMat=NULL, ...){
+    x <- dist.dna(x$seq, model="raw")
+    seq.names <- labels(x)
+    seq.dates <- as.POSIXct(sim)
+    res <- seqTrack.default(x, seq.names=seq.names, seq.dates=seq.dates, optim=optim, proxMat=proxMat,...)
+    return(res)
+}
+
+
+
+
+
+##############################
+## optimize.seqTrack.haploSim
+##############################
+optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
+                              prox.mat=NULL, nstep=10, step.size=1e3, mu0, seq.length,
+                              rMissDate=.rUnifTimeSeq, ...){
+
+    x <- dist.dna(x$seq, model="raw")
+    seq.names <- labels(x)
+    seq.dates <- as.POSIXct(sim)
+    seq.length <- ncol(x$seq)
+
+    res <- optimize.seqTrack.default(x, seq.names, seq.dates, thres=0.2, optim=c("min","max"),
+                              prox.mat=NULL, nstep=10, step.size=1e3, mu0, seq.length,
+                              rMissDate=.rUnifTimeSeq, ...)
+}

@@ -1,7 +1,21 @@
+###########
+# generics
+###########
+seqTrack <- function(...){
+    UseMethod("seqTrack")
+}
+
+
+optimize.seqTrack <- function(...){
+    UseMethod("optimize.seqTrack")
+}
+
+
+
 #############
 ## seqTrack
 #############
-seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
+seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
                      proxMat=NULL, ...){
 
     ## CHECKS ##
@@ -25,10 +39,10 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
         stop(msg)
     }
 
-    W <- as.matrix(W)
+    x <- as.matrix(x)
 
-    if(!is.null(proxMat) && !identical(dim(proxMat),dim(W))) {
-        stop("proxMat is provided but its dimensions are inconsistent with that of W")
+    if(!is.null(proxMat) && !identical(dim(proxMat),dim(x))) {
+        stop("proxMat is provided but its dimensions are inconsistent with that of x")
     }
 
     N <- length(seq.names)
@@ -36,15 +50,15 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
 
     seq.dates <- as.POSIXct(round.POSIXt(seq.dates,units="days")) # round dates to the day
 
-    W <- as.matrix(W)
+    x <- as.matrix(x)
     ## rename dimensions using id
-    colnames(W) <- rownames(W) <- id
+    colnames(x) <- rownames(x) <- id
     if(!is.null(proxMat)){
         colnames(proxMat) <- rownames(proxMat) <- id
     }
 
-    if(length(seq.names) != nrow(W)){
-        stop("inconsistent dimension for W")
+    if(length(seq.names) != nrow(x)){
+        stop("inconsistent dimension for x")
     }
 
 
@@ -84,12 +98,12 @@ seqTrack <- function(seq.names, seq.dates, W, optim=c("min","max"),
     findAncestor <- function(idx){ # returns the index of one seq's ancestor
         candid <- which(seq.dates < seq.dates[idx])
         if(length(candid)==0) return(list(ances=NA, weight=NA))
-        if(length(candid)==1) return(list(ances=candid, weight=W[idx, candid]))
-        ancesId <- as.numeric(which.is.optim(W[idx, candid]))
+        if(length(candid)==1) return(list(ances=candid, weight=x[idx, candid]))
+        ancesId <- as.numeric(which.is.optim(x[idx, candid]))
         if(length(ancesId)>1) {
             ancesId <- selAmongAncestors(idx,ancesId) # handle several 'best' ancestors
         }
-        return(list(ances=ancesId, weight=W[idx, ancesId])) # Id of the ancestor
+        return(list(ances=ancesId, weight=x[idx, ancesId])) # Id of the ancestor
     }
 
 
@@ -388,9 +402,8 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## 2) VECTORIZE mu0 and seq.length, recycle if needed with a warning
 ## 3) uncomment, adapt, and test code for missing data
 ##
-optimize.seqTrack <- function(nstep=10, step.size=1e3,
-                              seq.names, seq.dates, W, thres=0.2, optim=c("min","max"),
-                              prox.mat=NULL, mu0, seq.length,
+optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=c("min","max"),
+                              prox.mat=NULL, nstep=10, step.size=1e3, mu0, seq.length,
                               rMissDate=.rUnifTimeSeq, ...){
 
     ## CHECKS ##
@@ -427,17 +440,17 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
 
     seq.dates <- as.POSIXct(round.POSIXt(seq.dates,units="days")) # round dates to the day
 
-    W <- as.matrix(W)
+    x <- as.matrix(x)
 
-    if(!is.null(prox.mat) && !identical(dim(prox.mat),dim(W))) {
-        stop("prox.mat is provided but its dimensions are inconsistent with that of W")
+    if(!is.null(prox.mat) && !identical(dim(prox.mat),dim(x))) {
+        stop("prox.mat is provided but its dimensions are inconsistent with that of x")
     }
 
     ## rename dimensions using id
-    colnames(W) <- rownames(W) <- id
+    colnames(x) <- rownames(x) <- id
 
-    if(length(seq.names) != nrow(W)){
-        stop("inconsistent dimension for W")
+    if(length(seq.names) != nrow(x)){
+        stop("inconsistent dimension for x")
     }
 
 
@@ -488,7 +501,7 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
             for(j in 1:step.size){
                 myDates <- as.POSIXct(newDates[,j])
 
-                res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W,
+                res.new <- seqTrack(x, seq.names=seq.names, seq.dates=myDates,
                                     optim=optim, prox.mat=prox.mat, ...)
 
                 ##ances <- cbind(ances, res.new$ances) # not needed now
@@ -585,7 +598,7 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
 
     ## reconstruct the result with new dates
     res <- lapply(1:ncol(date), function(i)
-                   seqTrack(seq.names=seq.names, seq.dates=as.POSIXct(date[,i]), W=W,
+                   seqTrack(x=x, seq.names=seq.names, seq.dates=as.POSIXct(date[,i]),
                                     optim=optim, prox.mat=prox.mat, ...))
     ances <- data.frame(lapply(res, function(e) e$ances))
     ances <- matrix(as.integer(unlist(ances)), nrow=nrow(ances))
@@ -604,10 +617,6 @@ optimize.seqTrack <- function(nstep=10, step.size=1e3,
 
 
 
-
-
-
-
 #################
 ## get.consensus
 #################
@@ -618,12 +627,37 @@ get.consensus <- function(listres){
 
 
 
+
+
+
 ###############
 ## seqTrack.ml
 ###############
 seqTrack.ml <- function(aln, seq.dates, optim=c("min","max"), ...){
 
 } # end seqTrack.ml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
