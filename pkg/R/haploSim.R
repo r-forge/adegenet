@@ -378,15 +378,21 @@ seqTrack.haploSim <- function(x, optim=c("min","max"), proxMat=NULL, ...){
 ## optimize.seqTrack.haploSim
 ##############################
 optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
-                              prox.mat=NULL, nstep=10, step.size=1e3, mu0, seq.length,
-                              rMissDate=.rUnifTimeSeq, ...){
+                              prox.mat=NULL, nstep=10, step.size=1e3, rMissDate=.rUnifTimeSeq, ...){
 
     x <- dist.dna(x$seq, model="raw")
     seq.names <- labels(x)
     seq.dates <- as.POSIXct(sim)
     seq.length <- ncol(x$seq)
+    prevCall <- as.list(x$call)
+    if(is.null(prevCall$mu)){
+        mu0 <- 0.0001
+    } else {
+        mu0 <- prevCall$mu
+    }
 
-    res <- optimize.seqTrack.default(x, seq.names, seq.dates, thres=0.2, optim=c("min","max"),
-                              prox.mat=NULL, nstep=10, step.size=1e3, mu0, seq.length,
-                              rMissDate=.rUnifTimeSeq, ...)
+    res <- optimize.seqTrack.default(x=x, seq.names=seq.names, seq.dates=seq.dates,
+                                     thres=thres, optim=optim, prox.mat=prox.mat,
+                                     nstep=nstep, step.size=step.size, mu0=mu0,
+                                     seq.length=seq.length, rMissDate=rMissDate, ...)
 }
