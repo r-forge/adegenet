@@ -517,10 +517,10 @@ optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=
             date <- date[,toKeep,drop=FALSE] # retained posterior
 
             ## DEBUGING ##
-            cat("\ntoKeep:\n")
-            print(toKeep)
-            cat("\nhead date (posterior):\n")
-            print(head(date))
+            ## cat("\ntoKeep:\n")
+            ##             print(toKeep)
+            ##             cat("\nhead date (posterior):\n")
+            ##             print(head(date))
             ## END DEBUGING ##
 
             newDates <- apply(date, 1, function(vec)
