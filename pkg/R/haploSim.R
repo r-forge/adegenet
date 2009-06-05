@@ -298,3 +298,35 @@ print.haploSim <- function(x, ...){
 
     return(NULL)
 } # end print.haploSim
+
+
+
+
+##############
+## [.haploSim
+##############
+"[.haploSim" <- function(x,i,j,drop=FALSE){
+    res <- x
+    res$seq <- res$seq[i,]
+    res$ances <- res$ances[i]
+    res$dates <- res$dates[i]
+    if(!is.null(res$xy)) res$xy <- res$xy[i,]
+
+    return(res)
+}
+
+
+
+####################
+## na.omit.haploSim
+####################
+na.omit.haploSim <- function(object, ...){
+    res <- object
+    isNA <- is.na(res$ances)
+    res$seq <- res$seq[!isNA,]
+    res$ances <- res$ances[!isNA]
+    res$dates <- res$dates[!isNA]
+    if(!is.null(res$xy)) res$xy <- res$xy[!isNA,]
+
+    return(res)
+}
