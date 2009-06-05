@@ -352,7 +352,7 @@ labels.haploSim <- function(object, ...){
 ## as.POSIXct.haploSim
 #######################
 as.POSIXct.haploSim <- function(x, tz="", origin=as.POSIXct("2000/01/01"), ...){
-    res <- as.POSIXct.numeric(x$dates*24*3600, origin=origin)
+    res <- as.POSIXct(x$dates*24*3600, origin=origin)
     return(res)
 }
 
@@ -363,10 +363,10 @@ as.POSIXct.haploSim <- function(x, tz="", origin=as.POSIXct("2000/01/01"), ...){
 ## seqTrack.haploSim
 #####################
 seqTrack.haploSim <- function(x, optim=c("min","max"), proxMat=NULL, ...){
-    x <- dist.dna(x$seq, model="raw")
+    myX <- dist.dna(x$seq, model="raw")
     seq.names <- labels(x)
-    seq.dates <- as.POSIXct(sim)
-    res <- seqTrack.default(x, seq.names=seq.names, seq.dates=seq.dates, optim=optim, proxMat=proxMat,...)
+    seq.dates <- as.POSIXct(x)
+    res <- seqTrack(myX, seq.names=seq.names, seq.dates=seq.dates, optim=optim, proxMat=proxMat,...)
     return(res)
 }
 
@@ -380,9 +380,9 @@ seqTrack.haploSim <- function(x, optim=c("min","max"), proxMat=NULL, ...){
 optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
                               prox.mat=NULL, nstep=10, step.size=1e3, rMissDate=.rUnifTimeSeq, ...){
 
-    x <- dist.dna(x$seq, model="raw")
+    myX <- dist.dna(x$seq, model="raw")
     seq.names <- labels(x)
-    seq.dates <- as.POSIXct(sim)
+    seq.dates <- as.POSIXct(x)
     seq.length <- ncol(x$seq)
     prevCall <- as.list(x$call)
     if(is.null(prevCall$mu)){
@@ -391,8 +391,8 @@ optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
         mu0 <- prevCall$mu
     }
 
-    res <- optimize.seqTrack.default(x=x, seq.names=seq.names, seq.dates=seq.dates,
+    res <- optimize.seqTrack.default(x=myX, seq.names=seq.names, seq.dates=seq.dates,
                                      thres=thres, optim=optim, prox.mat=prox.mat,
                                      nstep=nstep, step.size=step.size, mu0=mu0,
                                      seq.length=seq.length, rMissDate=rMissDate, ...)
-}
+} # end optimize.seqTrack.haploSim
