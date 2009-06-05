@@ -4,7 +4,7 @@
 ##
 ## N: number of sequences to simulate
 ## mu: mutation rate per nucleotid per year
-## Tmax: periode of time to simulatet
+## Tmax: periode of time to simulate
 ## mean.gen.time, sd.gen.time: average time for transmission and its standard deviation (normal dist)
 ## mean.repro, sd.repro: average number of transmissions and its standard deviation (normal dist)
 ##
@@ -206,12 +206,8 @@ haploSim <- function(seq.length=1000, mu=0.0001,
 
 
         ## SHAPE AND RETURN OUTPUT ##
-        nbAncesNAOk <- sum(is.na(res$ances))
-        res$ances <- match(res$ances, rownames(res$seq))
-        if(sum(is.na(res$ances))> nbAncesNAOk){ # in case non-NA ancestors are not in res$seq
-            warning("NA introduced when converting ances to indices, likely indicating a bug")
-        }
-
+        res$ances <- as.character(res$ances)
+        names(res$dates) <- rownames(res$seq)
         class(res) <- "haploSim"
         return(res)
 
@@ -246,11 +242,8 @@ haploSim <- function(seq.length=1000, mu=0.0001,
 
 
         ## SHAPE AND RETURN OUTPUT ##
-        nbAncesNAOk <- sum(is.na(res$ances))
-        res$ances <- match(res$ances, rownames(res$seq))
-        if(sum(is.na(res$ances))> nbAncesNAOk){ # in case non-NA ancestors are not in res$seq
-            warning("NA introduced when converting ances to indices, likely indicating a bug")
-        }
+        res$ances <- as.character(res$ances)
+        names(res$dates) <- rownames(res$seq)
 
         class(res) <- "haploSim"
         res$call <- match.call()
@@ -396,3 +389,37 @@ optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
                                      nstep=nstep, step.size=step.size, mu0=mu0,
                                      seq.length=seq.length, rMissDate=rMissDate, ...)
 } # end optimize.seqTrack.haploSim
+
+
+
+
+
+
+
+################
+## plotHaploSim
+################
+plotHaploSim <- function(x, annot=TRUE, dateRange=NULL, col=NULL, bg="grey", add=FALSE, ...){
+
+    ## SOME CHECKS ##
+    if(class(x)!="haploSim") stop("x is not a haploSim object")
+    if(is.null(x$xy)) stop("x does not contain xy coordinates; try to simulate date")
+
+
+    ## CONVERSION TO A SEQTRACK-LIKE OBJECT ##
+    xy <- x$xy
+    res <- list()
+    res$id <- labels(x)
+    res <- as.data.frame(res)
+    res$ances <- x$ances
+    res$weight <- 1 # ??? have to recompute that...
+    res$date <- x$dates
+    res$ances.date <- x$dates[x$ances]
+
+
+    ## CALL TO PLOTSEQTRACK ##
+    out <- plotSeqTrack(res, annot=annot, dateRange=dateRange, col=col, bg=bg, add=add, ...)
+
+    return(invisible(out))
+
+} # end plotHaploSim
