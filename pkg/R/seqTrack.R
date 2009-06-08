@@ -617,7 +617,6 @@ optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=
 
 
 
-
 #################
 ## get.result.by
 #################
@@ -672,7 +671,28 @@ get.result.by <- function(x, bydat){
 ## get.consensus
 #################
 get.consensus <- function(listres){
+    res <- list()
 
+    ## tables of occurences of ancestors
+    temp <- apply(listres$ances, 1, table)
+
+    ## compute compromise
+    if(is.vector(temp)){
+        newances <- temp
+    } else {
+        f1 <- function(tab){
+            res <- names(tab)[tab==max(tab)]
+            if(length(res)==1) return(res)
+            return(NA)
+        }
+
+        newances <- sapply(temp, f1)
+        ances.support <- sapply(temp, function(e) max(e, na.rm=TRUE)/sum(e, na.rm=TRUE))
+    }
+
+    ## form the output
+    res$id <- 1:nrow(listres$ances)
+    res$ances
     return(res)
 }
 
