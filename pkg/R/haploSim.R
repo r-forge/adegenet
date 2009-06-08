@@ -385,10 +385,10 @@ seqTrack.haploSim <- function(x, optim=c("min","max"), proxMat=NULL, ...){
 optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
                               prox.mat=NULL, nstep=10, step.size=1e3, rMissDate=.rUnifTimeSeq, ...){
 
-    myX <- dist.dna(x$seq, model="raw")
     seq.names <- labels(x)
     seq.dates <- as.POSIXct(x)
     seq.length <- ncol(x$seq)
+    myX <- dist.dna(x$seq, model="raw") * seq.length
     prevCall <- as.list(x$call)
     if(is.null(prevCall$mu)){
         mu0 <- 0.0001
