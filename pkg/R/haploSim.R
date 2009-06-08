@@ -364,6 +364,13 @@ seqTrack.haploSim <- function(x, optim=c("min","max"), proxMat=NULL, ...){
     myX <- dist.dna(x$seq, model="raw")
     seq.names <- labels(x)
     seq.dates <- as.POSIXct(x)
+    seq.length <- ncol(x$seq)
+    prevCall <- as.list(x$call)
+    if(is.null(prevCall$mu)){
+        mu0 <- 0.0001
+    } else {
+        mu0 <- eval(prevCall$mu)
+    }
     res <- seqTrack(myX, seq.names=seq.names, seq.dates=seq.dates, optim=optim, proxMat=proxMat,...)
     return(res)
 }
