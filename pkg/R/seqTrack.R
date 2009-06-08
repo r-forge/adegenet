@@ -617,6 +617,57 @@ optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=
 
 
 
+
+#################
+## get.result.by
+#################
+get.result.by <- function(x, bydat){
+    dat <- bydat
+
+    ## define new values
+    if(class(dat)=="DNAbin"){
+        if(!is.matrix(dat)) dat <- as.matrix(dat)
+        dat <- as.character(dat)
+    }
+
+    ori.dim <- dim(dat)
+    dat <- as.character(bydat)
+    dim(dat) <- ori.dim
+
+    newval <- apply(dat, 1, function(vec) paste(vec, collapse=""))
+    newval <- unclass(factor(newval))
+    newlev <- levels(newval)
+
+
+    ## if x is a single output of seqTrack
+    if(is.vector(x$ances)){
+        newId <- newval # new values
+        newAnces <- newval[x$ances] # new values
+        ## make output
+        res <- x
+        res$id <- newId
+        res$ances <- newAnces
+        attr(res$ances, "levels") <- newlev
+    }
+
+
+    ## if x is an optimize.seqTrack output
+    if(is.matrix(x$ances)){
+        res <- x
+        ori.ncol <- ncol(res$ances)
+        res$ances <- matrix(newval[res$ances], ncol=ori.ncol)
+        attr(res$ances, "levels") <- newlev
+    }
+
+    return(res)
+
+} # end get.result.by
+
+
+
+
+
+
 #################
 ## get.consensus
 #################
