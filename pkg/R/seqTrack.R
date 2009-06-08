@@ -126,7 +126,7 @@ seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
 ## plotSeqTrack
 ################
 plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
-                         col=NULL, bg="grey", add=FALSE, quiet=TRUE,
+                         col=NULL, bg="grey", add=FALSE, quiet=FALSE,
                          showAmbiguous=TRUE, mu0=NULL, seq.length=NULL, prob=0.75,
                          plot=TRUE,...){
 
