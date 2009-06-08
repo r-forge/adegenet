@@ -670,8 +670,8 @@ get.result.by <- function(x, bydat){
 #################
 ## get.consensus
 #################
-get.consensus <- function(listres){
-    res <- list()
+get.consensus <- function(orires, listres){
+    res <- orires
 
     ## tables of occurences of ancestors
     temp <- apply(listres$ances, 1, table)
@@ -691,8 +691,9 @@ get.consensus <- function(listres){
     }
 
     ## form the output
-    res$id <- 1:nrow(listres$ances)
-    res$ances
+    res$ances <- newances
+    res$support <- ances.support
+
     return(res)
 }
 
