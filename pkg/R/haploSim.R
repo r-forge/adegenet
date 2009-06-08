@@ -318,16 +318,21 @@ print.haploSim <- function(x, ...){
 ####################
 ## na.omit.haploSim
 ####################
-na.omit.haploSim <- function(object, ...){
-    res <- object
-    isNA <- is.na(res$ances)
-    res$seq <- res$seq[!isNA,]
-    res$ances <- res$ances[!isNA]
-    res$dates <- res$dates[!isNA]
-    if(!is.null(res$xy)) res$xy <- res$xy[!isNA,]
+##
+## ACTUALLY THIS FUNCTION MAKES NO SENSE FOR NOW
+## AS STRAINS WITH NO ANCESTOR MAY BE ANCESTORS OF
+## OTHER STRAINS.
+##
+## na.omit.haploSim <- function(object, ...){
+##     res <- object
+##     isNA <- is.na(res$ances)
+##     res$seq <- res$seq[!isNA,]
+##     res$ances <- res$ances[!isNA]
+##     res$dates <- res$dates[!isNA]
+##     if(!is.null(res$xy)) res$xy <- res$xy[!isNA,]
 
-    return(res)
-}
+##     return(res)
+## }
 
 
 
@@ -398,8 +403,8 @@ optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
 ## as.seqTrack.haploSim
 ########################
 as.seqTrack.haploSim <- function(x){
-    x.ori <- x
-    x <- na.omit(x)
+    ## x.ori <- x
+    ## x <- na.omit(x)
     toSetToNA <- x$dates==min(x$dates)
     res <- list()
     res$id <- labels(x)
@@ -408,8 +413,8 @@ as.seqTrack.haploSim <- function(x){
     res$ances[toSetToNA] <- NA
     res$weight <- 1 # ??? have to recompute that...
     res$weight[toSetToNA] <- NA
-    res$date <- as.POSIXct(x.ori)[labels(x)]
-    res$ances.date <- as.POSIXct(x.ori)[x$ances]
+    res$date <- as.POSIXct(x)[labels(x)]
+    res$ances.date <- as.POSIXct(x)[x$ances]
 
     ## set results as indices rather than labels
     res$ances <- match(res$ances, res$id)
@@ -432,7 +437,7 @@ plotHaploSim <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", ad
 
 
     ## ## CONVERSION TO A SEQTRACK-LIKE OBJECT ##
-    xy <- na.omit(x)$xy
+    xy <- x$xy
     res <- as.seqTrack.haploSim(x)
 
     ##     res <- list()
