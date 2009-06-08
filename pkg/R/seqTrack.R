@@ -677,8 +677,9 @@ get.consensus <- function(orires, listres){
     temp <- apply(listres$ances, 1, table)
 
     ## compute compromise
-    if(is.vector(temp)){
+    if(!is.list(temp)){
         newances <- temp
+        ances.support <- rep(1,length(temp))
     } else {
         f1 <- function(tab){
             res <- names(tab)[tab==max(tab)]
@@ -688,6 +689,7 @@ get.consensus <- function(orires, listres){
 
         newances <- sapply(temp, f1)
         ances.support <- sapply(temp, function(e) max(e, na.rm=TRUE)/sum(e, na.rm=TRUE))
+        ances.support[is.na(newances)] <- NA
     }
 
     ## form the output
