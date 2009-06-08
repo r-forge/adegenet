@@ -455,7 +455,7 @@ plotHaploSim <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", ad
 
 
     ## CALL TO PLOTSEQTRACK ##
-    plotSeqTrack(res, xy=xy, annot=annot, dateRange=dateRange,
+    plotSeqTrack(x=res, xy=xy, annot=annot, dateRange=dateRange,
                         col=col, bg=bg, add=add, showAmbiguous=FALSE, ...)
 
     return(invisible(res))
