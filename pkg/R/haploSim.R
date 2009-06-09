@@ -468,3 +468,44 @@ plotHaploSim <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", ad
     return(invisible(res))
 
 } # end plotHaploSim
+
+
+
+
+
+
+
+
+
+
+###################
+## sample.haploSim
+###################
+sample.haploSim <- function(x, n){
+    ## EXTRACT THE SAMPLE ##
+    res <- x[sample(1:nrow(x$seq), n, replace=FALSE)]
+
+
+    ## RETRIEVE SOME PARAMETERS FROM HAPLOSIM CALL
+    prevCall <- as.list(x$call)
+    if(!is.null(prevCall$mu)){
+        mu0 <- eval(prevCall$mu)
+    } else {
+        mu0 <- 1e-04
+    }
+
+    if(!is.null(prevCall$seq.length)){
+        L <- eval(prevCall$seq.length)
+    } else {
+        L <- 1000
+    }
+
+    truedates <- res$dates
+    daterange <- range(res$dates,na.rm=TRUE)
+
+    sampdates <- .rTimeSeq(mu0=mu0, L=L, n=length(truedates), maxNbDays=daterange/2)
+
+    res$dates <- sampdates
+
+    return(res)
+} # end sample.haploSim

@@ -634,6 +634,7 @@ get.result.by <- function(x, ...){
         ori.dim <- dim(e)
         e <- as.character(e)
         dim(e) <- ori.dim
+        return(e)
     }
 
 
@@ -663,6 +664,12 @@ get.result.by <- function(x, ...){
         ori.ncol <- ncol(res$ances)
         res$ances <- matrix(newval[res$ances], ncol=ori.ncol)
         attr(res$ances, "levels") <- newlev
+    }
+
+    ## method for haploSim
+    if(class(x)=="haploSim"){
+        res <- x
+        ances.id <- match(x$ances, labels(x))
     }
 
     return(res)
@@ -700,11 +707,14 @@ get.consensus <- function(orires, listres){
     }
 
     ## form the output
+    olev <- levels(orires$ances)
     res$ances <- newances
+    levels(res$ances) <- olev
     res$support <- ances.support
 
     return(res)
 }
+
 
 
 
