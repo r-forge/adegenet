@@ -603,7 +603,7 @@ optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=
     ances <- data.frame(lapply(res, function(e) e$ances))
     ances <- matrix(as.integer(unlist(ances)), nrow=nrow(ances))
 
-    ances.date <- data.frame(lapply(res, function(e) e$ances.date))
+    ances.date <- data.frame(lapply(res, function(e) as.character(e$ances.date)))
     ances.date <- matrix(as.character(unlist(ances.date)), nrow=nrow(ances.date))
 
 
@@ -620,18 +620,25 @@ optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=
 #################
 ## get.result.by
 #################
-get.result.by <- function(x, bydat){
-    dat <- bydat
+get.result.by <- function(x, ...){
+    dat <- list(...)
+    if(length(dat)==0) return(x)
 
-    ## define new values
-    if(class(dat)=="DNAbin"){
-        if(!is.matrix(dat)) dat <- as.matrix(dat)
-        dat <- as.character(dat)
+
+    ## DEFINE NEW VALUES ##
+
+    convertElem <- function(e){
+        if(class(e)=="DNAbin") {
+            e <- as.matrix(e)
+        }
+        ori.dim <- dim(e)
+        e <- as.character(e)
+        dim(e) <- ori.dim
     }
 
-    ori.dim <- dim(dat)
-    dat <- as.character(bydat)
-    dim(dat) <- ori.dim
+
+    dat <- lapply(dat,convertElem)
+    dat <- as.matrix(data.frame(dat))
 
     newval <- apply(dat, 1, function(vec) paste(vec, collapse=""))
     newval <- unclass(factor(newval))
