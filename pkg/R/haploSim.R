@@ -504,6 +504,7 @@ sample.haploSim <- function(x, n){
     daterange <- range(res$dates,na.rm=TRUE)
 
     sampdates <- .rTimeSeq(mu0=mu0, L=L, n=length(truedates), maxNbDays=daterange/2)
+    sampdates <- truedates + abs(sampdates)
 
     res$dates <- sampdates
 
