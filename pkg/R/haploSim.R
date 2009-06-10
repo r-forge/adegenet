@@ -363,7 +363,7 @@ as.POSIXct.haploSim <- function(x, tz="", origin=as.POSIXct("2000/01/01"), ...){
 #####################
 ## seqTrack.haploSim
 #####################
-seqTrack.haploSim <- function(x, optim=c("min","max"), proxMat=NULL, ...){
+seqTrack.haploSim <- function(x, optim=c("min","max"), prox.mat=NULL, ...){
     myX <- dist.dna(x$seq, model="raw")
     seq.names <- labels(x)
     seq.dates <- as.POSIXct(x)
@@ -374,7 +374,7 @@ seqTrack.haploSim <- function(x, optim=c("min","max"), proxMat=NULL, ...){
     } else {
         mu0 <- eval(prevCall$mu)
     }
-    res <- seqTrack(myX, seq.names=seq.names, seq.dates=seq.dates, optim=optim, proxMat=proxMat,...)
+    res <- seqTrack(myX, seq.names=seq.names, seq.dates=seq.dates, optim=optim, prox.mat=prox.mat,...)
     return(res)
 }
 

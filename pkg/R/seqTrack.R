@@ -16,7 +16,7 @@ optimize.seqTrack <- function(...){
 ## seqTrack
 #############
 seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
-                     proxMat=NULL, ...){
+                     prox.mat=NULL, ...){
 
     ## CHECKS ##
     optim <- match.arg(optim)
@@ -41,8 +41,8 @@ seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
 
     x <- as.matrix(x)
 
-    if(!is.null(proxMat) && !identical(dim(proxMat),dim(x))) {
-        stop("proxMat is provided but its dimensions are inconsistent with that of x")
+    if(!is.null(prox.mat) && !identical(dim(prox.mat),dim(x))) {
+        stop("prox.mat is provided but its dimensions are inconsistent with that of x")
     }
 
     N <- length(seq.names)
@@ -53,8 +53,8 @@ seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
     x <- as.matrix(x)
     ## rename dimensions using id
     colnames(x) <- rownames(x) <- id
-    if(!is.null(proxMat)){
-        colnames(proxMat) <- rownames(proxMat) <- id
+    if(!is.null(prox.mat)){
+        colnames(prox.mat) <- rownames(prox.mat) <- id
     }
 
     if(length(seq.names) != nrow(x)){
@@ -79,9 +79,9 @@ seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
 
     ## select among different possible ancestors
     selAmongAncestors <- function(idx,ances){
-        ## Choose the most otherwise connected ancestor, given proxMat
-        if(!is.null(proxMat)){ # if we've got no other info
-            toKeep <- test.equal(max(proxMat[idx,ances]), proxMat[idx,ances])
+        ## Choose the most otherwise connected ancestor, given prox.mat
+        if(!is.null(prox.mat)){ # if we've got no other info
+            toKeep <- test.equal(max(prox.mat[idx,ances]), prox.mat[idx,ances])
             ances <- ances[toKeep]
         }
 
