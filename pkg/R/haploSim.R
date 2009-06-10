@@ -275,6 +275,9 @@ print.haploSim <- function(x, ...){
     cat("\nHaplotype length :", ncol(x$seq),"nucleotids")
     cat("\nProportion of NA ancestors :", signif(mean(is.na(x$ances)),5))
     cat("\nNumber of known ancestors :", sum(!is.na(x$ances)))
+    cat("\nDate range :", min(x$dates,na.rm=TRUE),"-",max(x$dates,na.rm=TRUE))
+    ##nUniqSeq <- length(unique(apply(as.character(x$seq),1,paste,collapse="")))
+    ##cat("\nNumber of unique haplotypes :", nUniqSeq)
 
     cat("\n\n= Content =")
     for(i in 1:length(x)){
@@ -474,10 +477,6 @@ plotHaploSim <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", ad
 
 
 
-
-
-
-
 ###################
 ## sample.haploSim
 ###################
@@ -501,7 +500,7 @@ sample.haploSim <- function(x, n){
     }
 
     truedates <- res$dates
-    daterange <- range(res$dates,na.rm=TRUE)
+    daterange <- diff(range(res$dates,na.rm=TRUE))
 
     sampdates <- .rTimeSeq(mu0=mu0, L=L, n=length(truedates), maxNbDays=daterange/2)
     sampdates <- truedates + abs(sampdates)
