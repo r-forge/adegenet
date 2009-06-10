@@ -309,7 +309,7 @@ print.haploSim <- function(x, ...){
     res$seq <- res$seq[i,]
     res$ances <- res$ances[i]
     res$dates <- res$dates[i]
-    if(!is.null(res$xy)) res$xy <- res$xy[i,]
+    if(!is.null(res$xy)) res$xy <- res$xy[i,,drop=FALSE]
 
     return(res)
 }
