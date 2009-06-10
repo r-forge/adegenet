@@ -368,6 +368,7 @@ seqTrack.haploSim <- function(x, optim=c("min","max"), prox.mat=NULL, ...){
     seq.names <- labels(x)
     seq.dates <- as.POSIXct(x)
     seq.length <- ncol(x$seq)
+    myX <- myX * seq.length
     prevCall <- as.list(x$call)
     if(is.null(prevCall$mu)){
         mu0 <- 0.0001
