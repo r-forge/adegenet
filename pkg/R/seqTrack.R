@@ -495,7 +495,7 @@ optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=
                            .rTimeSeq(n=step.size, mu0=mu0[i], L=seq.length[i], maxNbDays=RANGE.DATES))
         newDates <- t(newDates)*24*3600 + seq.dates
 
-        ## >> one step of 'step.size simulations', all with same prior << ##
+        ## >> one step of 'step.size' simulations, all with same prior << ##
         for(i in 1:nstep){
             ## >> each step contains 'step.size' iterations << ##
             for(j in 1:step.size){
@@ -686,6 +686,7 @@ get.result.by <- function(x, ...){
 #################
 get.consensus <- function(orires, listres){
     res <- orires
+    nbDraws <- 0
 
     ## tables of occurences of ancestors
     temp <- apply(listres$ances, 1, table)
@@ -697,8 +698,12 @@ get.consensus <- function(orires, listres){
     } else {
         f1 <- function(tab){
             res <- names(tab)[tab==max(tab)]
-            if(length(res)==1) return(res)
-            return(NA)
+            ## if(length(res)==1) return(res)
+            ##             return(NA)
+            if(length(res)>1) {
+                nbDraws <- nbDraws+1
+            }
+            return(res[1])
         }
 
         newances <- sapply(temp, f1)
@@ -711,6 +716,8 @@ get.consensus <- function(orires, listres){
     res$ances <- newances
     levels(res$ances) <- olev
     res$support <- ances.support
+
+    cat("\nThere were\n",nbDraws, "draws.\n")
 
     return(res)
 }
