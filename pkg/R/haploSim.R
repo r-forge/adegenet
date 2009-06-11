@@ -90,10 +90,10 @@ haploSim <- function(seq.length=1000, mu=0.0001,
             return(res)
         }
     } else { # use location-dependent lambda param
-        xy.dupli <- function(cur.xy){
+        xy.dupli <- function(cur.xy, nbLoc){
             lambda.xy <- lambdaMat.xy[cur.xy[1] , cur.xy[2]]
-            mvt <- rpois(2, lambda.xy) * sample(c(-1,1), size=2, replace=TRUE)
-            res <- cur.xy + mvt
+            mvt <- rpois(2*nbLoc, lambda.xy) * sample(c(-1,1), size=2*nbLoc, replace=TRUE)
+            res <- t(matrix(mvt, nrow=2) + as.vector(cur.xy))
             res[res < 1] <- 1
             res[res > grid.size] <- grid.size
             return(res)
@@ -220,8 +220,8 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     if(geo.sim){
         ## some checks
         if(!is.null(lambdaMat.xy)) {
-            if(nrow(lambdaMax.xy) != ncol(lambdaMat.xy)) stop("lambdaMat.xy is not a square matrix")
-            if(nrow(lambdaMax.xy) != grid.size) stop("dimension of lambdaMat.xy does not match grid size")
+            if(nrow(lambdaMat.xy) != ncol(lambdaMat.xy)) stop("lambdaMat.xy is not a square matrix")
+            if(nrow(lambdaMat.xy) != grid.size) stop("dimension of lambdaMat.xy does not match grid size")
         }
 
         ## initialization
