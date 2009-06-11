@@ -224,7 +224,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         ## some checks
         if(!is.null(matConnect)) {
             if(nrow(matConnect) != ncol(matConnect)) stop("matConnect is not a square matrix")
-            if(nrow(matConnect) != grid.size) stop("dimension of matConnect does not match grid size")
+            if(nrow(matConnect) != grid.size^2) stop("dimension of matConnect does not match grid size")
         }
 
         ## initialization
