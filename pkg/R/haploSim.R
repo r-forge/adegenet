@@ -11,7 +11,7 @@
 haploSim <- function(seq.length=1000, mu=0.0001,
                      Tmax=50, mean.gen.time=5, sd.gen.time=1,
                      mean.repro=2, sd.repro=1, max.nb.haplo=1e3,
-                     geo.sim=TRUE, grid.size=10, lambda.xy=0.5, lambdaMat.xy=NULL){
+                     geo.sim=TRUE, grid.size=5, lambda.xy=0.5, matConnect=NULL){
 
     ## CHECKS ##
     if(!require(ape)) stop("The ape package is required.")
@@ -22,6 +22,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     res <- list(seq=as.matrix(as.DNAbin(character(0))), dates=integer(), ances=character())
     toExpand <- logical()
     mu <- mu/365 # mutation rate by day
+    myGrid <- matrix(1:grid.size^2, ncol=grid.size, nrow=grid.size)
 
 
     ## AUXILIARY FUNCTIONS ##
@@ -81,7 +82,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     }
 
     ## where does a transmission occur (destination)?
-    if(is.null(lambdaMat.xy)){ # use universal lambda param
+    if(is.null(matConnect)){ # use universal lambda param
         xy.dupli <- function(cur.xy, nbLoc){
             mvt <- rpois(2*nbLoc, lambda.xy) * sample(c(-1,1), size=2*nbLoc, replace=TRUE)
             res <- t(matrix(mvt, nrow=2) + as.vector(cur.xy))
@@ -89,13 +90,15 @@ haploSim <- function(seq.length=1000, mu=0.0001,
             res[res > grid.size] <- grid.size
             return(res)
         }
-    } else { # use location-dependent lambda param
+    } else { # use location-dependent proba of dispersal between locations
+        if(any(matConnect < 0)) stop("Negative values in matConnect (probabilities expected!)")
         xy.dupli <- function(cur.xy, nbLoc){
-            lambda.xy <- lambdaMat.xy[cur.xy[1] , cur.xy[2]]
-            mvt <- rpois(2*nbLoc, lambda.xy) * sample(c(-1,1), size=2*nbLoc, replace=TRUE)
-            res <- t(matrix(mvt, nrow=2) + as.vector(cur.xy))
-            res[res < 1] <- 1
-            res[res > grid.size] <- grid.size
+            ## lambda.xy <- matConnect[cur.xy[1] , cur.xy[2]]
+            ##             mvt <- rpois(2*nbLoc, lambda.xy) * sample(c(-1,1), size=2*nbLoc, replace=TRUE)
+            ##             res <- t(matrix(mvt, nrow=2) + as.vector(cur.xy))
+            idxAncesLoc <- myGrid[cur.xy[1], cur.xy[2]]
+            newLoc <- sample(1:grid.size^2, size=nbLoc, prob=matConnect[,idxAncesLoc]) # get new locations
+            res <- cbind(row(myGrid)[newLoc] , col(myGrid)[newLoc]) # get coords of new locations
             return(res)
         }
     }
@@ -219,9 +222,9 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     ## PERFORM SIMULATIONS - SPATIAL CASE ##
     if(geo.sim){
         ## some checks
-        if(!is.null(lambdaMat.xy)) {
-            if(nrow(lambdaMat.xy) != ncol(lambdaMat.xy)) stop("lambdaMat.xy is not a square matrix")
-            if(nrow(lambdaMat.xy) != grid.size) stop("dimension of lambdaMat.xy does not match grid size")
+        if(!is.null(matConnect)) {
+            if(nrow(matConnect) != ncol(matConnect)) stop("matConnect is not a square matrix")
+            if(nrow(matConnect) != grid.size) stop("dimension of matConnect does not match grid size")
         }
 
         ## initialization
