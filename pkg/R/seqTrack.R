@@ -697,6 +697,8 @@ get.consensus <- function(orires, listres){
         ances.support <- rep(1,length(temp))
     } else {
         f1 <- function(tab){
+            if(length(tab)==0) return(NA)
+
             res <- names(tab)[tab==max(tab)]
             ## if(length(res)==1) return(res)
             ##             return(NA)

@@ -92,6 +92,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         }
     } else { # use location-dependent proba of dispersal between locations
         if(any(matConnect < 0)) stop("Negative values in matConnect (probabilities expected!)")
+        matConnect <- prop.table(matConnect,1)
         xy.dupli <- function(cur.xy, nbLoc){
             ## lambda.xy <- matConnect[cur.xy[1] , cur.xy[2]]
             ##             mvt <- rpois(2*nbLoc, lambda.xy) * sample(c(-1,1), size=2*nbLoc, replace=TRUE)
