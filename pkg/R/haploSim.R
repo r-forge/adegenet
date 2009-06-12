@@ -98,7 +98,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
             ##             mvt <- rpois(2*nbLoc, lambda.xy) * sample(c(-1,1), size=2*nbLoc, replace=TRUE)
             ##             res <- t(matrix(mvt, nrow=2) + as.vector(cur.xy))
             idxAncesLoc <- myGrid[cur.xy[1], cur.xy[2]]
-            newLoc <- sample(1:grid.size^2, size=nbLoc, prob=matConnect[,idxAncesLoc]) # get new locations
+            newLoc <- sample(1:grid.size^2, size=nbLoc, prob=matConnect[idxAncesLoc,], replace=TRUE) # get new locations
             res <- cbind(row(myGrid)[newLoc] , col(myGrid)[newLoc]) # get coords of new locations
             return(res)
         }
