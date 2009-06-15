@@ -293,6 +293,8 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 #############
 ## .dTimeSeq
 #############
+##
+## mu0 and L are vectors, having one value per segment/chromosome
 .dTimeSeq <- function(mu0, L, maxNbDays=100){
     mu <- mu0/365 # mutation rates / site / day
     t <- 0:maxNbDays # in days added / substracted
@@ -307,10 +309,11 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 #############
 ## .rTimeSeq
 #############
+##
+## mu0 and L are vectors, having one value per segment/chromosome
 .rTimeSeq <- function(n, mu0, L, maxNbDays=100){
     temp <- .dTimeSeq(mu0, L, maxNbDays)
-    p <- temp[[2]]/sum(temp[[2]])
-    res <- sample(temp[[1]], size=n, replace=TRUE, prob=p)
+    res <- sample(temp[[1]], size=n, replace=TRUE, prob= temp[[2]]/sum(temp[[2]]))
     return(res)
 }
 
@@ -365,19 +368,24 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ##
 ## TODO: replace mu0 and L by muA, muB, LA, LB
 ##
-.pAbeforeB <- function(dateA, dateB, mu0, L, maxNbDays=100){
-    temp <- .dTimeSeq(mu0, L, maxNbDays)
-    days <- temp[[1]]
-    p <- temp[[2]]/sum(temp[[2]]) # proba distribution
+.pAbeforeB <- function(dateA, dateB, muA, muB, LA, LB, maxNbDays=100){
+    ## proba dist for A
+    tempA <- .dTimeSeq(muA, LA, maxNbDays)
+    days <- tempA[[1]]
+    pA <- tempA[[2]]/sum(tempA[[2]]) # proba distribution
 
+    ## proba dist for B
+    tempB <- .dTimeSeq(muB, LB, maxNbDays)
+    pB <- tempB[[2]]/sum(tempB[[2]]) # proba distribution
+
+    ## days for A and B
     nbDaysDiff <- as.integer(round(difftime(dateA,dateB,units="days"))) # dateA - dateB, in days
     daysA <- days
     daysB <- days - nbDaysDiff
 
     f1 <- function(i){ # proba A before B for one day
-        idx <- daysB>daysA[i]
-        res <- p[i] * sum(p[idx])
-        return(res)
+        idx <- daysB > daysA[i]
+        return(pA[i] * sum(pB[idx]))
     }
 
     res <- sapply(1:length(p), f1) # proba for all days
