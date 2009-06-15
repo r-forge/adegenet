@@ -15,7 +15,7 @@ optimize.seqTrack <- function(...){
 #############
 ## seqTrack
 #############
-seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
+seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
                      prox.mat=NULL, ...){
 
     ## CHECKS ##
@@ -28,12 +28,12 @@ seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
         which.optim <- which.max
     }
 
-    if(length(seq.names) != length(seq.dates)){
-        stop("inconsistent length for seq.dates")
+    if(length(x.names) != length(x.dates)){
+        stop("inconsistent length for x.dates")
     }
 
-    if(is.character(seq.dates)){
-        msg <- paste("seq.dates is a character vector; " ,
+    if(is.character(x.dates)){
+        msg <- paste("x.dates is a character vector; " ,
                      "please convert it as dates using 'as.POSIXct'" ,
                      "\n(making sure dates are given as 'YYYY/MM/DD' or 'YYYY-MM-DD').", sep="")
         stop(msg)
@@ -45,10 +45,10 @@ seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
         stop("prox.mat is provided but its dimensions are inconsistent with that of x")
     }
 
-    N <- length(seq.names)
+    N <- length(x.names)
     id <- 1:N
 
-    seq.dates <- as.POSIXct(round.POSIXt(seq.dates,units="days")) # round dates to the day
+    x.dates <- as.POSIXct(round.POSIXt(x.dates,units="days")) # round dates to the day
 
     x <- as.matrix(x)
     ## rename dimensions using id
@@ -57,7 +57,7 @@ seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
         colnames(prox.mat) <- rownames(prox.mat) <- id
     }
 
-    if(length(seq.names) != nrow(x)){
+    if(length(x.names) != nrow(x)){
         stop("inconsistent dimension for x")
     }
 
@@ -87,7 +87,7 @@ seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
 
         ## If several ancestors remain, take the oldest.
         if(length(ances)>1){
-            ances <- ances[which.min(seq.dates[ances])]
+            ances <- ances[which.min(x.dates[ances])]
         }
 
         return(ances)
@@ -96,7 +96,7 @@ seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
 
     ## findAncestor
     findAncestor <- function(idx){ # returns the index of one seq's ancestor
-        candid <- which(seq.dates < seq.dates[idx])
+        candid <- which(x.dates < x.dates[idx])
         if(length(candid)==0) return(list(ances=NA, weight=NA))
         if(length(candid)==1) return(list(ances=candid, weight=x[idx, candid]))
         ancesId <- as.numeric(which.is.optim(x[idx, candid]))
@@ -110,9 +110,9 @@ seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
     ## BUILD THE OUTPUT ##
     res <- sapply(id, findAncestor)
     res <- data.frame(ances=unlist(res[1,]), weight=unlist(res[2,]))
-    ances.date <- seq.dates[res[,1]]
-    res <- cbind.data.frame(id,res, date=seq.dates, ances.date)
-    rownames(res) <- seq.names
+    ances.date <- x.dates[res[,1]]
+    res <- cbind.data.frame(id,res, date=x.dates, ances.date)
+    rownames(res) <- x.names
 
     return(res)
 } # end seqTrack
@@ -127,7 +127,7 @@ seqTrack.default <- function(x, seq.names, seq.dates, optim=c("min","max"),
 ################
 plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
                          col=NULL, bg="grey", add=FALSE, quiet=FALSE,
-                         showAmbiguous=TRUE, mu0=NULL, seq.length=NULL, prob=0.75,
+                         showAmbiguous=TRUE, mu0=NULL, chr.length=NULL, prob=0.75,
                          plot=TRUE,...){
 
     ## CHECKS ##
@@ -135,8 +135,8 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     if(ncol(x) != 5) stop("x does not have five columns")
     if(ncol(xy) != 2) stop("xy does not have two columns")
     if(nrow(xy) != nrow(x)) stop("x and xy have inconsistent dimensions")
-    if(showAmbiguous & (is.null(mu0) | is.null(seq.length)) ){
-        stop("showAmbiguous is TRUE, but mu0 and seq.length are not all provided.")
+    if(showAmbiguous & (is.null(mu0) | is.null(chr.length)) ){
+        stop("showAmbiguous is TRUE, but mu0 and chr.length are not all provided.")
     }
 
     isAmbig <- NULL
@@ -151,7 +151,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
     ## FIND AMBIGUOUS TEMPORAL ORDERING ##
     if(showAmbiguous){
-        temp <- .pAbeforeB(x$ances.date, x$date, mu0, seq.length)
+        temp <- .pAbeforeB(x$ances.date, x$date, mu0, chr.length)
         isAmbig <- temp < prob
     }
 
@@ -168,10 +168,10 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
     ## FIND THE COLOR FOR EDGES ##
     if(is.null(col)){
-        if(is.null(mu0) & is.null(seq.length)) {
+        if(is.null(mu0) & is.null(chr.length)) {
             col <- "black"
         } else {
-            ##  w <- .pAbeforeB(x$ances.date, x$date, mu0, seq.length, 200) # beware, lots of steps take time
+            ##  w <- .pAbeforeB(x$ances.date, x$date, mu0, chr.length, 200) # beware, lots of steps take time
             ##             isAmbig <-  w < prob
             ##             w[w<.5] <- .5
             ##             w <- (1 - w)
@@ -340,10 +340,10 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## x: result of seqTrack
 ## mu0: mutation rate / site / year
 ## ## p: threshold probability for a sequence not to mutate
-## .ambigDates <- function(x, mu0, seq.length, p=0.99){
+## .ambigDates <- function(x, mu0, chr.length, p=0.99){
 ##     mu <- mu0/365 # mutation rate / site / day
 ##     t <- 0:1000 # in days
-##     Pt <- (1-mu)^(t*seq.length)
+##     Pt <- (1-mu)^(t*chr.length)
 ##     ##plot(Pt,ylim=c(0,1))
 ##     nbDays <- which.min(Pt>p)-1
 
@@ -407,13 +407,14 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 #####################
 ##
 ## TODO:
-## 1) Change the output to retain xxx simulations | ok.
-## 2) VECTORIZE mu0 and seq.length, recycle if needed with a warning
+## 1) Change the output to retain xxx simulations | ok. -- done.
+## 2) VECTORIZE mu0 and chr.length, recycle if needed with a warning
 ## 3) uncomment, adapt, and test code for missing data
 ##
-optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=c("min","max"),
-                              prox.mat=NULL, nstep=10, step.size=1e3, mu0, seq.length,
-                              rMissDate=.rUnifTimeSeq, ...){
+optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.length,
+                                      thres=0.2, optim=c("min","max"), prox.mat=NULL, nstep=10, step.size=1e3,
+                                      rMissDate=.rUnifTimeSeq, ...){
+
 
     ## CHECKS ##
     optim <- match.arg(optim)
@@ -423,31 +424,42 @@ optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=
         which.optim <- which.max
     }
 
-    if(length(seq.names) != length(seq.dates)){
-        stop("inconsistent length for seq.dates")
+    if(length(x.names) != length(x.dates)){
+        stop("inconsistent length for x.dates")
     }
 
-    if(is.character(seq.dates)){
-        msg <- paste("seq.dates is a character vector; " ,
+    if(is.character(x.dates)){
+        msg <- paste("x.dates is a character vector; " ,
                      "please convert it as dates using 'as.POSIXct'" ,
                      "\n(making sure dates are given as 'YYYY/MM/DD' or 'YYYY-MM-DD').", sep="")
         stop(msg)
     }
 
-    isMissDate <- is.na(seq.dates)
+    isMissDate <- is.na(x.dates)
 
 
-    N <- length(seq.names)
+    N <- length(x.names)
     id <- 1:N
-    if(length(mu0) < N) { # recycle mu0
-        mu0 <- rep(mu0, length=N)
-    }
-    if(length(seq.length) < N) {# recycle seq.length
-        seq.length <- rep(seq.length, length=N)
-    }
+    ## if(length(mu0) < N) { # recycle mu0
+    ##         mu0 <- rep(mu0, length=N)
+    ##     }
+    ##     if(length(chr.length) < N) {# recycle chr.length
+    ##         chr.length <- rep(chr.length, length=N)
+    ##     }
 
 
-    seq.dates <- as.POSIXct(round.POSIXt(seq.dates,units="days")) # round dates to the day
+    ## handle typed.chr, mu0, chr.length
+    if(!is.list(typed.chr)) {
+        stop("typed.chr must be a list")
+    }
+    if(length(typed.chr)!=N) {
+        stop("typed.chr has an inconsistent length")
+    }
+
+    list.mu0 <- lapply(typed.chr, function(e) mu0[e])
+    list.chr.length <- lapply(typed.chr, function(e) chr.length[e])
+
+    x.dates <- as.POSIXct(round.POSIXt(x.dates,units="days")) # round dates to the day
 
     x <- as.matrix(x)
 
@@ -455,17 +467,18 @@ optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=
         stop("prox.mat is provided but its dimensions are inconsistent with that of x")
     }
 
+
     ## rename dimensions using id
     colnames(x) <- rownames(x) <- id
 
-    if(length(seq.names) != nrow(x)){
+    if(length(x.names) != nrow(x)){
         stop("inconsistent dimension for x")
     }
 
 
     ## SET THRESHOLD IF NEEDED ## ## NO LONGER USED
     ##  if(is.null(thres)){
-    ##         thres <- sum(seqTrack(seq.names=seq.names, seq.dates=seq.dates, W=W,
+    ##         thres <- sum(seqTrack(x.names=x.names, x.dates=x.dates, W=W,
     ##                                     optim=optim, prox.mat=prox.mat, ...)$weight, na.rm=TRUE)
     ##     }
 
@@ -479,7 +492,7 @@ optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=
 
 
     ## DO THE OPTIMISATION ##
-    RANGE.DATES <- as.integer(round(diff(range(seq.dates, na.rm=TRUE)))) # time window of the sample, in days
+    RANGE.DATES <- as.integer(round(diff(range(x.dates, na.rm=TRUE)))) # time window of the sample, in days
     NB.DATES.TO.SIM <- sum(!isMissDate)
 
 
@@ -501,8 +514,8 @@ optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=
     if(!any(isMissDate)){
         ## dates initialisation, taken from initial prior
         newDates <- sapply(1:N, function(i)
-                           .rTimeSeq(n=step.size, mu0=mu0[i], L=seq.length[i], maxNbDays=RANGE.DATES))
-        newDates <- t(newDates)*24*3600 + seq.dates
+                           .rTimeSeq(n=step.size, mu0=list.mu0[[i]], L=list.chr.length[[i]], maxNbDays=RANGE.DATES))
+        newDates <- t(newDates)*24*3600 + x.dates
 
         ## >> one step of 'step.size' simulations, all with same prior << ##
         for(i in 1:nstep){
@@ -510,7 +523,7 @@ optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=
             for(j in 1:step.size){
                 myDates <- as.POSIXct(newDates[,j])
 
-                res.new <- seqTrack(x, seq.names=seq.names, seq.dates=myDates,
+                res.new <- seqTrack(x, x.names=x.names, x.dates=myDates,
                                     optim=optim, prox.mat=prox.mat, ...)
 
                 ##ances <- cbind(ances, res.new$ances) # not needed now
@@ -572,28 +585,28 @@ optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=
     ##         argList <- list(...)
 
     ##         if(is.null(argList$dateMin) & identical(rMissDate, .rUnifTimeSeq)){ # earliest date
-    ##             argList$dateMin <- min(seq.dates,na.rm=TRUE)
+    ##             argList$dateMin <- min(x.dates,na.rm=TRUE)
     ##         } else {
-    ##             argList$dateMin[is.na(argList$dateMin)] <- min(seq.dates,na.rm=TRUE)
+    ##             argList$dateMin[is.na(argList$dateMin)] <- min(x.dates,na.rm=TRUE)
     ##         }
     ##         if(is.null(argList$dateMax) & identical(rMissDate, .rUnifTimeSeq)){ # latest date
-    ##             argList$dateMax <- max(seq.dates,na.rm=TRUE)
+    ##             argList$dateMax <- max(x.dates,na.rm=TRUE)
     ##         } else {
-    ##             argList$dateMax[is.na(argList$dateMax)] <- max(seq.dates,na.rm=TRUE)
+    ##             argList$dateMax[is.na(argList$dateMax)] <- max(x.dates,na.rm=TRUE)
     ##         }
 
     ##         argList$n <- sum(isMissDate)
 
     ##         ## Make simulations ##
     ##         for(i in 1:nstep){
-    ##             myDates <- seq.dates
+    ##             myDates <- x.dates
     ##             ## distribution for available dates
     ##             myDates[!isMissDate] <- myDates[!isMissDate] +
-    ##                 .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=2*RANGE.DATES)
+    ##                 .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=chr.length, maxNbDays=2*RANGE.DATES)
     ##             ## distribution for missing dates
     ##             myDates[isMissDate] <- do.call(rMissDate, argList)
 
-    ##             res.new <- seqTrack(seq.names=seq.names, seq.dates=myDates, W=W, optim=optim, prox.mat=prox.mat, ...)
+    ##             res.new <- seqTrack(x.names=x.names, x.dates=myDates, W=W, optim=optim, prox.mat=prox.mat, ...)
 
     ##             valRes[i] <- sum(res.new$weight,na.rm=TRUE)
     ##             if(use.new.res(res.best, res.new)){
@@ -607,7 +620,7 @@ optimize.seqTrack.default <- function(x, seq.names, seq.dates, thres=0.2, optim=
 
     ## reconstruct the result with new dates
     res <- lapply(1:ncol(date), function(i)
-                   seqTrack(x=x, seq.names=seq.names, seq.dates=as.POSIXct(date[,i]),
+                   seqTrack(x=x, x.names=x.names, x.dates=as.POSIXct(date[,i]),
                                     optim=optim, prox.mat=prox.mat, ...))
     ances <- data.frame(lapply(res, function(e) e$ances))
     ances <- matrix(as.integer(unlist(ances)), nrow=nrow(ances))
@@ -742,7 +755,7 @@ get.consensus <- function(orires, listres){
 ###############
 ## seqTrack.ml
 ###############
-seqTrack.ml <- function(aln, seq.dates, optim=c("min","max"), ...){
+seqTrack.ml <- function(aln, x.dates, optim=c("min","max"), ...){
 
 } # end seqTrack.ml
 
@@ -807,22 +820,22 @@ seqTrack.ml <- function(aln, seq.dates, optim=c("min","max"), ...){
 ## #############
 ## ## seqTrack
 ## #############
-## seqTrack <- function(seq.names, seq.dates, D, k=5, lag=3, ...){
+## seqTrack <- function(x.names, x.dates, D, k=5, lag=3, ...){
 
 ##     ## CHECKS ##
-##     if(length(seq.names) != length(seq.dates)){
-##         stop("inconsistent length for seq.dates")
+##     if(length(x.names) != length(x.dates)){
+##         stop("inconsistent length for x.dates")
 ##     }
 
 ##     D <- as.matrix(D)
 
-##     if(length(seq.names) != nrow(D)){
+##     if(length(x.names) != nrow(D)){
 ##         stop("inconsistent dimension for D")
 ##     }
 
 
 ##     ## ASSIGNEMENTS ##
-##     N <- length(seq.names)
+##     N <- length(x.names)
 ##     STARTPOINTS <- 1:N # global variable, modified thoughout
 ##     id <- 1:N
 ##     INPATH <- NULL
@@ -837,13 +850,13 @@ seqTrack.ml <- function(aln, seq.dates, optim=c("min","max"), ...){
 ##     ## AUXILIARY FUNCTIONS ##
 ##     ## choose a starting sequence, as recent as possible
 ##     chooseStartPoint <- function(){
-##         return(STARTPOINTS[which.max(seq.dates[STARTPOINTS])])
+##         return(STARTPOINTS[which.max(x.dates[STARTPOINTS])])
 ##     }
 
 
 ##     ## find k closest ancestors: returns a list(id=[id of the ancestors], d=[distances to ancestors])
 ##     findAncestors <- function(currentPoint){
-##         candidates <- id[seq.dates < seq.dates[currentPoint]]
+##         candidates <- id[x.dates < x.dates[currentPoint]]
 ##         if(length(candidates)==0) return(NULL) # this will indicate the end of the path
 ##         res <- D[currentPoint,candidates]
 ##         if(length(res) <= k) return(list(id=as.integer(names(res)), d=res)) # if less than k candidates
@@ -898,7 +911,7 @@ seqTrack.ml <- function(aln, seq.dates, optim=c("min","max"), ...){
 ##         isEnded <- function(onePath){
 ##             oldest <- onePath[length(onePath)]
 ##             temp <- setdiff(id,oldest)
-##             if(all(seq.dates[temp] < seq.dates[oldest])) return(TRUE)
+##             if(all(x.dates[temp] < x.dates[oldest])) return(TRUE)
 ##             return(FALSE)
 ##         }
 
