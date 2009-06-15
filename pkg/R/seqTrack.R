@@ -132,7 +132,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
     ## CHECKS ##
     if(class(x) != "data.frame") stop("x is not a data.frame")
-    if(ncol(x) != 5) stop("x does not have five columns")
+    ##if(ncol(x) != 5) stop("x does not have five columns")
     if(ncol(xy) != 2) stop("xy does not have two columns")
     if(nrow(xy) != nrow(x)) stop("x and xy have inconsistent dimensions")
     if(showAmbiguous & (is.null(mu0) | is.null(chr.length)) ){
@@ -456,6 +456,16 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.l
         stop("typed.chr has an inconsistent length")
     }
 
+    if(is.null(names(mu0))) stop("mu0 has no names")
+    if(is.null(names(chr.length))) stop("chr.length has no names")
+    if(any(mu0 > 1)) stop("mu0 has values > 1")
+    if(any(mu0 < 0)) stop("mu0 has negative values")
+
+    if(!identical(names(mu0) , names(chr.length))) stop("Names of mu0 and chr.length differ.")
+    if(any(!unique(unlist(typed.chr)) %in% names(mu0))) {
+        stop("Some chromosomes indicated in typed.chr are not in mu0.")
+    }
+
     list.mu0 <- lapply(typed.chr, function(e) mu0[e])
     list.chr.length <- lapply(typed.chr, function(e) chr.length[e])
 
@@ -535,6 +545,7 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.l
 
             ## retain a given % (thres) of the dates ##
             toKeep <- valRes <= quantile(valRes, thres) ## NOT WORKING FOR optim==max !!!
+            valRes <- valRes[toKeep]
 
             date <- date[,toKeep,drop=FALSE] # retained posterior
 
@@ -548,6 +559,12 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.l
             newDates <- apply(date, 1, function(vec)
                               sample(vec, size=step.size, replace=TRUE)) # new prior
             newDates <- t(newDates)
+
+            ## stop if all dates are fixed
+            if(all(apply(newDates, 1, function(r) length(unique(r))==1))){
+                cat("\nConvergence reached at step",i,"\n")
+                break # stop the algorithm
+            }
 
             ## re-initialize posterior distributions
             if(i<nstep){
@@ -627,7 +644,6 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.l
 
     ances.date <- data.frame(lapply(res, function(e) as.character(e$ances.date)))
     ances.date <- matrix(as.character(unlist(ances.date)), nrow=nrow(ances.date))
-
 
     res <- list(ances=ances, date=date, ances.date=ances.date, valsim=valRes)
     return(res)
@@ -741,6 +757,9 @@ get.consensus <- function(orires, listres){
     levels(res$ances) <- olev
     res$support <- ances.support
 
+    if(is.numeric(listres$ances)){
+        res$ances <- as.numeric(res$ances)
+    }
     cat("\nThere were\n",nbDraws, "draws.\n")
 
     return(res)
