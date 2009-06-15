@@ -294,9 +294,10 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## .dTimeSeq
 #############
 .dTimeSeq <- function(mu0, L, maxNbDays=100){
-    mu <- mu0/365 # mutation rate / site / day
+    mu <- mu0/365 # mutation rates / site / day
     t <- 0:maxNbDays # in days added / substracted
-    Pt <- (1-mu)^(t*L)
+    temp <- sapply((1-mu)^L, function(x) x^t  )
+    Pt <- apply(temp,1,prod)
     t <- c(-rev(t[-1]), t)
     Pt <- c(rev(Pt[-1]), Pt)
     return(list(t, Pt))
