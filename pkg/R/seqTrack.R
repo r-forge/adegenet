@@ -771,8 +771,8 @@ get.consensus <- function(orires, listres, mode=c("majority","best")){
 
 
     if(mode=="best"){
-        toKeep <- which.max(listres$valsim)
-        nbDraws <- sum(listres$valsim > (max(listres$valsim) - 1e-10 )) -1
+        toKeep <- which.min(listres$valsim)
+        nbDraws <- sum(listres$valsim < (min(listres$valsim) + 1e-10 )) -1
         cat("\nThere were\n",nbDraws, "draws.\n")
 
         res$ances <- listres$ances[,toKeep]
