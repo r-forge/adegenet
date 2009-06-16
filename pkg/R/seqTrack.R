@@ -722,48 +722,67 @@ get.result.by <- function(x, ...){
 #################
 ## get.consensus
 #################
-get.consensus <- function(orires, listres){
+get.consensus <- function(orires, listres, mode=c("majority","best")){
+    ## handle mode
+    mode <- match.arg(mode)
+
     res <- orires
-    nbDraws <- 0
 
-    ## tables of occurences of ancestors
-    temp <- apply(listres$ances, 1, table)
+    if(mode=="majority"){
+        nbDraws <- 0
 
-    ## compute compromise
-    if(!is.list(temp)){
-        newances <- temp
-        ances.support <- rep(1,length(temp))
-    } else {
-        f1 <- function(tab){
-            if(length(tab)==0) return(NA)
+        ## tables of occurences of ancestors
+        temp <- apply(listres$ances, 1, table)
 
-            res <- names(tab)[tab==max(tab)]
-            ## if(length(res)==1) return(res)
-            ##             return(NA)
-            if(length(res)>1) {
-                nbDraws <- nbDraws+1
+        ## compute compromise
+        if(!is.list(temp)){
+            newances <- temp
+            ances.support <- rep(1,length(temp))
+        } else {
+            f1 <- function(tab){
+                if(length(tab)==0) return(NA)
+
+                res <- names(tab)[tab==max(tab)]
+                ## if(length(res)==1) return(res)
+                ##             return(NA)
+                if(length(res)>1) {
+                    nbDraws <- nbDraws+1
+                }
+                return(res[1])
             }
-            return(res[1])
+
+            newances <- sapply(temp, f1)
+            ances.support <- sapply(temp, function(e) max(e, na.rm=TRUE)/sum(e, na.rm=TRUE))
+            ances.support[is.na(newances)] <- NA
         }
 
-        newances <- sapply(temp, f1)
-        ances.support <- sapply(temp, function(e) max(e, na.rm=TRUE)/sum(e, na.rm=TRUE))
-        ances.support[is.na(newances)] <- NA
-    }
+        ## form the output
+        olev <- levels(orires$ances)
+        res$ances <- newances
+        levels(res$ances) <- olev
+        res$support <- ances.support
+        res$weight <- rep(1, length(res$date))
 
-    ## form the output
-    olev <- levels(orires$ances)
-    res$ances <- newances
-    levels(res$ances) <- olev
-    res$support <- ances.support
+        if(is.numeric(listres$ances)){
+            res$ances <- as.numeric(res$ances)
+        }
+        cat("\nThere were\n",nbDraws, "draws.\n")
+    } # end majority
 
-    if(is.numeric(listres$ances)){
-        res$ances <- as.numeric(res$ances)
+
+    if(mode=="best"){
+        toKeep <- which.max(listres$valsim)
+        nbDraws <- sum(listres$valsim > (max(listres$valsim) - 1e-10 )) -1
+        cat("\nThere were\n",nbDraws, "draws.\n")
+
+        res$ances <- listres$ances[,toKeep]
+        res$date <- listres$date[,toKeep]
+        res$ances.date <- listres$ances.date[,toKeep]
+        res$weight <- rep(1, length(res$date))
     }
-    cat("\nThere were\n",nbDraws, "draws.\n")
 
     return(res)
-}
+} # end get.consensus
 
 
 
