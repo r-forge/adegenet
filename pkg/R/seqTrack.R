@@ -322,11 +322,22 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 #################
 ## .rUnifTimeSeq
 #################
-.rUnifTimeSeq <- function(n, dateMin, dateMax){
+.rUnifTimeSeq <- function(n, dateMin, dateMax, ...){
     rangeSize <-  as.integer(difftime(dateMax,dateMin, units="days"))
     nbDays <- round(runif(n, min=0, max=rangeSize))
     res <- dateMin + nbDays*3600*24
     res <- as.POSIXct(round(res, units="days"))
+    return(res)
+}
+
+
+
+#################
+## .rNormTimeSeq
+#################
+.rNormTimeSeq <- function(n, mean, sd, ...){
+    nbDays <- round(rnorm(n, mean=mean, sd=sd))
+    res <- nbDays*3600*24
     return(res)
 }
 
@@ -413,7 +424,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ##
 optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.length,
                                       thres=0.2, optim=c("min","max"), prox.mat=NULL, nstep=10, step.size=1e3,
-                                      rMissDate=.rUnifTimeSeq, ...){
+                                      rDate=.rTimeSeq, rMissDate=.rUnifTimeSeq, ...){
 
 
     ## CHECKS ##
@@ -524,7 +535,7 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.l
     if(!any(isMissDate)){
         ## dates initialisation, taken from initial prior
         newDates <- sapply(1:N, function(i)
-                           .rTimeSeq(n=step.size, mu0=list.mu0[[i]], L=list.chr.length[[i]], maxNbDays=RANGE.DATES))
+                           rDate(n=step.size, mu0=list.mu0[[i]], L=list.chr.length[[i]], maxNbDays=RANGE.DATES))
         newDates <- t(newDates)*24*3600 + x.dates
 
         ## >> one step of 'step.size' simulations, all with same prior << ##
@@ -619,7 +630,7 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.l
     ##             myDates <- x.dates
     ##             ## distribution for available dates
     ##             myDates[!isMissDate] <- myDates[!isMissDate] +
-    ##                 .rTimeSeq(n=NB.DATES.TO.SIM, mu0=mu0, L=chr.length, maxNbDays=2*RANGE.DATES)
+    ##                 rDate(n=NB.DATES.TO.SIM, mu0=mu0, L=chr.length, maxNbDays=2*RANGE.DATES)
     ##             ## distribution for missing dates
     ##             myDates[isMissDate] <- do.call(rMissDate, argList)
 
@@ -776,7 +787,7 @@ get.consensus <- function(orires, listres, mode=c("majority","best")){
         cat("\nThere were\n",nbDraws, "draws.\n")
 
         res$ances <- listres$ances[,toKeep]
-        res$date <- listres$date[,toKeep]
+        res$inf.date <- listres$date[,toKeep]
         res$ances.date <- listres$ances.date[,toKeep]
         res$weight <- rep(1, length(res$date))
     }
