@@ -726,7 +726,7 @@ get.result.by <- function(x, ...){
     }
 
     ## method for haploSim
-    if(class(x)=="haploSim"){
+    if(inherits(x,"haploSim")){
         res <- x
         ances.id <- match(x$ances, labels(x))
     }
