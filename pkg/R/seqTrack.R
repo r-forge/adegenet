@@ -434,7 +434,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ##
 optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.length,
                                       thres=0.2, optim=c("min","max"), prox.mat=NULL, nstep=10, step.size=1e3,
-                                      rDate=.rTimeSeq, rMissDate=.rUnifTimeSeq, ...){
+                                      rDate=.rTimeSeq, arg.rDate=NULL, rMissDate=.rUnifTimeSeq, ...){
 
 
     ## CHECKS ##
@@ -457,6 +457,19 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.l
     }
 
     isMissDate <- is.na(x.dates)
+
+    if(!identical(rDate, .rTimeSeq)){
+        if(is.null(arg.rDate)){
+            warning("Specific time distribution specified without arguments.")
+            arg.rDate <- list(n=step.size)
+        } else {
+            if(!is.list(arg.rDate)) stop("If provided, arg.rDate must be a list.")
+            if(!is.null(arg.rDate$n)) {
+                warning("arg.rDate$n is provided, but will be replaced by step.size.")
+            }
+            arg.rDate <- list(n=step.size)
+        }
+    }
 
 
     N <- length(x.names)
@@ -544,8 +557,15 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.l
     ## DEFAULT CASE: NO MISSING DATES
     if(!any(isMissDate)){
         ## dates initialisation, taken from initial prior
-        newDates <- sapply(1:N, function(i)
-                           rDate(n=step.size, mu0=list.mu0[[i]], L=list.chr.length[[i]], maxNbDays=RANGE.DATES))
+        ## If dates distrib is .rTimeSeq
+        if(identical(rDate, .rTimeSeq)){
+            newDates <- sapply(1:N, function(i)
+                               rDate(n=step.size, mu0=list.mu0[[i]], L=list.chr.length[[i]],
+                                     maxNbDays=RANGE.DATES))
+        } else { ## Else, any other distrib with free arguements
+            newDates <- sapply(1:N, function(i) do.call(rDate, arg.rDate))
+        }
+
         newDates <- t(newDates)*24*3600 + x.dates
 
         ## >> one step of 'step.size' simulations, all with same prior << ##
