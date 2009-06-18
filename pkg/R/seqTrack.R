@@ -323,6 +323,8 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 #############
 ##
 ## mu0 and L are vectors, having one value per segment/chromosome
+##
+## this returns nb days
 .rTimeSeq <- function(n, mu0, L, maxNbDays=100){
     temp <- .dTimeSeq(mu0, L, maxNbDays)
     res <- sample(temp[[1]], size=n, replace=TRUE, prob= temp[[2]]/sum(temp[[2]]))
@@ -332,9 +334,12 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
 
 #################
-## .rUnifTimeSeq
+## .rUnifDate
 #################
-.rUnifTimeSeq <- function(n, dateMin, dateMax, ...){
+##
+## this returns random uniform dates in a given range
+##
+.rUnifDate <- function(n, dateMin, dateMax, ...){
     rangeSize <-  as.integer(difftime(dateMax,dateMin, units="days"))
     nbDays <- round(runif(n, min=0, max=rangeSize))
     res <- dateMin + nbDays*3600*24
@@ -347,12 +352,25 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 #################
 ## .rNormTimeSeq
 #################
+##
+## this returns nb of days
 .rNormTimeSeq <- function(n, mean, sd, ...){
-    nbDays <- round(rnorm(n, mean=mean, sd=sd))
-    res <- nbDays*3600*24
+    res <- round(rnorm(n, mean=mean, sd=sd))
     return(res)
 }
 
+
+
+#################
+## .rSampTimeSeq
+#################
+##
+## this returns nb of days
+.rSampTime <- function(n,...){
+    res <- round(rnorm(n*2, -2))
+    res <- res[res < 0 & res > -7][1:n]
+    return(res)
+}
 
 
 
@@ -434,7 +452,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ##
 optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=NULL, chr.length=NULL,
                                       thres=0.2, optim=c("min","max"), prox.mat=NULL, nstep=10, step.size=1e3,
-                                      rDate=.rTimeSeq, arg.rDate=NULL, rMissDate=.rUnifTimeSeq, ...){
+                                      rDate=.rTimeSeq, arg.rDate=NULL, rMissDate=.rUnifDate, ...){
 
 
     ## CHECKS ##
@@ -648,12 +666,12 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=N
     ##         ## Handle distribution and its parameters ##
     ##         argList <- list(...)
 
-    ##         if(is.null(argList$dateMin) & identical(rMissDate, .rUnifTimeSeq)){ # earliest date
+    ##         if(is.null(argList$dateMin) & identical(rMissDate, .rUnifDate)){ # earliest date
     ##             argList$dateMin <- min(x.dates,na.rm=TRUE)
     ##         } else {
     ##             argList$dateMin[is.na(argList$dateMin)] <- min(x.dates,na.rm=TRUE)
     ##         }
-    ##         if(is.null(argList$dateMax) & identical(rMissDate, .rUnifTimeSeq)){ # latest date
+    ##         if(is.null(argList$dateMax) & identical(rMissDate, .rUnifDate)){ # latest date
     ##             argList$dateMax <- max(x.dates,na.rm=TRUE)
     ##         } else {
     ##             argList$dateMax[is.na(argList$dateMax)] <- max(x.dates,na.rm=TRUE)
