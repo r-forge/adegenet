@@ -432,7 +432,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 ## 2) VECTORIZE mu0 and chr.length, recycle if needed with a warning
 ## 3) uncomment, adapt, and test code for missing data
 ##
-optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.length,
+optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=NULL, chr.length=NULL,
                                       thres=0.2, optim=c("min","max"), prox.mat=NULL, nstep=10, step.size=1e3,
                                       rDate=.rTimeSeq, arg.rDate=NULL, rMissDate=.rUnifTimeSeq, ...){
 
@@ -467,7 +467,7 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.l
             if(!is.null(arg.rDate$n)) {
                 warning("arg.rDate$n is provided, but will be replaced by step.size.")
             }
-            arg.rDate <- list(n=step.size)
+            arg.rDate$n <- step.size
         }
     }
 
@@ -483,25 +483,31 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr, mu0, chr.l
 
 
     ## handle typed.chr, mu0, chr.length
-    if(!is.list(typed.chr)) {
-        stop("typed.chr must be a list")
-    }
-    if(length(typed.chr)!=N) {
-        stop("typed.chr has an inconsistent length")
-    }
+    if(identical(rDate, .rTimeSeq)){
+        if(is.null(typed.chr)|is.null(mu0)|is.null(chr.length)){
+            stop("typed.chr, mu0, and chr.length must be provided if rDate is .rTimeSeq")
+        }
 
-    if(is.null(names(mu0))) stop("mu0 has no names")
-    if(is.null(names(chr.length))) stop("chr.length has no names")
-    if(any(mu0 > 1)) stop("mu0 has values > 1")
-    if(any(mu0 < 0)) stop("mu0 has negative values")
+        if(!is.list(typed.chr)) {
+            stop("typed.chr must be a list")
+        }
+        if(length(typed.chr)!=N) {
+            stop("typed.chr has an inconsistent length")
+        }
 
-    if(!identical(names(mu0) , names(chr.length))) stop("Names of mu0 and chr.length differ.")
-    if(any(!unique(unlist(typed.chr)) %in% names(mu0))) {
-        stop("Some chromosomes indicated in typed.chr are not in mu0.")
+        if(is.null(names(mu0))) stop("mu0 has no names")
+        if(is.null(names(chr.length))) stop("chr.length has no names")
+        if(any(mu0 > 1)) stop("mu0 has values > 1")
+        if(any(mu0 < 0)) stop("mu0 has negative values")
+
+        if(!identical(names(mu0) , names(chr.length))) stop("Names of mu0 and chr.length differ.")
+        if(any(!unique(unlist(typed.chr)) %in% names(mu0))) {
+            stop("Some chromosomes indicated in typed.chr are not in mu0.")
+        }
+
+        list.mu0 <- lapply(typed.chr, function(e) mu0[e])
+        list.chr.length <- lapply(typed.chr, function(e) chr.length[e])
     }
-
-    list.mu0 <- lapply(typed.chr, function(e) mu0[e])
-    list.chr.length <- lapply(typed.chr, function(e) chr.length[e])
 
     x.dates <- as.POSIXct(round.POSIXt(x.dates,units="days")) # round dates to the day
 
