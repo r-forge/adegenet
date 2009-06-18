@@ -11,6 +11,16 @@ optimize.seqTrack <- function(...){
 }
 
 
+get.likelyhood <- function(...){
+    UseMethod("get.likelyhood")
+}
+
+get.likelyhood.seqTrack.default <- function(...){
+    cat("Method not implemented.")
+    return()
+}
+
+
 
 #############
 ## seqTrack
@@ -114,6 +124,8 @@ seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
     res <- cbind.data.frame(id,res, date=x.dates, ances.date)
     rownames(res) <- x.names
 
+    class(res) <- c("seqTrack","data.frame")
+
     return(res)
 } # end seqTrack
 
@@ -131,7 +143,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
                          plot=TRUE,...){
 
     ## CHECKS ##
-    if(class(x) != "data.frame") stop("x is not a data.frame")
+    if(!inherits(x,"seqTrack")) stop("x is not a seqTrack object")
     ##if(ncol(x) != 5) stop("x does not have five columns")
     if(ncol(xy) != 2) stop("xy does not have two columns")
     if(nrow(xy) != nrow(x)) stop("x and xy have inconsistent dimensions")
@@ -405,8 +417,6 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 }
 
 .pAbeforeB <- Vectorize(.pAbeforeB, vectorize.args=c("dateA","dateB")) ## end .pAbeforeB
-
-
 
 
 
@@ -795,6 +805,39 @@ get.consensus <- function(orires, listres, mode=c("majority","best")){
     return(res)
 } # end get.consensus
 
+
+
+
+
+
+
+###########################
+## get.likelyhood.seqTrack
+###########################
+get.likelyhood.seqTrack <-function(x, method=("genetic"), mu0=NULL, seq.length=NULL,...){
+    method <- match.arg(method)
+    if(method=="genetic"){ # p(nb mutations occur in the time interval)
+        if(any(na.omit(res$weight - round(res$weight) > 1e-10))){
+            warning("Non-integer weights: number of mutations expected in x$weight.")
+        }
+
+        if(is.null(mu0)) stop("mu0 is required.")
+        if(is.null(seq.length)) stop("seq.length is required.")
+
+        dates <- as.POSIXct(x$date)
+        anc.dates <- as.POSIXct(x$ances.date)
+        nb.days <- abs(as.integer(anc.dates-dates))
+        nb.mut <- x$weight
+        mu <- mu0/365
+        mu <- mu*nb.days
+
+        res <- dbinom(nb.mut, size=seq.length, prob=mu)
+    } else{
+        cat("Method not implemented.")
+    }
+
+    return(res)
+} # end get.likelyhood.seqTrack
 
 
 
