@@ -11,11 +11,11 @@ optimize.seqTrack <- function(...){
 }
 
 
-get.likelyhood <- function(...){
-    UseMethod("get.likelyhood")
+get.likelihood <- function(...){
+    UseMethod("get.likelihood")
 }
 
-get.likelyhood.seqTrack.default <- function(...){
+get.likelihood.seqTrack.default <- function(...){
     cat("Method not implemented.")
     return()
 }
@@ -812,9 +812,9 @@ get.consensus <- function(orires, listres, mode=c("majority","best")){
 
 
 ###########################
-## get.likelyhood.seqTrack
+## get.likelihood.seqTrack
 ###########################
-get.likelyhood.seqTrack <-function(x, method=("genetic"), mu0=NULL, seq.length=NULL,...){
+get.likelihood.seqTrack <-function(x, method=("genetic"), mu0=NULL, seq.length=NULL,...){
     method <- match.arg(method)
     if(method=="genetic"){ # p(nb mutations occur in the time interval)
         if(any(na.omit(res$weight - round(res$weight) > 1e-10))){
@@ -837,7 +837,7 @@ get.likelyhood.seqTrack <-function(x, method=("genetic"), mu0=NULL, seq.length=N
     }
 
     return(res)
-} # end get.likelyhood.seqTrack
+} # end get.likelihood.seqTrack
 
 
 
