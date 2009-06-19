@@ -139,7 +139,7 @@ seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
 ################
 plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
                          col=NULL, bg="grey", add=FALSE, quiet=FALSE,
-                         showAmbiguous=TRUE, mu0=NULL, chr.length=NULL, prob=0.75,
+                         showAmbiguous=FALSE, mu0=NULL, chr.length=NULL, prob=0.75,
                          plot=TRUE,...){
 
     ## CHECKS ##
@@ -153,12 +153,20 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
     isAmbig <- NULL
 
+    ## RECYCLE COL
+    if(!is.null(col)){
+        col <- rep(col,length=nrow(x))
+    }
+
 
     ## SUBSET DATA (REMOVE NAs) ##
     isNA <- is.na(x[,2])
     x <- x[!isNA,,drop=FALSE]
     xy.all <- xy ## used to retrieve all coordinates
     xy <- xy[!isNA,,drop=FALSE]
+    if(!is.null(col)){
+        col <- col[!isNA]
+    }
 
 
     ## FIND AMBIGUOUS TEMPORAL ORDERING ##
@@ -181,7 +189,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     ## FIND THE COLOR FOR EDGES ##
     if(is.null(col)){
         if(is.null(mu0) & is.null(chr.length)) {
-            col <- "black"
+            col <- rep("black", length(x.from))
         } else {
             ##  w <- .pAbeforeB(x$ances.date, x$date, mu0, chr.length, 200) # beware, lots of steps take time
             ##             isAmbig <-  w < prob
@@ -214,10 +222,6 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
     ##         col <- w
     ##     }
-
-
-    ## recycle col
-    col <- rep(col,length=length(x.from))
 
 
     ## HANDLE RANGE OF DATES ##
