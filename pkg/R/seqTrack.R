@@ -188,25 +188,13 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
     ## FIND THE COLOR FOR EDGES ##
     if(is.null(col)){
-        if(is.null(mu0) & is.null(chr.length)) {
-            col <- rep("black", length(x.from))
-        } else {
-            ##  w <- .pAbeforeB(x$ances.date, x$date, mu0, chr.length, 200) # beware, lots of steps take time
-            ##             isAmbig <-  w < prob
-            ##             w[w<.5] <- .5
-            ##             w <- (1 - w)
-            ##             w <- w - min(w) # rescale to 0-1
-            ##             w <- 100*w/max(w)  # rescale to 0-100
-            ##             w[w<1] <- 1
+        opalette <- palette()
+        on.exit(palette(opalette))
 
-            opalette <- palette()
-            on.exit(palette(opalette))
-
-            w <- as.integer(round(x$weight))
-            col <- rep("yellow", length(w))
-            col[w <= 1] <- "orange"
-            col[w < 1] <- "red"
-        }
+        w <- as.integer(round(x$weight))
+        col <- rep("yellow", length(w))
+        col[w <= 1] <- "orange"
+        col[w < 1] <- "red"
     }
 
     ## THIS WAS USED WHEN COLOR REPRESENTED THE NUMBER OF MUTATIONS ##
@@ -266,13 +254,17 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
     ## ARROWS
     if(useArrows & plot){
+        ## handle segments/arrows with length 0 ##
+        nullLength <- (abs(x.from-x.to)<1e-10) & (abs(y.from-y.to)<1e-10)
+
         if(showAmbiguous & any(isAmbig)){ # plot arrows & segments
             suppressWarnings(arrows(x.from[!isAmbig], y.from[!isAmbig],
                                     x.to[!isAmbig], y.to[!isAmbig], col=col[!isAmbig], angle=15, ...))
             segments(x.from[isAmbig], y.from[isAmbig],
                      x.to[isAmbig], y.to[isAmbig], col=col,...)
         } else{ # plot all arrows
-            suppressWarnings(arrows(x.from, y.from, x.to, y.to, col=col, angle=15, ...))
+            suppressWarnings(arrows(x.from[!nullLength], y.from[!nullLength],
+                                    x.to[!nullLength], y.to[!nullLength], col=col[!nullLength], angle=15, ...))
         }
     } else{
         ## SEGMENTS
@@ -281,10 +273,6 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
 
 
     if(annot & plot) text(xy,lab=rownames(x), font=2)
-
-
-    ## handle segments/arrows with length 0 ##
-    nullLength <- (x.from==x.to) & (y.from==y.to)
 
     if(any(nullLength) & plot) {
         points(x.from[nullLength], y.from[nullLength], col=col[nullLength], cex=2, pch=20, ...)
