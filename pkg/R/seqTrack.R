@@ -843,7 +843,7 @@ get.consensus <- function(orires, listres, mode=c("majority","best")){
         res$ances <- listres$ances[,toKeep]
         res$inf.date <- listres$date[,toKeep]
         res$ances.date <- listres$ances.date[,toKeep]
-        res$weight <- rep(1, length(res$date))
+        res$weight <- NA
     }
 
     return(res)
