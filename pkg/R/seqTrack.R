@@ -139,8 +139,7 @@ seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
 ################
 plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRange=NULL,
                          col=NULL, bg="grey", add=FALSE, quiet=FALSE,
-                         support=NULL, thres=0.5,
-                         plot=TRUE,...){
+                         support=NULL, thres=0.5, col.pal=heat.colors, plot=TRUE,...){
 
     ## CHECKS ##
     if(!inherits(x,"seqTrack")) stop("x is not a seqTrack object")
@@ -159,6 +158,13 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
     ## RECYCLE COL
     if(!is.null(col)){
         col <- rep(col,length=nrow(x))
+    }
+
+    ## HANDLE COLOR PALETTE
+    if(!is.null(col) | !is.null(support)){ # use palette iff col or support provided
+        opal <- palette()
+        on.exit(palette(opal))
+        palette(col.pal(100))
     }
 
     ## DEFAULT LABELS
