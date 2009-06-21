@@ -137,9 +137,9 @@ seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
 ################
 ## plotSeqTrack
 ################
-plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
+plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRange=NULL,
                          col=NULL, bg="grey", add=FALSE, quiet=FALSE,
-                         showAmbiguous=FALSE, mu0=NULL, chr.length=NULL, prob=0.75,
+                         support=NULL, thres=0.5,
                          plot=TRUE,...){
 
     ## CHECKS ##
@@ -147,8 +147,11 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     ##if(ncol(x) != 5) stop("x does not have five columns")
     if(ncol(xy) != 2) stop("xy does not have two columns")
     if(nrow(xy) != nrow(x)) stop("x and xy have inconsistent dimensions")
-    if(showAmbiguous & (is.null(mu0) | is.null(chr.length)) ){
-        stop("showAmbiguous is TRUE, but mu0 and chr.length are not all provided.")
+    ## if(showAmbiguous & (is.null(mu0) | is.null(chr.length)) ){
+    ##         stop("showAmbiguous is TRUE, but mu0 and chr.length are not all provided.")
+    ##     }
+    if(!is.null(support)){
+        if(length(support)!=nrow(xy)) stop("Inconsistent length for support.")
     }
 
     isAmbig <- NULL
@@ -164,16 +167,28 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     x <- x[!isNA,,drop=FALSE]
     xy.all <- xy ## used to retrieve all coordinates
     xy <- xy[!isNA,,drop=FALSE]
-    if(!is.null(col)){
+    if(!is.null(labels)){ # subset labels
+        labels <- labels[!isNA]
+    }
+    if(!is.null(col)){ # subset colors
         col <- col[!isNA]
     }
-
-
-    ## FIND AMBIGUOUS TEMPORAL ORDERING ##
-    if(showAmbiguous){
-        temp <- .pAbeforeB(x$ances.date, x$date, mu0, chr.length)
-        isAmbig <- temp < prob
+    if(!is.null(support)){
+        support <- support[!isNA] # subset support
     }
+
+
+    ## FIND AMBIGUOUS ANCESTRIES ##
+    if(!is.null(support)){
+        isAmbig <- support < thres
+    }
+
+
+    ## ## FIND AMBIGUOUS TEMPORAL ORDERING ##
+    ##     if(showAmbiguous){
+    ##         temp <- .pAbeforeB(x$ances.date, x$date, mu0, chr.length)
+    ##         isAmbig <- temp < prob
+    ##     }
 
 
     ## FIND SEGMENTS COORDS ##
@@ -196,6 +211,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
         col[w <= 1] <- "orange"
         col[w < 1] <- "red"
     }
+
 
     ## THIS WAS USED WHEN COLOR REPRESENTED THE NUMBER OF MUTATIONS ##
     ##  if(is.null(col)){
@@ -237,10 +253,16 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
         col <- col[toKeep]
         xy <- xy[toKeep,,drop=FALSE]
         x <- x[toKeep,,drop=FALSE]
-        if(!is.null(isAmbig)) {
+        if(!is.null(isAmbig)) { # subset isAmbig
             isAmbig <- isAmbig[toKeep]
         }
+        if(!is.null(labels)){ # subset labels
+            labels <- labels[toKeep]
+        }
     }
+
+
+
 
     ## DO THE PLOTTING ##
     if(plot){
@@ -257,9 +279,10 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
         ## handle segments/arrows with length 0 ##
         nullLength <- (abs(x.from-x.to)<1e-10) & (abs(y.from-y.to)<1e-10)
 
-        if(showAmbiguous & any(isAmbig)){ # plot arrows & segments
-            suppressWarnings(arrows(x.from[!isAmbig], y.from[!isAmbig],
-                                    x.to[!isAmbig], y.to[!isAmbig], col=col[!isAmbig], angle=15, ...))
+        if(any(isAmbig)){ # plot arrows & segments
+            suppressWarnings(arrows(x.from[!isAmbig & !nullLength], y.from[!isAmbig & !nullLength],
+                                    x.to[!isAmbig & !nullLength], y.to[!isAmbig & !nullLength],
+                                    col=col[!isAmbig & !nullLength], angle=15, ...))
             segments(x.from[isAmbig], y.from[isAmbig],
                      x.to[isAmbig], y.to[isAmbig], col=col,...)
         } else{ # plot all arrows
@@ -272,12 +295,17 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, dateRange=NULL,
     }
 
 
-    if(annot & plot) text(xy,lab=rownames(x), font=2)
+    if(annot & plot) {
+        if(is.null(labels)){
+            labels <- rownames(x)
+        }
+        text(xy,lab=labels, font=2)
+    }
 
     if(any(nullLength) & plot) {
-        points(x.from[nullLength], y.from[nullLength], col=col[nullLength], cex=2, pch=20, ...)
         sunflowerplot(x.from[nullLength], y.from[nullLength], seg.lwd=2, size=1/6,
                       col=col[nullLength], seg.col=col[nullLength], add=TRUE, ...)
+        points(x.from[nullLength], y.from[nullLength], col=col[nullLength], cex=2, pch=20, ...)
     }
 
 
