@@ -161,6 +161,10 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
         col <- rep(col,length=nrow(x))
     }
 
+    ## DEFAULT LABELS
+    if(is.null(labels)){
+        labels <- rownames(x)
+    }
 
     ## SUBSET DATA (REMOVE NAs) ##
     isNA <- is.na(x[,2])
@@ -202,14 +206,13 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
 
 
     ## FIND THE COLOR FOR EDGES ##
-    if(is.null(col)){
+    if(is.null(col) & !is.null(support)){
         opalette <- palette()
         on.exit(palette(opalette))
 
-        w <- as.integer(round(x$weight))
-        col <- rep("yellow", length(w))
-        col[w <= 1] <- "orange"
-        col[w < 1] <- "red"
+        w <- support/max(support,na.rm=TRUE) # support from 0 to 1
+        w <- 1 + ((1-w)*99)
+        col <- w
     }
 
 
@@ -280,14 +283,15 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
         nullLength <- (abs(x.from-x.to)<1e-10) & (abs(y.from-y.to)<1e-10)
 
         if(any(isAmbig)){ # plot arrows & segments
-            suppressWarnings(arrows(x.from[!isAmbig & !nullLength], y.from[!isAmbig & !nullLength],
+            arrows(x.from[!isAmbig & !nullLength], y.from[!isAmbig & !nullLength],
                                     x.to[!isAmbig & !nullLength], y.to[!isAmbig & !nullLength],
-                                    col=col[!isAmbig & !nullLength], angle=15, ...))
+                                    col=col[!isAmbig & !nullLength], angle=15, ...)
             segments(x.from[isAmbig], y.from[isAmbig],
-                     x.to[isAmbig], y.to[isAmbig], col=col,...)
+                     x.to[isAmbig], y.to[isAmbig], col=col[isAmbig],...)
         } else{ # plot all arrows
-            suppressWarnings(arrows(x.from[!nullLength], y.from[!nullLength],
-                                    x.to[!nullLength], y.to[!nullLength], col=col[!nullLength], angle=15, ...))
+            arrows(x.from[!nullLength], y.from[!nullLength],
+                                    x.to[!nullLength], y.to[!nullLength],
+                   col=col[!nullLength], angle=15, ...)
         }
     } else{
         ## SEGMENTS
@@ -296,9 +300,6 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
 
 
     if(annot & plot) {
-        if(is.null(labels)){
-            labels <- rownames(x)
-        }
         text(xy,lab=labels, font=2)
     }
 
