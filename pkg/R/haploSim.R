@@ -476,7 +476,7 @@ plotHaploSim <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", ad
 
     ## CALL TO PLOTSEQTRACK ##
     plotSeqTrack(x=res, xy=xy, annot=annot, dateRange=dateRange,
-                        col=col, bg=bg, add=add, showAmbiguous=FALSE, ...)
+                        col=col, bg=bg, add=add, ...)
 
     return(invisible(res))
 
@@ -516,7 +516,7 @@ sample.haploSim <- function(x, n, rDate=.rTimeSeq, arg.rDate=NULL){
         sampdates <- .rTimeSeq(mu0=mu0, L=L, n=length(truedates), maxNbDays=daterange/2)
     } else{
         arg.rDate$n <- n
-        sampdates <- do.call(.rTimeSeq, arg.rDate)
+        sampdates <- do.call(rDate, arg.rDate)
     }
     sampdates <- truedates + abs(sampdates)
 

@@ -212,13 +212,17 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
 
 
     ## FIND THE COLOR FOR EDGES ##
-    if(is.null(col) & !is.null(support)){
-        opalette <- palette()
-        on.exit(palette(opalette))
+    if(is.null(col)){
+        if(!is.null(support)){
+            opalette <- palette()
+            on.exit(palette(opalette))
 
-        w <- support/max(support,na.rm=TRUE) # support from 0 to 1
-        w <- 1 + ((1-w)*99)
-        col <- w
+            w <- support/max(support,na.rm=TRUE) # support from 0 to 1
+            w <- 1 + ((1-w)*99)
+            col <- w
+        } else{
+            col <- rep("black", length(from))
+        }
     }
 
 
