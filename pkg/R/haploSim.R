@@ -371,8 +371,8 @@ as.POSIXct.haploSim <- function(x, tz="", origin=as.POSIXct("2000/01/01"), ...){
 #####################
 seqTrack.haploSim <- function(x, optim=c("min","max"), prox.mat=NULL, ...){
     myX <- dist.dna(x$seq, model="raw")
-    seq.names <- labels(x)
-    seq.dates <- as.POSIXct(x)
+    x.names <- labels(x)
+    x.dates <- as.POSIXct(x)
     seq.length <- ncol(x$seq)
     myX <- myX * seq.length
     prevCall <- as.list(x$call)
@@ -381,7 +381,7 @@ seqTrack.haploSim <- function(x, optim=c("min","max"), prox.mat=NULL, ...){
     } else {
         mu0 <- eval(prevCall$mu)
     }
-    res <- seqTrack(myX, seq.names=seq.names, seq.dates=seq.dates, optim=optim, prox.mat=prox.mat,...)
+    res <- seqTrack(myX, x.names=x.names, x.dates=x.dates, optim=optim, prox.mat=prox.mat,...)
     return(res)
 }
 
@@ -395,8 +395,8 @@ seqTrack.haploSim <- function(x, optim=c("min","max"), prox.mat=NULL, ...){
 optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
                               prox.mat=NULL, nstep=10, step.size=1e3, rMissDate=.rUnifTimeSeq, ...){
 
-    seq.names <- labels(x)
-    seq.dates <- as.POSIXct(x)
+    x.names <- labels(x)
+    x.dates <- as.POSIXct(x)
     seq.length <- ncol(x$seq)
     myX <- dist.dna(x$seq, model="raw") * seq.length
     prevCall <- as.list(x$call)
@@ -406,7 +406,7 @@ optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
         mu0 <- eval(prevCall$mu)
     }
 
-    res <- optimize.seqTrack.default(x=myX, seq.names=seq.names, seq.dates=seq.dates,
+    res <- optimize.seqTrack.default(x=myX, x.names=x.names, x.dates=x.dates,
                                      thres=thres, optim=optim, prox.mat=prox.mat,
                                      nstep=nstep, step.size=step.size, mu0=mu0,
                                      seq.length=seq.length, rMissDate=rMissDate, ...)
@@ -487,15 +487,9 @@ plotHaploSim <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", ad
 ###################
 ## sample.haploSim
 ###################
-sample.haploSim <- function(x, n, ancesWithinSample=FALSE){
+sample.haploSim <- function(x, n, rDate=.rTimeSeq, arg.rDate=NULL){
     ## EXTRACT THE SAMPLE ##
-    if(ancesWithinSample)  {
-        available <- x$ances %in% labels(x)
-        res <- x[sample((1:nrow(x$seq))[available], n, replace=FALSE)]
-    } else {
     res <- x[sample(1:nrow(x$seq), n, replace=FALSE)]
-
-    }
 
 
     ## RETRIEVE SOME PARAMETERS FROM HAPLOSIM CALL
@@ -515,7 +509,12 @@ sample.haploSim <- function(x, n, ancesWithinSample=FALSE){
     truedates <- res$dates
     daterange <- diff(range(res$dates,na.rm=TRUE))
 
-    sampdates <- .rTimeSeq(mu0=mu0, L=L, n=length(truedates), maxNbDays=daterange/2)
+    if(identical(rDate,.rTimeSeq)){
+        sampdates <- .rTimeSeq(mu0=mu0, L=L, n=length(truedates), maxNbDays=daterange/2)
+    } else{
+        arg.rDate$n <- n
+        sampdates <- do.call(.rTimeSeq, arg.rDate)
+    }
     sampdates <- truedates + abs(sampdates)
 
     res$dates <- sampdates
