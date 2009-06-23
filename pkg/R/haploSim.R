@@ -393,7 +393,9 @@ seqTrack.haploSim <- function(x, optim=c("min","max"), prox.mat=NULL, ...){
 ## optimize.seqTrack.haploSim
 ##############################
 optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
-                              prox.mat=NULL, nstep=10, step.size=1e3, rMissDate=.rUnifTimeSeq, ...){
+                                       typed.chr=NULL, mu0=NULL, chr.length=NULL,
+                                       prox.mat=NULL, nstep=10, step.size=1e3,
+                                       rDate=.rTimeSeq, arg.rDate=NULL, rMissDate=.rUnifTimeSeq, ...){
 
     x.names <- labels(x)
     x.dates <- as.POSIXct(x)
@@ -407,9 +409,10 @@ optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
     }
 
     res <- optimize.seqTrack.default(x=myX, x.names=x.names, x.dates=x.dates,
+                                     typed.chr=typed.chr, mu0=mu0, chr.length=chr.length,
                                      thres=thres, optim=optim, prox.mat=prox.mat,
-                                     nstep=nstep, step.size=step.size, mu0=mu0,
-                                     seq.length=seq.length, rMissDate=rMissDate, ...)
+                                     nstep=nstep, step.size=step.size,
+                                     rDate=rDate, arg.rDate=arg.rDate, rMissDate=rMissDate, ...)
 } # end optimize.seqTrack.haploSim
 
 
