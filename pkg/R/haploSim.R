@@ -437,6 +437,9 @@ as.seqTrack.haploSim <- function(x){
     res$ances <- match(res$ances, res$id)
     res$id <- 1:length(res$id)
 
+    ## SET CLASS
+    class(res) <- c("seqTrack", "data.frame")
+
     return(res)
 }
 
