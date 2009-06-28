@@ -904,9 +904,9 @@ get.likelihood.seqTrack <-function(x, method=("genetic"), mu0=NULL, seq.length=N
         nb.days <- abs(as.integer(anc.dates-dates))
         nb.mut <- x$weight
         mu <- mu0/365
-        mu <- mu*nb.days
+        ##mu <- mu*nb.days
 
-        res <- dbinom(nb.mut, size=seq.length, prob=mu)
+        res <- dbinom(nb.mut, size=seq.length*nb.days, prob=mu)
     } else{
         cat("Method not implemented.")
     }
