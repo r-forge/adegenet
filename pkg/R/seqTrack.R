@@ -25,6 +25,12 @@ get.likelihood.seqTrack.default <- function(...){
 #############
 ## seqTrack
 #############
+##
+## - x is a matrix giving weights x[i,j] such that:
+## 'i is ancestor j'
+## - prox.mat is a directed proximity measure, so that prox.mat[i,j] is
+## the 'proximity when going from i to j'
+##
 seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
                      prox.mat=NULL, ...){
 
@@ -91,7 +97,7 @@ seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
     selAmongAncestors <- function(idx,ances){
         ## Choose the most otherwise connected ancestor, given prox.mat
         if(!is.null(prox.mat)){ # if we've got no other info
-            toKeep <- test.equal(max(prox.mat[idx,ances]), prox.mat[idx,ances])
+            toKeep <- test.equal(max(prox.mat[ances,idx]), prox.mat[ances,idx])
             ances <- ances[toKeep]
         }
 
@@ -108,12 +114,12 @@ seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
     findAncestor <- function(idx){ # returns the index of one seq's ancestor
         candid <- which(x.dates < x.dates[idx])
         if(length(candid)==0) return(list(ances=NA, weight=NA))
-        if(length(candid)==1) return(list(ances=candid, weight=x[idx, candid]))
-        ancesId <- as.numeric(which.is.optim(x[idx, candid]))
+        if(length(candid)==1) return(list(ances=candid, weight=x[candid, idx]))
+        ancesId <- as.numeric(which.is.optim(x[candid, idx]))
         if(length(ancesId)>1) {
             ancesId <- selAmongAncestors(idx,ancesId) # handle several 'best' ancestors
         }
-        return(list(ances=ancesId, weight=x[idx, ancesId])) # Id of the ancestor
+        return(list(ances=ancesId, weight=x[ancesId, idx])) # Id of the ancestor
     }
 
 
