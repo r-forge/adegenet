@@ -898,8 +898,8 @@ get.consensus <- function(orires, listres, mode=c("majority","best")){
 get.likelihood.seqTrack <-function(x, method=("genetic"), mu0=NULL, seq.length=NULL,...){
     method <- match.arg(method)
     if(method=="genetic"){ # p(nb mutations occur in the time interval)
-        if(any(na.omit(res$weight - round(res$weight) > 1e-10))){
-            warning("Non-integer weights: number of mutations expected in x$weight.")
+        if(any(na.omit(res$weight - round(res$weight)) > 1e-10)){
+            stop("Non-integer weights: number of mutations expected in x$weight.")
         }
 
         if(is.null(mu0)) stop("mu0 is required.")
