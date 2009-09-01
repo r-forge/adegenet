@@ -94,9 +94,9 @@ transiProb <- function(x, mu, dates, result=c("prob","dist")){
     ## get numbers of differing nucleotides between sequences
     seq.length <- ncol(as.matrix(x))
     D <- as.matrix(dist.dna(x, model="raw")) * seq.length
-    if(sum(D-round(D)) > 1e-10){ # make sure we've got integers there
-        warning("Number of nucleotides are not all integers")
-    }
+    ## if(sum(D-round(D)) > 1e-10){ # make sure we've got integers there
+    ##         warning("Number of nucleotides are not all integers")
+    ##     }
     D <- round(D)
 
     ## compute matrix T (time between sequences)
