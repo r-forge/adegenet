@@ -79,7 +79,7 @@ DNAbin2genind <- function(x, pop=NULL, exp.char=c("a","t","g","c"), na.char=NULL
 ## transiProb
 ###############
 ##
-## distance based on transition prob from one sequence to another
+## proba/distance based on transition prob from one sequence to another
 ## time is taken into account
 ## output: matrix with term proba(rowIdx to colIdx)
 ##
@@ -113,6 +113,7 @@ transiProb <- function(x, mu, dates, result=c("prob","dist")){
     ## compute proba(no change @ a site) term
     mu <- mu/365 # express mu per day
     p1 <- exp(-T*mu) + (1-exp(-T*mu))/4
+    p1[toSetToNull] <- 0
     res <- dbinom(D, size=seq.length, prob=(1-p1))
 
     ## PROCESS/RETURN RESULT
