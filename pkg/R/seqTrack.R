@@ -1,6 +1,6 @@
-###########
-# generics
-###########
+############
+## generics
+############
 seqTrack <- function(...){
     UseMethod("seqTrack")
 }
@@ -19,6 +19,125 @@ get.likelihood.seqTrack.default <- function(...){
     cat("Method not implemented.")
     return()
 }
+
+
+
+
+
+
+#######################
+## auxiliary functions
+#######################
+#############
+## .dTimeSeq
+#############
+##
+## mu0 and L are vectors, having one value per segment/chromosome
+.dTimeSeq <- function(mu0, L, maxNbDays=100){
+    mu <- mu0/365 # mutation rates / site / day
+    t <- 0:maxNbDays # in days added / substracted
+    temp <- sapply((1-mu)^L, function(x) x^t  )
+    Pt <- apply(temp,1,prod)
+    t <- c(-rev(t[-1]), t)
+    Pt <- c(rev(Pt[-1]), Pt)
+    return(list(t, Pt))
+}
+
+
+#############
+## .rTimeSeq
+#############
+##
+## mu0 and L are vectors, having one value per segment/chromosome
+##
+## this returns nb days
+.rTimeSeq <- function(n, mu0, L, maxNbDays=100){
+    temp <- .dTimeSeq(mu0, L, maxNbDays)
+    res <- sample(temp[[1]], size=n, replace=TRUE, prob= temp[[2]]/sum(temp[[2]]))
+    return(res)
+}
+
+
+
+#################
+## .rUnifDate
+#################
+##
+## this returns random uniform dates in a given range
+##
+.rUnifDate <- function(n, dateMin, dateMax, ...){
+    rangeSize <-  as.integer(difftime(dateMax,dateMin, units="days"))
+    nbDays <- round(runif(n, min=0, max=rangeSize))
+    res <- dateMin + nbDays*3600*24
+    res <- as.POSIXct(round(res, units="days"))
+    return(res)
+}
+
+
+
+#################
+## .rNormTimeSeq
+#################
+##
+## this returns nb of days
+.rNormTimeSeq <- function(n, mean, sd, ...){
+    res <- round(rnorm(n, mean=mean, sd=sd))
+    return(res)
+}
+
+
+
+#################
+## .rSampTimeSeq
+#################
+##
+## this returns nb of days
+.rSampTime <- function(n,...){
+    res <- round(rnorm(n*2, -2))
+    res <- res[res < 0 & res > -7][1:n]
+    return(res)
+}
+
+
+
+
+
+
+##############
+## .pAbeforeB
+##############
+##
+.pAbeforeB <- function(dateA, dateB, muA, muB, LA, LB, maxNbDays=100){
+    ## proba dist for A
+    tempA <- .dTimeSeq(muA, LA, maxNbDays)
+    days <- tempA[[1]]
+    pA <- tempA[[2]]/sum(tempA[[2]]) # scale to proba mass function
+
+    ## proba dist for B
+    tempB <- .dTimeSeq(muB, LB, maxNbDays)
+    pB <- tempB[[2]]/sum(tempB[[2]]) # scale to proba mass function
+
+    ## days for A and B
+    nbDaysDiff <- as.integer(round(difftime(dateA,dateB,units="days"))) # dateA - dateB, in days
+    daysA <- days
+    daysB <- days - nbDaysDiff
+
+    f1 <- function(i){ # proba A before B for one day
+        idx <- daysB > daysA[i]
+        return(pA[i] * sum(pB[idx]))
+    }
+
+    res <- sapply(1:length(days), f1) # proba for all days
+    res <- sum(res) # sum
+    return(res)
+}
+
+.pAbeforeB <- Vectorize(.pAbeforeB,
+                        vectorize.args=c("dateA","dateB", "muA", "muB", "LA", "LB")) ## end .pAbeforeB
+
+
+
+
 
 
 
@@ -145,15 +264,17 @@ seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
 ################
 plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRange=NULL,
                          col=NULL, bg="grey", add=FALSE, quiet=FALSE,
-                         support=NULL, thres=0.5, col.pal=heat.colors, plot=TRUE,...){
+                         support=NULL, support.thres=0.5, timeorder.thres=NULL,
+                         mu0=NULL, seq.length=NULL
+                         col.pal=heat.colors, plot=TRUE,...){
 
     ## CHECKS ##
     if(!inherits(x,"seqTrack")) stop("x is not a seqTrack object")
     ##if(ncol(x) != 5) stop("x does not have five columns")
     if(ncol(xy) != 2) stop("xy does not have two columns")
     if(nrow(xy) != nrow(x)) stop("x and xy have inconsistent dimensions")
-    ## if(showAmbiguous & (is.null(mu0) | is.null(chr.length)) ){
-    ##         stop("showAmbiguous is TRUE, but mu0 and chr.length are not all provided.")
+    ## if(showAmbiguous & (is.null(mu0) | is.null(seq.length)) ){
+    ##         stop("showAmbiguous is TRUE, but mu0 and seq.length are not all provided.")
     ##     }
     if(!is.null(support)){
         if(length(support)!=nrow(xy)) stop("Inconsistent length for support.")
@@ -202,7 +323,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
 
     ## ## FIND AMBIGUOUS TEMPORAL ORDERING ##
     ##     if(showAmbiguous){
-    ##         temp <- .pAbeforeB(x$ances.date, x$date, mu0, chr.length)
+    ##         temp <- .pAbeforeB(x$ances.date, x$date, mu0, seq.length)
     ##         isAmbig <- temp < prob
     ##     }
 
@@ -282,7 +403,6 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
 
 
 
-
     ## DO THE PLOTTING ##
     if(plot){
         obg <- par("bg")
@@ -339,139 +459,6 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
 
 
 
-#############
-## .dTimeSeq
-#############
-##
-## mu0 and L are vectors, having one value per segment/chromosome
-.dTimeSeq <- function(mu0, L, maxNbDays=100){
-    mu <- mu0/365 # mutation rates / site / day
-    t <- 0:maxNbDays # in days added / substracted
-    temp <- sapply((1-mu)^L, function(x) x^t  )
-    Pt <- apply(temp,1,prod)
-    t <- c(-rev(t[-1]), t)
-    Pt <- c(rev(Pt[-1]), Pt)
-    return(list(t, Pt))
-}
-
-
-#############
-## .rTimeSeq
-#############
-##
-## mu0 and L are vectors, having one value per segment/chromosome
-##
-## this returns nb days
-.rTimeSeq <- function(n, mu0, L, maxNbDays=100){
-    temp <- .dTimeSeq(mu0, L, maxNbDays)
-    res <- sample(temp[[1]], size=n, replace=TRUE, prob= temp[[2]]/sum(temp[[2]]))
-    return(res)
-}
-
-
-
-#################
-## .rUnifDate
-#################
-##
-## this returns random uniform dates in a given range
-##
-.rUnifDate <- function(n, dateMin, dateMax, ...){
-    rangeSize <-  as.integer(difftime(dateMax,dateMin, units="days"))
-    nbDays <- round(runif(n, min=0, max=rangeSize))
-    res <- dateMin + nbDays*3600*24
-    res <- as.POSIXct(round(res, units="days"))
-    return(res)
-}
-
-
-
-#################
-## .rNormTimeSeq
-#################
-##
-## this returns nb of days
-.rNormTimeSeq <- function(n, mean, sd, ...){
-    res <- round(rnorm(n, mean=mean, sd=sd))
-    return(res)
-}
-
-
-
-#################
-## .rSampTimeSeq
-#################
-##
-## this returns nb of days
-.rSampTime <- function(n,...){
-    res <- round(rnorm(n*2, -2))
-    res <- res[res < 0 & res > -7][1:n]
-    return(res)
-}
-
-
-
-
-###############
-## .ambigDates
-###############
-## x: result of seqTrack
-## mu0: mutation rate / site / year
-## ## p: threshold probability for a sequence not to mutate
-## .ambigDates <- function(x, mu0, chr.length, p=0.99){
-##     mu <- mu0/365 # mutation rate / site / day
-##     t <- 0:1000 # in days
-##     Pt <- (1-mu)^(t*chr.length)
-##     ##plot(Pt,ylim=c(0,1))
-##     nbDays <- which.min(Pt>p)-1
-
-##     isNA <- is.na(x[,2])
-##     date.to <- x$date
-##     date.from <- x$ances.date
-
-##     res <- (date.to-date.from) < nbDays*2
-##     res[is.na(res)] <- FALSE
-##     return(res)
-
-## } # end checkTime
-
-
-
-
-
-
-##############
-## .pAbeforeB
-##############
-##
-## TODO: replace mu0 and L by muA, muB, LA, LB
-##
-.pAbeforeB <- function(dateA, dateB, muA, muB, LA, LB, maxNbDays=100){
-    ## proba dist for A
-    tempA <- .dTimeSeq(muA, LA, maxNbDays)
-    days <- tempA[[1]]
-    pA <- tempA[[2]]/sum(tempA[[2]]) # proba distribution
-
-    ## proba dist for B
-    tempB <- .dTimeSeq(muB, LB, maxNbDays)
-    pB <- tempB[[2]]/sum(tempB[[2]]) # proba distribution
-
-    ## days for A and B
-    nbDaysDiff <- as.integer(round(difftime(dateA,dateB,units="days"))) # dateA - dateB, in days
-    daysA <- days
-    daysB <- days - nbDaysDiff
-
-    f1 <- function(i){ # proba A before B for one day
-        idx <- daysB > daysA[i]
-        return(pA[i] * sum(pB[idx]))
-    }
-
-    res <- sapply(1:length(p), f1) # proba for all days
-    res <- sum(res) # sum
-    return(res)
-}
-
-.pAbeforeB <- Vectorize(.pAbeforeB, vectorize.args=c("dateA","dateB")) ## end .pAbeforeB
 
 
 
@@ -484,10 +471,10 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
 ##
 ## TODO:
 ## 1) Change the output to retain xxx simulations | ok. -- done.
-## 2) VECTORIZE mu0 and chr.length, recycle if needed with a warning
+## 2) VECTORIZE mu0 and seq.length, recycle if needed with a warning
 ## 3) uncomment, adapt, and test code for missing data
 ##
-optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=NULL, chr.length=NULL,
+optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=NULL, seq.length=NULL,
                                       thres=0.2, optim=c("min","max"), prox.mat=NULL, nstep=10, step.size=1e3,
                                       rDate=.rTimeSeq, arg.rDate=NULL, rMissDate=.rUnifDate, ...){
 
@@ -532,15 +519,15 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=N
     ## if(length(mu0) < N) { # recycle mu0
     ##         mu0 <- rep(mu0, length=N)
     ##     }
-    ##     if(length(chr.length) < N) {# recycle chr.length
-    ##         chr.length <- rep(chr.length, length=N)
+    ##     if(length(seq.length) < N) {# recycle seq.length
+    ##         seq.length <- rep(seq.length, length=N)
     ##     }
 
 
-    ## handle typed.chr, mu0, chr.length
+    ## handle typed.chr, mu0, seq.length
     if(identical(rDate, .rTimeSeq)){
-        if(is.null(typed.chr)|is.null(mu0)|is.null(chr.length)){
-            stop("typed.chr, mu0, and chr.length must be provided if rDate is .rTimeSeq")
+        if(is.null(typed.chr)|is.null(mu0)|is.null(seq.length)){
+            stop("typed.chr, mu0, and seq.length must be provided if rDate is .rTimeSeq")
         }
 
         if(!is.list(typed.chr)) {
@@ -551,17 +538,17 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=N
         }
 
         if(is.null(names(mu0))) stop("mu0 has no names")
-        if(is.null(names(chr.length))) stop("chr.length has no names")
+        if(is.null(names(seq.length))) stop("seq.length has no names")
         if(any(mu0 > 1)) stop("mu0 has values > 1")
         if(any(mu0 < 0)) stop("mu0 has negative values")
 
-        if(!identical(names(mu0) , names(chr.length))) stop("Names of mu0 and chr.length differ.")
+        if(!identical(names(mu0) , names(seq.length))) stop("Names of mu0 and seq.length differ.")
         if(any(!unique(unlist(typed.chr)) %in% names(mu0))) {
             stop("Some chromosomes indicated in typed.chr are not in mu0.")
         }
 
         list.mu0 <- lapply(typed.chr, function(e) mu0[e])
-        list.chr.length <- lapply(typed.chr, function(e) chr.length[e])
+        list.seq.length <- lapply(typed.chr, function(e) seq.length[e])
     }
 
     x.dates <- as.POSIXct(round.POSIXt(x.dates,units="days")) # round dates to the day
@@ -621,7 +608,7 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=N
         ## If dates distrib is .rTimeSeq
         if(identical(rDate, .rTimeSeq)){
             newDates <- sapply(1:N, function(i)
-                               rDate(n=step.size, mu0=list.mu0[[i]], L=list.chr.length[[i]],
+                               rDate(n=step.size, mu0=list.mu0[[i]], L=list.seq.length[[i]],
                                      maxNbDays=RANGE.DATES))
         } else { ## Else, any other distrib with free arguements
             newDates <- sapply(1:N, function(i) do.call(rDate, arg.rDate))
@@ -721,7 +708,7 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=N
     ##             myDates <- x.dates
     ##             ## distribution for available dates
     ##             myDates[!isMissDate] <- myDates[!isMissDate] +
-    ##                 rDate(n=NB.DATES.TO.SIM, mu0=mu0, L=chr.length, maxNbDays=2*RANGE.DATES)
+    ##                 rDate(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=2*RANGE.DATES)
     ##             ## distribution for missing dates
     ##             myDates[isMissDate] <- do.call(rMissDate, argList)
 
