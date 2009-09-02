@@ -107,6 +107,7 @@ get.likelihood.seqTrack.default <- function(...){
 ## .pAbeforeB
 ##############
 ##
+## allows for different distributions for both haplo
 .pAbeforeB <- function(dateA, dateB, muA, muB, LA, LB, maxNbDays=100){
     ## proba dist for A
     tempA <- .dTimeSeq(muA, LA, maxNbDays)
@@ -134,6 +135,47 @@ get.likelihood.seqTrack.default <- function(...){
 
 .pAbeforeB <- Vectorize(.pAbeforeB,
                         vectorize.args=c("dateA","dateB", "muA", "muB", "LA", "LB")) ## end .pAbeforeB
+
+
+##################
+## .pAbeforeBfast
+##################
+##
+## faster version, same mu and length for both sequences
+## already vectorised for dateA and dateB
+.pAbeforeBfast <- function(dateA, dateB, mu, L, maxNbDays=100){
+    ## proba dist for both haplo
+    temp <- .dTimeSeq(mu, L, maxNbDays)
+    days <- temp[[1]]
+    p <- temp[[2]]/sum(temp[[2]]) # scale to proba mass function
+
+    ## days for A and B
+    nbDays <- as.integer(round(difftime(dateB,dateA,units="days"))) # dateA - dateB, in days
+
+    ## function for one comparison
+    f1 <- function(Dt,max){ # does not work for Dt < 0 (have to reverse proba after)
+        if(is.na(Dt)) return(NA)
+        if(Dt>max) return(1)
+        if(round(Dt)==0){
+            temp <- sapply(1:(max-1), function(i) p[i]*sum(p[(i+1):max]))
+            return(sum(temp))
+        }
+        term1 <- sum(p[1:Dt])
+        idx <- seq(2,by=1,length=(max-Dt))
+        temp <- sapply(idx, function(i) sum(p[i:max]))
+        term2 <- sum( p[(Dt+1):max] * temp)
+
+        return(term1+term2)
+    }
+
+    ## computations
+    distribSize <- length(days)
+    res <- sapply(nbDays, f1, max=distribSize)
+    res[nbDays<0] <- 1-res[nbDays<0] # reverse proba for negative time diff
+
+    return(res)
+} # end .pAbeforeBfast
+
 
 
 
@@ -265,7 +307,7 @@ seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
 plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRange=NULL,
                          col=NULL, bg="grey", add=FALSE, quiet=FALSE,
                          support=NULL, support.thres=0.5, timeorder.thres=NULL,
-                         mu0=NULL, seq.length=NULL
+                         mu0=NULL, seq.length=NULL,
                          col.pal=heat.colors, plot=TRUE,...){
 
     ## CHECKS ##
