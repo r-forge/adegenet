@@ -236,14 +236,28 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         res$xy <- matrix(xy.gen(), nrow=1)
         colnames(res$xy) <- c("x","y")
         toExpand <- TRUE
+        cat("nb.strains","iteration.time",file="haploSimTime.out") # for debugging
+
 
         ## simulations: isn't simplicity beautiful?
         while(any(toExpand)){
+            time.previous <- Sys.time() # FOR DEBUGGING
             idx <- min(which(toExpand))
             expand.one.strain.xy(res$seq[idx,], res$dates[idx], idx, res$xy[idx,])
             resize.result.xy()
+            ## VERBOSE OUTPUT FOR DEBUGGING ##
+            cat("\nNb strains:",length(res$ances),"/",max.nb.haplo)
+            cat("\nLatest date:", max(res$dates),"/",Tmax)
+            cat("\nRemaining strains to duplicate", sum(toExpand))
+            cat("\n",append=TRUE,file="haploSimTime.out")
+            iter.time <- as.numeric(difftime(Sys.time(),time.previous,unit="sec"))
+            time.previous <- Sys.time()
+            cat(c(length(res$ances), iter.time),append=TRUE,file="haploSimTime.out")
+            ## END DEBUGGING VERBOSE ##
         }
 
+        ## VERBOSE OUTPUT FOR DEBUGGING ##
+        cat("\nSimulation time stored in haploSimTime.out\n")
 
         ## SHAPE AND RETURN OUTPUT ##
         res$ances <- as.character(res$ances)
