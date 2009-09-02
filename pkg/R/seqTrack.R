@@ -315,9 +315,9 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
     ##if(ncol(x) != 5) stop("x does not have five columns")
     if(ncol(xy) != 2) stop("xy does not have two columns")
     if(nrow(xy) != nrow(x)) stop("x and xy have inconsistent dimensions")
-    ## if(showAmbiguous & (is.null(mu0) | is.null(seq.length)) ){
-    ##         stop("showAmbiguous is TRUE, but mu0 and seq.length are not all provided.")
-    ##     }
+    if(!is.null(timeorder.thres) & (is.null(mu0) | is.null(seq.length)) ){
+        stop("timeorder.thres provided without mu0 and seq.length.")
+    }
     if(!is.null(support)){
         if(length(support)!=nrow(xy)) stop("Inconsistent length for support.")
     }
@@ -363,11 +363,15 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
     }
 
 
-    ## ## FIND AMBIGUOUS TEMPORAL ORDERING ##
-    ##     if(showAmbiguous){
-    ##         temp <- .pAbeforeB(x$ances.date, x$date, mu0, seq.length)
-    ##         isAmbig <- temp < prob
-    ##     }
+    ## FIND AMBIGUOUS TEMPORAL ORDERING ##
+    if(!is.null(timeorder.thres)){
+        temp <- .pAbeforeBfast(x$ances.date, x$date, mu0, seq.length)
+        if(is.null(isAmbig)){
+            isAmbig <- temp < timeorder.thres
+        } else {
+            isAmbig <- isAmbig | (temp < timeorder.thres)
+        }
+    }
 
 
     ## FIND SEGMENTS COORDS ##
