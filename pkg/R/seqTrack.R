@@ -359,7 +359,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
 
     ## FIND AMBIGUOUS ANCESTRIES ##
     if(!is.null(support)){
-        isAmbig <- support < thres
+        isAmbig <- support < support.thres
     }
 
 
