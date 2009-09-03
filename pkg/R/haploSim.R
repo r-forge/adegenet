@@ -11,7 +11,8 @@
 haploSim <- function(seq.length=1000, mu=0.0001,
                      Tmax=50, mean.gen.time=5, sd.gen.time=1,
                      mean.repro=2, sd.repro=1, max.nb.haplo=1e3,
-                     geo.sim=TRUE, grid.size=5, lambda.xy=0.5, matConnect=NULL){
+                     geo.sim=TRUE, grid.size=5, lambda.xy=0.5, matConnect=NULL,
+                     ini.n=1, ini.xy=NULL){
 
     ## CHECKS ##
     if(!require(ape)) stop("The ape package is required.")
@@ -76,7 +77,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         return(res)
     }
 
-      ## where does an haplotype emerges in the first place?
+    ## where does an haplotype emerges in the first place?
     xy.gen <- function(){
         return(sample(1:grid.size, size=2, replace=TRUE))
     }
@@ -196,10 +197,12 @@ haploSim <- function(seq.length=1000, mu=0.0001,
     if(!geo.sim){
         ## initialization
         res$seq <- as.matrix(seq.gen())
-        rownames(res$seq) <- "1"
-        res$dates[1] <- 0
-        res$ances[1] <- NA
-        toExpand <- TRUE
+        res$seq <- matrix(rep(res$seq, ini.n), byrow=TRUE, nrow=ini.n)
+        class(res$seq) <- "DNAbin"
+        rownames(res$seq) <- 1:ini.n
+        res$dates[1:ini.n] <- rep(0,ini.n)
+        res$ances[1:ini.n] <- rep(NA,ini.n)
+        toExpand <- rep(TRUE,ini.n)
 
         ## simulations: isn't simplicity beautiful?
         while(any(toExpand)){
@@ -230,12 +233,21 @@ haploSim <- function(seq.length=1000, mu=0.0001,
 
         ## initialization
         res$seq <- as.matrix(seq.gen())
-        rownames(res$seq) <- "1"
-        res$dates[1] <- 0
-        res$ances[1] <- NA
-        res$xy <- matrix(xy.gen(), nrow=1)
+        res$seq <- matrix(rep(res$seq, ini.n), byrow=TRUE, nrow=ini.n)
+        class(res$seq) <- "DNAbin"
+        rownames(res$seq) <- 1:ini.n
+        res$dates[1:ini.n] <- rep(0,ini.n)
+        res$ances[1:ini.n] <- rep(NA,ini.n)
+        toExpand <- rep(TRUE,ini.n)
+
+        if(is.null(ini.xy)){
+            locStart <- xy.gen()
+        } else{
+            locStart <- as.vector(ini.xy)[1:2]
+        }
+        res$xy <- matrix(rep(locStart, ini.n), byrow=TRUE, nrow=ini.n)
         colnames(res$xy) <- c("x","y")
-        toExpand <- TRUE
+
         cat("nb.strains","iteration.time",file="haploSimTime.out") # for debugging
 
 
