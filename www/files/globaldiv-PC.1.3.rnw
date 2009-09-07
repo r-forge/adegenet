@@ -1,0 +1,856 @@
+% On lui donne l'en-tete
+\input{enTeteTJ}
+
+\usepackage{/home/master/latex/Sweave/Sweaveperso}
+%infos générales du document
+\title{Multivariate analysis of genetic markers as a tool to explore
+  the genetic diversity: some examples}
+\author{Thibaut Jombart}
+\date{09/09/09}
+
+\newcommand{\titrefiche}{Multivariate analysis of genetic markers as a tool to explore
+  the genetic diversity: some examples}
+
+\newcommand{\auteurfiche}{Thibaut Jombart}
+\newcommand{\rcmd}[1]{\textcolor{red}{\texttt{#1}}}
+
+% debut du document proprement dit
+\begin{document}
+\input{styleGlobaldiv}
+\selectlanguage{english}
+
+%% Les options par défaut de Sweave, ici on lui dit de mettre les figures dans le
+%% dossier "figs" avec le préfixe, histoire de ne pas avoir trop de
+%% fichiers dans le dossier de travail. On lui dit aussi qu'il y a une figure par défaut,
+%% qu'on ne veut les figures en EPS, et on lui donne la taille par défaut des figures
+%% (en pouces) pour R, mais PAS pour le document final.
+
+\SweaveOpts{prefix.string = figs/globaldiv, fig = FALSE, eps = FALSE, png=FALSE, pdf=TRUE, width = 6, height = 6, size=.6}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% DEBUT DU DOCUMENT
+
+\maketitle
+\abstract{
+This practical course aims at illustrating some possible applications
+of multivariate analyses to genetic markers data, using the \texttt{R}
+software \cite{np145}.
+Although a basic knowledge of the R language is assumed, most necessary
+commands are provided, so that coding should not be an obstacle.
+Two exercises are proposed, which go through different topics in
+genetic data analysis, respectively the study of spatial genetic structures, and the
+coherence of information coming from different markers.
+After going through the first section (`Let's start'), you should feel
+free to get to the exercise you want, as these are meant to be independent.
+This practical course uses mostly the \textit{adegenet} \cite{tjart05} and
+\textit{ade4} packages \cite{tj311,tj521,tj548}, but others like
+\textit{adehabitat} \cite{tj440,tj547},
+\textit{genetics} \cite{tj203} and \textit{hierfstat} \cite{tj510} are also used.
+}
+
+\newpage
+\tableofcontents
+\newpage
+
+% Pour éviter les problèmes de couleur...
+\color{black}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Let's start}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<<librarys,echo=FALSE,results=hide>>=
+library(adegenet)
+library(spdep)
+library(adehabitat)
+library(genetics)
+library(hierfstat)
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Loading the packages}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+Before going further, we shall make sure that all we need is installed
+on the computer.
+Launch R, and make sure that the version being used is greater than
+2.8.1 by typing:
+<<>>=
+R.version.string
+@
+The next thing to do is check that relevant packages are installed.
+To load an installed package, use \rcmd{library} instruction; for instance:
+<<>>=
+library(adegenet)
+@
+loads \textit{adegenet} if it is installed (and issues an error otherwise).
+To get the version of a package, use:
+<<>>=
+packageDescription("adegenet", fields = "Version")
+@
+\textit{adegenet} version should read 1.2-3.
+
+In case a package would not be installed, you can install it by using \rcmd{install.packages}.
+To install all the required dependencies, specify \rcmd{dep=TRUE}.
+For instance, the following instruction should install \textit{adegenet}
+with all its dependencies (it can take up to a few minutes, so don't run it unless
+\textit{adegenet} is not installed):
+<<eval=FALSE>>=
+install.packages("ape",dep=TRUE)
+@
+
+Using the previous instructions, load (and install if required) the
+packages \textit{adegenet}, \textit{ade4}, \textit{spdep}, \textit{genetics}, and \textit{hierfstat}.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{How to get information?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+There are several ways of getting information about R in general, and about
+\textit{adegenet} in particular.
+Function \rcmd{help.search} is used to look for help on a given topic.
+For instance:
+<<>>=
+help.search("Hardy-Weinberg")
+@
+replies that there is a function \rcmd{HWE.test.genind} in the
+\textit{adegenet} package, and functions \rcmd{HWE.chisq},\rcmd{HWE.exact} and \rcmd{HWE.test}
+in \textit{genetics}.
+To get help for a given function, use \rcmd{?foo} where `foo' is the
+function of interest.
+For instance:
+<<eval=FALSE>>=
+?spca
+@
+will open the manpage of the spatial principal component analysis \cite{tjart04}.
+At the end of a manpage, an `example' section often shows how to use a function.
+This can be copied and pasted to the console, or directly executed
+from the console using \rcmd{example}.
+For further questions concerning R, the function \rcmd{RSiteSearch}
+is a powerful tool to make an online research using keywords in R's archives (mailing
+lists and manpages).
+\\
+
+
+\textit{adegenet} has a few extra documentation sources.
+Information can be found from the website
+(\url{http://adegenet.r-forge.r-project.org/}), in the `documents'
+section, including two tutorials and a manual which includes all
+manpages of the package.
+To open the website from R, use:
+<<eval=FALSE>>=
+adegenetWeb()
+@
+The same can be done for tutorials, using \rcmd{adegenetTutorial} (see
+manpage to choose the tutorial to open).
+
+You will also find a listing of the main functions of the package typing:
+<<eval=FALSE>>=
+?adegenet
+@
+
+Note that you can also browse help pages as html pages, using:
+<<>>=
+help.start()
+@
+To go to the \textit{adegenet} page, click `packages', `adegenet', and
+`adegenet-package'.
+\\
+
+
+Lastly, several mailing lists are available to find different kinds of
+information on R; to name a few:
+\begin{description}
+\item R-help (\url{https://stat.ethz.ch/mailman/listinfo/r-help}):
+  general questions about R
+\item R-sig-genetics
+  (\url{https://stat.ethz.ch/mailman/listinfo/r-sig-genetics}):
+  genetics in R
+\item adegenet forum
+  (\url{https://lists.r-forge.r-project.org/cgi-bin/mailman/listinfo/adegenet-forum}):
+  adegenet and multivariate analysis of genetic markers
+\end{description}
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Spatial genetic structure of the chamois in the Bauges mountains}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+The chamois (\textit{Rupicapra rupicapra}) is a conserved species in France.
+The Bauges mountains is a protected area in which the species has been
+recently studied.
+One of the most important questions for conservation purpose relates to whether individuals
+from this area form a single reproductive unit, or whether they
+are structured into sub-groups, and if so, what causes are likely to
+cause this structuring.
+
+While field observations are very scarce and do not allow to answer
+this question, genetic data can be used to tackle the issue, as
+departure from panmixia should result in genetic structure.
+The dataset \textit{rupica} contains 335 georeferenced genotypes of Chamois from the
+Bauges mountains for 9 microsatellite markers, which we propose to
+analyse in this exercise.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{An overview of the data}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+We first load the data:
+<<>>=
+data(rupica)
+rupica
+@
+\texttt{rupica} is a typical \texttt{genind} object, which is the class
+of objects storing genotypes (as opposed to population data) in \textit{adegenet}.
+\texttt{rupica} also contains topographic information about the
+sampled area, which can be displayed by calling
+\rcmd{rupica\$other\$showBauges}.
+For instance, the spatial distribution of the sampling can be
+displayed as follows:
+<<fig=TRUE,pdf=FALSE,png=TRUE,size=.7>>=
+rupica$other$showBauges()
+points(rupica$other$xy, col="red",pch=20)
+@
+
+This spatial distribution is clearly not random, but arranged into
+loose clusters; this can be confirmed by superimposing a kernel
+density curve (in blue) on the previous figure:
+<<fig=TRUE,pdf=FALSE,png=TRUE,size=.7>>=
+rupica$other$showBauges()
+s.kde2d(rupica$other$xy,add.plot=TRUE)
+points(rupica$other$xy, col="red",pch=20)
+@
+
+However, this spatial clustering is not strong enough to assign safely all
+genotypes to a given geographic group.
+Hence, further analyses would have to be performed on individuals
+rather than groups of individuals.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Standard analyses}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+As a prior clustering of genotypes is not known, we cannot employ usual
+$F_{ST}$-based approaches to detect genetic structuring.
+However, genetic structure could still result in a deficit of
+heterozygocity.
+The \rcmd{summary} of \texttt{genind} objects provides expected and
+observed heterozygocity for each locus, which allows for a comparison:
+<<fig=TRUE>>=
+rupica.smry <- summary(rupica)
+plot(rupica.smry$Hexp, rupica.smry$Hobs, main="Observed vs expected heterozygocity")
+abline(0,1,col="red")
+@
+The red line indicate identity between both quantities.
+What can we say about heterozygocity in this population?
+The following test provides further insights to answer this question:
+<<>>=
+t.test(rupica.smry$Hexp, rupica.smry$Hobs,paired=TRUE,var.equal=TRUE)
+@
+~\\
+
+We can seek a global picture of the genetic diversity among genotypes
+using a Principal Component Analysis (PCA, \cite{tj383,np137}, \rcmd{dudi.pca} in \texttt{ade4}
+package).
+The analysis is performed on a table of standardised alleles
+frequencies, obtained by \rcmd{scaleGen}:
+<<eval=FALSE>>=
+rupica.X <- scaleGen(rupica, method="binom")
+rupica.pca1 <- dudi.pca(rupica.X, cent=FALSE, scale=FALSE)
+@
+<<echo=FALSE,results=hide, fig=TRUE>>=
+rupica.X <- scaleGen(rupica, method="binom")
+rupica.pca1 <- dudi.pca(rupica.X, cent=FALSE, scale=FALSE, scannf=FALSE, nf=2)
+barplot(rupica.pca1$eig)
+@
+
+\noindent The function \rcmd{dudi.pca} displays a barplot of
+eigenvalues and asks for a number of retained principal components.
+Eigenvalues represent the amount of genetic diversity (as measured by
+the multivariate method being used) represented by each principal component.
+An abrupt decrease in eigenvalues is likely to indicate the boundary
+between true patterns and non-interpretable structures.
+In this case, we shall examin the first two principal components (though
+nothing really clear emerges from the eigenvalues).
+
+<<>>=
+rupica.pca1
+@
+
+A \texttt{dudi} object contains various information; in the case of
+PCA, principal axes (loadings), principal components (synthetic variable), and eigenvalues are respectively
+stored in \texttt{\$c1}, \texttt{\$li}, and \texttt{\$eig} slots.
+The function \rcmd{s.label} can be used to display to two first
+components; a kernel density (\rcmd{s.kde2d}) is used for a better
+assessment of the distribution of the genotypes onto the principal axes:
+<<fig=TRUE,size=.75>>=
+s.label(rupica.pca1$li)
+s.kde2d(rupica.pca1$li, add.p=TRUE, cpoint=0)
+add.scatter.eig(rupica.pca1$eig,2,1,2)
+@
+
+What can we say about the genetic diversity among these genotypes as
+inferred by PCA?
+The function \rcmd{loadingplot} allows to visualize the contribution
+of each allele, expressed as squared loadings, for a given principal component.
+This figure then gives further clues about the revealed structure:
+<<fig=TRUE,size=.75>>=
+loadingplot(rupica.pca1$c1^2)
+@
+
+\noindent We can get back to the genotypes for the concerned markers (e.g.,
+Bm203) to check whether the highlighted genotypes are indeed uncommon.
+\rcmd{truenames} extracts the table of allele frequencies from a
+\texttt{genind} object:
+<<>>=
+X <- truenames(rupica)
+class(X)
+dim(X)
+bm203.221 <- X[,"Bm203.221"]
+table(bm203.221)
+@
+Only 4 genotypes possess one copy of this allele (the second result
+corresponds to a replaced missing data).
+Which individuals are they?
+<<>>=
+rownames(X)[bm203.221==0.5]
+@
+Conclusion?
+\\
+
+
+Just to make sure that this analysis shows no spatial pattern, we can
+map geographically the principal components.
+The function \rcmd{s.value} is well-suited to do so, using black and
+white squares of variable size for positive and negative values.
+For instance:
+<<svaluedem,fig=TRUE>>=
+s.value(cbind(1:11,rep(1,11)), -5:5, cleg=0)
+text(1:11,rep(1,11), -5:5, col="red",cex=1.5)
+@
+
+\noindent We can then apply this graphical representation to the first
+two principal components of the PCA:
+<<fig=TRUE, png=TRUE, pdf=FALSE,size=.7>>=
+showBauges <- rupica$other$showBauges
+showBauges()
+s.value(rupica$other$xy, rupica.pca1$li[,1], add.p=TRUE, cleg=0.5)
+title("PCA - first PC",col.main="yellow" ,line=-2, cex.main=2)
+@
+
+<<fig=TRUE, png=TRUE, pdf=FALSE,size=.7>>=
+showBauges()
+s.value(rupica$other$xy, rupica.pca1$li[,2], add.p=TRUE, csize=0.7)
+title("PCA - second PC",col.main="yellow" ,line=-2, cex.main=2)
+@
+
+\noindent What can we say about spatial genetic structure as inferred by PCA?
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{spatial Principal Component Analysis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+PCA did not reveal any kind of spatial genetic structure, but is not
+anyway meant to do so; most likely, it will fail to detect spatial
+genetic structures that are not associated
+with the strongest genetic differentiation.
+The spatial Principal Component Analysis (sPCA, \cite{tjart04}) has been developed to
+include spatial information in the analysis of genetic data.
+Although implemented in \textit{adegenet}, sPCA needs spatial
+methods from the \textit{spdep} package, which should thus be loaded:
+<<>>=
+library(spdep)
+@
+
+sPCA first requires the spatial proximities between genotypes to be
+modeled.
+The most convenient way to do so is to define geographic neighbours
+according to a given, preferably objective criterion.
+This amounts to constructing a spatial graph on which neighbours are
+linked by an edge.
+The function \rcmd{chooseCN} proposes several spatial graphs (try
+\rcmd{example(chooseCN)} for an example) that can be chosen interactively.
+In the case of the Chamois, we can use the intersection of home ranges
+as a criterion for neighbourhood; this amounts to considering as
+neighbours pairs of individuals separated by less than 2300 m.
+
+Knowing that spatial coordinates of individuals are stored in
+\texttt{rupica\$other\$xy}, use \rcmd{chooseCN} to build the
+corresponding spatial graph.
+Save the resulting object as \texttt{rupica.graph}; this object should look
+like this (displaying it may take a few seconds):
+<<echo=FALSE>>=
+rupica.graph <- chooseCN(rupica$other$xy,type=5,d1=0,d2=2300)
+@
+<<fig=TRUE,pdf=FALSE, png=TRUE>>=
+rupica.graph
+plot(rupica.graph, rupica$other$xy)
+title("rupica.graph")
+@
+~\\
+
+
+From there, we can use the \rcmd{spca} function.
+Note that it would also be possible to specify the parameters of the spatial
+graph as arguments of \rcmd{spca}.
+<<eval=FALSE>>=
+rupica.spca1 <- spca(rupica, cn=rupica.graph)
+@
+<<echo=FALSE, fig=TRUE>>=
+rupica.spca1 <- spca(rupica, cn=rupica.graph,scannf=FALSE, nfposi=2,nfnega=0)
+barplot(rupica.spca1$eig, col=rep(c("red","grey"), c(2,1000)) )
+@
+\noindent Like \rcmd{dudi.pca}, \rcmd{spca} displays a barplot of
+eigenvalues, but unlike in PCA, eigenvalues of sPCA can also be negative.
+This is because the criterion optimized by the analysis can have
+positive and negative values, corresponding respectively to positive
+and negative autocorrelation.
+In this case, only the principal components associated with the two
+first positive eigenvalues (in red) shall be retained.
+
+The printing of \texttt{spca} objects is more explicit than
+\texttt{dudi} objects, but named with the same conventions:
+<<>>=
+rupica.spca1
+@
+
+Unlike usual multivariate analyses, eigenvalues of sPCA are composite:
+they measure both the genetic diversity (variance) and the spatial
+structure (spatial autocorrelation measured by Moran's $I$).
+This decomposition can also be used to choose which principal
+component to interprete.
+The function \rcmd{screeplot} allows to display this information graphically:
+<<fig=TRUE,size=.7>>=
+screeplot(rupica.spca1)
+@
+
+\noindent While $\lambda_1$ indicates with no doubt a structure, the
+second eigenvalue, $\lambda_2$ is less clearly distinct from the
+successive values.
+Thus, we shall keep in mind this uncertainty when interpreting the
+second principal component of the analysis.
+\\
+
+
+Let us now visualise the identified spatial structures, as we did for
+the PCA results:
+<<fig=TRUE, png=TRUE, pdf=FALSE,size=.7>>=
+showBauges()
+s.value(rupica$other$xy, rupica.spca1$li[,1], add.p=TRUE, csize=0.7)
+title("sPCA - first PC",col.main="yellow" ,line=-2, cex.main=2)
+@
+
+\noindent While the pattern is clear enough, we can still clarify the
+results using lagged scores, which allow a better perception of
+positively autocorrelated structures (by denoisifying data):
+<<fig=TRUE, png=TRUE, pdf=FALSE,size=.7>>=
+showBauges()
+s.value(rupica$other$xy, rupica.spca1$ls[,1], add.p=TRUE, csize=0.7)
+title("sPCA - first lagged PC",col.main="yellow" ,line=-2, cex.main=2)
+@
+
+How would you interprete this result?
+How does it compare to results obtained by PCA?
+What likely inference can we make about the way the landscape
+influences this population of Chamois?
+
+The second structure remains to be interpreted; using the same
+graphical representation as for the first principal component, try and
+visualise the second principal component.
+Some field observation suggest that it is not artefactual.
+How would you interprete this second structure?
+\\
+
+To finish, you can try representing both structures at the same time
+using the color coding introduced by \cite{tj177} (\rcmd{?colorplot}).
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Different pictures of biodiversity: African and French cattle breeds}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+The study of the genetic diversity for conservation purposes asks the
+question of which markers should be used for such studies.
+In the case of domestic cattle breeds, the FAO \url{http://www.fao.org/}
+recommended using a
+panel of 30 microstallites for conservation genetics studies.
+The dataset \texttt{microbov} provides the genotypes of 704 cattles
+structured in two species and 15 breeds for the 30 microsatellites
+recommended by the FAO.
+
+One question of interest, which can be asked through this dataset,
+relates to whether all these markers provide the same information, and
+whether a smaller subset of markers could be used to achieve the same level of resolution.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{An overview of the data - basic analyses}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+We first load the data:
+<<>>=
+data(microbov)
+microbov
+@
+\texttt{microbov} is a typical \texttt{genind} object, which is the class
+of objects storing genotypes in \textit{adegenet}.
+It also contains extra information (in \texttt{microbov\$other})
+relating to the origin (\texttt{coun}, Africa or France), the breed
+(\texttt{breed}), and the species (\texttt{spe}, \textit{Bos taurus}
+or \textit{Bos indicus}) of the individuals.
+
+The function summary gives an overview of the data:
+<<>>=
+microbov.smry <- summary(microbov)
+@
+
+This allows, for instance, to compare observed and expected
+heterozygocity at each locus:
+<<fig=TRUE,size=.5>>=
+plot(microbov.smry$Hexp, microbov.smry$Hobs, main="Observed vs expected heterozygocity")
+abline(0,1,col="red")
+@
+\noindent What can we tell about these populations? Is this result surprising?
+
+
+To infer genetic differentiation using $F_{ST}$-based approaches, we
+have to check that populations are at Hardy-Weinberg equilibrium for
+each locus.
+Given that we have 15 breeds for 30 loci to analyse, we have to perform
+15x30=450 tests.
+Fortunately, the function \rcmd{HWE.test.genind} does this job,
+returning either a list of detailed tests, or a matrix of p-values.
+In our case, interpreting each test and correcting for multiple
+testing would quickly become cumbersome.
+Rather, we shall describe how p-values are distributed across
+populations and across markers.
+We perform Hardy-Weinberg tests, asking for a matrix of p-values:
+<<fig=TRUE>>=
+microbov.HWE <- HWE.test.genind(microbov,res="matrix")
+hist(microbov.HWE,col="pink", main="Distribution of HWE test p-values", nclass=60)
+points(as.vector(microbov.HWE),rep(1,450), col="red", pch="|")
+@
+
+\noindent While a majority of tests do not indicate deviation from
+Hardy-Weinberg equilibrium, some exceptions seem to exist.
+Are these structured by populations?
+<<fig=TRUE>>=
+barplot(apply(microbov.HWE,1,mean),col="deepskyblue1",
+        main="Distribution of HWE test mean p-values\n per population",
+        ylab="mean p-value", las=3)
+@
+
+Are these structured by markers?
+<<fig=TRUE>>=
+barplot(apply(microbov.HWE,2,mean),col="green2",
+        main="Distribution of HWE test mean p-values\n per marker",
+        ylab="mean p-value", las=3)
+@
+
+What would you conclude?
+Toward the end of this exercise, we shall remember that INRA35 seems to be a
+particular marker.
+\\
+
+Genetic differentiation can be tested for multiallelic data using
+Goudet's $G$ test, implemented in \textit{hierfstat}, and wrapped for
+\texttt{genind} objects by \rcmd{gstat.randtest}.
+Basically, we can test the significance of the genetic differentiation
+between breeds, which is the default `population' of the genotypes.
+For simplicity (and because it does not alter the results), all
+markers (including INRA35) are kept in this test:
+<<fig=TRUE>>=
+microbov.gtest1 <- gstat.randtest(microbov, nsim=199)
+microbov.gtest1
+plot(microbov.gtest1)
+@
+
+\noindent The histogram shows the distribution of the test statistic
+obtained by a Monte Carlo procedure (permutation of the group factor).
+The original value of the statistic (on the right) being hugely
+superior to these values, there is no doubt that the genetic
+structuring is very significant.
+However, we can wonder if this structuration among breeds persists after
+accounting for the species differences.
+This can be tested using the same function:
+<<fig=TRUE,size=.5>>=
+microbov.gtest2 <- gstat.randtest(microbov, nsim=199,sup.pop=microbov$other$spe, method="within")
+microbov.gtest2
+plot(microbov.gtest2)
+@
+
+Is their a significant genetic differentiation between breeds once
+species differentiation has been partialled out?
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{A first glance: Principal Component Analysis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+Now that we know that strong genetic structures exists among the
+considered breeds, we can try to get a picture of it.
+Principal Component Analysis (PCA \cite{tj383,np137}) is well suited for a first glance
+at the data.
+PCA is implemented in the \rcmd{dudi.pca} function of the \textit{ade4} package.
+The analysis is performed on a table of standardised alleles
+frequencies, obtained by \rcmd{scaleGen} (which also replaces missing
+values adequately):
+
+<<eval=FALSE>>=
+microbov.X <- scaleGen(microbov, method="binom")
+microbov.pca1 <- dudi.pca(microbov.X, cent=FALSE, scale=FALSE)
+@
+<<echo=FALSE,results=hide, fig=TRUE>>=
+microbov.X <- scaleGen(microbov, method="binom", missing="mean")
+microbov.pca1 <- dudi.pca(microbov.X, cent=FALSE, scale=FALSE, scannf=FALSE, nf=3)
+barplot(microbov.pca1$eig)
+@
+
+\noindent The function \rcmd{dudi.pca} displays a barplot of
+eigenvalues and asks for a number of retained principal components.
+Eigenvalues represent the amount of genetic diversity (as measured by
+the multivariate method being used) contained in each principal component.
+An abrupt decrease in eigenvalues is likely to indicate the boundary
+between strong and non-interpretable structures.
+In this case, the first three eigenvalues clearly indicate strong
+structures; the first three principal components are thus retained.
+\\
+
+A \texttt{dudi} object contains various information; in the case of
+PCA, principal axes (loadings), principal components (synthetic variable), and eigenvalues are respectively
+stored in \texttt{microbov.pca1\$c1}, \texttt{microbov.pca1\$li}, and \texttt{microbov.pca1\$eig}.
+The function \rcmd{s.class} can be used to display to two first principal
+components, while grouping genotypes by populations:
+<<fig=TRUE,size=.7>>=
+par(bg="lightgrey")
+palette <- rainbow(50)
+s.class(microbov.pca1$li, pop(microbov),col=1:15, sub="PCA - PC 1 and 2",csub=2)
+add.scatter.eig(microbov.pca1$eig[1:60],3,1,2, posi="top")
+@
+
+<<fig=TRUE,size=.7>>=
+par(bg="lightgrey")
+s.class(microbov.pca1$li, xax=1,yax=3, pop(microbov),col=1:15, sub="PCA - PC 1 and 3",csub=2)
+add.scatter.eig(microbov.pca1$eig[1:60],3,1,3, posi="top")
+@
+
+These figures display the `best' picture of genetic variability among
+the genotypes achievable in three dimensions.
+How would you interprete the resulting structures?
+\\
+
+
+Now that clear patterns have been identified, we can ask how each
+marker contributes to showing these structures.
+The contribution of each marker (measured as squared loadings) can be
+displayed using \rcmd{loadingplot}:
+<<fig=TRUE,size=.7>>=
+loadingplot(microbov.pca1$c1^2, main="Allele contributions to the PC1")
+@
+
+From this picture, could you tell if some markers play a more
+important role in the analysis than others?
+This was the contribution of alleles to the first principal component.
+Using the same function and the argument \texttt{axis}, try to obtain
+the same figure for the second and third principal components.
+Are the conclusions any different (if yes, how)?
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{A deeper look: Multiple Co-Inertia Analysis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+PCA is not the most appropriate tool to compare the information
+provided by different markers about the populations (\textit{i.e.}, breeds).
+Indeed, it only seeks principal axes of maximum genetic variability
+from all alleles, while a more appropriate approach would seek
+different principal components for each marker separately, and then
+compare them.
+The Multiple Co-Inertia Analysis (MCOA, \cite{tj304,tjart03}) is especially devoted to this
+task.
+It performs separate analyses for each marker, and then coordinates
+these analyses so as to highlight the common information they provide
+about populations.
+From these coordinated analyses, it builds a compromise, that is, a
+typology of population reflecting the consensus information provided
+by the markers.
+It also provides a direct measure of the contribution of each marker
+to this consensus information.
+\\
+
+
+First of all, given that within-breed variability seems negligible
+compared to between-breed variability, we reduce data to counts of
+alleles per populations (losing the distinction between individuals).
+Objects storing population data in \textit{adegenet} are
+\texttt{genpop} objects.
+This transformation is achieved by \rcmd{genind2genpop}:
+<<>>=
+bov <- genind2genpop(microbov)
+bov
+@
+
+Data are then separated by marker using \rcmd{seploc}, and only tables
+of allele counts are retained for further analysis:
+<<>>=
+lbov <- seploc(bov)
+lX <- lapply(lbov, truenames)
+class(lX)
+names(lX)
+lX$INRA63
+@
+
+
+\noindent \texttt{kbov} contains counts of alleles per population
+separately for each marker.
+After turning these into allele frequencies, each table is analysed by
+a PCA.
+The method is applied to all 30 tables in a single command using \rcmd{lapply}:
+<<>>=
+lX <- lapply(lX, prop.table, 1)
+lPCA <- lapply(lX, dudi.pca, center=TRUE, scale=FALSE,scannf=FALSE, nf=3)
+class(lPCA)
+names(lPCA)
+lPCA$INRA63
+@
+
+To visualise the results of a given analysis (here, INRA63), one can use:
+<<fig=TRUE, size=.75>>=
+s.label(lPCA$INRA63$li)
+add.scatter.eig(lPCA$INRA63$eig,3,1,2)
+@
+
+Now, using a \rcmd{for} loop (or a \rcmd{lapply}, or less elegantly
+several copy-paste operations), try and display results of other markers.
+Can you compare the information they provide?
+Note that the situation is complicated by the fact that the first
+principal component of one marker might ressemble best the third of
+another marker, or even a mixture of several components.
+\\
+
+
+Let us try coordinating these analyses using MCOA.
+The method is implemented as the function \rcmd{mcoa} in the \textit{ade4} package.
+It demands data to be stored as a \texttt{ktab} object, which we
+obtain by:
+<<>>=
+bov.ktab <- ktab.list.dudi(lPCA)
+@
+<<eval=FALSE>>=
+bov.mcoa1 <- mcoa(bov.ktab)
+@
+<<echo=FALSE,fig=TRUE>>=
+bov.mcoa1 <- mcoa(bov.ktab,scannf=FALSE, nf=3)
+barplot(bov.mcoa1$pseudoeig)
+@
+
+Proceed like in previous analyses to select the number of retained
+principal components.
+<<>>=
+bov.mcoa1
+@
+
+The content of a \texttt{mcoa} object is a bit more complicated than
+that of PCA (\texttt{dudi} object), but only bits are useful here.
+\texttt{bov.mcoa1\$Tli} contains principal components of coordinated analyses for the different
+markers, while \texttt{bov.mcoa1\$SynVar} contains the compromise,
+\textit{i.e.} the typology of populations emerging as a consensus
+among the markers.
+\texttt{bov.mcoa1\$cov2} gives the contribution of
+each marker to each structure of the compromise, and can be used to
+assess discrepancies in the information yielded by the different loci.
+
+
+Coordinated analyses can be displayed like separated analyses:
+<<fig=TRUE,size=1>>=
+newCoord <- split(bov.mcoa1$Tli, bov.mcoa1$TL[,1])
+names(newCoord) <- locNames(bov)
+par(mfrow=c(2,2))
+for(i in 1:4){
+s.label(newCoord[[i]],xax=1,yax=2,sub=names(newCoord)[i], csub=1.5)
+}
+@
+
+Use the commands above to plot results of different markers, making
+sure to visualise the plan of the first and third principal components as well.
+How does it compare to the results obtained with previous (uncoordinated) analyses?
+
+The compromise between all these analyses is very similar to the
+usual PCA of all data:
+<<fig=TRUE,size=.7>>=
+s.label(bov.mcoa1$SynVar)
+add.scatter.eig(bov.mcoa1$pseudoeig,3,1,2)
+@
+
+<<fig=TRUE,size=.7>>=
+s.label(bov.mcoa1$SynVar, xax=1,yax=3)
+add.scatter.eig(bov.mcoa1$pseudoeig,3,1,3)
+@
+
+\noindent However, we now gained further information about how
+markers contribute to this figure.
+Try and represent graphically the marker contributions stored in
+\texttt{bov.mcoa1\$cov2} for the three structures of the compromise;
+one example of result for the first
+structure would be:
+<<fig=TRUE, echo=FALSE,size=.75>>=
+par(las=3)
+barplot(bov.mcoa1$cov2[,1], col="deepskyblue2")
+title("Contribution to the Africa/France differentiation")
+@
+
+
+What can we say about the general consistency of these markers?
+Are there redundant markers?
+Are there `outlying' markers?
+Would it be possible to achieve the same structuring without using the
+full panel of 30 microsatellites recommended by the FAO?
+
+
+
+
+
+\bibliographystyle{plain}
+\bibliography{biblioTJ}
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
