@@ -31,6 +31,7 @@
 ==============
 * fix request 1.2-2.04 (implement adjusted heretozygosity in summary)
 * use packageStartupMessage() instead of cat in .First.lib
+* bug: makefreq does not work after a seploc
 
 # DOCUMENTATION ISSUES:
 =======================
