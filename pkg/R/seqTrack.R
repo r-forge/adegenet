@@ -330,7 +330,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
     }
 
     ## HANDLE COLOR PALETTE
-    if(!is.null(col) | !is.null(support)){ # use palette iff col or support provided
+    if(is.null(col) & !is.null(support)){ # use palette iff support provided without col
         opal <- palette()
         on.exit(palette(opal))
         palette(col.pal(100))
