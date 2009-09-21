@@ -424,6 +424,10 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
             stop(msg)
         }
 
+        if(any(is.na(dateRange))){
+            stop("NA in dateRange")
+        }
+
         dates <- x$date
         toKeep <- (dates > min(dateRange)) & (dates < max(dateRange))
         if(sum(toKeep)==0) {
