@@ -32,6 +32,8 @@
 * fix request 1.2-2.04 (implement adjusted heretozygosity in summary)
 * use packageStartupMessage() instead of cat in .First.lib
 * bug: makefreq does not work after a seploc
+* fix bug 1.2-3.01 (df2genind issue)
+
 
 # DOCUMENTATION ISSUES:
 =======================
@@ -41,7 +43,7 @@
 # NEW IMPLEMENTATIONS:
 =====================
 
-* all genind2df to export alleles on separate columns
+* allow genind2df to export alleles on separate columns
 
 
 # TESTING:
