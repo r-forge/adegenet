@@ -33,7 +33,7 @@
 * use packageStartupMessage() instead of cat in .First.lib
 * bug: makefreq does not work after a seploc
 * fix bug 1.2-3.01 (df2genind issue) -- done: was not actually a bug, but the "." used in loc names; no longer a pb now.
-* fix bug 1.2-3.02 (propShared issue)
+* fix bug 1.2-3.02 (propShared issue) -- done.
 
 
 # DOCUMENTATION ISSUES:
@@ -69,7 +69,7 @@
 * Implement different levels of ploidy in:
 - hybridize - done (TJ)
 - read.structure
-- propShared
+*o* propShared -- done for haploid.
 
 
 
