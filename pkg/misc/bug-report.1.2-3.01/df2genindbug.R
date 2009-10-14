@@ -6,7 +6,4 @@ df # looks ok
 toto=df2genind(df, sep="/", ploidy=2)
 toto
 toto@tab # only one locus !?!
-
-
-## and then this is wrong too:
-propShared(toto)
+genind2df(toto,sep="/")
