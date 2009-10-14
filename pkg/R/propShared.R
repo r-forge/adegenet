@@ -8,6 +8,9 @@
 propShared <- function(obj){
     x <- obj
 
+    ## convert alleles to integers (alleles may be characters)
+    x@all.names <- lapply(x@all.names, function(v) 1:length(v))
+
     ## check that this is a valid genind
     if(!inherits(x,"genind")) stop("obj must be a genind object.")
     invisible(validObject(x))
@@ -42,6 +45,7 @@ propShared <- function(obj){
         alleleSize <- max(apply(temp,1:2,nchar))/2
         mat1 <- apply(temp, 1:2, substr, 1, alleleSize)
         mat2 <- apply(temp, 1:2, substr, alleleSize+1, alleleSize*2)
+
         matAll <- cbind(mat1,mat2)
         matAll <- apply(matAll,1:2,as.integer)
         matAll[is.na(matAll)] <- 0
