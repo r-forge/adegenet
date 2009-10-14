@@ -18,3 +18,8 @@ genind2df(toto,sep="/")
 
 
 ## PROBLEM 2:...
+dat <- read.csv("example.csv")
+rownames(dat) <- dat[,1]
+dat <- dat[,-1]
+x <- df2genind(dat, sep="\\+")
+propShared(x)

@@ -22,17 +22,21 @@ propShared <- function(obj){
 
     ## if ploidy = 1
     if(x$ploidy == as.integer(1)){
-        stop("not implemented for ploidy = 1")
-        ## compute numbers of common alleles
-        ## X <- x@tab
-        ## X[is.na(X)] <- 0
-        ## M <- X %*% t(X)
-
+        ## stop("not implemented for ploidy = 1")
         ## compute numbers of alleles used in each comparison
-        ## nAllByInd <- propTyped(x,by="ind") * nLoc(x)
-        ##         idx <- expand.grid(1:nrow(x$tab), 1:nrow(x$tab))
-        ##         temp <- cbind(nAllByInd[idx[,1]] , nAllByInd[idx[,2]])
-        ##         N <- matrix(apply(temp, 1, min), ncol=nrow(x$tab))
+        nAllByInd <- propTyped(x,"both")
+        nAll <- nAllByInd %*% t(nAllByInd)
+
+        ## compute numbers of common alleles
+        X <- x@tab
+        X[is.na(X)] <- 0
+        M <- X %*% t(X)
+
+        ## result
+        res <- M / nAll
+        res[is.nan(res)] <- NA # as 0/0 is NaN (when no common locus typed)
+        colnames(res) <- rownames(res) <- x$ind.names
+        return(res)
     }
 
     ## if ploidy = 2
