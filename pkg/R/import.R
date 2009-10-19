@@ -279,7 +279,7 @@ read.genetix <- function(file=NULL,missing=NA,quiet=FALSE) {
     ## read from file
     ## if(!file.exists(file)) stop("Specified file does not exist.") <- not needed
 
-    if(toupper(.readExt(file)) %in% c("GTX","GEN")) stop("File extension .gtx expected")
+    if(toupper(.readExt(file)) != "GTX") stop("File extension .gtx expected")
     ## retrieve first infos
     nloc <- as.integer(scan(file,nlines=1,what="character",quiet=TRUE)[1])
     npop <- as.integer(scan(file,nlines=1,skip=1,what="character",quiet=TRUE)[1])
@@ -690,7 +690,7 @@ import2genind <- function(file,missing=NA,quiet=FALSE, ...){
     ext <- .readExt(file)
     ext <- toupper(ext)
 
-    if(ext %in% c("GTX","GEN"))
+    if(ext == "GTX")
         return(read.genetix(file,missing=missing,quiet=quiet))
 
     if(ext == "DAT")
