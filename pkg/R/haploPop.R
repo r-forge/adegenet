@@ -132,6 +132,7 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, gen.time=1,
 ## summary.haploPop
 ##################
 summary.haploPop <- function(object, ...){
+    x <- object
     myCall <- x$call
     x$call <- NULL
     res <- list()
@@ -157,3 +158,39 @@ summary.haploPop <- function(object, ...){
 
     return(invisible(res))
 } # end print.haploPop
+
+
+
+
+
+
+##################
+## sample.haploPop
+##################
+sample.haploPop <- function(x, n){
+    x <- unlist(x, recursive=FALSE)
+    res <- list()
+    res[[1]] <- sample(x, n)
+    class(res) <- "haploPop"
+    return(res)
+} # end sample.haploPop
+
+
+
+
+
+
+###############
+## dist.haploPop
+###############
+dist.haploPop <- function(x){
+    if(!inherits(x, "haploPop")) stop("x is not a haploPop object")
+
+    x <- unlist(x, recursive=FALSE)
+    f1 <- function(a,b){
+        return(sum(!union(a,b) %in% intersect(a,b)))
+    }
+
+    res <- outer(x, x, FUN=f1)
+    return(as.dist(res))
+} # end dist.haploPop
