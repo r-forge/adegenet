@@ -187,10 +187,21 @@ dist.haploPop <- function(x){
     if(!inherits(x, "haploPop")) stop("x is not a haploPop object")
 
     x <- unlist(x, recursive=FALSE)
+    ## x <- as.array(x)
+    n <- length(x)
+
     f1 <- function(a,b){
         return(sum(!union(a,b) %in% intersect(a,b)))
     }
 
-    res <- outer(x, x, FUN=f1)
+    ## res <- outer(x, x, FUN=f1)
+    res <- numeric(n*(n-1)/2)
+    for(i in 1:n){
+        for(j in (i+1):n){
+            res[]
+        }
+    }
+
+    temp <- dist(1:n)
     return(as.dist(res))
 } # end dist.haploPop
