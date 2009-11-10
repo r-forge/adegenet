@@ -11,7 +11,8 @@
 haploPop <- function(n.steps=10, haplo.length=1e6, mu=0.0001, gen.time=1,
                      n.snp.ini=10,
                      Rfunc=function(Nt){max(0, Nt * rnorm(1, mean=1.2, sd=.2))},
-                     pop.ini.size=function(){1e1}, pop.max.size=function(){1e4}, p.new.pop=function(){1e-4} ) {
+                     pop.ini.size=function(){1e1}, pop.max.size=function(){1e4}, p.new.pop=function(){1e-4},
+                     max.nb.pop=100) {
 
 
     ## GLOBAL VARIABLES ##
@@ -91,39 +92,29 @@ haploPop <- function(n.steps=10, haplo.length=1e6, mu=0.0001, gen.time=1,
 
 
 
-## ##################
-## ## print.haploPop
-## ##################
-## print.haploPop <- function(x, ...){
+##################
+## print.haploPop
+##################
+print.haploPop <- function(x, ...){
+    myCall <- x$call
+    x$call <- NULL
 
-##     cat("\t\n========================")
-##     cat("\t\n= simulated haplotypes =")
-##     cat("\t\n=  (haploPop object)   =")
-##     cat("\t\n========================\n")
+    cat("\t\n=======================================")
+    cat("\t\n= simulated populations of haplotypes =")
+    cat("\t\n=          (haploPop object)          =")
+    cat("\t\n=======================================\n")
 
-##     cat("\nSize :", length(x$ances),"haplotypes")
-##     cat("\nHaplotype length :", ncol(x$seq),"nucleotids")
-##     cat("\nProportion of NA ancestors :", signif(mean(is.na(x$ances)),5))
-##     cat("\nNumber of known ancestors :", sum(!is.na(x$ances)))
-##     nbAncInSamp <- sum(x$ances %in% labels(x))
-##     cat("\nNumber of ancestors within the sample :", nbAncInSamp)
-##     cat("\nDate range :", min(x$dates,na.rm=TRUE),"-",max(x$dates,na.rm=TRUE))
-##     ##nUniqSeq <- length(unique(apply(as.character(x$seq),1,paste,collapse="")))
-##     ##cat("\nNumber of unique haplotypes :", nUniqSeq)
+    cat("\nNumber of populations :", length(x))
 
-##     cat("\n\n= Content =")
-##     for(i in 1:length(x)){
-##         cat("\n")
+    cat("\nPopulation sizes :\n")
+    temp <- sapply(x,length)
+    names(temp) <- 1:length(temp)
+    print(temp)
 
-##         cat(paste("$", names(x)[i], sep=""),"\n")
-##         if(names(x)[i] %in% c("seq","call")) {
-##             print(x[[i]])
-##         } else if(names(x)[i]=="xy"){
-##             print(head(x[[i]]))
-##             if(nrow(x[[i]]>6)) cat("    ...\n")
-##         } else cat(head(x[[i]],6), ifelse(length(x[[i]])>6,"...",""),"\n")
-##     }
+    cat("\nNumber of SNPs per population :\n")
+    temp <- sapply(x,function(e) length(unique(unlist(e))))
+    names(temp) <- 1:length(temp)
+    print(temp)
 
-
-##     return(NULL)
-## } # end print.haploPop
+    return(NULL)
+} # end print.haploPop
