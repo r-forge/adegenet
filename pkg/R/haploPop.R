@@ -8,17 +8,35 @@
 ## - mu: substitution rate / nucleotide / year
 ## - n.steps: number of generations to simulate
 ##
-haploPop <- function(n.steps=10, haplo.length=1e6, mu=0.0001, gen.time=1,
+haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, gen.time=1,
                      n.snp.ini=10,
                      Rfunc=function(Nt){max(0, Nt * rnorm(1, mean=1.2, sd=.2))},
                      pop.ini.size=function(){1e1}, pop.max.size=function(){1e4}, p.new.pop=function(){1e-4},
                      max.nb.pop=100) {
 
 
+    ## SOME CHECKS
+    if(is.numeric(pop.ini.size)){
+        pop.ini.size.val <- pop.ini.size
+        pop.ini.size <- function(){pop.ini.size.val}
+    }
+
+    if(is.numeric(pop.max.size)){
+        pop.max.size.val <- pop.max.size
+        pop.max.size <- function(){pop.max.size.val}
+    }
+
+     if(is.numeric(p.new.pop)){
+        p.new.pop.val <- p.new.pop
+        p.new.pop <- function(){p.new.pop.val}
+    }
+
+
+
     ## GLOBAL VARIABLES ##
     mu <- gen.time * (mu/365)
     SNP.POOL <- 1:haplo.length
-
+    vecS <- 1 # will be redefined later, but needed for evolveOnePop definition
 
     ## AUXILIARY FUNCTIONS ##
     createMutations <- function(N){ # L:genome length; N: pop size
@@ -41,7 +59,11 @@ haploPop <- function(n.steps=10, haplo.length=1e6, mu=0.0001, gen.time=1,
         res <- assignMutations(res, createMutations(sampSize)) # mutate strains
 
         ## possibly create a new pop
-        nbNewPop <- rbinom(1, sampSize, prob=p.new.pop())
+        if(sum(vecS>0) < max.nb.pop) { # total number of pop. limitation
+            nbNewPop <- rbinom(1, sampSize, prob=p.new.pop())
+        } else {
+            nbNewPop <- 0
+        }
         if(nbNewPop>0){
             newPop <- sample(listPop, size=nbNewPop, replace=TRUE)
             listPop <<- c(listPop, newPop)
@@ -62,7 +84,7 @@ haploPop <- function(n.steps=10, haplo.length=1e6, mu=0.0001, gen.time=1,
 
     ## evolve all populations
     i <- 1L
-    while(sum(vecS)>0 & i<(n.steps+1)){ # evolve all generations
+    while((sum(vecS)>0) & (i<(n.steps+1))){ # evolve all generations
         i <- i + 1L # update iterator
 
         ## purge non-susceptible pop
@@ -70,12 +92,26 @@ haploPop <- function(n.steps=10, haplo.length=1e6, mu=0.0001, gen.time=1,
         vecS <- vecS[vecS>0]
 
         ## evolve populations of one generation
-        for(j in which(vecS>0)){
+        temp <- which(vecS>0)
+        for(j in temp){
             temp<- evolveOnePop(listPop[[j]], vecS[j])
             listPop[[j]] <- temp$pop
             vecS[j] <- temp$S
         }
     } # end while
+
+
+    ## CLEAN RESULTS ##
+    ## handle reverse mutations
+    cleanRes <- function(vec){
+        temp <- table(vec)
+        return(sort(as.integer(names(temp)[temp %% 2 != 0])))
+    }
+
+    for(i in 1:length(listPop)){
+        listPop[[i]] <- lapply(listPop[[i]], cleanRes)
+    }
+
 
     ## RETURN RESULTS ##
     res <- listPop
@@ -93,16 +129,17 @@ haploPop <- function(n.steps=10, haplo.length=1e6, mu=0.0001, gen.time=1,
 
 
 ##################
-## print.haploPop
+## summary.haploPop
 ##################
-print.haploPop <- function(x, ...){
+summary.haploPop <- function(object, ...){
     myCall <- x$call
     x$call <- NULL
+    res <- list()
 
-    cat("\t\n=======================================")
-    cat("\t\n= simulated populations of haplotypes =")
-    cat("\t\n=          (haploPop object)          =")
-    cat("\t\n=======================================\n")
+    ## cat("\t\n=======================================")
+    ## cat("\t\n= simulated populations of haplotypes =")
+    ## cat("\t\n=          (haploPop object)          =")
+    ## cat("\t\n=======================================\n")
 
     cat("\nNumber of populations :", length(x))
 
@@ -110,11 +147,13 @@ print.haploPop <- function(x, ...){
     temp <- sapply(x,length)
     names(temp) <- 1:length(temp)
     print(temp)
+    res$pop.size <- temp
 
     cat("\nNumber of SNPs per population :\n")
     temp <- sapply(x,function(e) length(unique(unlist(e))))
     names(temp) <- 1:length(temp)
     print(temp)
+    res$n.snp <- temp
 
-    return(NULL)
+    return(invisible(res))
 } # end print.haploPop
