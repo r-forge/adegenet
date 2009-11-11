@@ -9,7 +9,7 @@
 ## - n.steps: number of generations to simulate
 ##
 haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
-                     r.func=function(Nt){max(0, Nt * rnorm(1, mean=1.2, sd=.2))}, gen.time=1,
+                     birth.func=function(){ sample(0:3, 1)}, gen.time=1,
                      pop.ini.size=function(){1e1}, pop.max.size=function(){1e4}, max.nb.pop=100,
                      p.new.pop=function(){1e-4}, kill.func=function(age){age>1}, quiet=FALSE) {
 
@@ -30,9 +30,14 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
         p.new.pop <- function(){p.new.pop.val}
     }
 
-     if(is.numeric(kill.func)){
+    if(is.numeric(birth.func)){
+        birth.func.val <- birth.func[1]
+        birth.func <- function(){birth.func.val}
+    }
+
+    if(is.numeric(kill.func)){
         kill.func.val <- kill.func[1]
-        kill.func <- function(age){age>p.new.pop.val}
+        kill.func <- function(age){age>kill.func.val}
     }
 
 
@@ -58,30 +63,37 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
     evolveOnePop <- function(myPop, myS, myAge){ # myPop: pop to evolve; myS: nb of susceptible in the pop; myAge: vector of ages
         ## kill 'em bastards (= old strains)
         myAge <- myAge + 1
-        myPop[kill.func(myAge)] <- NULL
+        toKill <- kill.func(myAge)
+        myPop[toKill] <- NULL
+        myAge <- myAge[!toKill]
 
-        ## sample and mutate
-        sampSize <- round(min( r.func(Nt=length(myPop)), myS)) # number of strains for next step
+        ## generate new strains for new generation
+        sampSize <- round(min( length(myPop)*birth.func(), myS)) # number of strains for next step
         if(sampSize<1){ # if no sample
             return(list(pop=myPop, S=myS, age=myAge))
         }
-        res <- myPop[sample(1:length(myPop), sampSize, replace=TRUE)] # sample strains
-        res <- assignMutations(res, createMutations(sampSize)) # mutate strains
-        myAge <- rep(0, pop.ini.size()) # new ages for newborns
+        newGen <- myPop[sample(1:length(myPop), sampSize, replace=TRUE)] # sample strains for new generations
+        newGen <- assignMutations(newGen, createMutations(sampSize)) # mutate strains
+        newAge <- rep(0, sampSize) # new ages for newborns
+
+        ## merge old and new generation
+        myPop <- c(myPop,newGen)
+        myAge <- c(myAge, newAge)
 
         ## possibly create one or more new pop
-        if(sum(vecS>0) < max.nb.pop) { # total number of pop. limitation
-            nbNewPop <- rbinom(1, sampSize, prob=p.new.pop())
+        if((length(listPop) < max.nb.pop) & (p.new.pop()>0)) { # total number of pop. limitation
+            nbNewPop <- rbinom(1, length(myPop), prob=p.new.pop())
         } else {
             nbNewPop <- 0
         }
         if(nbNewPop>0){
-            newPop <- sample(listPop, size=nbNewPop, replace=TRUE)
+            ## newPop <- sample(listPop, size=nbNewPop, replace=TRUE) # wrong
+            newPop <- sample(myPop, size=nbNewPop, replace=TRUE)
             listPop <<- c(listPop, newPop)
-            vecS <<- c(vecS, replicate(nbNewPop,pop.max.size()) )
+            vecS <<- c(vecS, replicate(nbNewPop, pop.max.size()) )
             listAges <<- c(listAges, lapply(1:nbNewPop, function(i) rep(0, pop.ini.size())) )
         } # end new pop
-        return(list(pop=res, S=myS-sampSize, age=myAge ))
+        return(list(pop=myPop, S=myS-sampSize, age=myAge))
     }
 
 
@@ -132,6 +144,13 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
             vecS[j] <- temp$S
             listAges[[j]] <- temp$age
         }
+
+        ## FOR DEBUGGING
+        ## cat("\n= ",i," =")
+        ## print(listPop)
+        ## print(vecS)
+        ## print(listAges)
+        ## END DEBUGGING
     } # end while
 
     if(!quiet){
