@@ -8,11 +8,10 @@
 ## - mu: substitution rate / nucleotide / year
 ## - n.steps: number of generations to simulate
 ##
-haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, gen.time=1, n.snp.ini=10,
-                     r.func=function(Nt){max(0, Nt * rnorm(1, mean=1.2, sd=.2))},
-                     pop.ini.size=function(){1e1}, pop.max.size=function(){1e4},
-                     p.new.pop=function(){1e-4}, max.nb.pop=100, kill.func=function(age){age>1},
-                     quiet=FALSE) {
+haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
+                     r.func=function(Nt){max(0, Nt * rnorm(1, mean=1.2, sd=.2))}, gen.time=1,
+                     pop.ini.size=function(){1e1}, pop.max.size=function(){1e4}, max.nb.pop=100,
+                     p.new.pop=function(){1e-4}, kill.func=function(age){age>1}, quiet=FALSE) {
 
 
     ## SOME CHECKS
@@ -102,7 +101,8 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, gen.time=1, n.snp.in
     if(!quiet){
         cat("\nSimulating populations of haplotypes through time: \n")
     }
-    while((sum(vecS)>0) & (i<(n.steps+1))){ # evolve all generations
+    ##while((sum(vecS)>0) & (i<(n.steps+1))){ # evolve all generations
+    while(i<(n.steps+1)){ # evolve all generations
         i <- i + 1L # update iterator
         if(!quiet){
             cat(ifelse((i%%10)==0, i, "."))
@@ -124,8 +124,8 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, gen.time=1, n.snp.in
             return(invisible(NULL))
         }
 
-        ## evolve populations of one generation
-        temp <- which(vecS>0)
+        ## make populations evolve of one generation
+        temp <- 1:length(listPop) # make sure that new pop won't evolve this time
         for(j in temp){
             temp<- evolveOnePop(listPop[[j]], vecS[j], listAges[[j]])
             listPop[[j]] <- temp$pop
