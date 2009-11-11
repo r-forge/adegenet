@@ -9,20 +9,21 @@
 ## - n.steps: number of generations to simulate
 ##
 haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
-                     birth.func=function(){ sample(0:3, 1)}, gen.time=1,
-                     pop.ini.size=function(){1e1}, pop.max.size=function(){1e4}, max.nb.pop=100,
-                     p.new.pop=function(){1e-4}, kill.func=function(age){age>1}, quiet=FALSE) {
+                     birth.func=function(){ sample(0:3, 1)},
+                     ini.pop.size=function(){1e1}, max.pop.size=function(){1e4}, max.nb.pop=100,
+                     p.new.pop=function(){1e-4}, kill.func=function(age){age>1},
+                     quiet=FALSE, clean.haplo=FALSE) {
 
 
     ## SOME CHECKS
-    if(is.numeric(pop.ini.size)){
-        pop.ini.size.val <- pop.ini.size
-        pop.ini.size <- function(){pop.ini.size.val}
+    if(is.numeric(ini.pop.size)){
+        ini.pop.size.val <- ini.pop.size
+        ini.pop.size <- function(){ini.pop.size.val}
     }
 
-    if(is.numeric(pop.max.size)){
-        pop.max.size.val <- pop.max.size
-        pop.max.size <- function(){pop.max.size.val}
+    if(is.numeric(max.pop.size)){
+        max.pop.size.val <- max.pop.size
+        max.pop.size <- function(){max.pop.size.val}
     }
 
      if(is.numeric(p.new.pop)){
@@ -42,7 +43,6 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
 
 
     ## GLOBAL VARIABLES ##
-    mu <- gen.time * (mu/365)
     SNP.POOL <- 1:haplo.length
     vecS <- 1 # will be redefined later, but needed for evolveOnePop definition
 
@@ -53,7 +53,7 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
     }
 
     assignMutations <- function(myPop, mutations){ # mypop: list of `haplotypes'; mutations: vector of SNPs
-        if(length(mutations)==0) return(myPop)
+        if(length(mutations)==0 | length(myPop)==0) return(myPop)
         id <- sample(1:length(myPop), size=length(mutations), replace=TRUE)
         mutations <- split(mutations, id)
         myPop[as.integer(names(mutations))] <- mapply(c, myPop[as.integer(names(mutations))], mutations, SIMPLIFY=FALSE)
@@ -88,22 +88,22 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
         }
         if(nbNewPop>0){
             ## newPop <- sample(listPop, size=nbNewPop, replace=TRUE) # wrong
-            newPop <- sample(myPop, size=nbNewPop, replace=TRUE)
+            newPop <- lapply(sample(myPop, size=nbNewPop, replace=TRUE), as.list)
             listPop <<- c(listPop, newPop)
-            vecS <<- c(vecS, replicate(nbNewPop, pop.max.size()) )
-            listAges <<- c(listAges, lapply(1:nbNewPop, function(i) rep(0, pop.ini.size())) )
+            vecS <<- c(vecS, replicate(nbNewPop, max.pop.size()) )
+            listAges <<- c(listAges, replicate(nbNewPop, 0, simplify=FALSE) )
         } # end new pop
         return(list(pop=myPop, S=myS-sampSize, age=myAge))
     }
 
 
     ## INITIATE SIMULATIONS ##
-    vecS <- pop.max.size() # susceptibles
+    vecS <- max.pop.size() -  n.snp.ini # susceptibles
     haplo.ini <- sample(SNP.POOL, n.snp.ini, replace=TRUE)
     listPop <- list()
-    listPop[[1]] <- lapply(1:pop.ini.size(), function(i) haplo.ini) # contains only one population of identical clones to start with
+    listPop[[1]] <- lapply(1:ini.pop.size(), function(i) haplo.ini) # contains only one population of identical clones to start with
     listAges <- list() # will contain vectors of ages of haplotypes (a time of appearance, age=0)
-    listAges[[1]] <- rep(0, pop.ini.size())
+    listAges[[1]] <- rep(0, ini.pop.size())
 
 
     ## MAKE SIMULATIONS ##
@@ -118,6 +118,18 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
         i <- i + 1L # update iterator
         if(!quiet){
             cat(ifelse((i%%10)==0, i, "."))
+        }
+
+
+        ## make populations evolve of one generation
+        idx <- which(vecS>0) # make sure that new pop won't evolve this time
+        if(length(idx)>0){
+            for(j in idx){
+                temp <- evolveOnePop(listPop[[j]], vecS[j], listAges[[j]])
+                listPop[[j]] <- temp$pop
+                vecS[j] <- temp$S
+                listAges[[j]] <- temp$age
+            }
         }
 
         ## ## purge non-susceptible pop
@@ -136,20 +148,14 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
             return(invisible(NULL))
         }
 
-        ## make populations evolve of one generation
-        temp <- 1:length(listPop) # make sure that new pop won't evolve this time
-        for(j in temp){
-            temp<- evolveOnePop(listPop[[j]], vecS[j], listAges[[j]])
-            listPop[[j]] <- temp$pop
-            vecS[j] <- temp$S
-            listAges[[j]] <- temp$age
-        }
-
         ## FOR DEBUGGING
-        ## cat("\n= ",i," =")
-        ## print(listPop)
-        ## print(vecS)
-        ## print(listAges)
+        cat("\n=== ",i," ===")
+        cat("\nlistPop")
+        print(listPop)
+        cat("\nvecS")
+        print(vecS)
+        cat("\nlistAges")
+        print(listAges)
         ## END DEBUGGING
     } # end while
 
@@ -161,24 +167,25 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
 
 
     ## CLEAN RESULTS ##
-    if(!quiet){
-        cat("\n... Cleaning haplotypes (handling reverse mutations)\n")
-    }
-
     ## handle reverse mutations
-    cleanRes <- function(vec){
-        temp <- table(vec)
-        return(sort(as.integer(names(temp)[temp %% 2 != 0])))
-    }
+    if(clean.haplo){
+        if(!quiet){
+            cat("\n... Cleaning haplotypes (handling reverse mutations)\n")
+        }
 
-    for(i in 1:length(listPop)){
-        listPop[[i]] <- lapply(listPop[[i]], cleanRes)
-    }
+        cleanRes <- function(vec){
+            temp <- table(vec)
+            return(sort(as.integer(names(temp)[temp %% 2 != 0])))
+        }
 
-    if(!quiet){
-        cat("\n... done! \n")
-    }
+        for(i in 1:length(listPop)){
+            listPop[[i]] <- lapply(listPop[[i]], cleanRes)
+        }
 
+        if(!quiet){
+            cat("\n... done! \n")
+        }
+    }
 
     ## RETURN RESULTS ##
     res <- listPop
