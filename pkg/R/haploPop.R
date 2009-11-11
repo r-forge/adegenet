@@ -195,13 +195,14 @@ dist.haploPop <- function(x){
     }
 
     ## res <- outer(x, x, FUN=f1)
-    res <- numeric(n*(n-1)/2)
-    for(i in 1:n){
+    res <- matrix(0, ncol=n, nrow=n)
+    for(i in 1:(n-1)){
         for(j in (i+1):n){
-            res[]
+            res[i,j] <- f1(x[[i]], x[[j]])
         }
     }
 
-    temp <- dist(1:n)
+    res <- res+t(res)
+
     return(as.dist(res))
 } # end dist.haploPop
