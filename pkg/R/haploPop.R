@@ -8,11 +8,11 @@
 ## - mu: substitution rate / nucleotide / year
 ## - n.steps: number of generations to simulate
 ##
-haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, gen.time=1,
-                     n.snp.ini=10,
-                     Rfunc=function(Nt){max(0, Nt * rnorm(1, mean=1.2, sd=.2))},
-                     pop.ini.size=function(){1e1}, pop.max.size=function(){1e4}, p.new.pop=function(){1e-4},
-                     max.nb.pop=100) {
+haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, gen.time=1, n.snp.ini=10,
+                     r.func=function(Nt){max(0, Nt * rnorm(1, mean=1.2, sd=.2))},
+                     pop.ini.size=function(){1e1}, pop.max.size=function(){1e4},
+                     p.new.pop=function(){1e-4}, max.nb.pop=100, kill.func=function(age){age>1},
+                     quiet=FALSE) {
 
 
     ## SOME CHECKS
@@ -31,6 +31,10 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, gen.time=1,
         p.new.pop <- function(){p.new.pop.val}
     }
 
+     if(is.numeric(kill.func)){
+        kill.func.val <- kill.func[1]
+        kill.func <- function(age){age>p.new.pop.val}
+    }
 
 
     ## GLOBAL VARIABLES ##
@@ -52,13 +56,21 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, gen.time=1,
         return(myPop)
     }
 
-    evolveOnePop <- function(myPop, myS){ # myPop: pop to evolve; myS: nb of susceptible in the pop
+    evolveOnePop <- function(myPop, myS, myAge){ # myPop: pop to evolve; myS: nb of susceptible in the pop; myAge: vector of ages
+        ## kill 'em bastards (= old strains)
+        myAge <- myAge + 1
+        myPop[kill.func(myAge)] <- NULL
+
         ## sample and mutate
-        sampSize <- round(min( Rfunc(Nt=length(myPop)), myS)) # number of strains for next step
+        sampSize <- round(min( r.func(Nt=length(myPop)), myS)) # number of strains for next step
+        if(sampSize<1){ # if no sample
+            return(list(pop=myPop, S=myS, age=myAge))
+        }
         res <- myPop[sample(1:length(myPop), sampSize, replace=TRUE)] # sample strains
         res <- assignMutations(res, createMutations(sampSize)) # mutate strains
+        myAge <- rep(0, pop.ini.size()) # new ages for newborns
 
-        ## possibly create a new pop
+        ## possibly create one or more new pop
         if(sum(vecS>0) < max.nb.pop) { # total number of pop. limitation
             nbNewPop <- rbinom(1, sampSize, prob=p.new.pop())
         } else {
@@ -68,8 +80,9 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, gen.time=1,
             newPop <- sample(listPop, size=nbNewPop, replace=TRUE)
             listPop <<- c(listPop, newPop)
             vecS <<- c(vecS, replicate(nbNewPop,pop.max.size()) )
-        }
-        return(list(pop=res, S=myS-sampSize ))
+            listAges <<- c(listAges, lapply(1:nbNewPop, function(i) rep(0, pop.ini.size())) )
+        } # end new pop
+        return(list(pop=res, S=myS-sampSize, age=myAge ))
     }
 
 
@@ -78,30 +91,61 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, gen.time=1,
     haplo.ini <- sample(SNP.POOL, n.snp.ini, replace=TRUE)
     listPop <- list()
     listPop[[1]] <- lapply(1:pop.ini.size(), function(i) haplo.ini) # contains only one population of identical clones to start with
+    listAges <- list() # will contain vectors of ages of haplotypes (a time of appearance, age=0)
+    listAges[[1]] <- rep(0, pop.ini.size())
 
 
     ## MAKE SIMULATIONS ##
 
     ## evolve all populations
     i <- 1L
+    if(!quiet){
+        cat("\nSimulating populations of haplotypes through time: \n")
+    }
     while((sum(vecS)>0) & (i<(n.steps+1))){ # evolve all generations
         i <- i + 1L # update iterator
+        if(!quiet){
+            cat(ifelse((i%%10)==0, i, "."))
+        }
 
-        ## purge non-susceptible pop
-        listPop <- listPop[vecS>0]
-        vecS <- vecS[vecS>0]
+        ## ## purge non-susceptible pop
+        ## listPop <- listPop[vecS>0]
+        ## vecS <- vecS[vecS>0]
+
+        ## purge empty populations
+        toKeep <- sapply(listPop, length)>0
+        listPop <- listPop[toKeep]
+        vecS <- vecS[toKeep]
+        listAges <- listAges[toKeep]
+
+        ## stop if all pop go extinct
+        if(length(listPop)==0L){
+            cat("\n All populations went extinct at time",i,"\n")
+            return(invisible(NULL))
+        }
 
         ## evolve populations of one generation
         temp <- which(vecS>0)
         for(j in temp){
-            temp<- evolveOnePop(listPop[[j]], vecS[j])
+            temp<- evolveOnePop(listPop[[j]], vecS[j], listAges[[j]])
             listPop[[j]] <- temp$pop
             vecS[j] <- temp$S
+            listAges[[j]] <- temp$age
         }
     } # end while
 
+    if(!quiet){
+        cat("\n... done! \n")
+    }
+
+    ## END OF SIMULATIONS ##
+
 
     ## CLEAN RESULTS ##
+    if(!quiet){
+        cat("\n... Cleaning haplotypes (handling reverse mutations)\n")
+    }
+
     ## handle reverse mutations
     cleanRes <- function(vec){
         temp <- table(vec)
@@ -110,6 +154,10 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, gen.time=1,
 
     for(i in 1:length(listPop)){
         listPop[[i]] <- lapply(listPop[[i]], cleanRes)
+    }
+
+    if(!quiet){
+        cat("\n... done! \n")
     }
 
 
