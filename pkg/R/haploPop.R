@@ -8,7 +8,7 @@
 ## - mu: substitution rate / nucleotide / year
 ## - n.steps: number of generations to simulate
 ##
-haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
+haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
                      birth.func=function(){ sample(0:3, 1)},
                      ini.pop.size=function(){1e1}, max.pop.size=function(){1e4}, max.nb.pop=100,
                      p.new.pop=function(){1e-4}, kill.func=function(age){age>1},
@@ -244,17 +244,17 @@ summary.haploPop <- function(object, ...){
 ##################
 sample.haploPop <- function(x, n, n.pop=NULL){
     x$call <- NULL
-    if(is.null(n.pop)){
-        x <- unlist(x, recursive=FALSE)
-        res <- list()
-        res[[1]] <- sample(x, n)
-    } else {
+    if(!is.null(n.pop)){ # pre-treatment: reduce to n.pop populations with same size
         toKeep <- sapply(x,length)>n
-        x <- x[toKeep]
-        x <- sample(x, n.pop, replace=FALSE)
-        popId <- sample(1:n.pop, n, replace=TRUE)
-        res <- sapply(popId, function(i) sample(x[[i]],1))
+        x <- x[toKeep] # keep only pop large enough
+        x <- sample(x, n.pop, replace=FALSE) # keep n.pop populations
+        x <- lapply(x, sample, n, replace=FALSE) # make them the same size
     }
+
+    x <- unlist(x, recursive=FALSE)
+    res <- list()
+    res[[1]] <- sample(x, n)
+
     class(res) <- "haploPop"
     return(res)
 } # end sample.haploPop
