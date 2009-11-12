@@ -273,7 +273,7 @@ summary.haploPop <- function(object, ...){
 ##################
 ## sample.haploPop
 ##################
-sample.haploPop <- function(x, n, n.pop=NULL){
+sample.haploPop <- function(x, n, n.pop=NULL, keep.pop=TRUE){
     x$call <- NULL
 
     if(!is.null(n.pop)){ # pre-treatment: reduce to n.pop populations with same size
@@ -294,13 +294,24 @@ sample.haploPop <- function(x, n, n.pop=NULL){
 
     } # end pop pre-treatment
 
+    if(keep.pop){
+        popSizes <- sapply(x$pop, length)
+        pop.id <- rep(1:length(x$pop), popSizes)
+    }
+
     x$pop <- unlist(x$pop, recursive=FALSE)
     x$ages <- unlist(x$ages, recursive=FALSE)
 
     idx <- sample(1:length(x$pop), n, replace=FALSE)
     res <- list(pop=list(), ages=list() )
-    res$pop[[1]] <- x$pop[idx]
-    res$ages[[1]] <- x$ages[idx]
+
+    if(keep.pop){
+        res$pop <- split(x$pop[idx], pop.id[idx])
+        res$ages <- split(x$ages[idx], pop.id[idx])
+    } else {
+        res$pop[[1]] <- x$pop[idx]
+        res$ages[[1]] <- x$ages[idx]
+    }
     res$S <- n
     class(res) <- "haploPop"
     attr(res, "ances") <- attr(x, "ances")
@@ -353,7 +364,9 @@ dist.haploPop <- function(x, add.root=TRUE){
 ###############
 ## plot.haploPop
 ###############
-plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, ...){
+plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, show.pop=TRUE,
+                          transp=TRUE, ...){
+    ## CHECKS ##
     if(!require(ape)) stop("ape package is required")
     if(!inherits(x, "haploPop")) stop("x is not a haploPop object")
 
@@ -363,10 +376,37 @@ plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, ...){
         stop("tree exceeds size limit")
     }
 
+
+    ## PLOT TREE ##
     tre <- root(nj(dist.haploPop(x)),"1")
     plot(tre, type=type, ...)
     xy <- get("last_plot.phylo", envir = .PlotPhyloEnv)
-    points(xy$xx[1], xy$yy[1], col="red", pch=20, cex=2)
+
+
+    ## SHOW POPULATIONS ##
+    if(show.pop){
+        nPop <- length(x$pop)
+        popSizes <- sapply(x$pop, length)
+        pop.id <- rep(1:length(x$pop), popSizes)
+        opal <- palette()
+        on.exit(palette(opal))
+        pop.col <- rainbow(nPop)
+        if(transp){
+            transp <- function(col, alpha=.5){
+                res <- apply(col2rgb(col),2, function(c) rgb(c[1]/255, c[2]/255, c[3]/255, alpha))
+                return(res)
+            }
+
+            pop.col <- transp(pop.col)
+        }
+
+        palette(pop.col)
+        points(xy$xx[2:(N+1)], xy$yy[2:(N+1)], pch=20, col=pop.id)
+    }
+
+
+    ## SHOW ROOT ##
+    points(xy$xx[1], xy$yy[1], pch=20, cex=3)
 
     return(invisible(xy))
-}
+} # end plot.haploPop
