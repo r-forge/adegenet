@@ -9,7 +9,7 @@
 ## - n.steps: number of generations to simulate
 ##
 haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
-                     birth.func=function(){ sample(0:3, 1)},
+                     birth.func=function(){ sample(0:3, 1, prob=c(.05, .45, .35, .15))},
                      ini.pop.size=function(){1e1}, max.pop.size=function(){1e4}, max.nb.pop=100,
                      p.new.pop=function(){1e-4}, kill.func=function(age){age>1},
                      quiet=FALSE, clean.haplo=FALSE) {
@@ -100,6 +100,7 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
     ## INITIATE SIMULATIONS ##
     vecS <- max.pop.size() -  n.snp.ini # susceptibles
     haplo.ini <- sample(SNP.POOL, n.snp.ini, replace=TRUE)
+    ANCES <- haplo.ini
     listPop <- list()
     listPop[[1]] <- lapply(1:ini.pop.size(), function(i) haplo.ini) # contains only one population of identical clones to start with
     listAges <- list() # will contain vectors of ages of haplotypes (a time of appearance, age=0)
@@ -192,6 +193,7 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
     res <- list(pop=listPop, ages=listAges, S=vecS)
     class(res) <- "haploPop"
     res$call <- match.call()
+    attr(res,"ances") <- ANCES # ancestral genotype
     return(res)
 
 } # end haploPop
@@ -221,9 +223,9 @@ print.haploPop <- function(object, ...){
     cat("\nNumber of unmutated genotypes :", N.empty)
 
     if( (length(x$pop) == length(x$ages)) & (length(x$pop) == length(x$S)) ){
-        cat("\nLengths of slots are consistent.")
+        cat("\nSlot lengths consistency:  OK\n")
     } else {
-        warning("\nLengths of slots are NOT consistent.")
+        warning("\nSlot lengths consistency: NOT OK\n")
     }
 } # end print.haploPop
 
@@ -277,6 +279,7 @@ sample.haploPop <- function(x, n, n.pop=NULL){
     if(!is.null(n.pop)){ # pre-treatment: reduce to n.pop populations with same size
         ## keep only some pop
         popToKeep <- sample(which(sapply(x$pop, length) > n), n.pop, replace=FALSE) # keep n.pop large enough populations
+        if(length(popToKeep)==0L) stop("No population is big enough for this sampling.")
         x$pop <- x$pop[popToKeep]
         x$ages <- x$ages[popToKeep]
         x$S <- x$S[popToKeep]
@@ -287,7 +290,6 @@ sample.haploPop <- function(x, n, n.pop=NULL){
             idx <- sample(1:popSizes[i], n, replace=FALSE)
             x$pop[[i]] <- x$pop[[i]][idx]
             x$ages[[i]] <- x$ages[[i]][idx]
-            x$S[i] <- x$S[i][idx]
         }
 
     } # end pop pre-treatment
@@ -297,11 +299,11 @@ sample.haploPop <- function(x, n, n.pop=NULL){
 
     idx <- sample(1:length(x$pop), n, replace=FALSE)
     res <- list(pop=list(), ages=list() )
-    res$pop[[1]] <- x$pop[i]
-    res$ages[[1]] <- x$ages[i]
+    res$pop[[1]] <- x$pop[idx]
+    res$ages[[1]] <- x$ages[idx]
     res$S <- n
-
     class(res) <- "haploPop"
+    attr(res, "ances") <- attr(x, "ances")
     return(res)
 } # end sample.haploPop
 
@@ -315,12 +317,13 @@ sample.haploPop <- function(x, n, n.pop=NULL){
 ###############
 dist.haploPop <- function(x, add.root=TRUE){
     if(!inherits(x, "haploPop")) stop("x is not a haploPop object")
+    ANCES <- attr(x,"ances")
 
     x <- unlist(x$pop, recursive=FALSE)
 
     ## handle root
     if(add.root){ # add the root
-       x <- c(list(), x)
+       x <- c(ANCES, x)
     }
 
     n <- length(x)
