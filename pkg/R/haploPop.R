@@ -117,7 +117,8 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
     while(i<(n.steps+1)){ # evolve all generations
         i <- i + 1L # update iterator
         if(!quiet){
-            cat(ifelse((i%%10)==0, i, "."))
+            catStep <- max(round(n.steps/200), 10)
+            cat(ifelse((i %% catStep)==0, paste(" ...", i), ""))
         }
 
 
@@ -149,13 +150,13 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-4, n.snp.ini=10,
         }
 
         ## FOR DEBUGGING
-        cat("\n=== ",i," ===")
-        cat("\nlistPop")
-        print(listPop)
-        cat("\nvecS")
-        print(vecS)
-        cat("\nlistAges")
-        print(listAges)
+        ## cat("\n=== ",i," ===")
+        ## cat("\nlistPop")
+        ## print(listPop)
+        ## cat("\nvecS")
+        ## print(vecS)
+        ## cat("\nlistAges")
+        ## print(listAges)
         ## END DEBUGGING
     } # end while
 
@@ -241,10 +242,19 @@ summary.haploPop <- function(object, ...){
 ##################
 ## sample.haploPop
 ##################
-sample.haploPop <- function(x, n){
-    x <- unlist(x, recursive=FALSE)
-    res <- list()
-    res[[1]] <- sample(x, n)
+sample.haploPop <- function(x, n, n.pop=NULL){
+    x$call <- NULL
+    if(is.null(n.pop)){
+        x <- unlist(x, recursive=FALSE)
+        res <- list()
+        res[[1]] <- sample(x, n)
+    } else {
+        toKeep <- sapply(x,length)>n
+        x <- x[toKeep]
+        x <- sample(x, n.pop, replace=FALSE)
+        popId <- sample(1:n.pop, n, replace=TRUE)
+        res <- sapply(popId, function(i) sample(x[[i]],1))
+    }
     class(res) <- "haploPop"
     return(res)
 } # end sample.haploPop
