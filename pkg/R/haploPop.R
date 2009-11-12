@@ -124,7 +124,8 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
 
 
         ## make populations evolve of one generation
-        idx <- which(vecS>0) # make sure that new pop won't evolve this time
+        ##idx <- which(vecS>0) # make sure that new pop won't evolve this time ! leads to not dying
+        idx <- 1:length(listPop)  # make sure that new pop won't evolve this time
         if(length(idx)>0){
             for(j in idx){
                 temp <- evolveOnePop(listPop[[j]], vecS[j], listAges[[j]])
@@ -225,7 +226,7 @@ print.haploPop <- function(object, ...){
     if( (length(x$pop) == length(x$ages)) & (length(x$pop) == length(x$S)) ){
         cat("\nSlot lengths consistency:  OK\n")
     } else {
-        warning("\nSlot lengths consistency: NOT OK\n")
+        cat("\nSlot lengths consistency: !! NOT OK !!\n")
     }
 } # end print.haploPop
 
@@ -277,14 +278,14 @@ sample.haploPop <- function(x, n, n.pop=NULL, keep.pop=TRUE){
     x$call <- NULL
 
     if(!is.null(n.pop)){ # pre-treatment: reduce to n.pop populations with same size
-        ## keep only some pop
+        ## kEEP ONLY SOME POP
         popToKeep <- sample(which(sapply(x$pop, length) > n), n.pop, replace=FALSE) # keep n.pop large enough populations
         if(length(popToKeep)==0L) stop("No population is big enough for this sampling.")
         x$pop <- x$pop[popToKeep]
         x$ages <- x$ages[popToKeep]
         x$S <- x$S[popToKeep]
 
-        ## make them the same size
+        ## MAKE THEM THE SAME SIZE
         popSizes <- sapply(x$pop, length)
         for(i in 1:n.pop){
             idx <- sample(1:popSizes[i], n, replace=FALSE)
@@ -312,7 +313,9 @@ sample.haploPop <- function(x, n, n.pop=NULL, keep.pop=TRUE){
         res$pop[[1]] <- x$pop[idx]
         res$ages[[1]] <- x$ages[idx]
     }
-    res$S <- n
+
+    res$S <- rep(n, length(res$pop)
+
     class(res) <- "haploPop"
     attr(res, "ances") <- attr(x, "ances")
     return(res)
