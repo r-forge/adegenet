@@ -220,7 +220,7 @@ print.haploPop <- function(object, ...){
     N.empty <- sum(sapply(x$pop, function(e) length(e)==0))
     cat("\nNumber of unmutated genotypes :", N.empty)
 
-    if(length(x$pop) == length(x$ages) == length(x$S)){
+    if( (length(x$pop) == length(x$ages)) & (length(x$pop) == length(x$S)) ){
         cat("\nLengths of slots are consistent.")
     } else {
         warning("\nLengths of slots are NOT consistent.")
