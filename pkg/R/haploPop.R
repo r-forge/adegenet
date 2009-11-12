@@ -267,11 +267,16 @@ sample.haploPop <- function(x, n, n.pop=NULL){
 ###############
 ## dist.haploPop
 ###############
-dist.haploPop <- function(x){
+dist.haploPop <- function(x, add.root=TRUE){
     if(!inherits(x, "haploPop")) stop("x is not a haploPop object")
 
     x <- unlist(x, recursive=FALSE)
-    ## x <- as.array(x)
+
+    ## handle root
+    if(add.root){ # add the root
+       x <- c(list(), x)
+    }
+
     n <- length(x)
 
     f1 <- function(a,b){
