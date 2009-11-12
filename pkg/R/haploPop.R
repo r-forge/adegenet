@@ -8,18 +8,18 @@
 ## - mu: substitution rate / nucleotide / year
 ## - n.steps: number of generations to simulate
 ##
-haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
+haploPop <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
                      birth.func=function(){ sample(0:3, 1, prob=c(.05, .45, .35, .15))},
-                     ini.pop.size=function(){1e1}, max.pop.size=function(){1e4}, max.nb.pop=100,
+                     max.pop.size=function(){1e4}, max.nb.pop=100, ini.pop.size=10,
                      p.new.pop=function(){1e-4}, kill.func=function(age){age>1},
                      quiet=FALSE, clean.haplo=FALSE) {
 
 
     ## SOME CHECKS
-    if(is.numeric(ini.pop.size)){
-        ini.pop.size.val <- ini.pop.size
-        ini.pop.size <- function(){ini.pop.size.val}
-    }
+    ## if(is.numeric(ini.pop.size)){
+    ##     ini.pop.size.val <- ini.pop.size
+    ##     ini.pop.size <- function(){ini.pop.size.val}
+    ## }
 
     if(is.numeric(max.pop.size)){
         max.pop.size.val <- max.pop.size
@@ -98,14 +98,22 @@ haploPop <- function(n.steps=20, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
 
 
     ## INITIATE SIMULATIONS ##
-    vecS <- max.pop.size() -  n.snp.ini # susceptibles
-    haplo.ini <- sample(SNP.POOL, n.snp.ini, replace=TRUE)
-    ANCES <- haplo.ini
-    listPop <- list()
-    listPop[[1]] <- lapply(1:ini.pop.size(), function(i) haplo.ini) # contains only one population of identical clones to start with
-    listAges <- list() # will contain vectors of ages of haplotypes (a time of appearance, age=0)
-    listAges[[1]] <- rep(0, ini.pop.size())
-
+    ## INITIALIZE FROM SCRATCH
+    if(is.null(ini.obj)){
+        vecS <- max.pop.size() -  n.snp.ini # susceptibles
+        haplo.ini <- sample(SNP.POOL, n.snp.ini, replace=TRUE)
+        ANCES <- haplo.ini
+        listPop <- list()
+        listPop[[1]] <- lapply(1:ini.pop.size, function(i) haplo.ini) # contains only one population of identical clones to start with
+        listAges <- list() # will contain vectors of ages of haplotypes (a time of appearance, age=0)
+        listAges[[1]] <- rep(0, ini.pop.size)
+    } else { ## INITIALIZE WITH PROVIDED OBJECT
+        if(!inherits(ini.obj, "haploPop")) stop("x is not a haploPop object")
+        vecS <- ini.obj$S
+        ANCES <- attr(ini.obj, "ances")
+        listPop <- ini.obj$pop
+        listAges <- ini.obj$ages
+    }
 
     ## MAKE SIMULATIONS ##
 
@@ -275,6 +283,7 @@ summary.haploPop <- function(object, ...){
 ## sample.haploPop
 ##################
 sample.haploPop <- function(x, n, n.pop=NULL, keep.pop=TRUE){
+    if(!inherits(x, "haploPop")) stop("x is not a haploPop object")
     x$call <- NULL
 
     if(!is.null(n.pop)){ # pre-treatment: reduce to n.pop populations with same size
@@ -314,7 +323,7 @@ sample.haploPop <- function(x, n, n.pop=NULL, keep.pop=TRUE){
         res$ages[[1]] <- x$ages[idx]
     }
 
-    res$S <- rep(n, length(res$pop)
+    res$S <- rep(n, length(res$pop))
 
     class(res) <- "haploPop"
     attr(res, "ances") <- attr(x, "ances")
