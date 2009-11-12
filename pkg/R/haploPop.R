@@ -344,3 +344,29 @@ dist.haploPop <- function(x, add.root=TRUE){
 
     return(as.dist(res))
 } # end dist.haploPop
+
+
+
+
+
+
+###############
+## plot.haploPop
+###############
+plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, ...){
+    if(!require(ape)) stop("ape package is required")
+    if(!inherits(x, "haploPop")) stop("x is not a haploPop object")
+
+    N <- sum(sapply(x$pop,length))
+
+    if(N > size.limit) {
+        stop("tree exceeds size limit")
+    }
+
+    tre <- root(nj(dist.haploPop(x)),"1")
+    plot(tre, type=type, ...)
+    xy <- get("last_plot.phylo", envir = .PlotPhyloEnv)
+    points(xy$xx[1], xy$yy[1], col="red", pch=20, cex=2)
+
+    return(invisible(xy))
+}
