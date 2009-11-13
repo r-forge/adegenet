@@ -10,7 +10,7 @@
 ##
 haploPop <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
                      birth.func=function(){ sample(0:3, 1, prob=c(.05, .45, .35, .15))},
-                     max.pop.size=function(){1e4}, max.nb.pop=100, ini.pop.size=10,
+                     max.pop.size=function(){1e4}, max.nb.pop=30, ini.pop.size=10,
                      p.new.pop=function(){1e-4}, kill.func=function(age){age>1},
                      quiet=FALSE, clean.haplo=FALSE) {
 
@@ -126,7 +126,7 @@ haploPop <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.snp.
     while(i<(n.steps+1)){ # evolve all generations
         i <- i + 1L # update iterator
         if(!quiet){
-            catStep <- max(round(n.steps/200), 10)
+            catStep <- max(round(n.steps/100), 10)
             cat(ifelse((i %% catStep)==0, paste(" ...", i), ""))
         }
 
@@ -377,7 +377,7 @@ dist.haploPop <- function(x, add.root=TRUE){
 ## plot.haploPop
 ###############
 plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, show.pop=TRUE,
-                          transp=TRUE, ...){
+                          transp=TRUE, tip.cex=2, ...){
     ## CHECKS ##
     if(!require(ape)) stop("ape package is required")
     if(!inherits(x, "haploPop")) stop("x is not a haploPop object")
@@ -413,12 +413,12 @@ plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, show.pop=T
         }
 
         palette(pop.col)
-        points(xy$xx[2:(N+1)], xy$yy[2:(N+1)], pch=20, col=pop.id)
+        points(xy$xx[2:(N+1)], xy$yy[2:(N+1)], pch=20, col=pop.id, cex=tip.cex)
     }
 
 
     ## SHOW ROOT ##
     points(xy$xx[1], xy$yy[1], pch=20, cex=3)
 
-    return(invisible(xy))
+    return(invisible(tre))
 } # end plot.haploPop
