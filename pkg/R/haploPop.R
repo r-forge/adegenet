@@ -443,7 +443,12 @@ plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, show.pop=T
         pop.id <- rep(1:length(x$pop), popSizes)
         opal <- palette()
         on.exit(palette(opal))
-        pop.col <- rainbow(nPop)
+        if(nPop>1){
+            pop.col <- rainbow(nPop)
+        } else {
+            pop.col <- c("red","red")
+        }
+
         if(transp){
             transp <- function(col, alpha=.5){
                 res <- apply(col2rgb(col),2, function(c) rgb(c[1]/255, c[2]/255, c[3]/255, alpha))
