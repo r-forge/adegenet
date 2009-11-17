@@ -10,7 +10,7 @@
 ##
 haploPop <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
                      birth.func=function(){ sample(0:3, 1, prob=c(.05, .45, .35, .15))},
-                     max.pop.size=function(){1e4}, max.nb.pop=30, ini.pop.size=10,
+                     max.pop.size=function(){1e4}, max.nb.pop=30, ini.pop.size=10, regen=FALSE,
                      p.new.pop=function(){1e-4}, kill.func=function(age){age>1},
                      quiet=FALSE, clean.haplo=FALSE) {
 
@@ -60,41 +60,82 @@ haploPop <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.snp.
         return(myPop)
     }
 
-    evolveOnePop <- function(myPop, myS, myAge){ # myPop: pop to evolve; myS: nb of susceptible in the pop; myAge: vector of ages
-        ## kill 'em bastards (= old strains)
-        myAge <- myAge + 1
-        toKill <- kill.func(myAge)
-        myPop[toKill] <- NULL
-        myAge <- myAge[!toKill]
+    if(!regen){
+        ## VERSION FOR NO REGENERATION OF SUSCEPTIBLES
+        evolveOnePop <- function(myPop, myS, myAge){ # myPop: pop to evolve; myS: nb of susceptible in the pop; myAge: vector of ages
+            ## kill 'em bastards (= old strains)
+            myAge <- myAge + 1
+            toKill <- kill.func(myAge)
+            myPop[toKill] <- NULL
+            myAge <- myAge[!toKill]
 
-        ## generate new strains for new generation
-        sampSize <- round(min( length(myPop)*birth.func(), myS)) # number of strains for next step
-        if(sampSize<1){ # if no sample
-            return(list(pop=myPop, S=myS, age=myAge))
-        }
-        newGen <- myPop[sample(1:length(myPop), sampSize, replace=TRUE)] # sample strains for new generations
-        newGen <- assignMutations(newGen, createMutations(sampSize)) # mutate strains
-        newAge <- rep(0, sampSize) # new ages for newborns
+            ## generate new strains for new generation
+            sampSize <- round(min( length(myPop)*birth.func(), myS)) # number of strains for next step
+            if(sampSize<1){ # if no sample
+                return(list(pop=myPop, S=myS, age=myAge))
+            }
+            newGen <- myPop[sample(1:length(myPop), sampSize, replace=TRUE)] # sample strains for new generations
+            newGen <- assignMutations(newGen, createMutations(sampSize)) # mutate strains
+            newAge <- rep(0, sampSize) # new ages for newborns
 
-        ## merge old and new generation
-        myPop <- c(myPop,newGen)
-        myAge <- c(myAge, newAge)
+            ## merge old and new generation
+            myPop <- c(myPop,newGen)
+            myAge <- c(myAge, newAge)
 
-        ## possibly create one or more new pop
-        if((length(listPop) < max.nb.pop) & (p.new.pop()>0)) { # total number of pop. limitation
-            nbNewPop <- rbinom(1, length(myPop), prob=p.new.pop())
-        } else {
-            nbNewPop <- 0
-        }
-        if(nbNewPop>0){
-            ## newPop <- sample(listPop, size=nbNewPop, replace=TRUE) # wrong
-            newPop <- lapply(sample(myPop, size=nbNewPop, replace=TRUE), as.list)
-            listPop <<- c(listPop, newPop)
-            vecS <<- c(vecS, replicate(nbNewPop, max.pop.size()) )
-            listAges <<- c(listAges, replicate(nbNewPop, 0, simplify=FALSE) )
-        } # end new pop
-        return(list(pop=myPop, S=myS-sampSize, age=myAge))
-    }
+            ## possibly create one or more new pop
+            if((length(listPop) < max.nb.pop) & (p.new.pop()>0)) { # total number of pop. limitation
+                nbNewPop <- rbinom(1, length(myPop), prob=p.new.pop())
+            } else {
+                nbNewPop <- 0
+            }
+            if(nbNewPop>0){
+                ## newPop <- sample(listPop, size=nbNewPop, replace=TRUE) # wrong
+                newPop <- lapply(sample(myPop, size=nbNewPop, replace=TRUE), as.list)
+                listPop <<- c(listPop, newPop)
+                vecS <<- c(vecS, replicate(nbNewPop, max.pop.size()) )
+                listAges <<- c(listAges, replicate(nbNewPop, 0, simplify=FALSE) )
+            } # end new pop
+            return(list(pop=myPop, S=myS-sampSize, age=myAge))
+        } # end no regen version
+    } else { ## REGEN VERSION
+        evolveOnePop <- function(myPop, myS, myAge){ # myPop: pop to evolve; myS: nb of susceptible in the pop; myAge: vector of ages
+            ## kill 'em bastards (= old strains)
+            myAge <- myAge + 1
+            toKill <- kill.func(myAge)
+            myPop[toKill] <- NULL
+            myAge <- myAge[!toKill]
+            myS <- max.pop.size() ## DIFFERENCE between the two versions of the function
+
+            ## generate new strains for new generation
+            sampSize <- round(min( length(myPop)*birth.func(), myS)) # number of strains for next step
+            if(sampSize<1){ # if no sample
+                return(list(pop=myPop, S=myS, age=myAge))
+            }
+            newGen <- myPop[sample(1:length(myPop), sampSize, replace=TRUE)] # sample strains for new generations
+            newGen <- assignMutations(newGen, createMutations(sampSize)) # mutate strains
+            newAge <- rep(0, sampSize) # new ages for newborns
+
+            ## merge old and new generation
+            myPop <- c(myPop,newGen)
+            myAge <- c(myAge, newAge)
+
+            ## possibly create one or more new pop
+            if((length(listPop) < max.nb.pop) & (p.new.pop()>0)) { # total number of pop. limitation
+                nbNewPop <- rbinom(1, length(myPop), prob=p.new.pop())
+            } else {
+                nbNewPop <- 0
+            }
+            if(nbNewPop>0){
+                ## newPop <- sample(listPop, size=nbNewPop, replace=TRUE) # wrong
+                newPop <- lapply(sample(myPop, size=nbNewPop, replace=TRUE), as.list)
+                listPop <<- c(listPop, newPop)
+                vecS <<- c(vecS, replicate(nbNewPop, max.pop.size()) )
+                listAges <<- c(listAges, replicate(nbNewPop, 0, simplify=FALSE) )
+            } # end new pop
+            return(list(pop=myPop, S=myS, age=myAge)) ## DIFFERENCE between the two versions of the function
+        } # end no regen version
+    } ## end evolveOnePop (both versions)
+
 
 
     ## INITIATE SIMULATIONS ##
