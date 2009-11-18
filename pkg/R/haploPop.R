@@ -8,10 +8,10 @@
 ## - mu: substitution rate / nucleotide / year
 ## - n.steps: number of generations to simulate
 ##
-haploPop <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
+haploPop <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
                      birth.func=function(){ sample(0:3, 1, prob=c(.05, .45, .35, .15))},
                      max.pop.size=function(){1e4}, max.nb.pop=30, ini.pop.size=10, regen=FALSE,
-                     p.new.pop=function(){1e-4}, kill.func=function(age){age>1},
+                     p.new.pop=function(){1e-4}, death.func=function(age){age>1},
                      quiet=FALSE, clean.haplo=FALSE) {
 
 
@@ -36,9 +36,9 @@ haploPop <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.snp.
         birth.func <- function(){birth.func.val}
     }
 
-    if(is.numeric(kill.func)){
-        kill.func.val <- kill.func[1]
-        kill.func <- function(age){age>kill.func.val}
+    if(is.numeric(death.func)){
+        death.func.val <- death.func[1]
+        death.func <- function(age){age>death.func.val}
     }
 
 
@@ -63,9 +63,9 @@ haploPop <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.snp.
     if(!regen){
         ## VERSION FOR NO REGENERATION OF SUSCEPTIBLES
         evolveOnePop <- function(myPop, myS, myAge){ # myPop: pop to evolve; myS: nb of susceptible in the pop; myAge: vector of ages
-            ## kill 'em bastards (= old strains)
+            ## death 'em bastards (= old strains)
             myAge <- myAge + 1
-            toKill <- kill.func(myAge)
+            toKill <- death.func(myAge)
             myPop[toKill] <- NULL
             myAge <- myAge[!toKill]
 
@@ -99,9 +99,9 @@ haploPop <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.snp.
         } # end no regen version
     } else { ## REGEN VERSION
         evolveOnePop <- function(myPop, myS, myAge){ # myPop: pop to evolve; myS: nb of susceptible in the pop; myAge: vector of ages
-            ## kill 'em bastards (= old strains)
+            ## death 'em bastards (= old strains)
             myAge <- myAge + 1
-            toKill <- kill.func(myAge)
+            toKill <- death.func(myAge)
             myPop[toKill] <- NULL
             myAge <- myAge[!toKill]
             myS <- max.pop.size() ## DIFFERENCE between the two versions of the function
@@ -142,7 +142,12 @@ haploPop <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.snp.
     ## INITIALIZE FROM SCRATCH
     if(is.null(ini.obj)){
         vecS <- max.pop.size() -  n.snp.ini # susceptibles
-        haplo.ini <- sample(SNP.POOL, n.snp.ini, replace=TRUE)
+        if(is.null(ini.haplo)) {
+            haplo.ini <- sample(SNP.POOL, n.snp.ini, replace=TRUE)
+        } else {
+            haplo.ini <- ini.haplo
+        }
+
         ANCES <- haplo.ini
         listPop <- list()
         listPop[[1]] <- lapply(1:ini.pop.size, function(i) haplo.ini) # contains only one population of identical clones to start with
@@ -525,10 +530,10 @@ plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, show.pop=T
 ############
 ## haploPopDiv
 ############
-haploPopDiv <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
+haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
                      birth.func=function(){ sample(0:3, 1, prob=c(.05, .45, .35, .15))},
                      max.pop.size=function(){1e4}, max.nb.pop=30, ini.pop.size=10, regen=FALSE,
-                     p.new.pop=function(){1e-4}, kill.func=function(age){age>1},
+                     p.new.pop=function(){1e-4}, death.func=function(age){age>1},
                      quiet=FALSE, clean.haplo=FALSE) {
 
 
@@ -553,9 +558,9 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.s
         birth.func <- function(){birth.func.val}
     }
 
-    if(is.numeric(kill.func)){
-        kill.func.val <- kill.func[1]
-        kill.func <- function(age){age>kill.func.val}
+    if(is.numeric(death.func)){
+        death.func.val <- death.func[1]
+        death.func <- function(age){age>death.func.val}
     }
 
 
@@ -580,9 +585,9 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.s
     if(!regen){
         ## VERSION FOR NO REGENERATION OF SUSCEPTIBLES
         evolveOnePop <- function(myPop, myS, myAge){ # myPop: pop to evolve; myS: nb of susceptible in the pop; myAge: vector of ages
-            ## kill 'em bastards (= old strains)
+            ## death 'em bastards (= old strains)
             myAge <- myAge + 1
-            toKill <- kill.func(myAge)
+            toKill <- death.func(myAge)
             myPop[toKill] <- NULL
             myAge <- myAge[!toKill]
 
@@ -616,9 +621,9 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.s
         } # end no regen version
     } else { ## REGEN VERSION
         evolveOnePop <- function(myPop, myS, myAge){ # myPop: pop to evolve; myS: nb of susceptible in the pop; myAge: vector of ages
-            ## kill 'em bastards (= old strains)
+            ## death 'em bastards (= old strains)
             myAge <- myAge + 1
-            toKill <- kill.func(myAge)
+            toKill <- death.func(myAge)
             myPop[toKill] <- NULL
             myAge <- myAge[!toKill]
             myS <- max.pop.size() ## DIFFERENCE between the two versions of the function
@@ -659,7 +664,11 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.s
     ## INITIALIZE FROM SCRATCH
     if(is.null(ini.obj)){
         vecS <- max.pop.size() -  n.snp.ini # susceptibles
-        haplo.ini <- sample(SNP.POOL, n.snp.ini, replace=TRUE)
+        if(is.null(ini.haplo)) {
+            haplo.ini <- sample(SNP.POOL, n.snp.ini, replace=TRUE)
+        } else {
+            haplo.ini <- ini.haplo
+        }
         ANCES <- haplo.ini
         listPop <- list()
         listPop[[1]] <- lapply(1:ini.pop.size, function(i) haplo.ini) # contains only one population of identical clones to start with
