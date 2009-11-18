@@ -478,6 +478,50 @@ plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, show.pop=T
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##########################################################################
+##########################################################################
+##########################################################################
+##########################################################################
+##########################################################################
+##########################################################################
+##########################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ############
 ## haploPopDiv
 ############
@@ -633,6 +677,8 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.s
     res$tab[[1]] <- table(unlist(listPop))
     res$popSize[1] <- sum(sapply(listPop, length))
 
+
+
     ## MAKE SIMULATIONS ##
 
     ## evolve all populations
@@ -672,9 +718,6 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.s
         vecS <- vecS[toKeep]
         listAges <- listAges[toKeep]
 
-        res$tab[[i]] <- table(unlist(listPop))
-        res$popSize[i] <- sum(sapply(listPop, length))
-
         ## stop if all pop go extinct
         if(length(listPop)==0L){
             cat("\n All populations went extinct at time",i,"\n")
@@ -682,6 +725,8 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, haplo.length=1e6, mu=1e-5, n.s
               return(res)
         }
 
+        res$tab[[i]] <- table(unlist(listPop))
+        res$popSize[i] <- sum(sapply(listPop, length))
 
         ## FOR DEBUGGING
         ## cat("\n=== ",i," ===")
