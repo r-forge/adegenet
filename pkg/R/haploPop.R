@@ -141,7 +141,8 @@ haploPop <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6,
     ## INITIATE SIMULATIONS ##
     ## INITIALIZE FROM SCRATCH
     if(is.null(ini.obj)){
-        vecS <- max.pop.size() -  n.snp.ini # susceptibles
+        ##vecS <- max.pop.size() -  n.snp.ini # susceptibles
+        vecS <- max.pop.size() # susceptibles
         if(is.null(ini.haplo)) {
             haplo.ini <- sample(SNP.POOL, n.snp.ini, replace=TRUE)
         } else {
@@ -663,7 +664,8 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
     ## INITIATE SIMULATIONS ##
     ## INITIALIZE FROM SCRATCH
     if(is.null(ini.obj)){
-        vecS <- max.pop.size() -  n.snp.ini # susceptibles
+        ## vecS <- max.pop.size() -  n.snp.ini # susceptibles
+        vecS <- max.pop.size() # susceptibles
         if(is.null(ini.haplo)) {
             haplo.ini <- sample(SNP.POOL, n.snp.ini, replace=TRUE)
         } else {
