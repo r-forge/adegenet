@@ -684,9 +684,15 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
         listAges <- ini.obj$ages
     }
 
-    res <- list(tab=list(), popSize=integer())
-    res$tab[[1]] <- table(unlist(listPop))
-    res$popSize[1] <- sum(sapply(listPop, length))
+    ## function getting pairwise distances
+    fRes <- function(list.pop){
+        N <- min(50, sum(sapply(list.pop, length)))
+        dist.haploPop(sample.haploPop(list.pop, N, keep.pop=FALSE), FALSE) # do not include the root in distances.
+    }
+
+    res <- list(dist=list(), popSize=integer())
+    res$dist[[1]] <- fRes(listPop)
+    ##res$popSize[1] <- sum(sapply(listPop, length))
 
 
 
@@ -736,8 +742,8 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
               return(res)
         }
 
-        res$tab[[i]] <- table(unlist(listPop))
-        res$popSize[i] <- sum(sapply(listPop, length))
+        res$dist[[i]] <- fRes(listPop)
+        ##res$popSize[i] <- sum(sapply(listPop, length))
 
         ## FOR DEBUGGING
         ## cat("\n=== ",i," ===")
