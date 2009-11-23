@@ -701,7 +701,7 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
             if(N > samp.size){
                 return(dist.haploPop(sample.haploPop(list.pop, samp.size, keep.pop=FALSE), add.root=FALSE)) # do not include the root in distances.
             } else {
-                return(dist.haploPop(list.pop, add.root=TRUE))
+                return(dist.haploPop(list.pop, add.root=FALSE))
             }
         } # end fRes
     }
