@@ -385,8 +385,9 @@ sample.haploPop <- function(x, n, n.pop=NULL, keep.pop=TRUE){
 ###############
 ## dist.haploPop
 ###############
-dist.haploPop <- function(x, add.root=TRUE){
+dist.haploPop <- function(x, add.root=TRUE, res.type=c("dist","matrix")){
     if(!inherits(x, "haploPop")) stop("x is not a haploPop object")
+    res.type <- match.arg(res.type)
     ANCES <- attr(x,"ances")
 
     x <- unlist(x$pop, recursive=FALSE)
@@ -412,7 +413,10 @@ dist.haploPop <- function(x, add.root=TRUE){
 
     res <- res+t(res)
 
-    return(as.dist(res))
+    if(res.type=="dist"){
+        res <- as.dist(res)
+    }
+    return(res)
 } # end dist.haploPop
 
 
@@ -532,10 +536,11 @@ plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, show.pop=T
 ## haploPopDiv
 ############
 haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6, mu=1e-5, n.snp.ini=1,
-                     birth.func=function(){ sample(0:3, 1, prob=c(.05, .45, .35, .15))},
-                     max.pop.size=function(){1e4}, max.nb.pop=30, ini.pop.size=10, regen=FALSE,
-                     p.new.pop=function(){1e-4}, death.func=function(age){age>1},
-                     quiet=FALSE, clean.haplo=FALSE) {
+                        birth.func=function(){ sample(0:3, 1, prob=c(.05, .45, .35, .15))},
+                        max.pop.size=function(){1e4}, max.nb.pop=30, ini.pop.size=10, regen=FALSE,
+                        p.new.pop=function(){1e-4}, death.func=function(age){age>1},
+                        quiet=FALSE, clean.haplo=FALSE,
+                        track=c("div", "distRoot"), root.haplo=NULL, samp.size=50) {
 
 
     ## SOME CHECKS
@@ -543,6 +548,8 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
     ##     ini.pop.size.val <- ini.pop.size
     ##     ini.pop.size <- function(){ini.pop.size.val}
     ## }
+
+    track <- match.arg(track)
 
     if(is.numeric(max.pop.size)){
         max.pop.size.val <- max.pop.size
@@ -685,15 +692,43 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
     }
 
     ## function getting pairwise distances
-    fRes <- function(list.pop){
-        N <- min(50, sum(sapply(list.pop, length)))
-        dist.haploPop(sample.haploPop(list.pop, N, keep.pop=FALSE), FALSE) # do not include the root in distances.
+    if(track=="div"){
+        fRes <- function(list.pop){
+            list.pop <- list(pop=list.pop) # kludge needed for dist.haploPop
+            class(list.pop) <- "haploPop" # kludge needed for dist.haploPop
+            N <- sum(sapply(list.pop$pop, length))
+            if(N<2) return(0)
+            if(N > samp.size){
+                return(dist.haploPop(sample.haploPop(list.pop, samp.size, keep.pop=FALSE), add.root=FALSE)) # do not include the root in distances.
+            } else {
+                return(dist.haploPop(list.pop, add.root=TRUE))
+            }
+        } # end fRes
     }
 
-    res <- list(dist=list(), popSize=integer())
-    res$dist[[1]] <- fRes(listPop)
-    ##res$popSize[1] <- sum(sapply(listPop, length))
+    ## function getting distances to the root
+    if(track=="distRoot"){
+        if(is.null(root.haplo)) {
+            root.haplo <- ANCES
+        }
+        fRes <- function(list.pop){
+            list.pop <- list(pop=list.pop) # kludge needed for sample.haploPop
+            class(list.pop) <- "haploPop" # kludge needed for sample.haploPop
+            N <- sum(sapply(list.pop$pop, length))
+            if(N<1) return(0)
+            if(N > samp.size){
+                list.pop <- sample.haploPop(list.pop, samp.size, keep.pop=FALSE)
+            }
 
+            res <- sapply(unlist(list.pop$pop, recursive=FALSE), function(e) sum(!e %in% root.haplo))
+            return(res)
+        } # end fRes
+    }
+
+
+    res <- list(div=list(), popSize=integer())
+    res$div[[1]] <- fRes(listPop)
+    res$popSize[1] <- sum(sapply(listPop, length))
 
 
     ## MAKE SIMULATIONS ##
@@ -742,8 +777,8 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
               return(res)
         }
 
-        res$dist[[i]] <- fRes(listPop)
-        ##res$popSize[i] <- sum(sapply(listPop, length))
+        res$div[[i]] <- fRes(listPop)
+        res$popSize[i] <- sum(sapply(listPop, length))
 
         ## FOR DEBUGGING
         ## cat("\n=== ",i," ===")
