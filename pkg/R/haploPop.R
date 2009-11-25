@@ -65,17 +65,25 @@ haploPop <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6,
         if(length(mutations)==0 | length(myPop)==0) return(myPop)
         id <- sample(1:length(myPop), size=length(mutations), replace=TRUE)
         mutations <- split(mutations, id)
-        myPop[as.integer(names(mutations))] <- mapply(c, myPop[as.integer(names(mutations))], mutations, SIMPLIFY=FALSE)
 
-        ## clean reverse mutations
+        ## function to merge new mutations - handle reverse case
+        ## f1 <- function(a,b){
+        ##     revMut <- intersect(a,b)
+        ##     if(length(revMut)==0) return(c(a,b))
+        ##     return(setdiff(c(a ,b), revMut))
+        ## }
+
+        myPop[as.integer(names(mutations))] <- mapply(c, myPop[as.integer(names(mutations))], mutations, SIMPLIFY=FALSE)
+        ## myPop[as.integer(names(mutations))] <- mapply(f1, myPop[as.integer(names(mutations))], mutations, SIMPLIFY=FALSE)
+
+        ## ## clean reverse mutations
         cleanRes <- function(vec){
             temp <- table(vec)
-            return(sort(as.integer(names(temp)[temp %% 2 != 0])))
+            return( as.integer(names(temp)[temp %% 2 != 0]) )
         }
 
-        myPop <- lapply(myPop, cleanRes)
-
-        return(myPop)
+        ## return(myPop)
+        return( lapply(myPop, cleanRes) )
     } # end assignMutations
 
 
@@ -637,12 +645,10 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
         ## clean reverse mutations
         cleanRes <- function(vec){
             temp <- table(vec)
-            return(sort(as.integer(names(temp)[temp %% 2 != 0])))
+            return( as.integer(names(temp)[temp %% 2 != 0]) )
         }
 
-        myPop <- lapply(myPop, cleanRes)
-
-        return(myPop)
+        return( lapply(myPop, cleanRes) )
     } # end assignMutations
 
 
