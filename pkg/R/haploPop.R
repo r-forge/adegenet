@@ -12,7 +12,7 @@ haploPop <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6,
                      birth.func=function(){ sample(0:3, 1, prob=c(.05, .45, .35, .15))},
                      max.pop.size=function(){1e4}, max.nb.pop=30, ini.pop.size=10, regen=FALSE,
                      p.new.pop=function(){1e-4}, death.func=function(age){age>1},
-                     quiet=FALSE, clean.haplo=FALSE) {
+                     quiet=FALSE, clean.haplo=FALSE, allow.reverse=FALSE) {
 
 
     ## SOME CHECKS
@@ -47,9 +47,18 @@ haploPop <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6,
     vecS <- 1 # will be redefined later, but needed for evolveOnePop definition
 
     ## AUXILIARY FUNCTIONS ##
-    createMutations <- function(N){ # L:genome length; N: pop size
-        nb.mutations <- sum(rbinom(N, size=haplo.length, prob=mu))
-        return( sample(SNP.POOL, size=nb.mutations, replace=TRUE) )
+    if(allow.reverse){
+        createMutations <- function(N){ # L:genome length; N: pop size
+            nb.mutations <- sum(rbinom(N, size=haplo.length, prob=mu))
+            return( sample(SNP.POOL, size=nb.mutations, replace=TRUE) )
+        }
+    } else {
+        createMutations <- function(N){ # L:genome length; N: pop size
+            nb.mutations <- sum(rbinom(N, size=haplo.length, prob=mu))
+            res <- sample(SNP.POOL, size=nb.mutations, replace=TRUE)
+            SNP.POOL <<- setdiff(SNP.POOL, res)# update pool of SNPs
+            return(res)
+        }
     }
 
     assignMutations <- function(myPop, mutations){ # mypop: list of `haplotypes'; mutations: vector of SNPs
@@ -557,7 +566,7 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
                         birth.func=function(){ sample(0:3, 1, prob=c(.05, .45, .35, .15))},
                         max.pop.size=function(){1e4}, max.nb.pop=30, ini.pop.size=10, regen=FALSE,
                         p.new.pop=function(){1e-4}, death.func=function(age){age>1},
-                        quiet=FALSE, clean.haplo=FALSE,
+                        quiet=FALSE, clean.haplo=FALSE, allow.reverse=FALSE,
                         track=c("div", "distRoot", "freq"), root.haplo=NULL, samp.size=50) {
 
 
@@ -595,9 +604,18 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
     vecS <- 1 # will be redefined later, but needed for evolveOnePop definition
 
     ## AUXILIARY FUNCTIONS ##
-    createMutations <- function(N){ # L:genome length; N: pop size
-        nb.mutations <- sum(rbinom(N, size=haplo.length, prob=mu))
-        return( sample(SNP.POOL, size=nb.mutations, replace=TRUE) )
+    if(allow.reverse){
+        createMutations <- function(N){ # L:genome length; N: pop size
+            nb.mutations <- sum(rbinom(N, size=haplo.length, prob=mu))
+            return( sample(SNP.POOL, size=nb.mutations, replace=TRUE) )
+        }
+    } else {
+        createMutations <- function(N){ # L:genome length; N: pop size
+            nb.mutations <- sum(rbinom(N, size=haplo.length, prob=mu))
+            res <- sample(SNP.POOL, size=nb.mutations, replace=TRUE)
+            SNP.POOL <<- setdiff(SNP.POOL, res)# update pool of SNPs
+            return(res)
+        }
     }
 
     assignMutations <- function(myPop, mutations){ # mypop: list of `haplotypes'; mutations: vector of SNPs
