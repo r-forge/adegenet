@@ -12,7 +12,7 @@ haploPop <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6,
                      birth.func=function(){ sample(0:3, 1, prob=c(.05, .45, .35, .15))},
                      max.pop.size=function(){1e4}, max.nb.pop=30, ini.pop.size=10, regen=FALSE,
                      p.new.pop=function(){1e-4}, death.func=function(age){age>1},
-                     quiet=FALSE, clean.haplo=FALSE, allow.reverse=FALSE) {
+                     quiet=FALSE, allow.reverse=TRUE) {
 
 
     ## SOME CHECKS
@@ -66,8 +66,18 @@ haploPop <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6,
         id <- sample(1:length(myPop), size=length(mutations), replace=TRUE)
         mutations <- split(mutations, id)
         myPop[as.integer(names(mutations))] <- mapply(c, myPop[as.integer(names(mutations))], mutations, SIMPLIFY=FALSE)
+
+        ## clean reverse mutations
+        cleanRes <- function(vec){
+            temp <- table(vec)
+            return(sort(as.integer(names(temp)[temp %% 2 != 0])))
+        }
+
+        myPop <- lapply(myPop, cleanRes)
+
         return(myPop)
-    }
+    } # end assignMutations
+
 
     if(!regen){
         ## VERSION FOR NO REGENERATION OF SUSCEPTIBLES
@@ -253,24 +263,24 @@ haploPop <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6,
 
     ## CLEAN RESULTS ##
     ## handle reverse mutations
-    if(clean.haplo){
-        if(!quiet){
-            cat("\n... Cleaning haplotypes (handling reverse mutations)\n")
-        }
+    ## if(clean.haplo){
+    ##     if(!quiet){
+    ##         cat("\n... Cleaning haplotypes (handling reverse mutations)\n")
+    ##     }
 
-        cleanRes <- function(vec){
-            temp <- table(vec)
-            return(sort(as.integer(names(temp)[temp %% 2 != 0])))
-        }
+    ##     cleanRes <- function(vec){
+    ##         temp <- table(vec)
+    ##         return(sort(as.integer(names(temp)[temp %% 2 != 0])))
+    ##     }
 
-        for(i in 1:length(listPop)){
-            listPop[[i]] <- lapply(listPop[[i]], cleanRes)
-        }
+    ##     for(i in 1:length(listPop)){
+    ##         listPop[[i]] <- lapply(listPop[[i]], cleanRes)
+    ##     }
 
-        if(!quiet){
-            cat("\n... done! \n")
-        }
-    }
+    ##     if(!quiet){
+    ##         cat("\n... done! \n")
+    ##     }
+    ## }
 
     ## RETURN RESULTS ##
     res <- list(pop=listPop, ages=listAges, S=vecS)
@@ -566,7 +576,7 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
                         birth.func=function(){ sample(0:3, 1, prob=c(.05, .45, .35, .15))},
                         max.pop.size=function(){1e4}, max.nb.pop=30, ini.pop.size=10, regen=FALSE,
                         p.new.pop=function(){1e-4}, death.func=function(age){age>1},
-                        quiet=FALSE, clean.haplo=FALSE, allow.reverse=FALSE,
+                        quiet=FALSE, allow.reverse=TRUE,
                         track=c("div", "distRoot", "freq"), root.haplo=NULL, samp.size=50) {
 
 
@@ -623,8 +633,18 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
         id <- sample(1:length(myPop), size=length(mutations), replace=TRUE)
         mutations <- split(mutations, id)
         myPop[as.integer(names(mutations))] <- mapply(c, myPop[as.integer(names(mutations))], mutations, SIMPLIFY=FALSE)
+
+        ## clean reverse mutations
+        cleanRes <- function(vec){
+            temp <- table(vec)
+            return(sort(as.integer(names(temp)[temp %% 2 != 0])))
+        }
+
+        myPop <- lapply(myPop, cleanRes)
+
         return(myPop)
-    }
+    } # end assignMutations
+
 
     if(!regen){
         ## VERSION FOR NO REGENERATION OF SUSCEPTIBLES
