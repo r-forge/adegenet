@@ -1,5 +1,5 @@
 \encoding{UTF-8}
-\name{genpop}
+\name{genpop class}
 \alias{genpop-class}
 \alias{dist,genpop,ANY,ANY,ANY,missing-method}
 \alias{names,genpop-method}
