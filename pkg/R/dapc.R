@@ -5,12 +5,15 @@ dapc <- function(x, pop=NULL, n.pca=NULL, n.da=NULL, scale=TRUE,
                  scale.method=c("sigma", "binom"), truenames=TRUE, all.contrib=FALSE){
 
     ## FIRST CHECKS
-    if(!inherits(x,"genind")) stop("x must be a genind or genpop xect.")
-    invisible(validObject(x))
+    if(!is.genind(x)) stop("x must be a genind object.")
+
     if(is.null(pop)) {
-        pop <- pop(x)
+        pop.fac <- pop(x)
+    } else {
+        pop.fac <- pop
     }
-    if(is.null(pop(x))) stop("x does not include pre-defined populations, and `pop' is not provided")
+
+    if(is.null(pop.fac)) stop("x does not include pre-defined populations, and `pop' is not provided")
 
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     if(!require(MASS, quiet=TRUE)) stop("MASS library is required.")
@@ -48,9 +51,9 @@ dapc <- function(x, pop=NULL, n.pca=NULL, n.da=NULL, scale=TRUE,
 
 
     ## PERFORM DA ##
-    ldaX <- lda(XU, pop)
+    ldaX <- lda(XU, pop.fac)
     if(is.null(n.da)){
-        barplot(ldaX$svd^2, xlab="Linear Discriminants", ylab="F-statistic", main="Discriminant analysis eigenvalues", col=heat.colors(length(levels(pop))) )
+        barplot(ldaX$svd^2, xlab="Linear Discriminants", ylab="F-statistic", main="Discriminant analysis eigenvalues", col=heat.colors(length(levels(pop.fac))) )
         cat("Choose the number discriminant functions to retain (>=1): ")
         n.da <- as.integer(readLines(n = 1))
     }
@@ -61,12 +64,12 @@ dapc <- function(x, pop=NULL, n.pca=NULL, n.da=NULL, scale=TRUE,
     ## BUILD RESULT
     res <- list()
     res$tab <- XU
-    res$fac <- pop
+    res$fac <- pop.fac
     res$var.gen <- XU.lambda
     res$eig <- ldaX$svd^2
     res$disc.func <- ldaX$scaling[, 1:n.da, drop=FALSE]
     res$ind.coord <-predX$x
-    res$pop.coord <- apply(res$ind.coord, 2, tapply, pop, mean)
+    res$pop.coord <- apply(res$ind.coord, 2, tapply, pop.fac, mean)
     res$prior <- ldaX$prior
     res$posterior <- predX$posterior
     res$assign <- predX$class
@@ -128,12 +131,9 @@ print.dapc <- function(x, ...){
  class(sumry) <- "table"
   print(sumry)
 
-  cat("\n$xy: matrix of spatial coordinates")
-  cat("\n$lw: a list of spatial weights (class 'listw')")
-
-  cat("\n\nother elements: ")
-  if (length(names(x)) > 10)
-    cat(names(x)[11:(length(names(x)))], "\n")
+  cat("\nother elements: ")
+  if (length(names(x)) > 11)
+    cat(names(x)[12:(length(names(x)))], "\n")
   else cat("NULL\n")
 }
 
