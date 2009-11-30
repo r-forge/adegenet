@@ -37,8 +37,8 @@ dapc <- function(x, pop=NULL, n.pca=NULL, n.da=NULL, scale=TRUE,
     ## keep relevant PCs - stored in XU
     X.rank <- length(pcaX$eig)
     n.pca <- min(X.rank, n.pca)
-    if(n.pca >= N) stop("number of retained PCA is greater than N")
-    if(n.pca > N/3) warning("number of retained PCA may be too large (> N /3)")
+    if(n.pca >= N) stop("number of retained PCs of PCA is greater than N")
+    if(n.pca > N/3) warning("number of retained PCs of PCA may be too large (> N /3)")
 
     U <- pcaX$c1[, 1:n.pca, drop=FALSE] # principal axes
     XU <- pcaX$li[, 1:n.pca, drop=FALSE] # principal components
@@ -51,7 +51,7 @@ dapc <- function(x, pop=NULL, n.pca=NULL, n.da=NULL, scale=TRUE,
     ldaX <- lda(XU, pop)
     if(is.null(n.da)){
         barplot(ldaX$svd^2, xlab="Linear Discriminants", ylab="F-statistic", main="Discriminant analysis eigenvalues", col=heat.colors(length(levels(pop))) )
-        cat("Choose the number LDs to retain (>=1): ")
+        cat("Choose the number discriminant functions to retain (>=1): ")
         n.da <- as.integer(readLines(n = 1))
     }
 
@@ -64,9 +64,9 @@ dapc <- function(x, pop=NULL, n.pca=NULL, n.da=NULL, scale=TRUE,
     res$fac <- pop
     res$var.gen <- XU.lambda
     res$eig <- ldaX$svd^2
-    res$LD <- ldaX$scaling
-    res$pop.coord <- ldaX$means
+    res$disc.func <- ldaX$scaling[, 1:n.da, drop=FALSE]
     res$ind.coord <-predX$x
+    res$pop.coord <- apply(res$ind.coord, 2, tapply, pop, mean)
     res$prior <- ldaX$prior
     res$posterior <- predX$posterior
     res$assign <- predX$class
@@ -87,61 +87,45 @@ dapc <- function(x, pop=NULL, n.pca=NULL, n.da=NULL, scale=TRUE,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ######################
 # Function print.dapc
 ######################
 print.dapc <- function(x, ...){
-  cat("\t########################################\n")
-  cat("\t# spatial Principal Component Analysis #\n")
-  cat("\t########################################\n")
+  cat("\t#########################################\n")
+  cat("\t# Discriminant analysis of Principal Components #\n")
+  cat("\t#########################################\n")
   cat("class: ")
   cat(class(x))
   cat("\n$call: ")
   print(x$call)
-  cat("\n$nfposi:", x$nfposi, "axis-components saved")
-  cat("\n$nfnega:", x$nfnega, "axis-components saved")
+  cat("\n$n.pca:", x$n.pca, "first PCs of PCA used")
+  cat("\n$n.da:", x$n.da, "discriminant functions saved")
+  cat("\nProportion of conserved genetic variance: ", x$var.gen)
 
-  cat("\nPositive eigenvalues: ")
+  cat("\nEigenvalues: ")
   l0 <- sum(x$eig >= 0)
   cat(signif(x$eig, 4)[1:(min(5, l0))])
   if (l0 > 5)
     cat(" ...\n")
-  else cat("\n")
-  cat("Negative eigenvalues: ")
-  l0 <- sum(x$eig <= 0)
-  cat(sort(signif(x$eig, 4))[1:(min(5, l0))])
-  if (l0 > 5)
-    cat(" ...\n")
-  else cat("\n")
-  cat('\n')
-  sumry <- array("", c(1, 4), list(1, c("vector", "length",
-                                        "mode", "content")))
-  sumry[1, ] <- c('$eig', length(x$eig), mode(x$eig), 'eigenvalues')
+
+  ## vectors
+  sumry <- array("", c(4, 3), list(1:4, c("vector", "length", "content")))
+  sumry[1, ] <- c('$eig', length(x$eig),  'eigenvalues')
+  sumry[2, ] <- c('$fac', length(x$fac), 'prior group assignment')
+  sumry[3, ] <- c('$prior', length(x$prior), 'prior group probabilities')
+  sumry[4, ] <- c('$assign', length(x$assign), 'posterior group assignment')
   class(sumry) <- "table"
   print(sumry)
-  cat("\n")
-  sumry <- array("", c(4, 4), list(1:4, c("data.frame", "nrow", "ncol", "content")))
-  sumry[1, ] <- c("$c1", nrow(x$c1), ncol(x$c1), "principal axes: scaled vectors of alleles loadings")
-  sumry[2, ] <- c("$li", nrow(x$li), ncol(x$li), "principal components: coordinates of entities ('scores')")
-  sumry[3, ] <- c("$ls", nrow(x$ls), ncol(x$ls), 'lag vector of principal components')
-  sumry[4, ] <- c("$as", nrow(x$as), ncol(x$as), 'pca axes onto dapc axes')
 
-  class(sumry) <- "table"
+  ## data.frames
+  cat("\n")
+  sumry <- array("", c(5, 4), list(1:5, c("data.frame", "nrow", "ncol", "content")))
+  sumry[1, ] <- c("$tab", nrow(x$tab), ncol(x$tab), "retained principal components of PCA")
+  sumry[2, ] <- c("$disc.func", nrow(x$disc.func), ncol(x$disc.func), "discriminant functions")
+  sumry[3, ] <- c("$ind.coord", nrow(x$ind.coord), ncol(x$ind.coord), "coordinates of individuals")
+  sumry[4, ] <- c("$pop.coord", nrow(x$pop.coord), ncol(x$pop.coord), "coordinates of populations")
+  sumry[5, ] <- c("$posterior", nrow(x$posterior), ncol(x$posterior), "posterior membership probabilities")
+ class(sumry) <- "table"
   print(sumry)
 
   cat("\n$xy: matrix of spatial coordinates")
@@ -152,6 +136,56 @@ print.dapc <- function(x, ...){
     cat(names(x)[11:(length(names(x)))], "\n")
   else cat("NULL\n")
 }
+
+
+
+
+
+##############
+## summary.dapc
+##############
+summary.dapc <- function(object, ...){
+    if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
+
+    x <- object
+    res <- list()
+
+    ## number of dimensions
+    res$n.dim <- ncol(x$disc.func)
+    res$n.pop <- length(levels(x$fac))
+
+    ## assignment success
+    temp <- as.character(x$fac)==as.character(x$assign)
+    res$assign.prop <- mean(temp)
+    res$assign.per.pop <- tapply(temp, x$fac, mean)
+
+    return(res)
+} # end summary.dapc
+
+
+
+
+
+
+##############
+## scatter.dapc
+##############
+scatter.dapc <- function(x, axes=1:2, col=rainbow(length(levels(x$fac))), posi="bottomleft", bg="lightgrey", ...){
+    if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
+    par(bg=bg)
+    s.class(x$ind.coord[,axes], fac=x$fac, col=col, ...)
+    add.scatter.eig(x$eig, ncol(x$disc.func), axes[1], axes[2], posi=posi)
+    return(invisible())
+} # end scatter.dapc
+
+
+
+
+
+
+
+
+
 
 
 
