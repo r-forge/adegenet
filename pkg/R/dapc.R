@@ -1,8 +1,8 @@
 #############
 ## find.clusters
 #############
-find.clusters <- function(x, n.pca=NULL, choose.n.grp=TRUE,
-                          min.n.clust=2, max.n.clust=round(nrow(x@tab)/10), n.iter=1e6, n.start=1e3,
+find.clusters <- function(x, n.pca=NULL, n.clust=NULL, choose.n.grp=TRUE, stat=c("BIC", "AIC", "WSS"),
+                          max.n.clust=round(nrow(x@tab)/10), n.iter=1e6, n.start=1e3,
                           scale=TRUE, scale.method=c("sigma", "binom"), truenames=TRUE){
 
     ## CHECKS ##
@@ -10,10 +10,13 @@ find.clusters <- function(x, n.pca=NULL, choose.n.grp=TRUE,
     if(!require(MASS, quiet=TRUE)) stop("MASS library is required.")
     if(!require(stats)) stop("package stats is required")
     if(!is.genind(x)) stop("x must be a genind object.")
+    stat <- match.arg(stat)
+    if(choose.n.grp & is.null(n.clust)) stop("choose.n.grp is FALSE, but n.clust is not provided")
 
 
     ## SOME GENERAL VARIABLES ##
     N <- nrow(x@tab)
+    min.n.clust <- 2
 
     ## PERFORM PCA ##
     maxRank <- min(dim(x@tab))
@@ -41,38 +44,60 @@ find.clusters <- function(x, n.pca=NULL, choose.n.grp=TRUE,
 
     ## PERFORM K-MEANS
     nbClust <- min.n.clust:max.n.clust
-    best <- NULL
-    stat <- numeric(0)
+    WSS <- numeric(0)
 
     for(i in 1:length(nbClust)){
         if(is.null(prior)) {ini <- nbClust[i]} else {ini <- prior}
         temp <- kmeans(XU, centers=ini, iter.max=min(n.iter, 100), nstart=min(n.start, 1e3))
-        stat[i] <- mean(temp$withinss)
-        if(which.min(stat)==i) {best <- temp}
+        WSS[i] <- sum(temp$withinss)
     }
 
 
-    ## CHOOSE NUMBER OF GROUPS
-    if(choose.n.grp){
+    ## DETERMINE THE NUMBER OF GROUPS
         ##TSS <- sum(pcaX$eig) * N
         ##betweenVar <- (1 - ((stat/(N-nbClust-1))/(TSS/(N-1)) )) *100
-        WSS.ori <- sum(apply(XU, 2, function(v) sum((v-mean(v))^2) ))
-        reducWSS <- -diff(c(WSS.ori, stat))
-        reducWSS <- reducWSS/max(reducWSS)
-        plot(reducWSS, xlab="Number of clusters", ylab="Reduction in within SS", main="Reduction of within SS \nwith number of clusters", type="b", col="blue")
+        ##WSS.ori <- sum(apply(XU, 2, function(v) sum((v-mean(v))^2) ))
+        ##reducWSS <- -diff(c(WSS.ori, stat))
+        ##reducWSS <- reducWSS/max(reducWSS)
+
+        if(stat=="AIC"){
+            WSS.ori <- sum(apply(XU, 2, function(v) sum((v-mean(v))^2) ))
+            k <- nbClust
+            myStat <- N*log(c(WSS.ori,WSS)/N) + 2*c(1,nbClust)
+            myLab <- "AIC"
+            myTitle <- "Value of AIC \nversus number of clusters"
+
+        }
+        if(stat=="BIC"){
+            WSS.ori <- sum(apply(XU, 2, function(v) sum((v-mean(v))^2) ))
+            k <- nbClust
+            myStat <- N*log(c(WSS.ori,WSS)/N) + log(N) *c(1,nbClust)
+            myLab <- "BIC"
+            myTitle <- "Value of BIC \nversus number of clusters"
+        }
+        if(stat=="WSS"){
+            WSS.ori <- sum(apply(XU, 2, function(v) sum((v-mean(v))^2) ))
+            myStat <- c(WSS.ori, stat)
+            ##            reducWSS <- -diff(c(WSS.ori, stat))
+            ##            myStat <- reducWSS/max(reducWSS)
+            myLab <- "Within sum of squares"
+            myTitle <- "Value of within SS\nversus number of clusters"
+        }
+
+    if(choose.n.grp){
+        plot(c(1,nbClust), myStat, xlab="Number of clusters", ylab=myLab, main=myTitle, type="b", col="blue")
         abline(h=0, lty=2, col="red")
         cat("Choose the number of clusters (>=2: ")
         n.clust <- as.integer(readLines(n = 1))
-    } else {
-        n.clust <- length(best$size)
     }
 
+    ## get final groups
     best <-  kmeans(XU, centers=n.clust, iter.max=n.iter, nstart=n.start)
 
 
     ## MAKE RESULT ##
-    names(stat) <- paste("K",nbClust, sep="=")
-    res <- list(stat=stat, grp=factor(best$cluster), size=best$size)
+    names(myStat) <- paste("K",c(1,nbClust), sep="=")
+    res <- list(stat=myStat, grp=factor(best$cluster), size=best$size)
 
     return(res)
 } # end find.clusters
@@ -265,6 +290,18 @@ scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$fac))), po
     add.scatter.eig(x$eig, ncol(x$disc.func), axes[1], axes[2], posi=posi, ratio=ratio, csub=csub)
     return(invisible())
 } # end scatter.dapc
+
+
+
+
+
+
+############
+## assignplot
+############
+assignplot <- function(x, pop=NULL){
+
+} # end assignplot
 
 
 
