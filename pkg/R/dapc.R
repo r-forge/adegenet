@@ -1,8 +1,8 @@
 #############
 ## find.clusters
 #############
-find.clusters <- function(x, n.pca=NULL, n.clust=NULL, choose.n.grp=TRUE, stat=c("BIC", "AIC", "WSS"),
-                          max.n.clust=round(nrow(x@tab)/10), n.iter=1e6, n.start=1e3,
+find.clusters <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"),
+                          max.n.clust=round(nrow(x@tab)/10), n.iter=1e6, n.start=100,
                           scale=TRUE, scale.method=c("sigma", "binom"), truenames=TRUE){
 
     ## CHECKS ##
@@ -11,7 +11,6 @@ find.clusters <- function(x, n.pca=NULL, n.clust=NULL, choose.n.grp=TRUE, stat=c
     if(!require(stats)) stop("package stats is required")
     if(!is.genind(x)) stop("x must be a genind object.")
     stat <- match.arg(stat)
-    if(choose.n.grp & is.null(n.clust)) stop("choose.n.grp is FALSE, but n.clust is not provided")
 
 
     ## SOME GENERAL VARIABLES ##
@@ -43,17 +42,17 @@ find.clusters <- function(x, n.pca=NULL, n.clust=NULL, choose.n.grp=TRUE, stat=c
     XU <- pcaX$li[, 1:n.pca, drop=FALSE] # principal components
 
     ## PERFORM K-MEANS
-    nbClust <- min.n.clust:max.n.clust
-    WSS <- numeric(0)
+    if(is.null(n.clust)){
+        nbClust <- min.n.clust:max.n.clust
+        WSS <- numeric(0)
 
-    for(i in 1:length(nbClust)){
-        if(is.null(prior)) {ini <- nbClust[i]} else {ini <- prior}
-        temp <- kmeans(XU, centers=ini, iter.max=min(n.iter, 100), nstart=min(n.start, 1e3))
-        WSS[i] <- sum(temp$withinss)
-    }
+        for(i in 1:length(nbClust)){
+            temp <- kmeans(XU, centers=nbClust[i], iter.max=min(n.iter, 100), nstart=min(n.start, 1e3))
+            WSS[i] <- sum(temp$withinss)
+        }
 
 
-    ## DETERMINE THE NUMBER OF GROUPS
+        ## DETERMINE THE NUMBER OF GROUPS
         ##TSS <- sum(pcaX$eig) * N
         ##betweenVar <- (1 - ((stat/(N-nbClust-1))/(TSS/(N-1)) )) *100
         ##WSS.ori <- sum(apply(XU, 2, function(v) sum((v-mean(v))^2) ))
@@ -77,18 +76,18 @@ find.clusters <- function(x, n.pca=NULL, n.clust=NULL, choose.n.grp=TRUE, stat=c
         }
         if(stat=="WSS"){
             WSS.ori <- sum(apply(XU, 2, function(v) sum((v-mean(v))^2) ))
-            myStat <- c(WSS.ori, stat)
+            myStat <- c(WSS.ori, WSS)
             ##            reducWSS <- -diff(c(WSS.ori, stat))
             ##            myStat <- reducWSS/max(reducWSS)
             myLab <- "Within sum of squares"
             myTitle <- "Value of within SS\nversus number of clusters"
         }
 
-    if(choose.n.grp){
         plot(c(1,nbClust), myStat, xlab="Number of clusters", ylab=myLab, main=myTitle, type="b", col="blue")
         abline(h=0, lty=2, col="red")
         cat("Choose the number of clusters (>=2: ")
         n.clust <- as.integer(readLines(n = 1))
+
     }
 
     ## get final groups
@@ -96,7 +95,12 @@ find.clusters <- function(x, n.pca=NULL, n.clust=NULL, choose.n.grp=TRUE, stat=c
 
 
     ## MAKE RESULT ##
-    names(myStat) <- paste("K",c(1,nbClust), sep="=")
+    if(is.null(n.clust)){
+        names(myStat) <- paste("K",c(1,nbClust), sep="=")
+    } else {
+        myStat <- sum(best$withinss)
+    }
+
     res <- list(stat=myStat, grp=factor(best$cluster), size=best$size)
 
     return(res)
@@ -175,7 +179,7 @@ dapc <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
     res$n.pca <- n.pca
     res$n.da <- n.da
     res$tab <- XU
-    res$fac <- pop.fac
+    res$pop <- pop.fac
     res$var.gen <- XU.lambda
     res$eig <- ldaX$svd^2
     res$disc.func <- ldaX$scaling[, 1:n.da, drop=FALSE]
@@ -184,14 +188,14 @@ dapc <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
     res$prior <- ldaX$prior
     res$posterior <- predX$posterior
     res$assign <- predX$class
+    res$call <- match.call()
 
     ## optional: get loadings of alleles
     if(all.contrib){
         res$all.contr <- as.matrix(U) %*% as.matrix(ldaX$scaling)
-        res$all.contr <- t(apply(all.contr, 1, function(e) e*e / sum(e*e)))
+        res$all.contr <- t(apply(res$all.contr, 1, function(e) e*e / sum(e*e)))
     }
 
-    res$call <- match.call()
     class(res) <- "dapc"
     return(res)
 } # end dapc
@@ -225,7 +229,7 @@ print.dapc <- function(x, ...){
   ## vectors
   sumry <- array("", c(4, 3), list(1:4, c("vector", "length", "content")))
   sumry[1, ] <- c('$eig', length(x$eig),  'eigenvalues')
-  sumry[2, ] <- c('$fac', length(x$fac), 'prior group assignment')
+  sumry[2, ] <- c('$pop', length(x$pop), 'prior group assignment')
   sumry[3, ] <- c('$prior', length(x$prior), 'prior group probabilities')
   sumry[4, ] <- c('$assign', length(x$assign), 'posterior group assignment')
   class(sumry) <- "table"
@@ -264,12 +268,12 @@ summary.dapc <- function(object, ...){
 
     ## number of dimensions
     res$n.dim <- ncol(x$disc.func)
-    res$n.pop <- length(levels(x$fac))
+    res$n.pop <- length(levels(x$pop))
 
     ## assignment success
-    temp <- as.character(x$fac)==as.character(x$assign)
+    temp <- as.character(x$pop)==as.character(x$assign)
     res$assign.prop <- mean(temp)
-    res$assign.per.pop <- tapply(temp, x$fac, mean)
+    res$assign.per.pop <- tapply(temp, x$pop, mean)
 
     return(res)
 } # end summary.dapc
@@ -282,11 +286,11 @@ summary.dapc <- function(object, ...){
 ##############
 ## scatter.dapc
 ##############
-scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$fac))), posi="bottomleft", bg="grey", ratio=0.3, csub=1.2, ...){
+scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$pop))), posi="bottomleft", bg="grey", ratio=0.3, csub=1.2, ...){
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     axes <- c(xax,yax)
     par(bg=bg)
-    s.class(x$ind.coord[,axes], fac=x$fac, col=col, ...)
+    s.class(x$ind.coord[,axes], fac=x$pop, col=col, ...)
     add.scatter.eig(x$eig, ncol(x$disc.func), axes[1], axes[2], posi=posi, ratio=ratio, csub=csub)
     return(invisible())
 } # end scatter.dapc
@@ -305,13 +309,14 @@ assignplot <- function(x, only.pop=NULL, cex.lab=.75, pch=3){
 
     if(!is.null(only.pop)){
         only.pop <- as.character(only.pop)
-        myPop <- as.character(x$fac)
-        x$assign <- x$assign[only.pop==myPop]
-        x$posterior <- x$posterior[only.pop==myPop, , drop=FALSE]
+        ori.pop <- as.character(x$pop)
+        x$pop <- x$pop[only.pop==ori.pop]
+        x$assign <- x$assign[only.pop==ori.pop]
+        x$posterior <- x$posterior[only.pop==ori.pop, , drop=FALSE]
     }
 
 
-    ##table.paint(x$posterior, col.lab=myPop, ...)
+    ##table.paint(x$posterior, col.lab=ori.pop, ...)
     ## symbols(x$posterior)
 
 
@@ -323,13 +328,13 @@ assignplot <- function(x, only.pop=NULL, cex.lab=.75, pch=3){
 
     image(x=1:n.pop, y=seq(.5, by=1, le=n.ind), Z, col=rev(heat.colors(100)), yaxt="n", ylab="", xaxt="n", xlab="Clusters")
     axis(side=1, at=1:n.pop,tick=FALSE, label=colnames(x$posterior))
-    axis(side=2, at=1:n.ind, label=rev(rownames(x$posterior)), las=1, cex.axis=cex.lab)
+    axis(side=2, at=seq(.5, by=1, le=n.ind), label=rev(rownames(x$posterior)), las=1, cex.axis=cex.lab)
     abline(h=1:n.ind, col="lightgrey")
     abline(v=seq(0.5, by=1, le=n.pop))
     box()
 
-    myPop <- colnames(x$posterior)
-    x.real.coord <- rev(match(as.character(x$assign), myPop))
+    newPop <- colnames(x$posterior)
+    x.real.coord <- rev(match(x$pop, newPop))
     y.real.coord <- seq(.5, by=1, le=n.ind)
 
     points(x.real.coord, y.real.coord, col="deepskyblue2", pch=pch)
@@ -344,6 +349,6 @@ assignplot <- function(x, only.pop=NULL, cex.lab=.75, pch=3){
 ###############
 ## randtest.dapc
 ###############
-randtest.dapc <- function(x, nperm = 999, ...){
+##randtest.dapc <- function(x, nperm = 999, ...){
 
-} # end randtest.dapc
+##} # end randtest.dapc
