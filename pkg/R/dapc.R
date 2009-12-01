@@ -299,8 +299,42 @@ scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$fac))), po
 ############
 ## assignplot
 ############
-assignplot <- function(x, pop=NULL){
+assignplot <- function(x, only.pop=NULL, cex.lab=.75, pch=3){
+    if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
+    if(!inherits(x, "dapc")) stop("x is not a dapc object")
 
+    if(!is.null(only.pop)){
+        only.pop <- as.character(only.pop)
+        myPop <- as.character(x$fac)
+        x$assign <- x$assign[only.pop==myPop]
+        x$posterior <- x$posterior[only.pop==myPop, , drop=FALSE]
+    }
+
+
+    ##table.paint(x$posterior, col.lab=myPop, ...)
+    ## symbols(x$posterior)
+
+
+    ## FIND PLOT PARAMETERS
+    n.pop <- ncol(x$posterior)
+    n.ind <- nrow(x$posterior)
+    Z <- t(x$posterior)
+    Z <- Z[,ncol(Z):1 ]
+
+    image(x=1:n.pop, y=seq(.5, by=1, le=n.ind), Z, col=rev(heat.colors(100)), yaxt="n", ylab="", xaxt="n", xlab="Clusters")
+    axis(side=1, at=1:n.pop,tick=FALSE, label=colnames(x$posterior))
+    axis(side=2, at=1:n.ind, label=rev(rownames(x$posterior)), las=1, cex.axis=cex.lab)
+    abline(h=1:n.ind, col="lightgrey")
+    abline(v=seq(0.5, by=1, le=n.pop))
+    box()
+
+    myPop <- colnames(x$posterior)
+    x.real.coord <- rev(match(as.character(x$assign), myPop))
+    y.real.coord <- seq(.5, by=1, le=n.ind)
+
+    points(x.real.coord, y.real.coord, col="deepskyblue2", pch=pch)
+
+    return(invisible())
 } # end assignplot
 
 
