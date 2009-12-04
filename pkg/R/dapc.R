@@ -175,6 +175,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     if(!require(MASS, quiet=TRUE)) stop("MASS library is required.")
     grp <- as.factor(grp)
+    if(length(grp) != nrow(x)) stop("Inconsistent length for grp")
 
 
     ## SOME GENERAL VARIABLES
@@ -214,6 +215,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
         n.da <- as.integer(readLines(n = 1))
     }
 
+    n.da <- min(n.da, length(levels(grp))-1) # can't be more than K-1 disc. func.
     predX <- predict(ldaX, dimen=n.da)
 
 
@@ -244,6 +246,15 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
 } # end dapc.data.frame
 
 
+
+
+
+#############
+## dapc.matrix
+#############
+dapc.matrix <- function(x, ...){
+    return(dapc(as.data.frame(x), ...))
+}
 
 
 
@@ -279,7 +290,7 @@ dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
 
     ## CALL DATA.FRAME METHOD ##
    res <- dapc(X, grp=pop.fac, n.pca=n.pca, n.da=n.da,
-                            center=center, scale=scale, var.contrib=all.contrib)
+                            center=FALSE, scale=FALSE, var.contrib=all.contrib)
 
     res$call <- match.call()
 
@@ -436,7 +447,6 @@ assignplot <- function(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3){
 
     return(invisible())
 } # end assignplot
-
 
 
 
