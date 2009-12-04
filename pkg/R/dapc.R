@@ -1,34 +1,38 @@
 #############
 ## find.clusters
 #############
-find.clusters <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"),
-                          max.n.clust=round(nrow(x@tab)/10), n.iter=1e6, n.start=100,
-                          scale=TRUE, scale.method=c("sigma", "binom"), truenames=TRUE){
+find.clusters <- function (x, ...) UseMethod("find.clusters")
+
+
+######################
+## find.clusters.data.frame
+######################
+find.clusters.data.frame <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"),
+                                     max.n.clust=round(nrow(x)/10), n.iter=1e6, n.start=100, center=TRUE, scale=TRUE){
 
     ## CHECKS ##
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     if(!require(MASS, quiet=TRUE)) stop("MASS library is required.")
     if(!require(stats)) stop("package stats is required")
-    if(!is.genind(x)) stop("x must be a genind object.")
-    stat <- match.arg(stat)
 
+    stat <- match.arg(stat)
+    
 
     ## SOME GENERAL VARIABLES ##
-    N <- nrow(x@tab)
+    N <- nrow(x)
     min.n.clust <- 2
+    max.n.clust <- max(max.n.clust, 2)
 
     ## PERFORM PCA ##
-    maxRank <- min(dim(x@tab))
+    maxRank <- min(dim(x))
 
-    X <- scaleGen(x, center = TRUE, scale = scale, method = scale.method,
-                  missing = "mean", truenames = truenames)
-
-    pcaX <- dudi.pca(X, center = FALSE, scale = FALSE, scannf = FALSE, nf=maxRank)
+    pcaX <- dudi.pca(x, center = center, scale = scale, scannf = FALSE, nf=maxRank)
+     X <- scalewt(x, center=center, scale=scale)
 
     ## select the number of retained PC for PCA
     if(is.null(n.pca)){
         cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
-        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative genetic variance (%)", main="Genetic variance explained by PCA")
+        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
         cat("Choose the number PCs to retain (>=1): ")
         n.pca <- as.integer(readLines(n = 1))
     }
@@ -104,7 +108,43 @@ find.clusters <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS
     res <- list(stat=myStat, grp=factor(best$cluster), size=best$size)
 
     return(res)
-} # end find.clusters
+} # end find.clusters.data.frame
+
+
+
+
+
+
+###################
+## find.clusters.genind
+###################
+find.clusters.genind <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"),
+                          max.n.clust=round(nrow(x@tab)/10), n.iter=1e6, n.start=100,
+                          scale=TRUE, scale.method=c("sigma", "binom"), truenames=TRUE){
+
+    ## CHECKS ##
+    if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
+    if(!require(MASS, quiet=TRUE)) stop("MASS library is required.")
+    if(!require(stats)) stop("package stats is required")
+    if(!is.genind(x)) stop("x must be a genind object.")
+    stat <- match.arg(stat)
+
+
+    ## SOME GENERAL VARIABLES ##
+    N <- nrow(x@tab)
+    min.n.clust <- 2
+
+    ## PERFORM PCA ##
+    maxRank <- min(dim(x@tab))
+
+    X <- scaleGen(x, center = TRUE, scale = scale, method = scale.method,
+                  missing = "mean", truenames = truenames)
+
+    ## CALL DATA.FRAME METHOD
+    res <- find.clusters(X, n.pca=n.pca, n.clust=n.clust, stat=stat, max.n.clust=max.n.clust, n.iter=n.iter, n.start=n.start,
+                         center=FALSE, scale=FALSE)
+    return(res)
+} # end find.clusters.genind
 
 
 
@@ -275,6 +315,10 @@ summary.dapc <- function(object, ...){
     res$assign.prop <- mean(temp)
     res$assign.per.pop <- tapply(temp, x$pop, mean)
 
+    ## group sizes
+    res$prior.grp.size <- table(x$pop)
+    res$post.grp.size <- table(x$assign)
+
     return(res)
 } # end summary.dapc
 
@@ -303,7 +347,7 @@ scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$pop))), po
 ############
 ## assignplot
 ############
-assignplot <- function(x, only.pop=NULL, cex.lab=.75, pch=3){
+assignplot <- function(x, only.pop=NULL, subset=NULL, cex.lab=.75, pch=3){
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     if(!inherits(x, "dapc")) stop("x is not a dapc object")
 
@@ -313,6 +357,10 @@ assignplot <- function(x, only.pop=NULL, cex.lab=.75, pch=3){
         x$pop <- x$pop[only.pop==ori.pop]
         x$assign <- x$assign[only.pop==ori.pop]
         x$posterior <- x$posterior[only.pop==ori.pop, , drop=FALSE]
+    } else if(!is.null(subset)){
+        x$pop <- x$pop[subset]
+        x$assign <- x$assign[subset]
+        x$posterior <- x$posterior[subset, , drop=FALSE]
     }
 
 
@@ -324,7 +372,7 @@ assignplot <- function(x, only.pop=NULL, cex.lab=.75, pch=3){
     n.pop <- ncol(x$posterior)
     n.ind <- nrow(x$posterior)
     Z <- t(x$posterior)
-    Z <- Z[,ncol(Z):1 ]
+    Z <- Z[,ncol(Z):1,drop=FALSE ]
 
     image(x=1:n.pop, y=seq(.5, by=1, le=n.ind), Z, col=rev(heat.colors(100)), yaxt="n", ylab="", xaxt="n", xlab="Clusters")
     axis(side=1, at=1:n.pop,tick=FALSE, label=colnames(x$posterior))
