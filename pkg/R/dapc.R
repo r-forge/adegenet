@@ -119,7 +119,7 @@ find.clusters.data.frame <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", 
 ###################
 ## find.clusters.genind
 ###################
-find.clusters.genind <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"),
+find.clusters.genind <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE,
                           max.n.clust=round(nrow(x@tab)/10), n.iter=1e6, n.start=100,
                           scale=TRUE, scale.method=c("sigma", "binom"), truenames=TRUE){
 
@@ -143,7 +143,7 @@ find.clusters.genind <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC
 
     ## CALL DATA.FRAME METHOD
     res <- find.clusters(X, n.pca=n.pca, n.clust=n.clust, stat=stat, max.n.clust=max.n.clust, n.iter=n.iter, n.start=n.start,
-                         center=FALSE, scale=FALSE)
+                         choose.n.clust=choose.n.clust, center=FALSE, scale=FALSE)
     return(res)
 } # end find.clusters.genind
 
