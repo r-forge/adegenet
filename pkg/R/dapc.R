@@ -168,13 +168,13 @@ dapc <- function (x, ...) UseMethod("dapc")
 #################
 ## dapc.data.frame
 #################
-dapc.data.frame <- function(x, fac, n.pca=NULL, n.da=NULL,
+dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
                             center=TRUE, scale=TRUE, var.contrib=FALSE){
 
     ## FIRST CHECKS
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     if(!require(MASS, quiet=TRUE)) stop("MASS library is required.")
-    fac <- as.factor(fac)
+    grp <- as.factor(grp)
 
 
     ## SOME GENERAL VARIABLES
@@ -207,9 +207,9 @@ dapc.data.frame <- function(x, fac, n.pca=NULL, n.da=NULL,
 
 
      ## PERFORM DA ##
-    ldaX <- lda(XU, fac)
+    ldaX <- lda(XU, grp)
     if(is.null(n.da)){
-        barplot(ldaX$svd^2, xlab="Linear Discriminants", ylab="F-statistic", main="Discriminant analysis eigenvalues", col=heat.colors(length(levels(fac))) )
+        barplot(ldaX$svd^2, xlab="Linear Discriminants", ylab="F-statistic", main="Discriminant analysis eigenvalues", col=heat.colors(length(levels(grp))) )
         cat("Choose the number discriminant functions to retain (>=1): ")
         n.da <- as.integer(readLines(n = 1))
     }
@@ -222,12 +222,12 @@ dapc.data.frame <- function(x, fac, n.pca=NULL, n.da=NULL,
     res$n.pca <- n.pca
     res$n.da <- n.da
     res$tab <- XU
-    res$fac <- fac
+    res$grp <- grp
     res$var <- XU.lambda
     res$eig <- ldaX$svd^2
     res$disc.func <- ldaX$scaling[, 1:n.da, drop=FALSE]
     res$ind.coord <-predX$x
-    res$grp.coord <- apply(res$ind.coord, 2, tapply, fac, mean)
+    res$grp.coord <- apply(res$ind.coord, 2, tapply, grp, mean)
     res$prior <- ldaX$prior
     res$posterior <- predX$posterior
     res$assign <- predX$class
@@ -278,7 +278,7 @@ dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
                   missing = "mean", truenames = truenames)
 
     ## CALL DATA.FRAME METHOD ##
-   res <- dapc(X, fac=pop.fac, n.pca=n.pca, n.da=n.da,
+   res <- dapc(X, grp=pop.fac, n.pca=n.pca, n.da=n.da,
                             center=center, scale=scale, var.contrib=all.contrib)
 
     res$call <- match.call()
@@ -304,7 +304,7 @@ print.dapc <- function(x, ...){
     print(x$call)
     cat("\n$n.pca:", x$n.pca, "first PCs of PCA used")
     cat("\n$n.da:", x$n.da, "discriminant functions saved")
-    cat("\n$varn (proportion of conserved variance):", round(x$var.gen,3))
+    cat("\n$varn (proportion of conserved variance):", round(x$var,3))
     cat("\n\n$eig (eigenvalues): ")
     l0 <- sum(x$eig >= 0)
     cat(signif(x$eig, 4)[1:(min(5, l0))])
@@ -380,7 +380,9 @@ scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), po
     axes <- c(xax,yax)
     par(bg=bg)
     s.class(x$ind.coord[,axes], fac=x$grp, col=col, ...)
-    add.scatter.eig(x$eig, ncol(x$disc.func), axes[1], axes[2], posi=posi, ratio=ratio, csub=csub)
+    if(ratio>0.001) {
+        add.scatter.eig(x$eig, ncol(x$disc.func), axes[1], axes[2], posi=posi, ratio=ratio, csub=csub)
+    }
     return(invisible())
 } # end scatter.dapc
 
@@ -392,16 +394,16 @@ scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), po
 ############
 ## assignplot
 ############
-assignplot <- function(x, only.pop=NULL, subset=NULL, cex.lab=.75, pch=3){
+assignplot <- function(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3){
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     if(!inherits(x, "dapc")) stop("x is not a dapc object")
 
-    if(!is.null(only.pop)){
-        only.pop <- as.character(only.pop)
-        ori.pop <- as.character(x$grp)
-        x$grp <- x$grp[only.pop==ori.pop]
-        x$assign <- x$assign[only.pop==ori.pop]
-        x$posterior <- x$posterior[only.pop==ori.pop, , drop=FALSE]
+    if(!is.null(only.grp)){
+        only.grp <- as.character(only.grp)
+        ori.grp <- as.character(x$grp)
+        x$grp <- x$grp[only.grp==ori.grp]
+        x$assign <- x$assign[only.grp==ori.grp]
+        x$posterior <- x$posterior[only.grp==ori.grp, , drop=FALSE]
     } else if(!is.null(subset)){
         x$grp <- x$grp[subset]
         x$assign <- x$assign[subset]
@@ -409,25 +411,25 @@ assignplot <- function(x, only.pop=NULL, subset=NULL, cex.lab=.75, pch=3){
     }
 
 
-    ##table.paint(x$posterior, col.lab=ori.pop, ...)
+    ##table.paint(x$posterior, col.lab=ori.grp, ...)
     ## symbols(x$posterior)
 
 
     ## FIND PLOT PARAMETERS
-    n.pop <- ncol(x$posterior)
+    n.grp <- ncol(x$posterior)
     n.ind <- nrow(x$posterior)
     Z <- t(x$posterior)
     Z <- Z[,ncol(Z):1,drop=FALSE ]
 
-    image(x=1:n.pop, y=seq(.5, by=1, le=n.ind), Z, col=rev(heat.colors(100)), yaxt="n", ylab="", xaxt="n", xlab="Clusters")
-    axis(side=1, at=1:n.pop,tick=FALSE, label=colnames(x$posterior))
+    image(x=1:n.grp, y=seq(.5, by=1, le=n.ind), Z, col=rev(heat.colors(100)), yaxt="n", ylab="", xaxt="n", xlab="Clusters")
+    axis(side=1, at=1:n.grp,tick=FALSE, label=colnames(x$posterior))
     axis(side=2, at=seq(.5, by=1, le=n.ind), label=rev(rownames(x$posterior)), las=1, cex.axis=cex.lab)
     abline(h=1:n.ind, col="lightgrey")
-    abline(v=seq(0.5, by=1, le=n.pop))
+    abline(v=seq(0.5, by=1, le=n.grp))
     box()
 
-    newPop <- colnames(x$posterior)
-    x.real.coord <- rev(match(x$grp, newPop))
+    newGrp <- colnames(x$posterior)
+    x.real.coord <- rev(match(x$grp, newGrp))
     y.real.coord <- seq(.5, by=1, le=n.ind)
 
     points(x.real.coord, y.real.coord, col="deepskyblue2", pch=pch)
