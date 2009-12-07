@@ -6,7 +6,7 @@ find.clusters <- function (x, ...) UseMethod("find.clusters")
 ######################
 ## find.clusters.data.frame
 ######################
-find.clusters.data.frame <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE, criterion=c("min","diff")
+find.clusters.data.frame <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE, criterion=c("min","diff"),
                                      max.n.clust=round(nrow(x)/10), n.iter=1e6, n.start=100, center=TRUE, scale=TRUE){
 
     ## CHECKS ##
@@ -96,7 +96,7 @@ find.clusters.data.frame <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", 
             }
             if(criterion=="diff") {
                 temp <- diff(myStat)
-                n.clust <- which.max( which((temp-min(temp))< max(temp)/1e4)) )
+                n.clust <- which.max( which( (temp-min(temp))<max(temp)/1e4))
             }
         }
     }
