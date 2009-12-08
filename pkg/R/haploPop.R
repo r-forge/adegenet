@@ -821,6 +821,14 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
     ## function getting allele absolute frequencies
     if(track=="nbMut"){
         fRes <- function(list.pop){
+            list.pop <- list(pop=list.pop) # kludge needed for sample.haploPop
+            class(list.pop) <- "haploPop" # kludge needed for sample.haploPop
+            N <- sum(sapply(list.pop$pop, length))
+            if(N<1) return(0)
+            if(N > samp.size){
+                list.pop <- sample.haploPop(list.pop, samp.size, keep.pop=FALSE)
+            }
+
             return( length(unique(unlist(list.pop))) )
         } # end fRes
 
