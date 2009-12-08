@@ -586,7 +586,7 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
                         max.pop.size=function(){1e4}, max.nb.pop=30, ini.pop.size=10, regen=FALSE,
                         p.new.pop=function(){1e-4}, death.func=function(age){age>1},
                         quiet=FALSE, allow.reverse=TRUE,
-                        track=c("div", "distRoot", "freq"), root.haplo=NULL, samp.size=50) {
+                        track=c("div", "distRoot", "freq","nbMut"), root.haplo=NULL, samp.size=50) {
 
 
     ## SOME CHECKS
@@ -810,12 +810,20 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
         } # end fRes
     }
 
-        ## function getting allele absolute frequencies
+    ## function getting allele absolute frequencies
     if(track=="freq"){
         fRes <- function(list.pop){
             res <- table(unlist(list.pop))
             return(res)
         } # end fRes
+    }
+
+    ## function getting allele absolute frequencies
+    if(track=="nbMut"){
+        fRes <- function(list.pop){
+            return( length(unique(unlist(list.pop))) )
+        } # end fRes
+
     }
 
 
