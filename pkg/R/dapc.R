@@ -6,8 +6,8 @@ find.clusters <- function (x, ...) UseMethod("find.clusters")
 ######################
 ## find.clusters.data.frame
 ######################
-find.clusters.data.frame <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE, criterion=c("min","diff"),
-                                     max.n.clust=round(nrow(x)/10), n.iter=1e6, n.start=100, center=TRUE, scale=TRUE){
+find.clusters.data.frame <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE, criterion=c("min","diff", "conserv"),
+                                     max.n.clust=round(nrow(x)/10), n.iter=1e3, n.start=10, center=TRUE, scale=TRUE){
 
     ## CHECKS ##
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
@@ -15,7 +15,7 @@ find.clusters.data.frame <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", 
     if(!require(stats)) stop("package stats is required")
 
     stat <- match.arg(stat)
-
+    criterion <- match.arg(criterion)
 
     ## SOME GENERAL VARIABLES ##
     N <- nrow(x)
@@ -98,6 +98,11 @@ find.clusters.data.frame <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", 
                 temp <- diff(myStat)
                 n.clust <- which.max( which( (temp-min(temp))<max(temp)/1e4))
             }
+            if(criterion=="conserv") {
+                temp <- min(myStat) + 0.15*(max(myStat) - min(myStat))
+                n.clust <- min( which(myStat < temp))
+            }
+
         }
     }
 
@@ -125,8 +130,8 @@ find.clusters.data.frame <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", 
 ###################
 ## find.clusters.genind
 ###################
-find.clusters.genind <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE,
-                          max.n.clust=round(nrow(x@tab)/10), n.iter=1e6, n.start=100,
+find.clusters.genind <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE, criterion=c("min","diff", "conserv"),
+                          max.n.clust=round(nrow(x@tab)/10), n.iter=1e3, n.start=10,
                           scale=TRUE, scale.method=c("sigma", "binom"), truenames=TRUE){
 
     ## CHECKS ##
@@ -149,7 +154,7 @@ find.clusters.genind <- function(x, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC
 
     ## CALL DATA.FRAME METHOD
     res <- find.clusters(X, n.pca=n.pca, n.clust=n.clust, stat=stat, max.n.clust=max.n.clust, n.iter=n.iter, n.start=n.start,
-                         choose.n.clust=choose.n.clust, center=FALSE, scale=FALSE)
+                         choose.n.clust=choose.n.clust, criterion=criterion, center=FALSE, scale=FALSE)
     return(res)
 } # end find.clusters.genind
 
@@ -275,6 +280,9 @@ dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
                  scale=TRUE, scale.method=c("sigma", "binom"), truenames=TRUE, all.contrib=FALSE){
 
     ## FIRST CHECKS
+    if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
+    if(!require(MASS, quiet=TRUE)) stop("MASS library is required.")
+
     if(!is.genind(x)) stop("x must be a genind object.")
 
     if(is.null(pop)) {
@@ -284,8 +292,6 @@ dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
     }
 
     if(is.null(pop.fac)) stop("x does not include pre-defined populations, and `pop' is not provided")
-    if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
-    if(!require(MASS, quiet=TRUE)) stop("MASS library is required.")
 
 
     ## SOME GENERAL VARIABLES
