@@ -475,10 +475,11 @@ dist.haploPop <- function(x, add.root=TRUE, res.type=c("dist","matrix")){
 ## plot.haploPop
 ###############
 plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, show.pop=TRUE,
-                          transp=TRUE, tip.cex=2, ...){
+                          transp=TRUE, tip.cex=2, method=c("nj", "bionj", "fastme.bal", "fastme.ols"), ...){
     ## CHECKS ##
     if(!require(ape)) stop("ape package is required")
     if(!inherits(x, "haploPop")) stop("x is not a haploPop object")
+    method <- match.arg(method)
 
     N <- sum(sapply(x$pop,length))
 
@@ -488,7 +489,12 @@ plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, show.pop=T
 
 
     ## PLOT TREE ##
-    tre <- root(nj(dist.haploPop(x)),"1")
+    f1 <- get(method)
+    if(method %in% c("nj","bionj")){
+        tre <- root(f1(dist.haploPop(x)),"1")
+    } else {
+        tre <- f1(dist.haploPop(x))
+     }
     plot(tre, type=type, ...)
     xy <- get("last_plot.phylo", envir = .PlotPhyloEnv)
 
