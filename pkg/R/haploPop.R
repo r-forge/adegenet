@@ -186,9 +186,10 @@ haploPop <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6,
 
     ## INITIATE SIMULATIONS ##
     ## INITIALIZE FROM SCRATCH
+    vecS <- max.pop.size() # susceptibles
+
     if(is.null(ini.obj)){
         ##vecS <- max.pop.size() -  n.snp.ini # susceptibles
-        vecS <- max.pop.size() # susceptibles
         if(is.null(ini.haplo)) {
             haplo.ini <- sample(SNP.POOL, n.snp.ini, replace=TRUE)
         } else {
@@ -202,7 +203,7 @@ haploPop <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6,
         listAges[[1]] <- rep(0, ini.pop.size)
     } else { ## INITIALIZE WITH PROVIDED OBJECT
         if(!inherits(ini.obj, "haploPop")) stop("x is not a haploPop object")
-        vecS <- ini.obj$S
+        ##vecS <- ini.obj$S
         ANCES <- attr(ini.obj, "ances")
         listPop <- ini.obj$pop
         listAges <- ini.obj$ages
@@ -755,9 +756,11 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
 
     ## INITIATE SIMULATIONS ##
     ## INITIALIZE FROM SCRATCH
+    vecS <- max.pop.size() # susceptibles
+
     if(is.null(ini.obj)){
         ## vecS <- max.pop.size() -  n.snp.ini # susceptibles
-        vecS <- max.pop.size() # susceptibles
+
         if(is.null(ini.haplo)) {
             haplo.ini <- sample(SNP.POOL, n.snp.ini, replace=TRUE)
         } else {
@@ -770,7 +773,7 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
         listAges[[1]] <- rep(0, ini.pop.size)
     } else { ## INITIALIZE WITH PROVIDED OBJECT
         if(!inherits(ini.obj, "haploPop")) stop("x is not a haploPopDiv object")
-        vecS <- ini.obj$S
+        ## vecS <- ini.obj$S
         ANCES <- attr(ini.obj, "ances")
         listPop <- ini.obj$pop
         listAges <- ini.obj$ages
