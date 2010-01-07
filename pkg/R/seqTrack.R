@@ -5,6 +5,10 @@ seqTrack <- function(...){
     UseMethod("seqTrack")
 }
 
+seqTrackG <- function(...){
+    UseMethod("seqTrackG")
+}
+
 
 optimize.seqTrack <- function(...){
     UseMethod("optimize.seqTrack")
@@ -182,10 +186,12 @@ get.likelihood.seqTrack.default <- function(...){
 
 
 
+#######################################################
+#######################################################
 
-#############
-## seqTrack
-#############
+######################
+## seqTrack - old version
+######################
 ##
 ## - x is a matrix giving weights x[i,j] such that:
 ## 'i is ancestor j'
@@ -294,7 +300,131 @@ seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
     class(res) <- c("seqTrack","data.frame")
 
     return(res)
-} # end seqTrack
+} # end seqTrack.default
+
+#######################################################
+#######################################################
+
+
+
+
+
+
+
+
+
+
+##############
+## seqTrackG - graph version of SeqTrack
+##############
+##
+## - x is a matrix giving weights x[i,j] such that:
+## 'i is ancestor j'; the algo looks for maximal weight branching
+##
+## - prox.mat is a directed proximity measure, so that prox.mat[i,j] is
+## the 'proximity when going from i to j'
+##
+seqTrackG.default <- function(x, x.names, x.dates, optim=c("min","max"), force.temporal.order=TRUE,
+                              res.type=c("seqTrack", "graphNEL"), ...){
+
+    ## CHECKS ##
+    if(!require("graph")) stop("the graph package is not installed")
+    if(!require("RBGL")) stop("the RBGL package is not installed")
+    if(!exists("edmondsOptimumBranching")) stop("edmondsOptimumBranching does not exist; \nmake sure to use the latest Bioconductor (not CRAN) version of RBGL")
+    optim <- match.arg(optim)
+    res.type  <- match.arg(res.type)
+
+    if(optim=="min"){
+        optim <- min
+        which.optim <- which.min
+    } else {
+        optim <- max
+        which.optim <- which.max
+    }
+
+    if(length(x.names) != length(x.dates)){
+        stop("inconsistent length for x.dates")
+    }
+
+    if(is.character(x.dates)){
+        msg <- paste("x.dates is a character vector; " ,
+                     "please convert it as dates using 'as.POSIXct'" ,
+                     "\n(making sure dates are given as 'YYYY/MM/DD' or 'YYYY-MM-DD').", sep="")
+        stop(msg)
+    }
+
+    x <- as.matrix(x)
+
+    ## if(!is.null(prox.mat) && !identical(dim(prox.mat),dim(x))) {
+    ##     stop("prox.mat is provided but its dimensions are inconsistent with that of x")
+    ## }
+
+    x.dates <- as.POSIXct(round.POSIXt(x.dates,units="days")) # round dates to the day
+
+    if(length(x.names) != nrow(x)){
+        stop("inconsistent dimension for x")
+    }
+
+
+    ## HANDLE OPTIM==MIN ##
+    ## reverse x by a translation
+    x.old <- x
+    areZero <- x<1e-14
+    x <- (max(x)+1) - x
+    x[areZero] <- 0
+    diag(x) <- 0
+
+
+    ## BUILD THE GRAPH ##
+    ## make prox matrix with temporal consistency
+    if(force.temporal.order){
+        x[outer(myDates, myDates, ">=")] <- 0
+    }
+
+    myGraph <- as(x, "graphNEL")
+
+
+    ## CALL EDMONDSOPTIMUMBRANCHING  ##
+    temp <- edmondsOptimumBranching(myGraph)
+
+
+    ## SHAPE OUTPUT ##
+    if(res.type=="seqTrack"){
+        myLev <- x.names
+        res <- data.frame()
+        class(res) <- c("seqTrack","data.frame")
+
+        ## fill in the data.frame
+        res$id <- as.integer(factor(temp$edgeList["to",], levels=myLev))
+        res$ances <- as.integer(factor(temp$edgeList["from",], levels=myLev))
+        newOrd <- order(res$id)
+        res$id <- res$id[newOrd]
+        res$ances <- res$ances[newOrd]
+        res$weight <- as.vector(temp$weights)[newOrd]
+        res$date <- x.dates
+        res$ances.dates <- x.dates[res$ances]
+        row.names(res) <- x.names
+
+        ## handle optim==min
+        if(optim=="min"){
+            res$weight <- max(x.old)+1 - res$weight
+        }
+    }
+
+    if(res.type=="graphNEL"){
+        ## handle optim==min
+        if(optim=="min"){
+            temp$weights <- max(x.old)+1 - temp$weights
+        }
+        res <- ftM2graphNEL(t(temp$edgeList), W=temp$weights, edgemode="directed")
+    }
+
+
+    ## RETURN RESULT ##
+    return(res)
+
+} # end seqTrackG
+
 
 
 
