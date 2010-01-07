@@ -391,11 +391,11 @@ seqTrackG.default <- function(x, x.names, x.dates, optim=c("min","max"), force.t
     ## SHAPE OUTPUT ##
     if(res.type=="seqTrack"){
         myLev <- x.names
-        res <- data.frame()
+        N <- length(x.names)
+        res <- data.frame(id=1:N)
         class(res) <- c("seqTrack","data.frame")
 
         ## fill in the data.frame
-        res$id <- as.integer(factor(temp$edgeList["to",], levels=myLev))
         res$ances <- as.integer(factor(temp$edgeList["from",], levels=myLev))
         newOrd <- order(res$id)
         res$id <- res$id[newOrd]
