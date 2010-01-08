@@ -554,3 +554,20 @@ sample.haploSim <- function(x, n, rDate=.rTimeSeq, arg.rDate=NULL){
 
     return(res)
 } # end sample.haploSim
+
+
+
+
+
+
+
+
+##########################
+## as("haploSim", "graphNEL")
+##########################
+setOldClass("haploSim")
+setAs("haploSim", "graphNEL", def=function(from){
+    N <- length(from$ances)
+    res <- ftM2graphNEL(cbind(from$ances[-1], 2:N))
+    return(res)
+})
