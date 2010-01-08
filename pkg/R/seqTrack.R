@@ -330,7 +330,13 @@ seqTrackG.default <- function(x, x.names, x.dates, optim=c("min","max"), force.t
     ## CHECKS ##
     if(!require("graph")) stop("the graph package is not installed")
     if(!require("RBGL")) stop("the RBGL package is not installed")
-    if(!exists("edmondsOptimumBranching")) stop("edmondsOptimumBranching does not exist; \nmake sure to use the latest Bioconductor (not CRAN) version of RBGL")
+    if(!exists("edmondsOptimumBranching")) {
+        stop("edmondsOptimumBranching does not exist; \nmake sure to use the latest Bioconductor (not CRAN) version of RBGL")
+        cat("\nWould you like to try and install latest version of RBGL (needs internet connection): ")
+
+        source("http://bioconductor.org/biocLite.R")
+        biocLite("RBGL")
+    }
     optim <- match.arg(optim)
     res.type  <- match.arg(res.type)
 
