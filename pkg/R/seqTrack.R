@@ -198,17 +198,17 @@ get.likelihood.seqTrack.default <- function(...){
 ## - prox.mat is a directed proximity measure, so that prox.mat[i,j] is
 ## the 'proximity when going from i to j'
 ##
-seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
+seqTrack.default <- function(x, x.names, x.dates, best=c("min","max"),
                      prox.mat=NULL, ...){
 
     ## CHECKS ##
-    optim <- match.arg(optim)
-    if(optim=="min"){
-        optim <- min
-        which.optim <- which.min
+    best <- match.arg(best)
+    if(best=="min"){
+        best <- min
+        which.best <- which.min
     } else {
-        optim <- max
-        which.optim <- which.max
+        best <- max
+        which.best <- which.max
     }
 
     if(length(x.names) != length(x.dates)){
@@ -254,8 +254,8 @@ seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
 
 
     ## return the names of optimal value(s) in a named vector
-    which.is.optim <- function(vec){
-        res <- names(vec)[test.equal(optim(vec), vec)]
+    which.is.best <- function(vec){
+        res <- names(vec)[test.equal(best(vec), vec)]
         return(res)
     }
 
@@ -282,7 +282,7 @@ seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
         candid <- which(x.dates < x.dates[idx])
         if(length(candid)==0) return(list(ances=NA, weight=NA))
         if(length(candid)==1) return(list(ances=candid, weight=x[candid, idx]))
-        ancesId <- as.numeric(which.is.optim(x[candid, idx]))
+        ancesId <- as.numeric(which.is.best(x[candid, idx]))
         if(length(ancesId)>1) {
             ancesId <- selAmongAncestors(idx,ancesId) # handle several 'best' ancestors
         }
@@ -324,7 +324,7 @@ seqTrack.default <- function(x, x.names, x.dates, optim=c("min","max"),
 ## - prox.mat is a directed proximity measure, so that prox.mat[i,j] is
 ## the 'proximity when going from i to j'
 ##
-seqTrackG.default <- function(x, x.names, x.dates, optim=c("min","max"), force.temporal.order=TRUE,
+seqTrackG.default <- function(x, x.names, x.dates, best=c("min","max"), force.temporal.order=TRUE,
                               res.type=c("seqTrack", "graphNEL"), ...){
 
     ## CHECKS ##
@@ -332,21 +332,16 @@ seqTrackG.default <- function(x, x.names, x.dates, optim=c("min","max"), force.t
     if(!require("RBGL")) stop("the RBGL package is not installed")
     if(!exists("edmondsOptimumBranching")) {
         stop("edmondsOptimumBranching does not exist; \nmake sure to use the latest Bioconductor (not CRAN) version of RBGL")
-        cat("\nWould you like to try and install latest version of RBGL (needs internet connection): ")
-
-        source("http://bioconductor.org/biocLite.R")
-        biocLite("RBGL")
+        cat("\nWould you like to try and install latest version of RBGL (needs internet connection)\n y/n: ")
+        ans <- tolower(as.character(readLines(n = 1)))
+        if(ans=="y"){
+            source("http://bioconductor.org/biocLite.R")
+            biocLite("RBGL")
+        }
     }
-    optim <- match.arg(optim)
+
+    best <- match.arg(best)
     res.type  <- match.arg(res.type)
-
-    if(optim=="min"){
-        optim <- min
-        which.optim <- which.min
-    } else {
-        optim <- max
-        which.optim <- which.max
-    }
 
     if(length(x.names) != length(x.dates)){
         stop("inconsistent length for x.dates")
@@ -361,10 +356,6 @@ seqTrackG.default <- function(x, x.names, x.dates, optim=c("min","max"), force.t
 
     x <- as.matrix(x)
 
-    ## if(!is.null(prox.mat) && !identical(dim(prox.mat),dim(x))) {
-    ##     stop("prox.mat is provided but its dimensions are inconsistent with that of x")
-    ## }
-
     x.dates <- as.POSIXct(round.POSIXt(x.dates,units="days")) # round dates to the day
 
     if(length(x.names) != nrow(x)){
@@ -372,7 +363,7 @@ seqTrackG.default <- function(x, x.names, x.dates, optim=c("min","max"), force.t
     }
 
 
-    ## HANDLE OPTIM==MIN ##
+    ## HANDLE BEST==MIN ##
     ## reverse x by a translation
     x.old <- x
     areZero <- x<1e-14
@@ -387,7 +378,10 @@ seqTrackG.default <- function(x, x.names, x.dates, optim=c("min","max"), force.t
         x[outer(myDates, myDates, ">=")] <- 0
     }
 
-    myGraph <- as(x, "graphNEL")
+    ## tweak to get around a bug in as(...,"graphNEL") - looses edge weights
+    ## to replace with commented line once fixed in CRAN release
+    ## myGraph <- as(x, "graphNEL")
+    myGraph <- as(new("graphAM", x, edgemode="directed", values=list(weight=1)), "graphNEL")
 
 
     ## CALL EDMONDSOPTIMUMBRANCHING  ##
@@ -396,30 +390,46 @@ seqTrackG.default <- function(x, x.names, x.dates, optim=c("min","max"), force.t
 
     ## SHAPE OUTPUT ##
     if(res.type=="seqTrack"){
-        myLev <- x.names
+        ## reorder output from edmondsOptimumBranching
         N <- length(x.names)
+        myLev <- x.names
+        ances <- as.integer(factor(temp$edgeList["from",], levels=myLev))
+        desc <- as.integer(factor(temp$edgeList["to",], levels=myLev))
+        newOrd <- order(desc)
+        desc <- 1:N
+        ances <- ances[newOrd]
+        weights <- as.numeric(temp$weights)[newOrd]
+
+        ## create the data.frame
         res <- data.frame(id=1:N)
+        hasNoAnces <- difftime(myDates, min(myDates), units="secs") < 1 # 1 sec resolution for dates
+        res$weight <- res$ances <- 1:N
+        res$date <- x.dates
+
+        ## fill in the d.f. with correct values
+        res$ances[!hasNoAnces] <- ances
+        res$ances[hasNoAnces] <- NA
+
+        res$weight[!hasNoAnces] <- weights
+        res$weight[hasNoAnces] <- NA
+
+        res$ances.date <- x.dates[res$ances]
+
+        res[is.na(res)] <- NA # have clean NAs
+        row.names(res) <- x.names
         class(res) <- c("seqTrack","data.frame")
 
-        ## fill in the data.frame
-        res$ances <- as.integer(factor(temp$edgeList["from",], levels=myLev))
-        newOrd <- order(res$id)
-        res$id <- res$id[newOrd]
-        res$ances <- res$ances[newOrd]
-        res$weight <- as.vector(temp$weights)[newOrd]
-        res$date <- x.dates
-        res$ances.dates <- x.dates[res$ances]
-        row.names(res) <- x.names
-
-        ## handle optim==min
-        if(optim=="min"){
+        ## handle best==min
+        if(best=="min"){
             res$weight <- max(x.old)+1 - res$weight
         }
+
+
     }
 
     if(res.type=="graphNEL"){
         ## handle optim==min
-        if(optim=="min"){
+        if(best=="min"){
             temp$weights <- max(x.old)+1 - temp$weights
         }
         res <- ftM2graphNEL(t(temp$edgeList), W=temp$weights, edgemode="directed")
@@ -661,16 +671,16 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
 ## 3) uncomment, adapt, and test code for missing data
 ##
 optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=NULL, seq.length=NULL,
-                                      thres=0.2, optim=c("min","max"), prox.mat=NULL, nstep=10, step.size=1e3,
+                                      thres=0.2, best=c("min","max"), prox.mat=NULL, nstep=10, step.size=1e3,
                                       rDate=.rTimeSeq, arg.rDate=NULL, rMissDate=.rUnifDate, ...){
 
 
     ## CHECKS ##
-    optim <- match.arg(optim)
-    if(optim=="min"){
-        which.optim <- which.min
+    best <- match.arg(best)
+    if(best=="min"){
+        which.best <- which.min
     } else {
-        which.optim <- which.max
+        which.best <- which.max
     }
 
     if(length(x.names) != length(x.dates)){
@@ -757,7 +767,7 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=N
     ## SET THRESHOLD IF NEEDED ## ## NO LONGER USED
     ##  if(is.null(thres)){
     ##         thres <- sum(seqTrack(x.names=x.names, x.dates=x.dates, W=W,
-    ##                                     optim=optim, prox.mat=prox.mat, ...)$weight, na.rm=TRUE)
+    ##                                     best=best, prox.mat=prox.mat, ...)$weight, na.rm=TRUE)
     ##     }
 
 
@@ -809,7 +819,7 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=N
                 myDates <- as.POSIXct(newDates[,j])
 
                 res.new <- seqTrack(x, x.names=x.names, x.dates=myDates,
-                                    optim=optim, prox.mat=prox.mat, ...)
+                                    best=best, prox.mat=prox.mat, ...)
 
                 ##ances <- cbind(ances, res.new$ances) # not needed now
                 date <- cbind(date, as.character(res.new$date))
@@ -913,7 +923,7 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=N
     ## reconstruct the result with new dates
     res <- lapply(1:ncol(date), function(i)
                    seqTrack(x=x, x.names=x.names, x.dates=as.POSIXct(date[,i]),
-                                    optim=optim, prox.mat=prox.mat, ...))
+                                    best=best, prox.mat=prox.mat, ...))
     ances <- data.frame(lapply(res, function(e) e$ances))
     ances <- matrix(as.integer(unlist(ances)), nrow=nrow(ances))
 
@@ -1101,7 +1111,7 @@ get.likelihood.seqTrack <-function(x, method=("genetic"), mu0=NULL, seq.length=N
 ###############
 ## seqTrack.ml
 ###############
-seqTrack.ml <- function(aln, x.dates, optim=c("min","max"), ...){
+seqTrack.ml <- function(aln, x.dates, best=c("min","max"), ...){
 
 } # end seqTrack.ml
 
