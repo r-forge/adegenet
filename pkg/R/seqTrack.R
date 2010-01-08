@@ -1123,6 +1123,18 @@ seqTrack.ml <- function(aln, x.dates, best=c("min","max"), ...){
 
 
 
+##########################
+## as("seqTrack", "graphNEL")
+##########################
+setOldClass("seqTrack")
+setAs("seqTrack", "graphNEL", def=function(from){
+    N <- nrow(from)
+    from <- from[!is.na(from$ances), ]
+    res <- ftM2graphNEL(cbind(from$ances, from$id))
+    return(res)
+})
+
+
 
 
 
