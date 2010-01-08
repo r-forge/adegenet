@@ -568,6 +568,7 @@ sample.haploSim <- function(x, n, rDate=.rTimeSeq, arg.rDate=NULL){
 setOldClass("haploSim")
 setAs("haploSim", "graphNEL", def=function(from){
     N <- length(from$ances)
-    res <- ftM2graphNEL(cbind(from$ances[-1], 2:N))
+    areNA <- is.na(from$ances)
+    res <- ftM2graphNEL(cbind(from$ances[!areNA], (1:N)[!areNA]))
     return(res)
 })
