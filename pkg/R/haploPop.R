@@ -248,7 +248,7 @@ haploPop <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6,
         listAges <- listAges[toKeep]
 
         ## stop if all pop go extinct
-        if(length(listPop)==0L){
+        if(length(listPop)==0L & !quiet){
             cat("\n All populations went extinct at time",i,"\n")
             return(invisible(NULL))
         }
@@ -890,7 +890,7 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
         listAges <- listAges[toKeep]
 
         ## stop if all pop go extinct
-        if(length(listPop)==0L){
+        if(length(listPop)==0L & !quiet){
             cat("\n All populations went extinct at time",i,"\n")
 
               return(res)
