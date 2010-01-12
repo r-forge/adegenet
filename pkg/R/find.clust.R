@@ -46,7 +46,10 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
         cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
         plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
         cat("Choose the number PCs to retain (>=1): ")
-        n.pca <- as.integer(readLines(n = 1))
+        n.pca <- NA
+        while(is.na(n.pca)){
+            n.pca <- as.integer(readLines(n = 1))
+        }
     }
 
      ## keep relevant PCs - stored in XU
@@ -103,7 +106,10 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
             plot(c(1,nbClust), myStat, xlab="Number of clusters", ylab=myLab, main=myTitle, type="b", col="blue")
             abline(h=0, lty=2, col="red")
             cat("Choose the number of clusters (>=2: ")
-            n.clust <- max(1, as.integer(readLines(n = 1)))
+            n.clust <- NA
+            while(is.na(n.clust)){
+                n.clust <- max(1, as.integer(readLines(n = 1)))
+            }
         } else {
             if(criterion=="min") {
                 n.clust <- which.min(myStat)
