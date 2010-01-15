@@ -103,7 +103,7 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
         }
 
         if(choose.n.clust){
-            plot(c(1,nbClust), myStat, xlab="Number of clusters", ylab=myLab, main=myTitle, type="b", col="blue")
+            plot(c(1,nbClust), myStat, xlab="Number of clusters", ylab=myLab, main=myTitle, type="o", col="blue")
             abline(h=0, lty=2, col="red")
             cat("Choose the number of clusters (>=2: ")
             n.clust <- NA
