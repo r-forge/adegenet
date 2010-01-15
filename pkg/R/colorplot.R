@@ -19,7 +19,7 @@ colorplot <- function(...){
 #################
 # default method
 #################
-colorplot.default <- function(xy, X, axes=1:ncol(X), add.plot=FALSE, defaultLevel=0, ...){
+colorplot.default <- function(xy, X, axes=1:ncol(X), add.plot=FALSE, defaultLevel=0, transp=FALSE, alpha=.5, ...){
 
     ## some checks
     if(any(is.na(xy))) stop("NAs exist in xy")
@@ -47,7 +47,11 @@ colorplot.default <- function(xy, X, axes=1:ncol(X), add.plot=FALSE, defaultLeve
     if(ncol(X)>=3) {v3 <- X[,3]} else {v3 <- defaultLevel}
 
     ## make colors
-    col <- rgb(v1, v2, v3, maxColorValue=max(X))
+      if(transp){
+        col <- rgb(v1/max(X), v2/max(X), v3/max(X), alpha)
+    } else {
+        col <- rgb(v1, v2, v3, maxColorValue=max(X))
+    }
 
     ## handle ...
     listArgs <- list(...)
@@ -56,7 +60,7 @@ colorplot.default <- function(xy, X, axes=1:ncol(X), add.plot=FALSE, defaultLeve
     ## build list of arguments
     listArgs$x <- xy
     listArgs$col <- col
-    
+
     ## plot data
     if(!add.plot) {
         do.call(plot,listArgs)
