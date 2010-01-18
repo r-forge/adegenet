@@ -124,6 +124,8 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
             }
 
         }
+    } else { # if n.clust provided
+        myStat <- NULL
     }
 
     ## get final groups
