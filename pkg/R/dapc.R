@@ -81,7 +81,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
             if(temp < 1e-12) return(rep(0, length(x)))
             return(x*x / temp)
         }
-        res$var.contr <- t(apply(res$var.contr, 1, f1))
+        res$var.contr <- t(apply(res$var.contr, 2, f1))
     }
 
     class(res) <- "dapc"
