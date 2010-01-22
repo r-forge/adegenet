@@ -76,7 +76,12 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     ## optional: get loadings of alleles
     if(var.contrib){
         res$var.contr <- as.matrix(U) %*% as.matrix(ldaX$scaling)
-        res$var.contr <- t(apply(res$var.contr, 1, function(e) e*e / sum(e*e)))
+        f1 <- function(x){
+            temp <- sum(x*x)
+            if(temp < 1e-12) return(rep(0, length(x)))
+            return(x*x / temp)
+        }
+        res$var.contr <- t(apply(res$var.contr, 1, f1))
     }
 
     class(res) <- "dapc"
