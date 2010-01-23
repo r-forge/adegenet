@@ -7,13 +7,17 @@ dapc <- function (x, ...) UseMethod("dapc")
 ## dapc.data.frame
 #################
 dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
-                            center=TRUE, scale=TRUE, var.contrib=FALSE){
+                            center=TRUE, scale=TRUE, var.contrib=FALSE,
+                            pca.select=c("nbEig","propVar"), perc.pca=NULL){
 
     ## FIRST CHECKS
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     if(!require(MASS, quiet=TRUE)) stop("MASS library is required.")
     grp <- as.factor(grp)
     if(length(grp) != nrow(x)) stop("Inconsistent length for grp")
+    pca.select <- match.arg(pca.select)
+    if(!is.null(perc.pca) & is.null(n.pca)) pca.select <- "propVar"
+    if(is.null(perc.pca) & !is.null(n.pca)) pca.select <- "nbEig"
 
 
     ## SOME GENERAL VARIABLES
@@ -23,20 +27,33 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     maxRank <- min(dim(x))
 
     pcaX <- dudi.pca(x, center = center, scale = scale, scannf = FALSE, nf=maxRank)
+    cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
 
     ## select the number of retained PC for PCA
-    if(is.null(n.pca)){
-        cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
-        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
-        cat("Choose the number PCs to retain (>=1): ")
-        n.pca <- as.integer(readLines(n = 1))
+    if(is.null(n.pca) & pca.select=="nbEig"){
+            plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
+            cat("Choose the number PCs to retain (>=1): ")
+            n.pca <- as.integer(readLines(n = 1))
     }
 
+    if(is.null(perc.pca) & pca.select=="propVar"){
+        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
+        cat("Choose the percentage of variance to retain (0-100): ")
+        nperc.pca <- as.numeric(readLines(n = 1))
+    }
+
+    ## get n.pca from the % of variance to conserve
+    if(!is.null(perc.pca)){
+        n.pca <- min(which(cumVar > perc.pca))
+        if(n.pca<1) n.pca <- 1
+    }
+
+
     ## keep relevant PCs - stored in XU
-    X.rank <- length(pcaX$eig)
+    X.rank <- sum(pcaX$eig > 1e-14)
     n.pca <- min(X.rank, n.pca)
     if(n.pca >= N) stop("number of retained PCs of PCA is greater than N")
-    if(n.pca > N/3) warning("number of retained PCs of PCA may be too large (> N /3)")
+    if(n.pca > N/3) warning("number of retained PCs of PCA may be too large (> N /3)\n results may be unstable ")
 
     U <- pcaX$c1[, 1:n.pca, drop=FALSE] # principal axes
     XU <- pcaX$li[, 1:n.pca, drop=FALSE] # principal components
@@ -53,7 +70,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
         n.da <- as.integer(readLines(n = 1))
     }
 
-    n.da <- min(n.da, length(levels(grp))-1) # can't be more than K-1 disc. func.
+    n.da <- min(n.da, length(levels(grp))-1, n.pca) # can't be more than K-1 disc. func., or more than n.pca
     predX <- predict(ldaX, dimen=n.da)
 
 
@@ -81,7 +98,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
             if(temp < 1e-12) return(rep(0, length(x)))
             return(x*x / temp)
         }
-        res$var.contr <- t(apply(res$var.contr, 2, f1))
+        res$var.contr <- apply(res$var.contr, 2, f1)
     }
 
     class(res) <- "dapc"
@@ -106,7 +123,8 @@ dapc.matrix <- function(x, ...){
 ## dapc.genind
 #############
 dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
-                 scale=TRUE, scale.method=c("sigma", "binom"), truenames=TRUE, all.contrib=FALSE){
+                        scale=TRUE, scale.method=c("sigma", "binom"), truenames=TRUE, all.contrib=FALSE,
+                        pca.selec=c("nbEig","propVar"), perc.pca=NULL){
 
     ## FIRST CHECKS
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
@@ -133,8 +151,9 @@ dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
                   missing = "mean", truenames = truenames)
 
     ## CALL DATA.FRAME METHOD ##
-   res <- dapc(X, grp=pop.fac, n.pca=n.pca, n.da=n.da,
-                            center=FALSE, scale=FALSE, var.contrib=all.contrib)
+    res <- dapc(X, grp=pop.fac, n.pca=n.pca, n.da=n.da,
+                center=FALSE, scale=FALSE, var.contrib=all.contrib,
+                pca.selec=pca.selec, perc.pca=perc.pca)
 
     res$call <- match.call()
 
