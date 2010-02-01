@@ -159,8 +159,10 @@ Jombart, T., Devillard, S. and Balloux, F.
 Discriminant analysis of principal components: a new method for the analysis of
 genetically structured populations. Submitted to \emph{PLoS genetics}.
 }
-\seealso{\code{\link{dapcIllus}}, a set of simulated data illustrating
-  the dapc, and \code{\link{eHGDP}} and \code{\link{H3N2}}, which also
+\seealso{\code{\link{find.clusters}}, to identify clusters with prior in
+  the data. \code{\link{dapcIllus}}, a set of simulated data illustrating
+  the DAPC, and \code{\link{eHGDP}} and \code{\link{H3N2}}, empirical
+  datasets also illustrating DAPC.
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
