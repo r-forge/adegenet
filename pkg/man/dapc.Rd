@@ -9,43 +9,40 @@
 \alias{scatter.dapc}
 \alias{assignplot}
 \title{Discriminant Analysis of Principal Components (DAPC)}
-\description{These functions implement the Discriminant Analysis of
-  Principal Components (DAPC). See 'details' section for a succint
-  description of the method. \cr
+\description{
+  These functions implement the Discriminant Analysis of Principal Components
+  (DAPC). See 'details' section for a succint description of the method. DAPC
+  implementation calls upon \code{dudi.pca} from the \code{ade4} package and
+  \code{lda} from the \code{MASS} package.
 
- DAPC implementation calls upon \code{dudi.pca} from the \code{ade4} package and
- \code{lda} from the \code{MASS} package.\cr
+ \code{dapc} performs the DAPC on a \code{data.frame}, a \code{matrix}, or a
+ \code{\linkS4class{genind}} object, and returns an object with class
+ \code{dapc}. If data are stored in a \code{data.frame} or a \code{matrix},
+ these have to be quantitative data (i.e., \code{numeric} or \code{integers}),
+ as opposed to \code{characters} or \code{factors}.
 
- \code{dapc} performs the DAPC on a \code{data.frame}, a \code{matrix},
- or a \code{\linkS4class{genind}} object, and returns an object with
- class \code{dapc}. Of data are stored in a \code{data.frame} or a
- \code{matrix}, these have to be quantitative data (i.e., \code{numeric} or
- \code{integers}), as opposed to \code{characters} or \code{factors}. \cr
-
- Other functions are:\cr
+ 
+ Other functions are:
   
-  - \code{print.dapc}: prints the content of a \code{dapc} object\cr
+  - \code{print.dapc}: prints the content of a \code{dapc} object
   
-  - \code{summary.dapc}: gives variance and autocorrelation\cr
-  statistics
+  - \code{summary.dapc}: gives variance and autocorrelation statistics
   
-  - \code{scatter.dapc}: produces scatterplots of principal components
-    (or 'discriminant functions'), with a screeplot of eigenvalues as inset.\cr
+  - \code{scatter.dapc}: produces scatterplots of principal components (or
+    'discriminant functions'), with a screeplot of eigenvalues as inset.
   
   - \code{assignplot}: plot showing the probabilities of assignment of
-    individuals to the different clusters.\cr
+    individuals to the different clusters.
 }
 \usage{
 \method{dapc}{data.frame}(x, grp, n.pca=NULL, n.da=NULL, center=TRUE,
-                            scale=FALSE, var.contrib=FALSE,
-                            pca.select=c("nbEig","percVar"), perc.pca=NULL)
+scale=FALSE, var.contrib=FALSE, pca.select=c("nbEig","percVar"), perc.pca=NULL)
 
 \method{dapc}{matrix}(x, \ldots)
 
 \method{dapc}{genind}(x, pop=NULL, n.pca=NULL, n.da=NULL, scale=FALSE,
-                        scale.method=c("sigma", "binom"), truenames=TRUE,
-                        all.contrib=FALSE, pca.select=c("nbEig","percVar"),
-                        perc.pca=NULL)
+scale.method=c("sigma", "binom"), truenames=TRUE, all.contrib=FALSE,
+pca.select=c("nbEig","percVar"), perc.pca=NULL)
 
 \method{print}{dapc}(x, \dots)
 
@@ -117,7 +114,6 @@ should match the number of groups, not the number of individuals.}
   The Discriminant Analysis of Principal Components (DAPC) is designed to
   investigatey. \cr
 
-  \cr
 }
 \value{
   === dapc objects ===\cr
@@ -141,7 +137,7 @@ should match the number of groups, not the number of individuals.}
     all individuals and all clusters.}
   \item{var.contr}{(optional) a data.frame giving the contributions of original
     variables (alleles in the case of genetic data) to the principal components
-    of DAPC.}\cr
+    of DAPC.}
 
   === other outputs ===\cr
   Other functions have different outputs:\cr
@@ -150,7 +146,7 @@ should match the number of groups, not the number of individuals.}
   \code{assign.prop} (proportion of overall correct assignment),
   \code{assign.per.pop} (proportion of correct assignment per group),
   \code{prior.grp.size} (prior group sizes), and \code{post.grp.size} (posterior
-  group sizes).\cr
+  group sizes).
 
   - \code{scatter.dapc, assignplot} return the matched call.\cr
 }
@@ -159,11 +155,10 @@ Jombart, T., Devillard, S. and Balloux, F.
 Discriminant analysis of principal components: a new method for the analysis of
 genetically structured populations. Submitted to \emph{PLoS genetics}.
 }
-\seealso{\code{\link{find.clusters}}, to identify clusters with prior in
-  the data. \code{\link{dapcIllus}}, a set of simulated data illustrating
-  the DAPC, and \code{\link{eHGDP}} and \code{\link{H3N2}}, empirical
-  datasets also illustrating DAPC.
-}
+\seealso{\code{\link{find.clusters}}, to identify clusters without
+  prior. \code{\link{dapcIllus}}, a set of simulated data illustrating the DAPC,
+  and \code{\link{eHGDP}} and \code{\link{H3N2}}, empirical datasets also
+  illustrating DAPC.  }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
 ## data(dapcIllus), data(eHGDP), and data(H3N2) illustrate the dapc
