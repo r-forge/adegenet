@@ -7,8 +7,8 @@ dapc <- function (x, ...) UseMethod("dapc")
 ## dapc.data.frame
 #################
 dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
-                            center=TRUE, scale=TRUE, var.contrib=FALSE,
-                            pca.select=c("nbEig","propVar"), perc.pca=NULL){
+                            center=TRUE, scale=FALSE, var.contrib=FALSE,
+                            pca.select=c("nbEig","percVar"), perc.pca=NULL){
 
     ## FIRST CHECKS
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
@@ -16,7 +16,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     grp <- as.factor(grp)
     if(length(grp) != nrow(x)) stop("Inconsistent length for grp")
     pca.select <- match.arg(pca.select)
-    if(!is.null(perc.pca) & is.null(n.pca)) pca.select <- "propVar"
+    if(!is.null(perc.pca) & is.null(n.pca)) pca.select <- "percVar"
     if(is.null(perc.pca) & !is.null(n.pca)) pca.select <- "nbEig"
 
 
@@ -36,7 +36,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
             n.pca <- as.integer(readLines(n = 1))
     }
 
-    if(is.null(perc.pca) & pca.select=="propVar"){
+    if(is.null(perc.pca) & pca.select=="percVar"){
         plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
         cat("Choose the percentage of variance to retain (0-100): ")
         nperc.pca <- as.numeric(readLines(n = 1))
@@ -82,7 +82,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     res$grp <- grp
     res$var <- XU.lambda
     res$eig <- ldaX$svd^2
-    res$disc.func <- ldaX$scaling[, 1:n.da, drop=FALSE]
+    res$loadings <- ldaX$scaling[, 1:n.da, drop=FALSE]
     res$ind.coord <-predX$x
     res$grp.coord <- apply(res$ind.coord, 2, tapply, grp, mean)
     res$prior <- ldaX$prior
@@ -123,8 +123,8 @@ dapc.matrix <- function(x, ...){
 ## dapc.genind
 #############
 dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
-                        scale=TRUE, scale.method=c("sigma", "binom"), truenames=TRUE, all.contrib=FALSE,
-                        pca.selec=c("nbEig","propVar"), perc.pca=NULL){
+                        scale=FALSE, scale.method=c("sigma", "binom"), truenames=TRUE, all.contrib=FALSE,
+                        pca.select=c("nbEig","percVar"), perc.pca=NULL){
 
     ## FIRST CHECKS
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
@@ -153,7 +153,7 @@ dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
     ## CALL DATA.FRAME METHOD ##
     res <- dapc(X, grp=pop.fac, n.pca=n.pca, n.da=n.da,
                 center=FALSE, scale=FALSE, var.contrib=all.contrib,
-                pca.selec=pca.selec, perc.pca=perc.pca)
+                pca.select=pca.select, perc.pca=perc.pca)
 
     res$call <- match.call()
 
@@ -178,7 +178,7 @@ print.dapc <- function(x, ...){
     print(x$call)
     cat("\n$n.pca:", x$n.pca, "first PCs of PCA used")
     cat("\n$n.da:", x$n.da, "discriminant functions saved")
-    cat("\n$varn (proportion of conserved variance):", round(x$var,3))
+    cat("\n$var (proportion of conserved variance):", round(x$var,3))
     cat("\n\n$eig (eigenvalues): ")
     l0 <- sum(x$eig >= 0)
     cat(signif(x$eig, 4)[1:(min(5, l0))])
@@ -198,8 +198,8 @@ print.dapc <- function(x, ...){
     cat("\n")
     sumry <- array("", c(5, 4), list(1:5, c("data.frame", "nrow", "ncol", "content")))
     sumry[1, ] <- c("$tab", nrow(x$tab), ncol(x$tab), "retained PCs of PCA")
-    sumry[2, ] <- c("$disc.func", nrow(x$disc.func), ncol(x$disc.func), "discriminant functions")
-    sumry[3, ] <- c("$ind.coord", nrow(x$ind.coord), ncol(x$ind.coord), "coordinates of individuals")
+    sumry[2, ] <- c("$loadings", nrow(x$loadings), ncol(x$loadings), "loadings of variables")
+    sumry[3, ] <- c("$ind.coord", nrow(x$ind.coord), ncol(x$ind.coord), "coordinates of individuals (principal components)")
     sumry[4, ] <- c("$grp.coord", nrow(x$grp.coord), ncol(x$grp.coord), "coordinates of groups")
     sumry[5, ] <- c("$posterior", nrow(x$posterior), ncol(x$posterior), "posterior membership probabilities")
     class(sumry) <- "table"
@@ -226,7 +226,7 @@ summary.dapc <- function(object, ...){
     res <- list()
 
     ## number of dimensions
-    res$n.dim <- ncol(x$disc.func)
+    res$n.dim <- ncol(x$loadings)
     res$n.pop <- length(levels(x$grp))
 
     ## assignment success
@@ -255,9 +255,9 @@ scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), po
     par(bg=bg)
     s.class(x$ind.coord[,axes], fac=x$grp, col=col, ...)
     if(ratio>0.001) {
-        add.scatter.eig(x$eig, ncol(x$disc.func), axes[1], axes[2], posi=posi, ratio=ratio, csub=csub)
+        add.scatter.eig(x$eig, ncol(x$loadings), axes[1], axes[2], posi=posi, ratio=ratio, csub=csub)
     }
-    return(invisible())
+    return(invisible(match.call()))
 } # end scatter.dapc
 
 
@@ -308,7 +308,7 @@ assignplot <- function(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3){
 
     points(x.real.coord, y.real.coord, col="deepskyblue2", pch=pch)
 
-    return(invisible())
+    return(invisible(match.call()))
 } # end assignplot
 
 
