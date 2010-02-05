@@ -111,9 +111,19 @@ should match the number of groups, not the number of individuals.}
   more details).}
 }
 \details{
-  The Discriminant Analysis of Principal Components (DAPC) is designed to
-  investigatey. \cr
+  The Discriminant Analysis of Principal Components (DAPC) is designed
+  to investigate the genetic structure of biological populations. This
+  multivariate method consists in a two-steps procedure. First, genetic
+  data are transformed (centred, possibly scaled) and submitted to a
+  Principal Component Analysis (PCA). Second, principal components of
+  PCA are submitted to a Linear Discriminant Analysis (LDA). A trivial
+  matrix operation allows to express discriminant functions as linear
+  combination of alleles, therefore allowing one to compute allele
+  contributions. More details about the computation of DAPC are to be
+  found in the indicated reference.
 
+  DAPC does not infer genetic clusters ex nihilo; for this, see the
+  \code{\link{find.clusters}} function.
 }
 \value{
   === dapc objects ===\cr
