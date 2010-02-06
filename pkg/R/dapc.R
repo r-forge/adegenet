@@ -44,7 +44,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
 
     ## get n.pca from the % of variance to conserve
     if(!is.null(perc.pca)){
-        n.pca <- min(which(cumVar > perc.pca))
+        n.pca <- min(which(cumVar >= perc.pca))
         if(n.pca<1) n.pca <- 1
     }
 
