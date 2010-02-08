@@ -56,10 +56,10 @@
   be sought. If provided, the function will only run K-means once, for this
   number of clusters. If left as \code{NULL}, several K-means are run for a
   range of k (number of clusters) values.}
-\item{stat}{ a \code{character} string matching 'BIC', 'AIC', or 'WISS', which
+\item{stat}{ a \code{character} string matching 'BIC', 'AIC', or 'WSS', which
   indicates the statistic to be computed for each model (i.e., for each value of
   \code{k}). BIC: Bayesian Information Criterion. AIC: Aikaike's Information
-  Criterion. WISS: within-groups sum of squares, that is, residual variance.}
+  Criterion. WSS: within-groups sum of squares, that is, residual variance.}
 \item{choose.n.clust}{ a \code{logical} indicating whether the number of
 clusters should be chosen by the user (TRUE, default), or automatically, based
 on a given criterion (argument \code{criterion}). IT IS HIGHLY RECOMMENDED to
@@ -100,7 +100,7 @@ objects.}
 
   So far, the analysis of data simulated under various population genetics
   models (see reference) suggested an ad hoc rule for the selection of the
-  optimal number of clusters. First, BIC seems for efficient than AIC and WISS
+  optimal number of clusters. First, BIC seems for efficient than AIC and WSS
   to select the appropriate number of clusters. The rule of thumb consists in
   increasing K until it no longer leads to an appreciable improve of fit (i.e.,
   decrease of BIC).  In the most simple models (island models), BIC decreases
@@ -118,7 +118,7 @@ objects.}
 
   - "diff": model selection based on successive improvement of the test
   statistic. This procedure attempts to increase K until the model improvement
-  (difference in successive BIC, AIC, or WISS) is no longer important. May be
+  (difference in successive BIC, AIC, or WSS) is no longer important. May be
   more appropriate to models relating to stepping stones.
 
   "conserv": another criterion meant to be conservative, in that it seeks a good
@@ -129,8 +129,12 @@ objects.}
 \value{
   The class \code{find.clusters} is a list with the following
   components:\cr
-  \item{}{}
-
+  \item{Kstat}{a \code{numeric} vector giving the values of the statistics for the
+  different values of K. Is NULL if \code{n.clust} was specified.}
+  \item{stat}{a \code{numeric} value giving the value of the statistics for the
+  retained model}
+  \item{grp}{a \code{factor} giving group membership for each individual.}
+  \item{size}{an \code{integer} vector giving the size of the different clusters.}
 }
 \references{
 Jombart, T., Devillard, S. and Balloux, F.
@@ -138,25 +142,58 @@ Discriminant analysis of principal components: a new method for the analysis of
 genetically structured populations. Submitted to \emph{PLoS genetics}.
 }
 \seealso{
-    \code{\link{}}
-    \code{\link{}}
-    \code{\link{}}
-    \code{\link{}}
-    \code{\link{}}
+  - \code{\link{dapc}}: implements the DAPC.
+  
+  - \code{\link[pkg:stats]{kmeans}}: implementation of K-means in the stat
+  package.
+  
+  - \code{\link{eHGDP}}: dataset illustrating the DAPC and \code{find.clusters}.
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
-## data(find.clustersIllus), data(eHGDP), and data(H3N2) illustrate the find.clusters
-## see ?find.clustersIllus, ?eHGDP, ?H3N2
-##
-
-example(find.clusters)
-
-
 \dontrun{
-example(eHGDP)
-example(H3N2)
+## THIS ONE TAKES A FEW MINUTES TO RUN ## 
+data(eHGDP)
+
+## here, n.clust is specified, so that only on K value is used
+grp <- find.clusters(eHGDP, max.n=30, n.pca=200, scale=FALSE, n.clust=4) # takes about 2 minutes
+names(grp)
+grp$Kstat
+grp$stat
+
+
+## to try different values of k (interactive)
+grp <- find.clusters(hgdp, max.n=50, n.pca=200, scale=FALSE)
+
+## and then, to plot BIC values:
+plot(grp$Kstat, type="b", col="blue")
 }
+
+
+## ANOTHER SIMPLE EXAMPLE ## 
+data(sim2pop) # this actually contains 2 pop
+
+## DETECTION WITH BIC (clear result)
+foo.BIC <- find.clusters(sim2pop, n.pca=100, choose=FALSE)
+plot(foo.BIC$Kstat, type="o", xlab="number of clusters (K)", ylab="BIC",
+col="blue", main="Detection based on BIC")
+points(2, foo.BIC$Kstat[2], pch="x", cex=3)
+mtext(3, tex="'X' indicates the actual number of clusters")
+
+
+## DETECTION WITH AIC (less clear-cut)
+foo.AIC <- find.clusters(sim2pop, n.pca=100, choose=FALSE, stat="AIC")
+plot(foo.AIC$Kstat, type="o", xlab="number of clusters (K)", ylab="AIC", col="purple", main="Detection based on AIC")
+points(2, foo.AIC$Kstat[2], pch="x", cex=3)
+mtext(3, tex="'X' indicates the actual number of clusters")
+
+
+## DETECTION WITH WSS (less clear-cut)
+foo.WSS <- find.clusters(sim2pop, n.pca=100, choose=FALSE, stat="WSS")
+plot(foo.WSS$Kstat, type="o", xlab="number of clusters (K)", ylab="WSS
+(residual variance)", col="red", main="Detection based on WSS")
+points(2, foo.WSS$Kstat[2], pch="x", cex=3)
+mtext(3, tex="'X' indicates the actual number of clusters")
 
 }
 \keyword{multivariate}
