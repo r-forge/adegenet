@@ -56,7 +56,7 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
     X.rank <- length(pcaX$eig)
     n.pca <- min(X.rank, n.pca)
     if(n.pca >= N) warning("number of retained PCs of PCA is greater than N")
-    if(n.pca > N/3) warning("number of retained PCs of PCA may be too large (> N /3)")
+    ##if(n.pca > N/3) warning("number of retained PCs of PCA may be too large (> N /3)")
 
     XU <- pcaX$li[, 1:n.pca, drop=FALSE] # principal components
 
