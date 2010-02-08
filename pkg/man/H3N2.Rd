@@ -2,7 +2,7 @@
 \name{H3N2}
 \alias{H3N2}
 \docType{data}
-\title{}
+\title{Seasonal influenza (H3N2) HA segment data}
 \description{
 This dataset consists of 1903 strains of seasonal influenza (H3N2)
 distributed worldwide, and typed at 125 SNPs located in the
