@@ -4,88 +4,128 @@
 \alias{find.clusters.data.frame}
 \alias{find.clusters.matrix}
 \alias{find.clusters.genind}
-\title{}
-\description{ == IN PROGRESS ==
-  These functions implement the Discriminant Analysis of Principal Components
-  (FIND.CLUSTERS). See 'details' section for a succint description of the method. FIND.CLUSTERS
-  implementation calls upon \code{dudi.pca} from the \code{ade4} package and
-  \code{lda} from the \code{MASS} package.
+\alias{.find.sub.clusters}
+\title{find.cluster: cluster identification using successive K-means}
+\description{
+  These functions implement the clustering procedure used in Discriminant
+  Analysis of Principal Components (DAPC, Jombart et al. submitted). This
+  procedure consists in running successive K-means with an increasing number of
+  clusters (\code{k}), after transforming data using a principal component
+  analysis (PCA). For each model, a statistical measure of goodness of fit (by
+  default, BIC) is computed, which allows to choose the optimal \code{k}. See
+  \code{details} for a description of how to select the optimal \code{k}.
 
- \code{find.clusters} performs the FIND.CLUSTERS on a \code{data.frame}, a \code{matrix}, or a
- \code{\linkS4class{genind}} object, and returns an object with class
- \code{find.clusters}. If data are stored in a \code{data.frame} or a \code{matrix},
- these have to be quantitative data (i.e., \code{numeric} or \code{integers}),
- as opposed to \code{characters} or \code{factors}.
+  Optionally, hierarchical clustering can be sought by providing a prior
+  clustering of individuals (argument \code{clust}). In such case, clusters will
+  be sought within each prior group.
 
+  \code{.find.sub.clusters} is a hidden function called in some instances of
+  \code{find.clusters}, and should not be called directely by the user.
+
+  The K-means procedure used in \code{find.clusters} is \code{kmeans} function
+  from the \code{stat} package. The PCA function is \code{dudi.pca} from the
+  \code{ade4} package.
 }
 \usage{
-\method{find.clusters}{data.frame}()
+\method{find.clusters}{data.frame}(x, clust=NULL, n.pca=NULL, n.clust=NULL, stat=c("BIC",
+                                     "AIC", "WSS"), choose.n.clust=TRUE,
+                                     criterion=c("min","diff", "conserv"),
+                                     max.n.clust=round(nrow(x)/10), n.iter=1e3,
+                                     n.start=10, center=TRUE, scale=TRUE)
 
-\method{find.clusters}{matrix}()
+\method{find.clusters}{matrix}(x, \ldots)
 
-\method{find.clusters}{genind}()
+\method{find.clusters}{genind}(x, clust=NULL, n.pca=NULL, n.clust=NULL, stat=c("BIC",
+                          "AIC", "WSS"), choose.n.clust=TRUE, criterion=c("min","diff",
+                          "conserv"), max.n.clust=round(nrow(x@tab)/10), n.iter=1e3,
+                          n.start=10, scale=FALSE, scale.method=c("sigma", "binom"),
+                          truenames=TRUE, \ldots)
 
 }
 \arguments{
 \item{x}{\code{a data.frame}, \code{matrix}, or \code{\linkS4class{genind}}
   object. For the \code{data.frame} and \code{matrix} arguments, only
   quantitative variables should be provided.}
-\item{grp,pop}{a \code{factor} indicating the group membership of individuals}
+\item{clust}{an optional \code{factor} indicating a prior group membership of
+  individuals. If provided, sub-clusters will be sought within each prior
+  group.}
 \item{n.pca}{an \code{integer} indicating the number of axes retained in the
-  Principal Component Analysis (PCA) step. If \code{NULL}, interactive selection is triggered.}
-\item{n.da}{an \code{integer} indicating the number of axes retained in the
-  Discriminant Analysis step. If \code{NULL}, interactive selection is triggered.}
+  Principal Component Analysis (PCA) step. If \code{NULL}, interactive selection
+  is triggered.}
+\item{n.clust}{ an optinal \code{integer} indicating the number of clusters to
+  be sought. If provided, the function will only run K-means once, for this
+  number of clusters. If left as \code{NULL}, several K-means are run for a
+  range of k (number of clusters) values.}
+\item{stat}{ a \code{character} string matching 'BIC', 'AIC', or 'WISS', which
+  indicates the statistic to be computed for each model (i.e., for each value of
+  \code{k}). BIC: Bayesian Information Criterion. AIC: Aikaike's Information
+  Criterion. WISS: within-groups sum of squares, that is, residual variance.}
+\item{choose.n.clust}{ a \code{logical} indicating whether the number of
+clusters should be chosen by the user (TRUE, default), or automatically, based
+on a given criterion (argument \code{criterion}). IT IS HIGHLY RECOMMENDED to
+choose the number of clusters interactively, as automatic procedures are being
+evaluated.}
+\item{criterion}{ a \code{character} string matching "min", "diff", or
+  "conserv", indicating the criterion for automatic selection of the optimal
+  number of clusters. See \code{details}.}
+\item{max.n.clust}{ an \code{integer} indicating the maximum number of clusters
+  to be tried. Values of 'k' will be picked up between 1 and \code{max.n.clust}}
+\item{n.iter}{ an \code{integer} indicating the number of iterations to be used
+  in each run of K-means algorithm. Corresponds to \code{iter.max} of
+  \code{kmeans} function.}
+\item{n.start}{ an \code{integer} indicating the number of randomly chosen
+  starting points to be used in each run of K-means algorithm. Using more
+  starting points ensures convergence of the algorithm. Corresponds to
+  \code{nstart} of \code{kmeans} function.}
 \item{center}{a \code{logical} indicating whether variables should be centred to
-mean 0 (TRUE, default) or not (FALSE). Always TRUE for \linkS4class{genind} objects.}
+mean 0 (TRUE, default) or not (FALSE). Always TRUE for \linkS4class{genind}
+objects.}
 \item{scale}{a \code{logical} indicating whether variables should be scaled
-  (TRUE) or not (FALSE, default). Scaling consists in dividing variables by their
-  (estimated) standard deviation to account for trivial differences in
+  (TRUE) or not (FALSE, default). Scaling consists in dividing variables by
+  their (estimated) standard deviation to account for trivial differences in
   variances. Further scaling options are available for \linkS4class{genind}
   objects (see argument \code{scale.method}).}
-\item{var.contrib,all.contrib}{a \code{logical} indicating whether the
-  contribution of original variables (alleles, for \linkS4class{genind} objects)
-  should be provided (TRUE) or not (FALSE, default). Such output can be useful,
-  but can also create huge matrices when there the original size of the dataset
-  is huge.}
-\item{pca.select}{a \code{character} indicating the mode of selection of PCA
-  axes, matching approximately "nbEig" or "percVar". For "nbEig", the user
-  has to specify the number of axes retained (interactively, or via
-  \code{n.pca}). For "percVar", the user has to specify the minimum amount of
-  the total variance to be preserved by the retained axes, expressed as a
-  percentage (interactively, or via \code{perc.pca}).  }
-\item{perc.pca}{a \code{numeric} value between 0 and 100 indicating the
-  minimal percentage of the total variance of the data to be expressed by the
-  retained axes of PCA.}
-\item{\ldots}{further arguments to be passed to other functions. For
-  \code{find.clusters.matrix}, arguments are to match those of \code{find.clusters.data.frame}.}
 \item{scale.method}{a \code{character} specifying the scaling method to be used
   for allele frequencies, which must match "sigma" (usual estimate of standard
-  deviation) or "binom" (based on binomial distribution). See \code{\link{scaleGen}} for
-  further details.}
+  deviation) or "binom" (based on binomial distribution). See
+  \code{\link{scaleGen}} for further details.}
 \item{truenames}{a \code{logical} indicating whether true (i.e., user-specified)
   labels should be used in object outputs (TRUE, default) or not (FALSE).}
-\item{xax,yax}{\code{integers} specifying which principal components of FIND.CLUSTERS
-  should be shown in x and y axes. }
-\item{col}{a suitable color to be used for groups. Not that the specified vector
-should match the number of groups, not the number of individuals.}
-\item{posi,bg,ratio,csub}{arguments used to customize the inset in scatterplots
-  of FIND.CLUSTERS results. See \code{\link[pkg:ade4]{add.scatter}} documentation in the
-  ade4 package for
-  more details.}
-\item{only.grp}{a \code{character} vector indicating which groups should be
-  displayed. Values should match values of \code{x$grp}. If \code{NULL}, all
-  results are displayed}
-\item{subset}{\code{integer} or \code{logical} vector indicating which
-  individuals should be displayed. If \code{NULL}, all
-  results are displayed}
-\item{cex.lab}{a \code{numeric} indicating the size of labels.}
-\item{pch}{a \code{numeric} indicating the type of point to be used to indicate
-  the prior group of individuals (see \code{\link{points}} documentation for
-  more details).}
+\item{\ldots}{further arguments to be passed to other functions. For
+  \code{find.clusters.matrix}, arguments are to match those of \code{find.clusters.data.frame}.}
 }
 \details{
+  === ON THE SELECTION OF K ===
+  (where K is the 'optimal' number of clusters)
 
-}
+  So far, the analysis of data simulated under various population genetics
+  models (see reference) suggested an ad hoc rule for the selection of the
+  optimal number of clusters. First, BIC seems for efficient than AIC and WISS
+  to select the appropriate number of clusters. The rule of thumb consists in
+  increasing K until it no longer leads to an appreciable improve of fit (i.e.,
+  decrease of BIC).  In the most simple models (island models), BIC decreases
+  until it reaches the optimal K, and then increases. In these cases, our rule
+  amounts to choosing the lowest K. In other models such as stepping stones, the
+  decrease of BIC often continues after the optimal K, but is much less steep.
+
+  
+  An alternative approach that we do not recommend is automatic selection based
+  on a fixed criterion. For this, set \code{choose.n.clust} to FALSE and specify
+  the \code{criterion} you want to use, from the following values:
+
+  - "min": the model with the minimum statistics (as specified by \code{stat}
+    argument) is retained. Is likely to work for simple island model with BIC.
+
+  - "diff": model selection based on successive improvement of the test
+  statistic. This procedure attempts to increase K until the model improvement
+  (difference in successive BIC, AIC, or WISS) is no longer important. May be
+  more appropriate to models relating to stepping stones.
+
+  "conserv": another criterion meant to be conservative, in that it seeks a good
+  fit with a minimum number of clusters. Unlike "diff", it does not rely on
+  differences between successive statistics, but rather on absolute fit. It
+  selects the model with the smallest K so that the overall fit is above a given
+  threshold.  }
 \value{
   The class \code{find.clusters} is a list with the following
   components:\cr
