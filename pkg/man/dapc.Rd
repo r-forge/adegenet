@@ -148,13 +148,14 @@ should match the number of groups, not the number of individuals.}
     variables (alleles in the case of genetic data) to the principal components
     of DAPC.}
 
+  
   === other outputs ===\cr
   Other functions have different outputs:\cr
   - \code{summary.dapc} returns a list with 6 components: \code{n.dim} (number
   of retained DAPC axes), \code{n.pop} (number of groups/populations),
-  - \code{assign.prop} (proportion of overall correct assignment),
-  - \code{assign.per.pop} (proportion of correct assignment per group),
-  - \code{prior.grp.size} (prior group sizes), and \code{post.grp.size} (posterior
+  \code{assign.prop} (proportion of overall correct assignment),
+  \code{assign.per.pop} (proportion of correct assignment per group),
+  \code{prior.grp.size} (prior group sizes), and \code{post.grp.size} (posterior
   group sizes).
 
   - \code{scatter.dapc, assignplot} return the matched call.\cr
