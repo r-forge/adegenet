@@ -12,8 +12,8 @@
 \description{
   These functions implement the Discriminant Analysis of Principal Components
   (DAPC). See 'details' section for a succint description of the method. DAPC
-  implementation calls upon \code{dudi.pca} from the \code{ade4} package and
-  \code{lda} from the \code{MASS} package.
+  implementation calls upon \code{\link[ade4]{dudi.pca}} from the \code{ade4} package and
+  \code{\link[MASS]{lda}} from the \code{MASS} package.
 
  \code{dapc} performs the DAPC on a \code{data.frame}, a \code{matrix}, or a
  \code{\linkS4class{genind}} object, and returns an object with class
@@ -24,9 +24,9 @@
  
  Other functions are:
   
-  - \code{print.dapc}: prints the content of a \code{dapc} object
+  - \code{print.dapc}: prints the content of a \code{dapc} object.
   
-  - \code{summary.dapc}: gives variance and autocorrelation statistics
+  - \code{summary.dapc}: extracts useful information from a  \code{dapc} object.
   
   - \code{scatter.dapc}: produces scatterplots of principal components (or
     'discriminant functions'), with a screeplot of eigenvalues as inset.
@@ -72,10 +72,9 @@ mean 0 (TRUE, default) or not (FALSE). Always TRUE for \linkS4class{genind} obje
 \item{var.contrib,all.contrib}{a \code{logical} indicating whether the
   contribution of original variables (alleles, for \linkS4class{genind} objects)
   should be provided (TRUE) or not (FALSE, default). Such output can be useful,
-  but can also create huge matrices when there the original size of the dataset
-  is huge.}
+  but can also create huge matrices when there is a lot of variables.}
 \item{pca.select}{a \code{character} indicating the mode of selection of PCA
-  axes, matching approximately "nbEig" or "percVar". For "nbEig", the user
+  axes, matching either "nbEig" or "percVar". For "nbEig", the user
   has to specify the number of axes retained (interactively, or via
   \code{n.pca}). For "percVar", the user has to specify the minimum amount of
   the total variance to be preserved by the retained axes, expressed as a
@@ -93,7 +92,7 @@ mean 0 (TRUE, default) or not (FALSE). Always TRUE for \linkS4class{genind} obje
   labels should be used in object outputs (TRUE, default) or not (FALSE).}
 \item{xax,yax}{\code{integers} specifying which principal components of DAPC
   should be shown in x and y axes. }
-\item{col}{a suitable color to be used for groups. Not that the specified vector
+\item{col}{a suitable color to be used for groups. The specified vector
 should match the number of groups, not the number of individuals.}
 \item{posi,bg,ratio,csub}{arguments used to customize the inset in scatterplots
   of DAPC results. See \code{\link[ade4]{add.scatter}} documentation in the
@@ -132,11 +131,11 @@ should match the number of groups, not the number of individuals.}
   \item{call}{the matched call.}
   \item{n.pca}{number of PCA axes retained}
   \item{n.da}{number of DA axes retained}
- \item{var}{proportion of variance conserved by PCA principal components}
+  \item{var}{proportion of variance conserved by PCA principal components}
   \item{eig}{a numeric vector of eigenvalues.}
   \item{grp}{a factor giving prior group assignment}
   \item{prior}{a numeric vector giving prior group probabilities}
-   \item{assign}{a factor giving posterior group assignment}
+  \item{assign}{a factor giving posterior group assignment}
   \item{tab}{matrix of retained principal components of PCA}
   \item{loadings}{principal axes of DAPC, giving coefficients of the linear
     combination of retained PCA axes.}
@@ -153,9 +152,9 @@ should match the number of groups, not the number of individuals.}
   Other functions have different outputs:\cr
   - \code{summary.dapc} returns a list with 6 components: \code{n.dim} (number
   of retained DAPC axes), \code{n.pop} (number of groups/populations),
-  \code{assign.prop} (proportion of overall correct assignment),
-  \code{assign.per.pop} (proportion of correct assignment per group),
-  \code{prior.grp.size} (prior group sizes), and \code{post.grp.size} (posterior
+  - \code{assign.prop} (proportion of overall correct assignment),
+  - \code{assign.per.pop} (proportion of correct assignment per group),
+  - \code{prior.grp.size} (prior group sizes), and \code{post.grp.size} (posterior
   group sizes).
 
   - \code{scatter.dapc, assignplot} return the matched call.\cr
