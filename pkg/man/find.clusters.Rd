@@ -144,7 +144,7 @@ genetically structured populations. Submitted to \emph{PLoS genetics}.
 \seealso{
   - \code{\link{dapc}}: implements the DAPC.
   
-  - \code{\link[pkg:stats]{kmeans}}: implementation of K-means in the stat
+  - \code{\link[stats]{kmeans}}: implementation of K-means in the stat
   package.
   
   - \code{\link{eHGDP}}: dataset illustrating the DAPC and \code{find.clusters}.

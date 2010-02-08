@@ -96,7 +96,7 @@ mean 0 (TRUE, default) or not (FALSE). Always TRUE for \linkS4class{genind} obje
 \item{col}{a suitable color to be used for groups. Not that the specified vector
 should match the number of groups, not the number of individuals.}
 \item{posi,bg,ratio,csub}{arguments used to customize the inset in scatterplots
-  of DAPC results. See \code{\link[pkg:ade4]{add.scatter}} documentation in the
+  of DAPC results. See \code{\link[ade4]{add.scatter}} documentation in the
   ade4 package for
   more details.}
 \item{only.grp}{a \code{character} vector indicating which groups should be
