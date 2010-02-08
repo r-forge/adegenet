@@ -4,16 +4,18 @@
 \docType{data}
 \title{}
 \description{
-This dataset consists of  strains of
-distributed worldwide typed at ... SNPs.
+This dataset consists of 2949 strains of seasonal influenza (H3N2)
+distributed worldwide, and typed at 125 SNPs located in the
+hemagglutinin (HA) segment. These data were gathered from DNA sequences
+available from Genbank (http://www.ncbi.nlm.nih.gov/Genbank/).
 }
 \usage{data(H3N2)}
 \format{
     \code{H3N2} is a genind object with a data frame named \code{...} as supplementary
-    component (\code{H3N2@other$popInfo)}, which contains the following
-    variables:
+    component (\code{H3N2@other)}, which contains the following items:
     \describe{
-        \item{Population}{a character vector indicating populations.}
+        \item{x}{a \code{data.frame} containing miscellanous annotations
+	  of the sequences.}
         \item{Region}{a character vector indicating the geographic region of each population.}
         \item{Label}{a character vector indicating the correspondance
 	  with population labels used in the genind object (i.e., as
@@ -23,7 +25,9 @@ distributed worldwide typed at ... SNPs.
     }
 }
 \source{
-  This dataset was prepared by Thibaut Jombart (t.jombart@imperia.ac.uk).
+  This dataset was prepared by Thibaut Jombart
+  (t.jombart@imperia.ac.uk), from annotated sequences available on
+  Genbank (http://www.ncbi.nlm.nih.gov/Genbank/).
 }
 \references{
 Jombart, T., Devillard, S. and Balloux, F.
