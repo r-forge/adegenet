@@ -447,7 +447,7 @@ dist.haploPop <- function(x, add.root=TRUE, res.type=c("dist","matrix")){
     n <- length(x)
 
     f1 <- function(a,b){
-        return(sum(!union(a,b) %in% intersect(a,b)))
+        return(sum(!union(unlist(a),unlist(b)) %in% intersect(unlist(a),unlist(b))))
     }
 
     ## res <- outer(x, x, FUN=f1)
