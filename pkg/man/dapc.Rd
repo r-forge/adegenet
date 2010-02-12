@@ -36,8 +36,8 @@
 }
 \usage{
 \method{dapc}{data.frame}(x, grp, n.pca=NULL, n.da=NULL, center=TRUE,
-    scale=FALSE,var.contrib=FALSE,
-    pca.select=c("nbEig","percVar"), perc.pca=NULL)
+     scale=FALSE,var.contrib=FALSE,
+     pca.select=c("nbEig","percVar"), perc.pca=NULL)
 
 \method{dapc}{matrix}(x, \ldots)
 
