@@ -36,20 +36,22 @@
 }
 \usage{
 \method{dapc}{data.frame}(x, grp, n.pca=NULL, n.da=NULL, center=TRUE,
-scale=FALSE, var.contrib=FALSE, pca.select=c("nbEig","percVar"), perc.pca=NULL)
+    scale=FALSE,var.contrib=FALSE,
+    pca.select=c("nbEig","percVar"), perc.pca=NULL)
 
 \method{dapc}{matrix}(x, \ldots)
 
 \method{dapc}{genind}(x, pop=NULL, n.pca=NULL, n.da=NULL, scale=FALSE,
-scale.method=c("sigma", "binom"), truenames=TRUE, all.contrib=FALSE,
-pca.select=c("nbEig","percVar"), perc.pca=NULL)
+     scale.method=c("sigma", "binom"), truenames=TRUE, all.contrib=FALSE,
+     pca.select=c("nbEig","percVar"), perc.pca=NULL)
 
 \method{print}{dapc}(x, \dots)
 
 \method{summary}{dapc}(object, \dots)
 
-\method{scatter}{dapc}(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))),
-posi="bottomleft", bg="grey", ratio=0.3, csub=1.2, \ldots)
+\method{scatter}{dapc}(x, xax=1, yax=2,
+        col=rainbow(length(levels(x$grp))), posi="bottomleft", bg="grey",
+        ratio=0.3, csub=1.2, \ldots)
 
 \method{assignplot}{dapc}(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
 }
@@ -148,8 +150,8 @@ should match the number of groups, not the number of individuals.}
     variables (alleles in the case of genetic data) to the principal components
     of DAPC.}
 
-  
-  === other outputs ===\cr
+
+  \cr=== other outputs ===\cr
   Other functions have different outputs:\cr
   - \code{summary.dapc} returns a list with 6 components: \code{n.dim} (number
   of retained DAPC axes), \code{n.pop} (number of groups/populations),
@@ -165,10 +167,14 @@ Jombart, T., Devillard, S. and Balloux, F.
 Discriminant analysis of principal components: a new method for the analysis of
 genetically structured populations. Submitted to \emph{PLoS genetics}.
 }
-\seealso{\code{\link{find.clusters}}, to identify clusters without
-  prior. \code{\link{dapcIllus}}, a set of simulated data illustrating the DAPC,
-  and \code{\link{eHGDP}} and \code{\link{H3N2}}, empirical datasets also
-  illustrating DAPC.  }
+\seealso{
+  - \code{\link{find.clusters}}: to identify clusters without prior.
+
+  - \code{\link{dapcIllus}}: a set of simulated data illustrating the DAPC
+
+  - \code{\link{eHGDP}}, \code{\link{H3N2}}: empirical datasets illustrating
+  DAPC
+}
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
 ## data(dapcIllus), data(eHGDP), and data(H3N2) illustrate the dapc
