@@ -11,15 +11,14 @@ available from Genbank (http://www.ncbi.nlm.nih.gov/Genbank/).
 }
 \usage{data(H3N2)}
 \format{
-    \code{H3N2} is a genind object with a data frame named \code{...} as supplementary
-    component (\code{H3N2@other)}, which contains the following items:
+    \code{H3N2} is a genind object with several data frame as supplementary
+    components (\code{H3N2@other) slort}, which contains the following items:
     \describe{
         \item{x}{a \code{data.frame} containing miscellanous annotations
 	  of the sequences.}
         \item{xy}{a matrix with two columns indicating the geographic
-	  coordinates of the strains.}
+	  coordinates of the strains, as longitudes and latitudes.}
         \item{epid}{a character vector indicating the epidemic of the strains.}
-	\item{lon,lat}{geographic coordinates of the strains, indicated as north and east degrees.}
     }
 }
 \source{
