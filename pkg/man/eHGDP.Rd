@@ -16,12 +16,12 @@ Analysis of Principal Components (DAPC, [5]).
     component (\code{eHGDP@other$popInfo)}, which contains the following
     variables:
     \describe{
-        \item{Population}{a character vector indicating populations.}
-        \item{Region}{a character vector indicating the geographic region of each population.}
-        \item{Label}{a character vector indicating the correspondance
+        \item{Population: }{a character vector indicating populations.}
+        \item{Region: }{a character vector indicating the geographic region of each population.}
+        \item{Label: }{a character vector indicating the correspondance
 	  with population labels used in the genind object (i.e., as
 	  output by \code{pop(eHGDP)}).}
-	\item{Latitude,Longitude}{geographic coordinates of the
+	\item{Latitude,Longitude: }{geographic coordinates of the
 	  populations, indicated as north and east degrees.}
     }
 }
@@ -33,17 +33,25 @@ Analysis of Principal Components (DAPC, [5]).
   This copy of the dataset was prepared by Francois Balloux (f.balloux@imperial.ac.uk).
 }
 \references{
-[1] Rosenberg NA, Pritchard JK, Weber JL, Cann HM, Kidd KK, et al. (2002) Genetic structure of human populations. \emph{Science} 298: 2381-2385.
+[1] Rosenberg NA, Pritchard JK, Weber JL, Cann HM, Kidd KK, et
+al. (2002) Genetic structure of human populations. \emph{Science} 298:
+2381-2385.
 
-[2] Ramachandran S, Deshpande O, Roseman CC, Rosenberg NA, Feldman MW, et al. (2005) Support from the relationship of genetic and geographic distance in human populations for a serial founder effect originating in Africa. \emph{Proc Natl Acad Sci U S A} 102: 15942-15947.
+[2] Ramachandran S, Deshpande O, Roseman CC, Rosenberg NA, Feldman MW,
+et al. (2005) Support from the relationship of genetic and geographic
+distance in human populations for a serial founder effect originating in
+Africa. \emph{Proc Natl Acad Sci U S A} 102: 15942-15947.
 
-[3] Cann HM, de Toma C, Cazes L, Legrand MF, Morel V, et al. (2002) A human genome diversity cell line panel.  \emph{Science} 296: 261-262.
+[3] Cann HM, de Toma C, Cazes L, Legrand MF, Morel V, et al. (2002) A
+human genome diversity cell line panel.  \emph{Science} 296: 261-262.
 
-[4] Wang S, Lewis CM, Jakobsson M, Ramachandran S, Ray N, et al. (2007) Genetic Variation and Population Structure in Native Americans. \emph{PLoS Genetics} 3: e185.
+[4] Wang S, Lewis CM, Jakobsson M, Ramachandran S, Ray N, et al. (2007)
+Genetic Variation and Population Structure in Native
+Americans. \emph{PLoS Genetics} 3: e185.
 
-[5] Jombart, T., Devillard, S. and Balloux, F.
-Discriminant analysis of principal components: a new method for the analysis of
-genetically structured populations. Submitted to \emph{PLoS genetics}.
+[5] Jombart, T., Devillard, S. and Balloux, F.  Discriminant analysis of
+principal components: a new method for the analysis of genetically
+structured populations. Submitted to \emph{PLoS genetics}.
 }
 \examples{
 \dontrun{
@@ -67,8 +75,10 @@ barplot(dapc1$eig, main="eHGDP - DAPC eigenvalues", col=c("red","green","blue", 
 
 
 ## SCATTERPLOTS
-## (!) Note: colors may be inverted with respect to the
-## original paper (as signs of principal components are arbitrary)
+## (!) Note: colors may be inverted with respect to [5]
+## as signs of principal components are arbitrary
+## and change from one computer to another
+##
 ## axes 1-2
 s.label(dapc1$grp.coord[,1:2], clab=0, sub="Axes 1-2")
 par(xpd=T)
@@ -110,7 +120,7 @@ names(grp)
 
 ## PERFORM DAPC - USE POPULATIONS AS CLUSTERS
 ## to reproduce exactly analyses from the paper, use "n.pca=1000"
-dapc2 <- dapc(eHGDP, pop=grp$grp, all.contrib=TRUE, scale=FALSE, n.pca=200, n.da=80) # takes around 2 minutes
+dapc2 <- dapc(eHGDP, pop=grp$grp, all.contrib=TRUE, scale=FALSE, n.pca=200, n.da=80) # takes around a 1 minute
 dapc2
 
 
