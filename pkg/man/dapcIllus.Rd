@@ -23,19 +23,27 @@
   \code{dapcIllus} is list of 4 components being all genind objects.
 }
 \source{
-  Jombart, T., Devillard, S. and Balloux, F.
-Discriminant analysis of principal components: a new method for the analysis of
-genetically structured populations. Submitted to \emph{PLoS genetics}.
+  Jombart, T., Devillard, S. and Balloux, F.  Discriminant analysis of
+  principal components: a new method for the analysis of genetically
+  structured populations. Submitted to \emph{PLoS genetics}.
 
 }
 \author{
   Thibaut Jombart \email{t.jombart@imperial.ac.uk}
 }
-\seealso{ \code{\link{dapc}}, \code{\link{eHGDP}},  \code{\link{H3N2}}}
+\seealso{
+  - \code{\link{dapc}}: implements the DAPC.
+
+  - \code{\link{eHGDP}}: dataset illustrating the DAPC and \code{find.clusters}.
+
+  - \code{\link{H3N2}}: dataset illustrating the DAPC.
+
+  - \code{\link{find.clusters}}: to identify clusters without prior.
+}
 \references{
-   Jombart, T., Devillard, S. and Balloux, F.
-Discriminant analysis of principal components: a new method for the analysis of
-genetically structured populations. Submitted to \emph{PLoS genetics}.
+   Jombart, T., Devillard, S. and Balloux, F.  Discriminant analysis of
+   principal components: a new method for the analysis of genetically
+   structured populations. Submitted to \emph{PLoS genetics}.
 }
 \examples{
 if(require(MASS) & require(ade4)){

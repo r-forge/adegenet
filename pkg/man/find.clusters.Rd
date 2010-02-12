@@ -156,7 +156,7 @@ genetically structured populations. Submitted to \emph{PLoS genetics}.
 \seealso{
   - \code{\link{dapc}}: implements the DAPC.
 
-  - \code{\link{dapcIllys}}: dataset illustrating the DAPC and \code{find.clusters}.
+  - \code{\link{dapcIllus}}: dataset illustrating the DAPC and \code{find.clusters}.
 
   - \code{\link{eHGDP}}: dataset illustrating the DAPC and \code{find.clusters}.
 
