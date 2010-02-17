@@ -3,7 +3,7 @@
 ############
 ##
 ## N: number of sequences to simulate
-## mu: mutation rate per nucleotid per year
+## mu: mutation rate per nucleotid per generation
 ## Tmax: periode of time to simulate
 ## mean.gen.time, sd.gen.time: average time for transmission and its standard deviation (normal dist)
 ## mean.repro, sd.repro: average number of transmissions and its standard deviation (normal dist)
@@ -22,7 +22,7 @@ haploGen <- function(seq.length=1000, mu=0.0001,
     NUCL <- as.DNAbin(c("a","t","c","g"))
     res <- list(seq=as.matrix(as.DNAbin(character(0))), dates=integer(), ances=character())
     toExpand <- logical()
-    mu <- mu/365 # mutation rate by day
+    ##mu <- mu/365 # mutation rate by day
     myGrid <- matrix(1:grid.size^2, ncol=grid.size, nrow=grid.size)
 
 
