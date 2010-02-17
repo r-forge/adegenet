@@ -1,5 +1,5 @@
 ############
-## haploSim
+## haploGen
 ############
 ##
 ## N: number of sequences to simulate
@@ -8,7 +8,7 @@
 ## mean.gen.time, sd.gen.time: average time for transmission and its standard deviation (normal dist)
 ## mean.repro, sd.repro: average number of transmissions and its standard deviation (normal dist)
 ##
-haploSim <- function(seq.length=1000, mu=0.0001,
+haploGen <- function(seq.length=1000, mu=0.0001,
                      Tmax=50, mean.gen.time=5, sd.gen.time=1,
                      mean.repro=2, sd.repro=1, max.nb.haplo=1e3,
                      geo.sim=TRUE, grid.size=5, lambda.xy=0.5, matConnect=NULL,
@@ -215,7 +215,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         ## SHAPE AND RETURN OUTPUT ##
         res$ances <- as.character(res$ances)
         names(res$dates) <- rownames(res$seq)
-        class(res) <- "haploSim"
+        class(res) <- "haploGen"
         return(res)
 
     } # END NON-SPATIAL SIMULATIONS
@@ -248,7 +248,7 @@ haploSim <- function(seq.length=1000, mu=0.0001,
         res$xy <- matrix(rep(locStart, ini.n), byrow=TRUE, nrow=ini.n)
         colnames(res$xy) <- c("x","y")
 
-        ##cat("nb.strains","iteration.time",file="haploSimTime.out") # for debugging
+        ##cat("nb.strains","iteration.time",file="haploGenTime.out") # for debugging
 
 
         ## simulations: isn't simplicity beautiful?
@@ -261,29 +261,29 @@ haploSim <- function(seq.length=1000, mu=0.0001,
             ## cat("\nNb strains:",length(res$ances),"/",max.nb.haplo)
             ##             cat("\nLatest date:", max(res$dates),"/",Tmax)
             ##             cat("\nRemaining strains to duplicate", sum(toExpand))
-            ##             cat("\n",append=TRUE,file="haploSimTime.out")
+            ##             cat("\n",append=TRUE,file="haploGenTime.out")
             ##             iter.time <- as.numeric(difftime(Sys.time(),time.previous,unit="sec"))
             ##             time.previous <- Sys.time()
             ##             cat(c(length(res$ances), iter.time),append=
-            ##TRUE,file="haploSimTime.out")
+            ##TRUE,file="haploGenTime.out")
         ## END DEBUGGING VERBOSE ##
         }
 
         ## VERBOSE OUTPUT FOR DEBUGGING ##
-        ##cat("\nSimulation time stored in haploSimTime.out\n")
+        ##cat("\nSimulation time stored in haploGenTime.out\n")
 
         ## SHAPE AND RETURN OUTPUT ##
         res$ances <- as.character(res$ances)
         names(res$dates) <- rownames(res$seq)
 
-        class(res) <- "haploSim"
+        class(res) <- "haploGen"
         res$call <- match.call()
         return(res)
 
     } # end SPATIAL SIMULATIONS
 
 
-} # end haploSim
+} # end haploGen
 
 
 
@@ -293,13 +293,13 @@ haploSim <- function(seq.length=1000, mu=0.0001,
 
 
 ##################
-## print.haploSim
+## print.haploGen
 ##################
-print.haploSim <- function(x, ...){
+print.haploGen <- function(x, ...){
 
     cat("\t\n========================")
     cat("\t\n= simulated haplotypes =")
-    cat("\t\n=  (haploSim object)   =")
+    cat("\t\n=  (haploGen object)   =")
     cat("\t\n========================\n")
 
     cat("\nSize :", length(x$ances),"haplotypes")
@@ -327,7 +327,7 @@ print.haploSim <- function(x, ...){
 
 
     return(NULL)
-} # end print.haploSim
+} # end print.haploGen
 
 
 
@@ -335,9 +335,9 @@ print.haploSim <- function(x, ...){
 
 
 ##############
-## [.haploSim
+## [.haploGen
 ##############
-"[.haploSim" <- function(x,i,j,drop=FALSE){
+"[.haploGen" <- function(x,i,j,drop=FALSE){
     res <- x
     res$seq <- res$seq[i,]
     res$ances <- res$ances[i]
@@ -352,14 +352,14 @@ print.haploSim <- function(x, ...){
 
 
 ####################
-## na.omit.haploSim
+## na.omit.haploGen
 ####################
 ##
 ## ACTUALLY THIS FUNCTION MAKES NO SENSE FOR NOW
 ## AS STRAINS WITH NO ANCESTOR MAY BE ANCESTORS OF
 ## OTHER STRAINS.
 ##
-## na.omit.haploSim <- function(object, ...){
+## na.omit.haploGen <- function(object, ...){
 ##     res <- object
 ##     isNA <- is.na(res$ances)
 ##     res$seq <- res$seq[!isNA,]
@@ -374,18 +374,18 @@ print.haploSim <- function(x, ...){
 
 
 ##################
-## labels.haploSim
+## labels.haploGen
 ##################
-labels.haploSim <- function(object, ...){
+labels.haploGen <- function(object, ...){
     return(rownames(object$seq))
 }
 
 
 
 #######################
-## as.POSIXct.haploSim
+## as.POSIXct.haploGen
 #######################
-as.POSIXct.haploSim <- function(x, tz="", origin=as.POSIXct("2000/01/01"), ...){
+as.POSIXct.haploGen <- function(x, tz="", origin=as.POSIXct("2000/01/01"), ...){
     res <- as.POSIXct(x$dates*24*3600, origin=origin)
     return(res)
 }
@@ -394,9 +394,9 @@ as.POSIXct.haploSim <- function(x, tz="", origin=as.POSIXct("2000/01/01"), ...){
 
 
 #####################
-## seqTrack.haploSim
+## seqTrack.haploGen
 #####################
-seqTrack.haploSim <- function(x, optim=c("min","max"), prox.mat=NULL, ...){
+seqTrack.haploGen <- function(x, optim=c("min","max"), prox.mat=NULL, ...){
     myX <- dist.dna(x$seq, model="raw")
     x.names <- labels(x)
     x.dates <- as.POSIXct(x)
@@ -418,9 +418,9 @@ seqTrack.haploSim <- function(x, optim=c("min","max"), prox.mat=NULL, ...){
 
 
 #####################
-## seqTrackG.haploSim
+## seqTrackG.haploGen
 #####################
-seqTrackG.haploSim <- function(x, optim=c("min","max"), ...){
+seqTrackG.haploGen <- function(x, optim=c("min","max"), ...){
     myX <- dist.dna(x$seq, model="raw")
     x.names <- labels(x)
     x.dates <- as.POSIXct(x)
@@ -442,9 +442,9 @@ seqTrackG.haploSim <- function(x, optim=c("min","max"), ...){
 
 
 ##############################
-## optimize.seqTrack.haploSim
+## optimize.seqTrack.haploGen
 ##############################
-optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
+optimize.seqTrack.haploGen <- function(x, thres=0.2, optim=c("min","max"),
                                        typed.chr=NULL, mu0=NULL, chr.length=NULL,
                                        prox.mat=NULL, nstep=10, step.size=1e3,
                                        rDate=.rTimeSeq, arg.rDate=NULL, rMissDate=.rUnifTimeSeq, ...){
@@ -465,16 +465,16 @@ optimize.seqTrack.haploSim <- function(x, thres=0.2, optim=c("min","max"),
                                      thres=thres, optim=optim, prox.mat=prox.mat,
                                      nstep=nstep, step.size=step.size,
                                      rDate=rDate, arg.rDate=arg.rDate, rMissDate=rMissDate, ...)
-} # end optimize.seqTrack.haploSim
+} # end optimize.seqTrack.haploGen
 
 
 
 
 
 ########################
-## as.seqTrack.haploSim
+## as.seqTrack.haploGen
 ########################
-as.seqTrack.haploSim <- function(x){
+as.seqTrack.haploGen <- function(x){
     ## x.ori <- x
     ## x <- na.omit(x)
     toSetToNA <- x$dates==min(x$dates)
@@ -507,13 +507,13 @@ as.seqTrack.haploSim <- function(x){
 plotHaploSim <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", add=FALSE, ...){
 
     ## SOME CHECKS ##
-    if(class(x)!="haploSim") stop("x is not a haploSim object")
+    if(class(x)!="haploGen") stop("x is not a haploGen object")
     if(is.null(x$xy)) stop("x does not contain xy coordinates; try to simulate date")
 
 
     ## ## CONVERSION TO A SEQTRACK-LIKE OBJECT ##
     xy <- x$xy
-    res <- as.seqTrack.haploSim(x)
+    res <- as.seqTrack.haploGen(x)
 
     ##     res <- list()
     ##     res$id <- labels(x)
@@ -543,9 +543,9 @@ plotHaploSim <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", ad
 
 
 ###################
-## sample.haploSim
+## sample.haploGen
 ###################
-sample.haploSim <- function(x, n, rDate=.rTimeSeq, arg.rDate=NULL){
+sample.haploGen <- function(x, n, rDate=.rTimeSeq, arg.rDate=NULL){
     ## EXTRACT THE SAMPLE ##
     res <- x[sample(1:nrow(x$seq), n, replace=FALSE)]
 
@@ -578,7 +578,7 @@ sample.haploSim <- function(x, n, rDate=.rTimeSeq, arg.rDate=NULL){
     res$dates <- sampdates
 
     return(res)
-} # end sample.haploSim
+} # end sample.haploGen
 
 
 
@@ -588,10 +588,10 @@ sample.haploSim <- function(x, n, rDate=.rTimeSeq, arg.rDate=NULL){
 
 
 ##########################
-## as("haploSim", "graphNEL")
+## as("haploGen", "graphNEL")
 ##########################
-setOldClass("haploSim")
-setAs("haploSim", "graphNEL", def=function(from){
+setOldClass("haploGen")
+setAs("haploGen", "graphNEL", def=function(from){
     N <- length(from$ances)
     areNA <- is.na(from$ances)
     res <- ftM2graphNEL(cbind(from$ances[!areNA], (1:N)[!areNA]))
