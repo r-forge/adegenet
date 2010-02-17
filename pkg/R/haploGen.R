@@ -592,8 +592,18 @@ sample.haploGen <- function(x, n, rDate=.rTimeSeq, arg.rDate=NULL){
 ##########################
 setOldClass("haploGen")
 setAs("haploGen", "graphNEL", def=function(from){
+    if(!require(ape)) stop("package ape is required")
+    if(!require(graph)) stop("package graph is required")
+
     N <- length(from$ances)
     areNA <- is.na(from$ances)
-    res <- ftM2graphNEL(cbind(from$ances[!areNA], (1:N)[!areNA]))
+
+    ## EXTRACT WEIGHTS (nb of mutations)
+    M <- as.matrix(dist.dna(from$seq, model="raw")*ncol(from$seq))
+    w <- mapply(function(i,j) {M[i, j]}, i=as.integer(from$ances[!areNA]), j=(1:N)[!areNA])
+
+
+    ## CONVERT TO GRAPH
+    res <- ftM2graphNEL(ft=cbind(from$ances[!areNA], (1:N)[!areNA]), W=w, edgemode = "directed")
     return(res)
 })

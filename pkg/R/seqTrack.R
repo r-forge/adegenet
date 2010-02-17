@@ -1128,9 +1128,13 @@ seqTrack.ml <- function(aln, x.dates, best=c("min","max"), ...){
 ##########################
 setOldClass("seqTrack")
 setAs("seqTrack", "graphNEL", def=function(from){
-    N <- nrow(from)
-    from <- from[!is.na(from$ances), ]
-    res <- ftM2graphNEL(cbind(from$ances, from$id))
+    if(!require(ape)) stop("package ape is required")
+    if(!require(graph)) stop("package graph is required")
+
+    from <- from[!is.na(from$ances),,drop=FALSE]
+
+    ## CONVERT TO GRAPH
+    res <- ftM2graphNEL(ft=cbind(from$ances, from$id), W=from$weight, edgemode = "directed")
     return(res)
 })
 
