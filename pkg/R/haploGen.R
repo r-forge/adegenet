@@ -380,7 +380,7 @@ print.haploGen <- function(x, ...){
 ## labels.haploGen
 ##################
 labels.haploGen <- function(object, ...){
-    return(object$id))
+    return(object$id)
 }
 
 
