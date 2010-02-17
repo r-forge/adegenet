@@ -989,8 +989,8 @@ get.result.by <- function(x, ...){
         attr(res$ances, "levels") <- newlev
     }
 
-    ## method for haploSim
-    if(inherits(x,"haploSim")){
+    ## method for haploGen
+    if(inherits(x,"haploGen")){
         res <- x
         ances.id <- match(x$ances, labels(x))
     }
