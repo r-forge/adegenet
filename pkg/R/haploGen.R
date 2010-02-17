@@ -213,6 +213,7 @@ haploGen <- function(seq.length=1000, mu=0.0001,
 
 
         ## SHAPE AND RETURN OUTPUT ##
+        res$id <- as.character(1:length(res$ances))
         res$ances <- as.character(res$ances)
         names(res$dates) <- rownames(res$seq)
         class(res) <- "haploGen"
@@ -273,6 +274,7 @@ haploGen <- function(seq.length=1000, mu=0.0001,
         ##cat("\nSimulation time stored in haploGenTime.out\n")
 
         ## SHAPE AND RETURN OUTPUT ##
+        res$id <- as.character(1:length(res$ances))
         res$ances <- as.character(res$ances)
         names(res$dates) <- rownames(res$seq)
 
@@ -339,7 +341,8 @@ print.haploGen <- function(x, ...){
 ##############
 "[.haploGen" <- function(x,i,j,drop=FALSE){
     res <- x
-    res$seq <- res$seq[i,]
+    res$seq <- res$seq[i,,drop=FALSE]
+    res$id <- res$id[i]
     res$ances <- res$ances[i]
     res$dates <- res$dates[i]
     if(!is.null(res$xy)) res$xy <- res$xy[i,,drop=FALSE]
@@ -377,7 +380,7 @@ print.haploGen <- function(x, ...){
 ## labels.haploGen
 ##################
 labels.haploGen <- function(object, ...){
-    return(rownames(object$seq))
+    return(object$id))
 }
 
 
@@ -502,9 +505,9 @@ as.seqTrack.haploGen <- function(x){
 
 
 ################
-## plotHaploSim
+## plotHaploGen
 ################
-plotHaploSim <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", add=FALSE, ...){
+plotHaploGen <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", add=FALSE, ...){
 
     ## SOME CHECKS ##
     if(class(x)!="haploGen") stop("x is not a haploGen object")
@@ -535,7 +538,7 @@ plotHaploSim <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", ad
 
     return(invisible(res))
 
-} # end plotHaploSim
+} # end plotHaploGen
 
 
 
@@ -600,10 +603,10 @@ setAs("haploGen", "graphNEL", def=function(from){
 
     ## EXTRACT WEIGHTS (nb of mutations)
     M <- as.matrix(dist.dna(from$seq, model="raw")*ncol(from$seq))
-    w <- mapply(function(i,j) {M[i, j]}, i=as.integer(from$ances[!areNA]), j=(1:N)[!areNA])
+    w <- mapply(function(i,j) {M[i, j]}, i=from$ances[!areNA], j=from$id[!areNA])
 
 
     ## CONVERT TO GRAPH
-    res <- ftM2graphNEL(ft=cbind(from$ances[!areNA], (1:N)[!areNA]), W=w, edgemode = "directed")
+    res <- ftM2graphNEL(ft=cbind(from$ances[!areNA], (1:N)[!areNA]), W=w, edgemode = "directed", V=from$id)
     return(res)
 })
