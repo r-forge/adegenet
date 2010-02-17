@@ -1132,6 +1132,8 @@ setAs("seqTrack", "graphNEL", def=function(from){
     if(!require(graph)) stop("package graph is required")
 
     from <- from[!is.na(from$ances),,drop=FALSE]
+    labels <- rownames(toto)
+    from$ances <- labels[from$ances]
 
     ## CONVERT TO GRAPH
     res <- ftM2graphNEL(ft=cbind(from$ances, from$id), W=from$weight, edgemode = "directed")
