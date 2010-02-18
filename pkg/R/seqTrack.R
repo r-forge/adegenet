@@ -199,7 +199,7 @@ get.likelihood.seqTrack.default <- function(...){
 ## the 'proximity when going from i to j'
 ##
 seqTrack.default <- function(x, x.names, x.dates, best=c("min","max"),
-                     prox.mat=NULL, ...){
+                     prox.mat=NULL, gen.time=NULL, ...){
 
     ## CHECKS ##
     best <- match.arg(best)
@@ -262,15 +262,20 @@ seqTrack.default <- function(x, x.names, x.dates, best=c("min","max"),
 
     ## select among different possible ancestors
     selAmongAncestors <- function(idx,ances){
-        ## Choose the most otherwise connected ancestor, given prox.mat
+        ## Choose the most connected ancestor, given prox.mat
         if(!is.null(prox.mat)){ # if we've got no other info
             toKeep <- test.equal(max(prox.mat[ances,idx]), prox.mat[ances,idx])
             ances <- ances[toKeep]
         }
 
-        ## If several ancestors remain, take the oldest.
+        ## If several ancestors remain, take the one closest to the average generation time.
         if(length(ances)>1){
-            ances <- ances[which.min(x.dates[ances])]
+            if(is.null(gen.time)) { # if we don't have generation time
+                ances <- ances[which.min(x.dates[ances])] # take the oldest ancestor
+            } else { # if we have generation time
+                timeDiff <- as.numeric(difftime(x.dates[idx], x.dates[ances], units="day"))
+                ances <- ances[which.min(abs(timeDiff-gen.time))] # take the ancestor matching most the generation time
+            }
         }
 
         return(ances)
@@ -1131,15 +1136,12 @@ setAs("seqTrack", "graphNEL", def=function(from){
     if(!require(ape)) stop("package ape is required")
     if(!require(graph)) stop("package graph is required")
 
+    ori.labels <- rownames(from)
     from <- from[!is.na(from$ances),,drop=FALSE]
-    labels <- rownames(from)
-    from$ances <- labels[from$ances]
 
-    temp <- cbind(from$ances, labels)
-    temp <- temp[!is.na(from$ances),,drop=FALSE]
 
-    ## CONVERT TO GRAPH
-    res <- ftM2graphNEL(ft=cbind(from$ances, labels), W=from$weight, edgemode = "directed")
+     ## CONVERT TO GRAPH
+    res <- ftM2graphNEL(ft=cbind(ori.labels[from$ances], ori.labels[from$id]), W=from$weight, edgemode = "directed")
     return(res)
 })
 
