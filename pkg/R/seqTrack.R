@@ -1135,6 +1135,8 @@ setAs("seqTrack", "graphNEL", def=function(from){
     labels <- rownames(from)
     from$ances <- labels[from$ances]
 
+    temp <- cbind(from$ances, labels)
+    temp <- temp[!is.na(from$ances),,drop=FALSE]
 
     ## CONVERT TO GRAPH
     res <- ftM2graphNEL(ft=cbind(from$ances, labels), W=from$weight, edgemode = "directed")
