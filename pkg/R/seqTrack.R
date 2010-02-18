@@ -189,9 +189,9 @@ get.likelihood.seqTrack.default <- function(...){
 #######################################################
 #######################################################
 
-######################
-## seqTrack - old version
-######################
+########################
+## seqTrack - basic version
+########################
 ##
 ## - x is a matrix giving weights x[i,j] such that:
 ## 'i is ancestor j'
@@ -199,7 +199,7 @@ get.likelihood.seqTrack.default <- function(...){
 ## the 'proximity when going from i to j'
 ##
 seqTrack.default <- function(x, x.names, x.dates, best=c("min","max"),
-                     prox.mat=NULL, gen.time=NULL, ...){
+                     prox.mat=NULL, gen.time=NULL, mu=NULL, haplo.length=NULL, ...){
 
     ## CHECKS ##
     best <- match.arg(best)
@@ -233,7 +233,10 @@ seqTrack.default <- function(x, x.names, x.dates, best=c("min","max"),
 
     x.dates <- as.POSIXct(round.POSIXt(x.dates,units="days")) # round dates to the day
 
-    x <- as.matrix(x)
+    temp <- as.vector(unique(x))
+    D.ARE.MUT <- all(temp-round(temp,10)<1e-14)
+
+
     ## rename dimensions using id
     colnames(x) <- rownames(x) <- id
     if(!is.null(prox.mat)){
@@ -270,11 +273,14 @@ seqTrack.default <- function(x, x.names, x.dates, best=c("min","max"),
 
         ## If several ancestors remain, take the one closest to the average generation time.
         if(length(ances)>1){
-            if(is.null(gen.time)) { # if we don't have generation time
+            if(is.null(gen.time) | !D.ARE.MUT | is.null(mu) | is.null(haplo.length)) { # if we don't have generation time, or if dist. are not nb of mutations
                 ances <- ances[which.min(x.dates[ances])] # take the oldest ancestor
-            } else { # if we have generation time
-                timeDiff <- as.numeric(difftime(x.dates[idx], x.dates[ances], units="day"))
-                ances <- ances[which.min(abs(timeDiff-gen.time))] # take the ancestor matching most the generation time
+            } else { # if we have generation time and distances are mutations
+                timeDiff <- as.numeric(difftime(x.dates[idx], x.dates[ances], units="day")) # days between candidates and target
+                nbGen <- round(timeDiff / gen.time) # number of generations
+                nbMut <- x[ances, idx]
+                prob <- dbinom(nbMut, nbGen*haplo.length, mu)
+                ances <- ances[which.max(prob)] # take the most likely ancestor
             }
         }
 
