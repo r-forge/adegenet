@@ -474,7 +474,7 @@ dist.haploPop <- function(x, add.root=TRUE, res.type=c("dist","matrix")){
 ###############
 ## plot.haploPop
 ###############
-plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, show.pop=TRUE,
+plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, show.pop=TRUE, col=NULL,
                           transp=TRUE, tip.cex=2, method=c("nj", "bionj", "fastme.bal", "fastme.ols"), ...){
     ## CHECKS ##
     if(!require(ape)) stop("ape package is required")
@@ -500,7 +500,9 @@ plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, show.pop=T
 
 
     ## SHOW POPULATIONS ##
-    if(show.pop){
+    if(!is.null(col)){
+         points(xy$xx[2:(N+1)], xy$yy[2:(N+1)], pch=20, col=col, cex=tip.cex)
+    } else if(show.pop){
         nPop <- length(x$pop)
         popSizes <- sapply(x$pop, length)
         pop.id <- rep(1:length(x$pop), popSizes)
