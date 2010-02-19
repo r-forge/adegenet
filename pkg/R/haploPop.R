@@ -501,7 +501,16 @@ plot.haploPop <- function(x, y=NULL, type="unrooted", size.limit=300, show.pop=T
 
     ## SHOW POPULATIONS ##
     if(!is.null(col)){
-         points(xy$xx[2:(N+1)], xy$yy[2:(N+1)], pch=20, col=col, cex=tip.cex)
+          if(transp){
+            transp <- function(col, alpha=.5){
+                res <- apply(col2rgb(col),2, function(c) rgb(c[1]/255, c[2]/255, c[3]/255, alpha))
+                return(res)
+            }
+
+            pop <- transp(pop)
+        }
+          points(xy$xx[2:(N+1)], xy$yy[2:(N+1)], pch=20, col=col, cex=tip.cex)
+
     } else if(show.pop){
         nPop <- length(x$pop)
         popSizes <- sapply(x$pop, length)
