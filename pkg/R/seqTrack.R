@@ -37,8 +37,9 @@ get.likelihood.seqTrack.default <- function(...){
 #############
 ##
 ## mu0 and L are vectors, having one value per segment/chromosome
+## mu0 is per nucleotide and per day
 .dTimeSeq <- function(mu0, L, maxNbDays=100){
-    mu <- mu0/365 # mutation rates / site / day
+    ##mu <- mu0/365 # mutation rates / site / day
     t <- 0:maxNbDays # in days added / substracted
     temp <- sapply((1-mu)^L, function(x) x^t  )
     Pt <- apply(temp,1,prod)
@@ -1103,7 +1104,7 @@ get.likelihood.seqTrack <-function(x, method=("genetic"), mu0=NULL, seq.length=N
         anc.dates <- as.POSIXct(x$ances.date)
         nb.days <- abs(as.integer(anc.dates-dates))
         nb.mut <- x$weight
-        mu <- mu0/365
+        ##mu <- mu0/365
         ##mu <- mu*nb.days
 
         res <- dbinom(nb.mut, size=seq.length*nb.days, prob=mu)
