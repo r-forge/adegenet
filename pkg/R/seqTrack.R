@@ -200,7 +200,7 @@ get.likelihood.seqTrack.default <- function(...){
 ## the 'proximity when going from i to j'
 ##
 seqTrack.default <- function(x, x.names, x.dates, best=c("min","max"),
-                     prox.mat=NULL, gen.time=NULL, mu=NULL, haplo.length=NULL, ...){
+                     prox.mat=NULL, mu=NULL, haplo.length=NULL, ...){
 
     ## CHECKS ##
     best <- match.arg(best)
@@ -274,13 +274,13 @@ seqTrack.default <- function(x, x.names, x.dates, best=c("min","max"),
 
         ## If several ancestors remain, take the one closest to the average generation time.
         if(length(ances)>1){
-            if(is.null(gen.time) | !D.ARE.MUT | is.null(mu) | is.null(haplo.length)) { # if we don't have generation time, or if dist. are not nb of mutations
+            if(!D.ARE.MUT | is.null(mu) | is.null(haplo.length)) { # if we don't have mutation rates / haplo length, or if dist. are not nb of mutations
                 ances <- ances[which.min(x.dates[ances])] # take the oldest ancestor
-            } else { # if we have generation time and distances are mutations
+            } else { # if distances are mutations and we've got mu and L
                 timeDiff <- as.numeric(difftime(x.dates[idx], x.dates[ances], units="day")) # days between candidates and target
-                nbGen <- round(timeDiff / gen.time) # number of generations
+                ##nbGen <- round(timeDiff / gen.time) # number of generations
                 nbMut <- x[ances, idx]
-                prob <- dbinom(nbMut, nbGen*haplo.length, mu)
+                prob <- dbinom(nbMut, timeDiff*haplo.length, mu)
                 ances <- ances[which.max(prob)] # take the most likely ancestor
             }
         }
