@@ -38,8 +38,8 @@ get.likelihood.seqTrack.default <- function(...){
 ##
 ## mu0 and L are vectors, having one value per segment/chromosome
 ## mu0 is per nucleotide and per day
-.dTimeSeq <- function(mu0, L, maxNbDays=100){
-    ##mu <- mu0/365 # mutation rates / site / day
+.dTimeSeq <- function(mu, L, maxNbDays=100){
+    ##mu <- mu/365 # mutation rates / site / day
     t <- 0:maxNbDays # in days added / substracted
     temp <- sapply((1-mu)^L, function(x) x^t  )
     Pt <- apply(temp,1,prod)
@@ -53,11 +53,11 @@ get.likelihood.seqTrack.default <- function(...){
 ## .rTimeSeq
 #############
 ##
-## mu0 and L are vectors, having one value per segment/chromosome
+## mu and L are vectors, having one value per segment/chromosome
 ##
 ## this returns nb days
-.rTimeSeq <- function(n, mu0, L, maxNbDays=100){
-    temp <- .dTimeSeq(mu0, L, maxNbDays)
+.rTimeSeq <- function(n, mu, L, maxNbDays=100){
+    temp <- .dTimeSeq(mu, L, maxNbDays)
     res <- sample(temp[[1]], size=n, replace=TRUE, prob= temp[[2]]/sum(temp[[2]]))
     return(res)
 }
@@ -465,7 +465,7 @@ seqTrackG.default <- function(x, x.names, x.dates, best=c("min","max"), force.te
 plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRange=NULL,
                          col=NULL, bg="grey", add=FALSE, quiet=FALSE,
                          support=NULL, support.thres=0.5, timeorder.thres=NULL,
-                         mu0=NULL, seq.length=NULL,
+                         mu=NULL, seq.length=NULL,
                          col.pal=heat.colors, plot=TRUE,...){
 
     ## CHECKS ##
@@ -473,8 +473,8 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
     ##if(ncol(x) != 5) stop("x does not have five columns")
     if(ncol(xy) != 2) stop("xy does not have two columns")
     if(nrow(xy) != nrow(x)) stop("x and xy have inconsistent dimensions")
-    if(!is.null(timeorder.thres) & (is.null(mu0) | is.null(seq.length)) ){
-        stop("timeorder.thres provided without mu0 and seq.length.")
+    if(!is.null(timeorder.thres) & (is.null(mu) | is.null(seq.length)) ){
+        stop("timeorder.thres provided without mu and seq.length.")
     }
     if(!is.null(support)){
         if(length(support)!=nrow(xy)) stop("Inconsistent length for support.")
@@ -523,7 +523,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
 
     ## FIND AMBIGUOUS TEMPORAL ORDERING ##
     if(!is.null(timeorder.thres)){
-        temp <- .pAbeforeBfast(x$ances.date, x$date, mu0, seq.length)
+        temp <- .pAbeforeBfast(x$ances.date, x$date, mu, seq.length)
         if(is.null(isAmbig)){
             isAmbig <- temp < timeorder.thres
         } else {
@@ -679,10 +679,10 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL, dateRan
 ##
 ## TODO:
 ## 1) Change the output to retain xxx simulations | ok. -- done.
-## 2) VECTORIZE mu0 and seq.length, recycle if needed with a warning
+## 2) VECTORIZE mu and seq.length, recycle if needed with a warning
 ## 3) uncomment, adapt, and test code for missing data
 ##
-optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=NULL, seq.length=NULL,
+optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu=NULL, seq.length=NULL,
                                       thres=0.2, best=c("min","max"), prox.mat=NULL, nstep=10, step.size=1e3,
                                       rDate=.rTimeSeq, arg.rDate=NULL, rMissDate=.rUnifDate, ...){
 
@@ -724,18 +724,18 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=N
 
     N <- length(x.names)
     id <- 1:N
-    ## if(length(mu0) < N) { # recycle mu0
-    ##         mu0 <- rep(mu0, length=N)
+    ## if(length(mu) < N) { # recycle mu
+    ##         mu <- rep(mu, length=N)
     ##     }
     ##     if(length(seq.length) < N) {# recycle seq.length
     ##         seq.length <- rep(seq.length, length=N)
     ##     }
 
 
-    ## handle typed.chr, mu0, seq.length
+    ## handle typed.chr, mu, seq.length
     if(identical(rDate, .rTimeSeq)){
-        if(is.null(typed.chr)|is.null(mu0)|is.null(seq.length)){
-            stop("typed.chr, mu0, and seq.length must be provided if rDate is .rTimeSeq")
+        if(is.null(typed.chr)|is.null(mu)|is.null(seq.length)){
+            stop("typed.chr, mu, and seq.length must be provided if rDate is .rTimeSeq")
         }
 
         if(!is.list(typed.chr)) {
@@ -745,17 +745,17 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=N
             stop("typed.chr has an inconsistent length")
         }
 
-        if(is.null(names(mu0))) stop("mu0 has no names")
+        if(is.null(names(mu))) stop("mu has no names")
         if(is.null(names(seq.length))) stop("seq.length has no names")
-        if(any(mu0 > 1)) stop("mu0 has values > 1")
-        if(any(mu0 < 0)) stop("mu0 has negative values")
+        if(any(mu > 1)) stop("mu has values > 1")
+        if(any(mu < 0)) stop("mu has negative values")
 
-        if(!identical(names(mu0) , names(seq.length))) stop("Names of mu0 and seq.length differ.")
-        if(any(!unique(unlist(typed.chr)) %in% names(mu0))) {
-            stop("Some chromosomes indicated in typed.chr are not in mu0.")
+        if(!identical(names(mu) , names(seq.length))) stop("Names of mu and seq.length differ.")
+        if(any(!unique(unlist(typed.chr)) %in% names(mu))) {
+            stop("Some chromosomes indicated in typed.chr are not in mu.")
         }
 
-        list.mu0 <- lapply(typed.chr, function(e) mu0[e])
+        list.mu <- lapply(typed.chr, function(e) mu[e])
         list.seq.length <- lapply(typed.chr, function(e) seq.length[e])
     }
 
@@ -816,7 +816,7 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=N
         ## If dates distrib is .rTimeSeq
         if(identical(rDate, .rTimeSeq)){
             newDates <- sapply(1:N, function(i)
-                               rDate(n=step.size, mu0=list.mu0[[i]], L=list.seq.length[[i]],
+                               rDate(n=step.size, mu=list.mu[[i]], L=list.seq.length[[i]],
                                      maxNbDays=RANGE.DATES))
         } else { ## Else, any other distrib with free arguements
             newDates <- sapply(1:N, function(i) do.call(rDate, arg.rDate))
@@ -916,7 +916,7 @@ optimize.seqTrack.default <- function(x, x.names, x.dates, typed.chr=NULL, mu0=N
     ##             myDates <- x.dates
     ##             ## distribution for available dates
     ##             myDates[!isMissDate] <- myDates[!isMissDate] +
-    ##                 rDate(n=NB.DATES.TO.SIM, mu0=mu0, L=seq.length, maxNbDays=2*RANGE.DATES)
+    ##                 rDate(n=NB.DATES.TO.SIM, mu=mu, L=seq.length, maxNbDays=2*RANGE.DATES)
     ##             ## distribution for missing dates
     ##             myDates[isMissDate] <- do.call(rMissDate, argList)
 
@@ -1090,21 +1090,21 @@ get.consensus <- function(orires, listres, mode=c("majority","best")){
 ###########################
 ## get.likelihood.seqTrack
 ###########################
-get.likelihood.seqTrack <-function(x, method=("genetic"), mu0=NULL, seq.length=NULL,...){
+get.likelihood.seqTrack <-function(x, method=("genetic"), mu=NULL, seq.length=NULL,...){
     method <- match.arg(method)
     if(method=="genetic"){ # p(nb mutations occur in the time interval)
         if(any(na.omit(x$weight - round(x$weight)) > 1e-10)){
             warning("Non-integer weights: number of mutations expected in x$weight.")
         }
 
-        if(is.null(mu0)) stop("mu0 is required.")
+        if(is.null(mu)) stop("mu is required.")
         if(is.null(seq.length)) stop("seq.length is required.")
 
         dates <- as.POSIXct(x$date)
         anc.dates <- as.POSIXct(x$ances.date)
         nb.days <- abs(as.integer(anc.dates-dates))
         nb.mut <- x$weight
-        ##mu <- mu0/365
+        ##mu <- mu/365
         ##mu <- mu*nb.days
 
         res <- dbinom(nb.mut, size=seq.length*nb.days, prob=mu)
