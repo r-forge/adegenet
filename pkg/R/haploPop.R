@@ -935,7 +935,7 @@ haploPopDiv <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1
     obj$call <- match.call()
     attr(obj,"ances") <- ANCES # ancestral genotype
 
-    cat("\nStored haploPop object in 'last.haploPop'\n")
+    if(!quiet) cat("\nStored haploPop object in 'last.haploPop'\n")
     assign("last.haploPop", obj, envir= .GlobalEnv)
 
 
