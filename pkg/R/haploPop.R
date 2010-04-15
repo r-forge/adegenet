@@ -99,13 +99,13 @@ haploPop <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6,
 
             ## generate new strains for new generation
             sampSize <- round(min( length(myPop)*birth.func(), myS)) # number of strains for next step
-            if(sampSize<1){ # if no sample
+            if(sampSize<1){ # if no new strains
                 ## old strains die
                 toKill <- death.func(myAge)
                 myPop[toKill] <- NULL
                 myAge <- myAge[!toKill]
                 return(list(pop=myPop, S=myS, age=myAge))
-            }
+            } # if there are new strains, do...
             newGen <- myPop[sample(1:length(myPop), sampSize, replace=TRUE)] # sample strains for new generations
             newGen <- assignMutations(newGen, createMutations(sampSize)) # mutate strains
             newAge <- rep(0, sampSize) # new ages for newborns
