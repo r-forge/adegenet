@@ -7,7 +7,7 @@ find.clusters <- function (x, ...) UseMethod("find.clusters")
 ## find.clusters.data.frame
 ######################
 find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE, criterion=c("min","diff", "conserv"),
-                                     max.n.clust=round(nrow(x)/10), n.iter=1e3, n.start=10, center=TRUE, scale=TRUE){
+                                     max.n.clust=round(nrow(x)/10), n.iter=1e3, n.start=10, center=TRUE, scale=TRUE, ...){
 
     ## CHECKS ##
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")

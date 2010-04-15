@@ -421,24 +421,24 @@ seqTrack.haploGen <- function(x, optim=c("min","max"), prox.mat=NULL, ...){
 
 
 
-#####################
-## seqTrackG.haploGen
-#####################
-seqTrackG.haploGen <- function(x, optim=c("min","max"), ...){
-    myX <- dist.dna(x$seq, model="raw")
-    x.names <- labels(x)
-    x.dates <- as.POSIXct(x)
-    seq.length <- ncol(x$seq)
-    myX <- myX * seq.length
-    prevCall <- as.list(x$call)
-    if(is.null(prevCall$mu)){
-        mu0 <- 0.0001
-    } else {
-        mu0 <- eval(prevCall$mu)
-    }
-    res <- seqTrackG(myX, x.names=x.names, x.dates=x.dates, best=optim,...)
-    return(res)
-}
+## #####################
+## ## seqTrackG.haploGen
+## #####################
+## seqTrackG.haploGen <- function(x, optim=c("min","max"), ...){
+##     myX <- dist.dna(x$seq, model="raw")
+##     x.names <- labels(x)
+##     x.dates <- as.POSIXct(x)
+##     seq.length <- ncol(x$seq)
+##     myX <- myX * seq.length
+##     prevCall <- as.list(x$call)
+##     if(is.null(prevCall$mu)){
+##         mu0 <- 0.0001
+##     } else {
+##         mu0 <- eval(prevCall$mu)
+##     }
+##     res <- seqTrackG(myX, x.names=x.names, x.dates=x.dates, best=optim,...)
+##     return(res)
+## }
 
 
 
@@ -448,28 +448,28 @@ seqTrackG.haploGen <- function(x, optim=c("min","max"), ...){
 ##############################
 ## optimize.seqTrack.haploGen
 ##############################
-optimize.seqTrack.haploGen <- function(x, thres=0.2, optim=c("min","max"),
-                                       typed.chr=NULL, mu0=NULL, chr.length=NULL,
-                                       prox.mat=NULL, nstep=10, step.size=1e3,
-                                       rDate=.rTimeSeq, arg.rDate=NULL, rMissDate=.rUnifTimeSeq, ...){
+## optimize.seqTrack.haploGen <- function(x, thres=0.2, optim=c("min","max"),
+##                                        typed.chr=NULL, mu0=NULL, chr.length=NULL,
+##                                        prox.mat=NULL, nstep=10, step.size=1e3,
+##                                        rDate=.rTimeSeq, arg.rDate=NULL, rMissDate=.rUnifTimeSeq, ...){
 
-    x.names <- labels(x)
-    x.dates <- as.POSIXct(x)
-    seq.length <- ncol(x$seq)
-    myX <- dist.dna(x$seq, model="raw") * seq.length
-    prevCall <- as.list(x$call)
-    if(is.null(prevCall$mu)){
-        mu0 <- 0.0001
-    } else {
-        mu0 <- eval(prevCall$mu)
-    }
+##     x.names <- labels(x)
+##     x.dates <- as.POSIXct(x)
+##     seq.length <- ncol(x$seq)
+##     myX <- dist.dna(x$seq, model="raw") * seq.length
+##     prevCall <- as.list(x$call)
+##     if(is.null(prevCall$mu)){
+##         mu0 <- 0.0001
+##     } else {
+##         mu0 <- eval(prevCall$mu)
+##     }
 
-    res <- optimize.seqTrack.default(x=myX, x.names=x.names, x.dates=x.dates,
-                                     typed.chr=typed.chr, mu0=mu0, chr.length=chr.length,
-                                     thres=thres, optim=optim, prox.mat=prox.mat,
-                                     nstep=nstep, step.size=step.size,
-                                     rDate=rDate, arg.rDate=arg.rDate, rMissDate=rMissDate, ...)
-} # end optimize.seqTrack.haploGen
+##     res <- optimize.seqTrack.default(x=myX, x.names=x.names, x.dates=x.dates,
+##                                      typed.chr=typed.chr, mu0=mu0, chr.length=chr.length,
+##                                      thres=thres, optim=optim, prox.mat=prox.mat,
+##                                      nstep=nstep, step.size=step.size,
+##                                      rDate=rDate, arg.rDate=arg.rDate, rMissDate=rMissDate, ...)
+## } # end optimize.seqTrack.haploGen
 
 
 
@@ -572,7 +572,7 @@ sample.haploGen <- function(x, n, rDate=.rTimeSeq, arg.rDate=NULL){
     daterange <- diff(range(res$dates,na.rm=TRUE))
 
     if(identical(rDate,.rTimeSeq)){
-        sampdates <- .rTimeSeq(mu0=mu0, L=L, n=length(truedates), maxNbDays=daterange/2)
+        sampdates <- .rTimeSeq(n=length(truedates), mu=mu0, L=L, maxNbDays=daterange/2)
     } else{
         arg.rDate$n <- n
         sampdates <- do.call(rDate, arg.rDate)

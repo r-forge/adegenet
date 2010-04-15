@@ -8,7 +8,7 @@ dapc <- function (x, ...) UseMethod("dapc")
 #################
 dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
                             center=TRUE, scale=FALSE, var.contrib=FALSE,
-                            pca.select=c("nbEig","percVar"), perc.pca=NULL){
+                            pca.select=c("nbEig","percVar"), perc.pca=NULL, ...){
 
     ## FIRST CHECKS
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
@@ -124,7 +124,7 @@ dapc.matrix <- function(x, ...){
 #############
 dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
                         scale=FALSE, scale.method=c("sigma", "binom"), truenames=TRUE, all.contrib=FALSE,
-                        pca.select=c("nbEig","percVar"), perc.pca=NULL){
+                        pca.select=c("nbEig","percVar"), perc.pca=NULL, ...){
 
     ## FIRST CHECKS
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
