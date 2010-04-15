@@ -156,7 +156,7 @@ should match the number of groups, not the number of individuals.}
     of DAPC.}
 
 
-  \cr=== other outputs ===\cr
+  === other outputs ===\cr
   Other functions have different outputs:\cr
   - \code{summary.dapc} returns a list with 6 components: \code{n.dim} (number
   of retained DAPC axes), \code{n.pop} (number of groups/populations),
@@ -170,7 +170,7 @@ should match the number of groups, not the number of individuals.}
 \references{
 Jombart, T., Devillard, S. and Balloux, F.
 Discriminant analysis of principal components: a new method for the analysis of
-genetically structured populations. Submitted to \emph{PLoS genetics}.
+genetically structured populations. Submitted to \emph{Genetics}.
 }
 \seealso{
   - \code{\link{find.clusters}}: to identify clusters without prior.

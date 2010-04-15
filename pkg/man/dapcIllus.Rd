@@ -2,7 +2,7 @@
 \name{dapcIllus}
 \alias{dapcIllus}
 \docType{data}
-\title{Simulated data illustrating the dapc}
+\title{Simulated data illustrating the DAPC}
 \description{
   Datasets illustrating the Discriminant Analysis of Principal
   Components (DAPC, Jombart et al. submitted).\cr
@@ -43,7 +43,7 @@
 \references{
    Jombart, T., Devillard, S. and Balloux, F.  Discriminant analysis of
    principal components: a new method for the analysis of genetically
-   structured populations. Submitted to \emph{PLoS genetics}.
+   structured populations. Submitted to \emph{Genetics}.
 }
 \examples{
 if(require(MASS) & require(ade4)){

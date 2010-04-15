@@ -9,8 +9,8 @@
   (see details).\cr
   
   A non-euclidian distance can be transformed into an Euclidian one
-  using \code{\link[pkg:ade4]{cailliez}} in order to perform a
-  Principal Coordinate Analysis \code{\link[pkg:ade4]{dudi.pco}} (both
+  using \code{\link[ade4]{cailliez}} in order to perform a
+  Principal Coordinate Analysis \code{\link[ade4]{dudi.pco}} (both
   functions in \code{ade4}). \cr
   
   The function \code{dist.genpop} is based on former \code{dist.genet}
