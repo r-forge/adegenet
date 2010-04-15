@@ -10,6 +10,9 @@
 \alias{assignplot}
 \title{Discriminant Analysis of Principal Components (DAPC)}
 \description{
+  Important: this method is currently under review. Please email the
+  author before using it.
+  
   These functions implement the Discriminant Analysis of Principal Components
   (DAPC). See 'details' section for a succint description of the method. DAPC
   implementation calls upon \code{\link[ade4]{dudi.pca}} from the \code{ade4} package and

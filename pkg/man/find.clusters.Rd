@@ -7,6 +7,9 @@
 \alias{.find.sub.clusters}
 \title{find.cluster: cluster identification using successive K-means}
 \description{
+  Important: this method is currently under review. Please email the
+  author before using it.
+  
   These functions implement the clustering procedure used in Discriminant
   Analysis of Principal Components (DAPC, Jombart et al. submitted). This
   procedure consists in running successive K-means with an increasing number of
