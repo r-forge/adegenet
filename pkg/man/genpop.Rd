@@ -49,7 +49,6 @@ Class \code{"\linkS4class{popInfo}"}, directly.
       genpop object, invisibly returning its content}
   }
 }
-\references{}
 \seealso{\code{\link{as.genpop}}, \code{\link{is.genpop}},\code{\link{makefreq}}, \code{\link{genind}}, \code{\link{import2genind}}, \code{\link{read.genetix}}, \code{\link{read.genepop}}, \code{\link{read.fstat}}, \code{\link{na.replace}}
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }

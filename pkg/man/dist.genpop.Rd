@@ -102,7 +102,7 @@ Science B.V. 20, pp274--288.\cr
 Former dist.genet code by Daniel Chessel \email{chessel@biomserv.univ-lyon1.fr}\cr
 and documentation by Anne B. Dufour \email{dufour@biomserv.univ-lyon1.fr}
 }
-\seealso{ \code{\link[pkg:ade4]{cailliez}},\code{\link[pkg:ade4]{dudi.pco}} 
+\seealso{ \code{\link[ade4]{cailliez}},\code{\link[ade4]{dudi.pco}} 
 }
 \examples{
 if(require(ade4)){
