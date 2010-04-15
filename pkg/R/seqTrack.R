@@ -1123,9 +1123,9 @@ get.likelihood.seqTrack <-function(x, method=("genetic"), mu=NULL, seq.length=NU
 ###############
 ## seqTrack.ml
 ###############
-seqTrack.ml <- function(aln, x.dates, best=c("min","max"), ...){
+## seqTrack.ml <- function(aln, x.dates, best=c("min","max"), ...){
 
-} # end seqTrack.ml
+## } # end seqTrack.ml
 
 
 
