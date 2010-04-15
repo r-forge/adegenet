@@ -56,7 +56,7 @@
         col=rainbow(length(levels(x$grp))), posi="bottomleft", bg="grey",
         ratio=0.3, csub=1.2, \ldots)
 
-\method{assignplot}{dapc}(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
+assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
 }
 \arguments{
 \item{x}{\code{a data.frame}, \code{matrix}, or \code{\linkS4class{genind}}
@@ -88,7 +88,9 @@ mean 0 (TRUE, default) or not (FALSE). Always TRUE for \linkS4class{genind} obje
   minimal percentage of the total variance of the data to be expressed by the
   retained axes of PCA.}
 \item{\ldots}{further arguments to be passed to other functions. For
-  \code{dapc.matrix}, arguments are to match those of \code{dapc.data.frame}.}
+  \code{dapc.matrix}, arguments are to match those of
+  \code{dapc.data.frame}.}
+\item{object}{a \code{dapc} object.}
 \item{scale.method}{a \code{character} specifying the scaling method to be used
   for allele frequencies, which must match "sigma" (usual estimate of standard
   deviation) or "binom" (based on binomial distribution). See \code{\link{scaleGen}} for

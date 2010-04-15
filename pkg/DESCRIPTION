@@ -5,7 +5,7 @@ Title: adegenet: a R package for the multivariate analysis of genetic markers.
 Author: Thibaut Jombart <t.jombart@imperial.ac.uk>, with contributions from Peter Solymos and Francois Balloux <f.balloux@imperial.ac.uk>
 Maintainer: Thibaut Jombart <t.jombart@imperial.ac.uk>
 Suggests: ade4, genetics, hierfstat, spdep, tripack, ape, pegas, graph, RBGL
-Depends: methods
+Depends: methods, MASS
 Description: Classes and functions for genetic data analysis within the multivariate framework.
 License: GPL (>=2)
 LazyLoad: yes

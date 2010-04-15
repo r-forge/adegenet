@@ -175,9 +175,9 @@ of Moran's I and Geary's c. \emph{Geographical Analysis}, \bold{16}, 17--24.
 \seealso{\code{\link{spcaIllus}}, a set of simulated data illustrating
   the sPCA \cr
   \code{\link{global.rtest}} and \code{\link{local.rtest}} \cr
-  \code{\link{chooseCN}}, \code{\link[pkg:ade4]{multispati}},
-  \code{\link[pkg:ade4]{multispati.randtest}}\cr
-  \code{\link[pkg:PBSmapping]{convUL}}, from the package 'PBSmapping' to convert longitude/latitude to
+  \code{\link{chooseCN}}, \code{\link[ade4]{multispati}},
+  \code{\link[ade4]{multispati.randtest}}\cr
+  \code{\link[PBSmapping]{convUL}}, from the package 'PBSmapping' to convert longitude/latitude to
   UTM coordinates.
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
