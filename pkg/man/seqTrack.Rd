@@ -1,19 +1,19 @@
 \name{seqTrack}
 \alias{seqTrack}
-\alias{seqTrackG}
+% \alias{seqTrackG}
 \alias{seqTrack.default}
-\alias{seqTrackG.default}
+% \alias{seqTrackG.default}
 \alias{plotSeqTrack}
-\alias{optimize.seqTrack}
-\alias{optimize.seqTrack.default}
+% \alias{optimize.seqTrack}
+% \alias{optimize.seqTrack.default}
 \alias{get.likelihood}
 \alias{get.likelihood.seqTrack}
 \alias{get.likelihood.seqTrack.default}
-\alias{get.result.by}
-\alias{get.consensus}
+% \alias{get.result.by}
+% \alias{get.consensus}
 \alias{as,seqTrack,graphNEL-method}
 \alias{coerce,seqTrack,graphNEL-method}
-\title{seqTrack algorithm}
+\title{SeqTrack algorithm}
 \description{
   Important: this method is currently under review. It will be
   documented once accepted for publication.

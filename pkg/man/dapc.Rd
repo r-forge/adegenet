@@ -39,14 +39,14 @@
 }
 \usage{
 \method{dapc}{data.frame}(x, grp, n.pca=NULL, n.da=NULL, center=TRUE,
-     scale=FALSE,var.contrib=FALSE,
-     pca.select=c("nbEig","percVar"), perc.pca=NULL)
+     scale=FALSE,var.contrib=FALSE, pca.select=c("nbEig","percVar"),
+    perc.pca=NULL, \ldots)
 
 \method{dapc}{matrix}(x, \ldots)
 
 \method{dapc}{genind}(x, pop=NULL, n.pca=NULL, n.da=NULL, scale=FALSE,
      scale.method=c("sigma", "binom"), truenames=TRUE, all.contrib=FALSE,
-     pca.select=c("nbEig","percVar"), perc.pca=NULL)
+     pca.select=c("nbEig","percVar"), perc.pca=NULL, \ldots)
 
 \method{print}{dapc}(x, \dots)
 

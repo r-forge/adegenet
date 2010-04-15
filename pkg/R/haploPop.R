@@ -309,7 +309,7 @@ haploPop <- function(n.steps=20, ini.obj=NULL, ini.haplo=NULL, haplo.length=1e6,
 ##################
 ## print.haploPop
 ##################
-print.haploPop <- function(object, ...){
+print.haploPop <- function(x, ...){
     x <- object
     myCall <- x$call
 
