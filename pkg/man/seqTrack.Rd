@@ -9,6 +9,7 @@
 \alias{get.likelihood}
 \alias{get.likelihood.seqTrack}
 \alias{get.likelihood.seqTrack.default}
+\alias{seqTrack-class}
 % \alias{get.result.by}
 % \alias{get.consensus}
 \alias{as,seqTrack,graphNEL-method}
