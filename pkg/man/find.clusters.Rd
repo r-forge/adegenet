@@ -154,7 +154,7 @@
 \references{
 Jombart, T., Devillard, S. and Balloux, F.
 Discriminant analysis of principal components: a new method for the analysis of
-genetically structured populations. Submitted to \emph{PLoS genetics}.
+genetically structured populations. Submitted to \emph{Genetics}.
 }
 \seealso{
   - \code{\link{dapc}}: implements the DAPC.

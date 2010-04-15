@@ -37,6 +37,10 @@
   this, use \code{\link{df2genind}}. Note that \code{\link{df2genind}}
   can be used for any level of ploidy.\cr
 
+  It is possible to extract SNPs from DNA alignments stored in the ape
+  package using \code{\link{DNAbin2genind}}.
+  
+
   
    === EXPORTING DATA ===\cr
    \code{adegenet} exports data from \linkS4class{genind} object to
@@ -83,11 +87,11 @@
    population structure (based on \code{\link[hierfstat]{g.stats.glob}} package \code{hierfstat}).\cr
    - \code{\link{dist.genpop}}: computes 5 genetic distances among populations. \cr
    - \code{\link{monmonier}}: implementation of the Monmonier algorithm,
-   used to seek genetic boundaries among individuals or populations. Optimized boundaries can be obtained using
+   used to seek genetic boundaries among individuals or
+   populations. Optimized boundaries can be obtained using
    \code{\link{optimize.monmonier}}. Object of the class
    \code{monmonier} can be plotted and printed using the corresponding
    methods. \cr
-   - \code{\link{hybridize}}: implements hybridization between two populations. \cr
    - \code{\link{spca}}: implements Jombart et al. (in revision) spatial
    Principal Component Analysis \cr
    - \code{\link{global.rtest}}: implements Jombart et al. (2008)
@@ -101,11 +105,51 @@
    - \code{\link{scaleGen}}: generic method to scale
    \linkS4class{genind} or \linkS4class{genpop} before a principal
    component analysis \cr
+   - \code{\link{Hs}}: computes the average expected heterozygosity by
+   population in a \linkS4class{genpop}. Classically Used as a measure
+   of genetic diversity.\cr
+   - \code{\link{find.clusters}} and \code{\link{dapc}}: implements the
+   Discriminant Analysis of Principal Component (DAPC, Jombart et al.,
+   submitted A).\cr
+   - \code{\link{seqTrack}}: implements the SeqTrack algorithm for
+   recontructing transmission trees of pathogens (Jombart et al.,
+   submitted B) .\cr
 
-   Adegenet also proposes several real or simulated datasets.\cr
+
+   === GRAPHICS ===\cr
+   - \code{\link{colorplot}}: plots points with associated values for up
+   to three variables represented by colors using the RGB system;
+   useful for spatial mapping of principal components.\cr
+   - \code{\link{loadingplot}}: plots loadings of variables. Useful for
+   representing the contribution of alleles to a given principal
+   component in a multivariate method. \cr
+
+
+   === SIMULATING DATA ===\cr
+   - \code{\link{hybridize}}: implements hybridization between two populations. \cr
+   - \code{\link{haploGen}}: simulates genealogies of haplotypes,
+   storing full genomes (under development). \cr
+   - \code{\link{haploPop}}: simulates populations of haplotypes, using
+   different population dynamics, storing SNPs (under development). \cr
+
+
+   === DATASETS ===\cr
+   - \code{\link{H3N2}}: Seasonal influenza (H3N2) HA segment data. \cr
+   - \code{\link{dapcIllus}}: Simulated data illustrating the DAPC. \cr
+   - \code{\link{eHGDP}}: Extended HGDP-CEPH dataset. \cr
+   - \code{\link{microbov}}: Microsatellites genotypes of 15 cattle breeds. \cr
+   - \code{\link{nancycats}}: Microsatellites genotypes of 237 cats from 17 colonies of Nancy (France). \cr
+   - \code{\link{rupica}}: Microsatellites genotypes of 335 chamois
+   (Rupicapra rupicapra) from the Bauges mountains (France).\cr
+   - \code{\link{sim2pop}}: Simulated genotypes of two georeferenced populations.\cr
+   - \code{\link{spcaIllus}}: Simulated data illustrating the sPCA. \cr
 
    For more information, visit the adegenet website by typing
    \code{adegenetWeb()}.\cr
+
+   Tutorials are available on the adegenet website, or by typing
+   \code{adegenetTutorial()}.\cr
+
 
    To cite adegenet, please use the reference given by
    \code{citation("adegenet")} (or see reference below).
@@ -114,13 +158,17 @@
   \tabular{ll}{
     Package: \tab adegenet\cr
     Type: \tab Package\cr
-    Version: \tab 1.3-0\cr
-    Date: \tab 2009-04-01 \cr
+    Version: \tab 1.2-4\cr
+    Date: \tab 2009-04-15 \cr
     License: \tab GPL (>=2)
   }  
 }
-\author{Thibaut Jombart <t.jombart@imperial.ac.uk>\cr
-with contributions of Peter Solymos}
+\author{
+  Thibaut Jombart <t.jombart@imperial.ac.uk>\cr
+  with contributions of: Peter Solymos, Francois Balloux\cr
+  and contributed datasets from: Katayoun Moazami-Goudarzi, Denis Laloë,
+  Dominique Pontier, Daniel Maillard, Francois Balloux
+}
 \references{
 Jombart T. (2008) adegenet: a R package for the multivariate analysis of genetic markers
 \emph{Bioinformatics} 24: 1403-1405. doi: 10.1093/bioinformatics/btn129\cr
@@ -132,4 +180,10 @@ Please post your questions on 'the adegenet forum': adegenet-forum@lists.r-forge
 }
 \keyword{manip}
 \keyword{multivariate}
-\seealso{The \code{ade4} package for multivariate analysis}
+\seealso{
+  adegenet is related to several packages, in particular:\cr
+  - \code{ade4} for multivariate analysis\cr
+  - \code{ape} for phylogenetics and DNA data handling\cr
+  - \code{pegas} for population genetics tools\cr
+}
+
