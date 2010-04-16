@@ -12,7 +12,8 @@
   - alignement (seqinr package): to come...
 }
 \usage{
-DNAbin2genind(x, pop=NULL, exp.char=c("a","t","g","c"), na.char=NULL, polyThres=1/100)
+DNAbin2genind(x, pop=NULL, exp.char=c("a","t","g","c"), na.char=NULL,
+                         polyThres=1/100)
 }
 \arguments{
  \item{x}{an object containing aligned sequences.}

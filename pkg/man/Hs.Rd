@@ -2,10 +2,12 @@
 \name{Hs}
 \alias{Hs}
 \title{Expected heterozygosity}
-\description{This function computes the expected heterozygosity per
-  population from \linkS4class{genpop} objects. This is possible for
-  codominant markers (\code{@type="codom"}). For haploid data, Hs still
-  provides a measure of within-population genetic diversity. 
+\description{
+  This function computes the expected heterozygosity (Hs) within
+  populations of a \linkS4class{genpop} object. This function is
+  available for codominant markers (\code{@type="codom"}) only. Hs is
+  commonly used for measuring within population genetic diversity (and
+  as such, it still has sense when computed from haploid data).
 }
 \usage{
 Hs(x, truenames=TRUE)

@@ -21,7 +21,7 @@
   package offers methods for manipulating and analyzing information
   coming from genetic markers (see below). \cr
 
-  
+
   === IMPORTING DATA ===\cr
   \code{adegenet} imports data to \linkS4class{genind} object from the
   following softwares:\cr
@@ -29,23 +29,23 @@
   - GENETIX: see \code{\link{read.genetix}}\cr
   - FSTAT: see \code{\link{read.fstat}}\cr
   - Genepop: see \code{\link{read.genepop}}\cr
-
   To import data from any of these formats, you can also use the general
   function \code{\link{import2genind}}.\cr
+
+  - DNA files: use  \code{\link[pkg]{read.dna}} from the ape package,
+  and then extract SNPs from DNA alignments using
+  \code{\link{DNAbin2genind}}. \cr
+
   It is also possible to read genotypes coded by character strings from
   a data.frame in which genotypes are in rows, markers in columns. For
   this, use \code{\link{df2genind}}. Note that \code{\link{df2genind}}
   can be used for any level of ploidy.\cr
 
-  It is possible to extract SNPs from DNA alignments stored in the ape
-  package using \code{\link{DNAbin2genind}}.
-  
 
-  
    === EXPORTING DATA ===\cr
    \code{adegenet} exports data from \linkS4class{genind} object to
    formats recognized by other R packages:\cr
-   - the genetics package: see \code{\link{genind2genotype}}\cr 
+   - the genetics package: see \code{\link{genind2genotype}}\cr
    - the hierfstat package: see \code{\link{genind2hierfstat}}\cr
 
    Genotypes can also be recoded from a \linkS4class{genind} object into
@@ -53,7 +53,7 @@
    alleles. This covers formats from many softwares like GENETIX or
    STRUCTURE. For this, see \code{\link{genind2df}}.\cr
 
-   
+
    === MANIPULATING DATA ===\cr
    Several functions allow one to manipulate \linkS4class{genind} or
    \linkS4class{genpop} objects\cr
@@ -71,7 +71,7 @@
    - \code{\link{makefreq}}: returns a table of allelic frequencies from
    a \linkS4class{genpop} object.\cr
    - \code{\link{repool}} merges genoptypes from different
-   genetic pools into one single \linkS4class{genind} object.\cr
+   gene pools into one single \linkS4class{genind} object.\cr
    - \code{\link{propTyped}} returns the proportion of available (typed)
    data, by individual, population, and/or locus.\cr
    - \code{\link{selPopSize}} subsets data, retaining only genotypes
