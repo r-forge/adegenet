@@ -106,7 +106,7 @@
     \code{data.frame} method.}
 }
 \details{
-  === ON THE SELECTION OF K ===
+  === ON THE SELECTION OF K ===\cr
   (where K is the 'optimal' number of clusters)
 
   So far, the analysis of data simulated under various population genetics
@@ -145,7 +145,7 @@
   The class \code{find.clusters} is a list with the following
   components:\cr
   \item{Kstat}{a \code{numeric} vector giving the values of the summary
-  statistics for the different values of K. Is NULLif \code{n.clust} was specified.}
+  statistics for the different values of K. Is NULL if \code{n.clust} was specified.}
   \item{stat}{a \code{numeric} value giving the value of the summary statistics
   for the retained model}
   \item{grp}{a \code{factor} giving group membership for each individual.}
