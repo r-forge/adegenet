@@ -30,10 +30,6 @@
 # CODE ISSUES:
 ==============
 * fix request 1.2-2.04 (implement adjusted heretozygosity in summary)
-o use packageStartupMessage() instead of cat in .First.lib -- done
-o bug: makefreq does not work after a seploc (bug 1.2-3.03) -- done
-o fix bug 1.2-3.01 (df2genind issue) -- done: was not actually a bug, but the "." used in loc names; no longer a pb now.
-o fix bug 1.2-3.02 (propShared issue) -- done.
 
 
 # DOCUMENTATION ISSUES:
@@ -56,7 +52,6 @@ o allow genind2df to export alleles on separate columns -- done
 ===========================
 * in spca, when nfposi=0, the returned object actually contains what corresponds to nfposi=1. Comes from multispati in ade4. To correct in ade4.
 * use spcaIllus to illustrate global.rtest and local.rtest
-* check all examples and look for possible improvements
 * Implement a method to merge different markers for the same individuals
 *o* Build accessors for:
 - marker names -- done <locNames> (TJ)
@@ -69,7 +64,6 @@ o allow genind2df to export alleles on separate columns -- done
 * Implement different levels of ploidy in:
 - hybridize - done (TJ)
 - read.structure
-*o* propShared -- done for haploid.
 
 
 

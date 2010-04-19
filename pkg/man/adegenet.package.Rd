@@ -32,7 +32,7 @@
   To import data from any of these formats, you can also use the general
   function \code{\link{import2genind}}.\cr
 
-  - DNA files: use  \code{\link[pkg]{read.dna}} from the ape package,
+  - DNA files: use  \code{\link[ape]{read.dna}} from the ape package,
   and then extract SNPs from DNA alignments using
   \code{\link{DNAbin2genind}}. \cr
 
