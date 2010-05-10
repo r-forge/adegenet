@@ -5,6 +5,11 @@ seqTrack <- function(...){
     UseMethod("seqTrack")
 }
 
+seqTrack.default <- function(x, ...){
+    cat("\nseqTrack not implemented for object of the class", class(x),"\n")
+    return(invisible(NULL))
+}
+
 ## seqTrackG <- function(...){
 ##     UseMethod("seqTrackG")
 ## }
@@ -199,7 +204,7 @@ get.likelihood.seqTrack.default <- function(...){
 ## - prox.mat is a directed proximity measure, so that prox.mat[i,j] is
 ## the 'proximity when going from i to j'
 ##
-seqTrack.default <- function(x, x.names, x.dates, best=c("min","max"),
+seqTrack.matrix <- function(x, x.names, x.dates, best=c("min","max"),
                      prox.mat=NULL, mu=NULL, haplo.length=NULL, ...){
 
     ## CHECKS ##
@@ -312,7 +317,7 @@ seqTrack.default <- function(x, x.names, x.dates, best=c("min","max"),
     class(res) <- c("seqTrack","data.frame")
 
     return(res)
-} # end seqTrack.default
+} # end seqTrack.matrix
 
 #######################################################
 #######################################################
