@@ -8,7 +8,6 @@
 % \alias{optimize.seqTrack.default}
 \alias{get.likelihood}
 \alias{get.likelihood.seqTrack}
-\alias{get.likelihood.seqTrack.default}
 \alias{seqTrack-class}
 % \alias{get.result.by}
 % \alias{get.consensus}
@@ -35,15 +34,14 @@ seqTrack(\ldots)
 \method{seqTrack}{matrix}(x, x.names, x.dates, best = c("min", "max"), prox.mat = NULL, 
     mu = NULL, haplo.length = NULL,  \dots)
 
-plotSeqTrack(x, xy, useArrows = TRUE, annot = TRUE, labels = NULL, 
-    dateRange = NULL, col = NULL, bg = "grey", add = FALSE, quiet = FALSE, 
-    support = NULL, support.thres = 0.5, timeorder.thres = NULL, 
-    mu = NULL, seq.length = NULL, col.pal = heat.colors, plot = TRUE, \dots)
+plotSeqTrack(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL,
+                         col=NULL, bg="grey", add=FALSE, quiet=FALSE, date.range=NULL,
+                         plot=TRUE, \dots)
 }
 \arguments{
-  \item{x}{for seqTrack, a matrix giving weights to pairs of ancestries such that
-    x[i,j] is the weight of 'i ancestor of j'. For plotSeqTrack, a
-    seqTrack object.}
+  \item{x}{for seqTrack, a matrix giving weights to pairs of ancestries
+    such that x[i,j] is the weight of 'i ancestor of j'. For
+    plotSeqTrack, a seqTrack object.}
   \item{seq.names}{a character vector giving the labels of the haplotypes/genotypes}
   \item{seq.dates}{a vector of collection dates for the sampled
     haplotypes/genotypes. Dates must have the POSIXct format. See
@@ -66,51 +64,26 @@ plotSeqTrack(x, xy, useArrows = TRUE, annot = TRUE, labels = NULL,
  \item{haplo.length}{(optional) the length of analysed sequences in
     number of nucleotides. When 'x' contains numbers of mutations, used
     to resolve ties using a maximum likelihood approach (requires
-    \code{mu} to be provided).}
+    \code{mu} to be provided).}  
   \item{xy}{spatial coordinates of the sampled haplotypes/genotypes.}
-  \item{useArrows}{a logical indicating whether arrows should be used to
+  \item{use.arrows}{a logical indicating whether arrows should be used to
     represented ancestries (pointing from ancestor to descendent, TRUE),
     or whether segments shall be used (FALSE).}
   \item{annot}{a logical indicating whether arrows or segments
     representing ancestries should be annotated (TRUE) or not (FALSE).}
   \item{labels}{a character vector containing annotations of the
     ancestries. If left empty, ancestries are annotated by the descendent.}
-  \item{dateRange}{a vector of length two with POSIXct format indicating
-    the time window for which ancestries should be displayed.}
   \item{col}{a vector of colors to be used for plotting ancestries.}
   \item{bg}{a color to be used as background.}
   \item{add}{a logical stating whether the plot should be added to
     current figure (TRUE), or drawn as a new plot (FALSE, default).}
   \item{quiet}{a logical stating whether messages other than errors
     should be displayed (FALSE, default), or hidden (TRUE).}
-  \item{support}{an optional vector of numbers between 0 and 1
-    indicating the support for each ancestry. If provided and if
-    \code{col} is left empty, ancestries are represented with colors
-    indicating the support.}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  
-  \item{col}{}
-  \item{bg}{}
-  \item{add}{}
-  \item{\dots}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
-  \item{}{}
+   \item{date.range}{a vector of length two with POSIXct format indicating
+    the time window for which ancestries should be displayed.}
+  \item{plot}{a logical stating whether a plot should be drawn (TRUE,
+    default), or not (FALSE). In all cases, the
+    function invisibly returns plotting information.}
 }
 \author{
   Thibaut Jombart \email{t.jombart@imperial.ac.uk}
@@ -118,4 +91,29 @@ plotSeqTrack(x, xy, useArrows = TRUE, annot = TRUE, labels = NULL,
 \references{
   Jombart T, Eggo R, Dodd P, Balloux F (accepted) Reconstructing disease
   outbreaks from genetic data: a graph approach. Heredity.
+}
+\value{
+  === output of seqTrack ===
+  seqTrack function returns data.frame with the class \code{seqTrack},
+  in which each row is an inferred ancestry described by the following columns:
+  - id: indices identifying haplotypes/genotypes
+  - ances: index of the inferred ancestor
+  - weight: weight of the inferred ancestries
+  - date: date of the haplotype/genotype
+  - ances.date: date of the ancestor
+
+  === output of plotSeqTrack ===
+  This graphical function invisibly returns the coordinates of the
+  arrows/segments drawn and their colors, as a data.frame.
+}
+\details{
+  === Maximum parsimony genealogies ===
+  
+  === Likelihood of observed genetic differentiation ===
+  === Converting seqTrack objects to graphs ===
+
+  
+}
+\seealso{
+  \code{\link{get.likelihood.seqTrack}}
 }

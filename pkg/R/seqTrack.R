@@ -24,11 +24,6 @@ get.likelihood <- function(...){
     UseMethod("get.likelihood")
 }
 
-get.likelihood.seqTrack.default <- function(...){
-    cat("Method not implemented.")
-    return()
-}
-
 
 
 
@@ -163,8 +158,8 @@ seqTrack.matrix <- function(x, x.names, x.dates, best=c("min","max"),
 ################
 ## plotSeqTrack
 ################
-plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL,
-                         col=NULL, bg="grey", add=FALSE, quiet=FALSE, dateRange=NULL,
+plotSeqTrack <- function(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL,
+                         col=NULL, bg="grey", add=FALSE, quiet=FALSE, date.range=NULL,
                          plot=TRUE,...){
 
     ## CHECKS ##
@@ -215,21 +210,21 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL,
 
 
     ## HANDLE RANGE OF DATES ##
-    if(!is.null(dateRange)){
+    if(!is.null(date.range)){
 
-        if(is.character(dateRange)){
-            msg <- paste("dateRange is a character vector; " ,
+        if(is.character(date.range)){
+            msg <- paste("date.range is a character vector; " ,
                          "please convert it as dates using 'as.POSIXct'" ,
                          "\n(making sure dates are given as 'YYYY/MM/DD' or 'YYYY-MM-DD').", sep="")
             stop(msg)
         }
 
-        if(any(is.na(dateRange))){
-            stop("NA in dateRange")
+        if(any(is.na(date.range))){
+            stop("NA in date.range")
         }
 
         dates <- x$date
-        toKeep <- (dates > min(dateRange)) & (dates < max(dateRange))
+        toKeep <- (dates > min(date.range)) & (dates < max(date.range))
         if(sum(toKeep)==0) {
             if(!quiet) cat("\nNo item in the specified date range.\n")
             return(NULL)
@@ -263,7 +258,7 @@ plotSeqTrack <- function(x, xy, useArrows=TRUE, annot=TRUE, labels=NULL,
     ## PLOTTING ##
     if(plot){
         ## ARROWS
-        if(useArrows){
+        if(use.arrows){
             ## handle segments/arrows with length 0 ##
             nullLength <- (abs(x.from-x.to)<1e-10) & (abs(y.from-y.to)<1e-10)
 
