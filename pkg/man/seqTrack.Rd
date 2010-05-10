@@ -14,30 +14,45 @@
 % \alias{get.consensus}
 \alias{as,seqTrack,graphNEL-method}
 \alias{coerce,seqTrack,graphNEL-method}
-\title{SeqTrack algorithm}
+\title{SeqTrack algorithm for reconstructing genealogies}
 \description{
-  Important: this method is currently under review. It will be
-  documented once accepted for publication.
-  Please email the author if you are interested in using it.
+  The SeqTrack algorithm aims at reconstructing genealogies of sampled
+  haplotypes or genotypes for which a sampling date is
+  available. Contrary to phylogenetics which aims at reconstructing
+  hypothetical, unbserved most recent common ancestors (MRCA), SeqTrack
+  considers that both ancestors and descendents are sampled together.
+
+  This approach proved more efficient than phylogenetic approaches for
+  reconstructing transmission trees in densely sampled disease outbreaks
+  [1]. This implementation defines a generic function \code{seqTrack}
 
 }
-% \usage{
-% %seqTrack(seq.names, seq.dates, W, optim = c("min", "max"), \dots)
-% %plotSeqTrack(x, xy, useArrows = TRUE, col = NULL, bg = "grey", add = FALSE, 
-%  %   \dots)
-% }
-% \arguments{
-%   % \item{seq.names}{}
-%   % \item{seq.dates}{}
-%   % \item{W}{}
-%   % \item{optim}{}
-%   % \item{x}{}
-%   % \item{xy}{}
-%   % \item{useArrows}{}
-%   % \item{col}{}
-%   % \item{bg}{}
-%   % \item{add}{}
-%   % \item{\dots}{}
-%   % \item{}{}
-% }
+\usage{
+
+\method{seqTrack}{matrix}(x, x.names, x.dates, best = c("min", "max"), prox.mat = NULL, 
+    mu = NULL, haplo.length = NULL,  \dots)
+
+plotSeqTrack(x, xy, useArrows = TRUE, annot = TRUE, labels = NULL, 
+    dateRange = NULL, col = NULL, bg = "grey", add = FALSE, quiet = FALSE, 
+    support = NULL, support.thres = 0.5, timeorder.thres = NULL, 
+    mu = NULL, seq.length = NULL, col.pal = heat.colors, plot = TRUE, \dots)
+}
+\arguments{
+  \item{seq.names}{}
+  \item{seq.dates}{}
+  \item{W}{}
+  \item{optim}{}
+  \item{x}{}
+  \item{xy}{}
+  \item{useArrows}{}
+  \item{col}{}
+  \item{bg}{}
+  \item{add}{}
+  \item{\dots}{}
+  \item{}{}
+}
 \author{Thibaut Jombart \email{t.jombart@imperial.ac.uk}}
+\references{
+  Jombart T, Eggo R, Dodd P, Balloux F (accepted) Reconstructing disease
+  outbreaks from genetic data: a graph approach. Heredity.
+}
