@@ -66,11 +66,30 @@ plotSeqTrack(x, xy, useArrows = TRUE, annot = TRUE, labels = NULL,
  \item{haplo.length}{(optional) the length of analysed sequences in
     number of nucleotides. When 'x' contains numbers of mutations, used
     to resolve ties using a maximum likelihood approach (requires
-    \code{haplo.length} to be provided).}
+    \code{mu} to be provided).}
+  \item{xy}{spatial coordinates of the sampled haplotypes/genotypes.}
+  \item{useArrows}{a logical indicating whether arrows should be used to
+    represented ancestries (pointing from ancestor to descendent, TRUE),
+    or whether segments shall be used (FALSE).}
+  \item{annot}{a logical indicating whether arrows or segments
+    representing ancestries should be annotated (TRUE) or not (FALSE).}
+  \item{labels}{a character vector containing annotations of the
+    ancestries. If left empty, ancestries are annotated by the descendent.}
+  \item{dateRange}{a vector of length two with POSIXct format indicating
+    the time window for which ancestries should be displayed.}
+  \item{col}{a vector of colors to be used for plotting ancestries.}
+  \item{bg}{a color to be used as background.}
+  \item{add}{a logical stating whether the plot should be added to
+    current figure (TRUE), or drawn as a new plot (FALSE, default).}
+  \item{quiet}{a logical stating whether messages other than errors
+    should be displayed (FALSE, default), or hidden (TRUE).}
+  \item{}{}
+  \item{}{}
+  \item{}{}
+  \item{}{}
+  \item{}{}
+  \item{}{}
   
-  
-  \item{xy}{}
-  \item{useArrows}{}
   \item{col}{}
   \item{bg}{}
   \item{add}{}
