@@ -83,7 +83,10 @@ plotSeqTrack(x, xy, useArrows = TRUE, annot = TRUE, labels = NULL,
     current figure (TRUE), or drawn as a new plot (FALSE, default).}
   \item{quiet}{a logical stating whether messages other than errors
     should be displayed (FALSE, default), or hidden (TRUE).}
-  \item{}{}
+  \item{support}{an optional vector of numbers between 0 and 1
+    indicating the support for each ancestry. If provided and if
+    \code{col} is left empty, ancestries are represented with colors
+    indicating the support.}
   \item{}{}
   \item{}{}
   \item{}{}
