@@ -108,12 +108,42 @@ plotSeqTrack(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL,
 }
 \details{
   === Maximum parsimony genealogies ===
-  
+  Maximum parsimony genealogies can be obtained easily using this
+  implementation of seqTrack. One has to provide in \code{x} a matrix of
+  genetic distances. The most straightforward distance is the number of
+  differing nucleotides. See \code{\link[ape]{dist.dna}} in the ape
+  package for a wide range of genetic distances between aligned
+  sequences. The argument \code{best} should be set to "min" (its
+  default value), so that the identified genealogy minimizes the total
+  number of mutations. If \code{x} contains number of mutations, then
+  \code{mu} and \code{haplo.length} should also be provided for
+  resolving ties in equally parsimonious ancestors using maximum
+  likelihood.
+
   === Likelihood of observed genetic differentiation ===
-  === Converting seqTrack objects to graphs ===
+  The probability of oberving a given number of mutations between a
+  sequence and its ancestor can be computed using
+  \code{\link{get.likelihood.seqTrack}}. Note that this is only possible
+  if \code{x} contained number of mutations.
 
   
+  === Converting seqTrack objects to graphs ===
+  seqTrack objects can be converted to \linkS4class{graphNEL} objects,
+  which can in turn be plotted and manipulated using classical graph
+  tools. Simply use 'as(x, "graphNEL")' where 'x' is a seqTrack
+  object. This functionality requires the \code{graph} package. Note
+  that this is to be installed from Bioconductor, likely using the following
+  command lines:
+  source("http://bioconductor.org/biocLite.R")
+  biocLite("graph")
+
+  Also note that the R package Rgraphviz (also on Bioconductor) provides
+  nice ways of plotting graphs (replace 'graph' with 'Rgraphviz' in the
+  previous command lines to install this package).
 }
 \seealso{
-  \code{\link{get.likelihood.seqTrack}}
+  \code{\link[ape]{dist.dna}} to compute pairwise genetic distances in aligned sequences.
+}
+\example{
+
 }
