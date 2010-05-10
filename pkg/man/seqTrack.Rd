@@ -1,16 +1,11 @@
 \name{seqTrack}
 \alias{seqTrack}
-% \alias{seqTrackG}
 \alias{seqTrack.default}
-% \alias{seqTrackG.default}
+\alias{seqTrack.matrix}
 \alias{plotSeqTrack}
-% \alias{optimize.seqTrack}
-% \alias{optimize.seqTrack.default}
 \alias{get.likelihood}
 \alias{get.likelihood.seqTrack}
 \alias{seqTrack-class}
-% \alias{get.result.by}
-% \alias{get.consensus}
 \alias{as,seqTrack,graphNEL-method}
 \alias{coerce,seqTrack,graphNEL-method}
 \title{SeqTrack algorithm for reconstructing genealogies}
@@ -31,19 +26,23 @@
 \usage{
 seqTrack(\ldots)
 
-\method{seqTrack}{matrix}(x, x.names, x.dates, best = c("min", "max"), prox.mat = NULL, 
-    mu = NULL, haplo.length = NULL,  \dots)
+\method{seqTrack}{matrix}(x, x.names, x.dates, best = c("min", "max"),
+    prox.mat = NULL, mu = NULL, haplo.length = NULL, \dots)
 
-plotSeqTrack(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL,
-                         col=NULL, bg="grey", add=FALSE, quiet=FALSE, date.range=NULL,
-                         plot=TRUE, \dots)
+plotSeqTrack(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL, col=NULL,
+                         bg="grey", add=FALSE, quiet=FALSE,
+                         date.range=NULL, plot=TRUE, \dots)
+
+get.likelihood(\ldots)
+\method{get.likelihood}{seqTrack}(x, mu, haplo.length, \ldots)
 }
 \arguments{
   \item{x}{for seqTrack, a matrix giving weights to pairs of ancestries
     such that x[i,j] is the weight of 'i ancestor of j'. For
-    plotSeqTrack, a seqTrack object.}
-  \item{seq.names}{a character vector giving the labels of the haplotypes/genotypes}
-  \item{seq.dates}{a vector of collection dates for the sampled
+    plotSeqTrack and get.likelihood. seqTrack, a \code{seqTrack}
+    object.}
+  \item{x.names}{a character vector giving the labels of the haplotypes/genotypes}
+  \item{x.dates}{a vector of collection dates for the sampled
     haplotypes/genotypes. Dates must have the POSIXct format. See
     \code{details} or \code{?as.POSIXct} for more information.}
   \item{best}{a character string matching 'min' or 'max', indicating
@@ -93,21 +92,21 @@ plotSeqTrack(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL,
   outbreaks from genetic data: a graph approach. Heredity.
 }
 \value{
-  === output of seqTrack ===
+  === output of seqTrack ===\cr
   seqTrack function returns data.frame with the class \code{seqTrack},
   in which each row is an inferred ancestry described by the following columns:
-  - id: indices identifying haplotypes/genotypes
-  - ances: index of the inferred ancestor
-  - weight: weight of the inferred ancestries
-  - date: date of the haplotype/genotype
+  - id: indices identifying haplotypes/genotypes\cr
+  - ances: index of the inferred ancestor\cr
+  - weight: weight of the inferred ancestries\cr
+  - date: date of the haplotype/genotype\cr
   - ances.date: date of the ancestor
 
-  === output of plotSeqTrack ===
+  === output of plotSeqTrack ===\cr
   This graphical function invisibly returns the coordinates of the
   arrows/segments drawn and their colors, as a data.frame.
 }
 \details{
-  === Maximum parsimony genealogies ===
+  === Maximum parsimony genealogies ===\cr
   Maximum parsimony genealogies can be obtained easily using this
   implementation of seqTrack. One has to provide in \code{x} a matrix of
   genetic distances. The most straightforward distance is the number of
@@ -120,21 +119,21 @@ plotSeqTrack(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL,
   resolving ties in equally parsimonious ancestors using maximum
   likelihood.
 
-  === Likelihood of observed genetic differentiation ===
+  === Likelihood of observed genetic differentiation ===\cr
   The probability of oberving a given number of mutations between a
   sequence and its ancestor can be computed using
-  \code{\link{get.likelihood.seqTrack}}. Note that this is only possible
+  \code{get.likelihood.seqTrack}. Note that this is only possible
   if \code{x} contained number of mutations.
 
   
-  === Converting seqTrack objects to graphs ===
+  === Converting seqTrack objects to graphs ===\cr
   seqTrack objects can be converted to \linkS4class{graphNEL} objects,
   which can in turn be plotted and manipulated using classical graph
   tools. Simply use 'as(x, "graphNEL")' where 'x' is a seqTrack
   object. This functionality requires the \code{graph} package. Note
   that this is to be installed from Bioconductor, likely using the following
-  command lines:
-  source("http://bioconductor.org/biocLite.R")
+  command lines:\cr
+  source("http://bioconductor.org/biocLite.R")\cr
   biocLite("graph")
 
   Also note that the R package Rgraphviz (also on Bioconductor) provides
@@ -144,6 +143,6 @@ plotSeqTrack(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL,
 \seealso{
   \code{\link[ape]{dist.dna}} to compute pairwise genetic distances in aligned sequences.
 }
-\example{
+\examples{
 
 }

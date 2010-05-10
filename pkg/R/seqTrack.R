@@ -298,27 +298,19 @@ plotSeqTrack <- function(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL,
 ###########################
 ## get.likelihood.seqTrack
 ###########################
-get.likelihood.seqTrack <-function(x, method=("genetic"), mu=NULL, seq.length=NULL,...){
-    method <- match.arg(method)
-    if(method=="genetic"){ # p(nb mutations occur in the time interval)
-        if(any(na.omit(x$weight - round(x$weight)) > 1e-10)){
-            warning("Non-integer weights: number of mutations expected in x$weight.")
-        }
-
-        if(is.null(mu)) stop("mu is required.")
-        if(is.null(seq.length)) stop("seq.length is required.")
-
-        dates <- as.POSIXct(x$date)
-        anc.dates <- as.POSIXct(x$ances.date)
-        nb.days <- abs(as.integer(anc.dates-dates))
-        nb.mut <- x$weight
-        ##mu <- mu/365
-        ##mu <- mu*nb.days
-
-        res <- dbinom(nb.mut, size=seq.length*nb.days, prob=mu)
-    } else{
-        cat("Method not implemented.")
+get.likelihood.seqTrack <- function(x, mu, haplo.length,...){
+    if(any(na.omit(x$weight - round(x$weight)) > 1e-10)){
+        warning("Non-integer weights: number of mutations expected in x$weight.")
     }
+
+    dates <- as.POSIXct(x$date)
+    anc.dates <- as.POSIXct(x$ances.date)
+    nb.days <- abs(as.integer(anc.dates-dates))
+    nb.mut <- x$weight
+    ##mu <- mu/365
+    ##mu <- mu*nb.days
+
+    res <- dbinom(nb.mut, size=seq.length*nb.days, prob=mu)
 
     return(res)
 } # end get.likelihood.seqTrack
@@ -446,12 +438,6 @@ setAs("seqTrack", "graphNEL", def=function(from){
 ##     res <- res[res < 0 & res > -7][1:n]
 ##     return(res)
 ## }
-
-
-
-
-
-
 
 
 ## ##################
