@@ -394,7 +394,7 @@ as.POSIXct.haploGen <- function(x, tz="", origin=as.POSIXct("2000/01/01"), ...){
 #####################
 ## seqTrack.haploGen
 #####################
-seqTrack.haploGen <- function(x, optim=c("min","max"), prox.mat=NULL, ...){
+seqTrack.haploGen <- function(x, best=c("min","max"), prox.mat=NULL, ...){
     myX <- dist.dna(x$seq, model="raw")
     x.names <- labels(x)
     x.dates <- as.POSIXct(x)
@@ -406,7 +406,7 @@ seqTrack.haploGen <- function(x, optim=c("min","max"), prox.mat=NULL, ...){
     } else {
         mu0 <- eval(prevCall$mu)
     }
-    res <- seqTrack(myX, x.names=x.names, x.dates=x.dates, optim=optim, prox.mat=prox.mat,...)
+    res <- seqTrack(myX, x.names=x.names, x.dates=x.dates, best=best, prox.mat=prox.mat,...)
     return(res)
 }
 
