@@ -8,14 +8,29 @@
 ## mean.gen.time, sd.gen.time: average time for transmission and its standard deviation (normal dist)
 ## mean.repro, sd.repro: average number of transmissions and its standard deviation (normal dist)
 ##
-haploGen <- function(seq.length=1000, mu=0.0001,
-                     t.max=50, mean.gen.time=5, sd.gen.time=1,
-                     mean.repro=2, sd.repro=1, max.nb.haplo=1e3,
-                     geo.sim=TRUE, grid.size=5, lambda.xy=0.5, mat.connect=NULL,
+haploGen <- function(seq.length=1000, mu=0.0001, t.max=50,
+                     gen.time=function(){round(rnorm(1,5,1))},
+                     repro=function(){round(rnorm(1,2,1))}, max.nb.haplo=1e3,
+                     geo.sim=TRUE, grid.size=5, lambda.xy=0.5,
+                     mat.connect=NULL,
                      ini.n=1, ini.xy=NULL){
 
     ## CHECKS ##
     if(!require(ape)) stop("The ape package is required.")
+
+
+    ## HANDLE ARGUMENTS ##
+    if(is.numeric(mu)){
+        mu <- function(){mu}
+    }
+
+    if(is.numeric(gen.time)){
+        gen.time <- function(){gen.time}
+    }
+
+    if(is.numeric(repro)){
+        repro <- function(){repro}
+    }
 
 
     ## GENERAL VARIABLES ##
@@ -43,7 +58,7 @@ haploGen <- function(seq.length=1000, mu=0.0001,
 
     ## duplicate a sequence (including possible mutations)
     seq.dupli <- function(seq){
-        toChange <- as.logical(rbinom(n=seq.length, size=1, prob=mu))
+        toChange <- as.logical(rbinom(n=seq.length, size=1, prob=mu()))
         res <- seq
         if(sum(toChange)>0) {
             res[toChange] <- substi(res[toChange])
@@ -59,7 +74,8 @@ haploGen <- function(seq.length=1000, mu=0.0001,
 
     ## how many days before duplication occurs ?
     time.dupli <- function(){
-        res <- round(rnorm(1, mean=mean.gen.time, sd=sd.gen.time))
+        ##res <- round(rnorm(1, mean=mean.gen.time, sd=sd.gen.time))
+        res <- gen.time()
         res[res<0] <- 0
         return(res)
     }
@@ -72,7 +88,8 @@ haploGen <- function(seq.length=1000, mu=0.0001,
 
     ## how many duplication/transmission occur?
     nb.desc <- function(){
-        res <- round(rnorm(1, mean=mean.repro, sd=sd.repro))
+        ##res <- round(rnorm(1, mean=mean.repro, sd=sd.repro))
+        res <- repro()
         res[res<0] <- 0
         return(res)
     }
@@ -95,9 +112,6 @@ haploGen <- function(seq.length=1000, mu=0.0001,
         if(any(mat.connect < 0)) stop("Negative values in mat.connect (probabilities expected!)")
         mat.connect <- prop.table(mat.connect,1)
         xy.dupli <- function(cur.xy, nbLoc){
-            ## lambda.xy <- mat.connect[cur.xy[1] , cur.xy[2]]
-            ##             mvt <- rpois(2*nbLoc, lambda.xy) * sample(c(-1,1), size=2*nbLoc, replace=TRUE)
-            ##             res <- t(matrix(mvt, nrow=2) + as.vector(cur.xy))
             idxAncesLoc <- myGrid[cur.xy[1], cur.xy[2]]
             newLoc <- sample(1:grid.size^2, size=nbLoc, prob=mat.connect[idxAncesLoc,], replace=TRUE) # get new locations
             res <- cbind(row(myGrid)[newLoc] , col(myGrid)[newLoc]) # get coords of new locations
@@ -191,8 +205,6 @@ haploGen <- function(seq.length=1000, mu=0.0001,
 
 
 
-
-
     ## PERFORM SIMULATIONS - NON SPATIAL CASE ##
     if(!geo.sim){
         ## initialization
@@ -220,7 +232,6 @@ haploGen <- function(seq.length=1000, mu=0.0001,
         return(res)
 
     } # END NON-SPATIAL SIMULATIONS
-
 
 
 
@@ -434,6 +445,8 @@ as.seqTrack.haploGen <- function(x){
 
 
 
+
+
 ################
 ## plotHaploGen
 ################
@@ -441,7 +454,7 @@ plotHaploGen <- function(x, annot=FALSE, date.range=NULL, col=NULL, bg="grey", a
 
     ## SOME CHECKS ##
     if(class(x)!="haploGen") stop("x is not a haploGen object")
-    if(is.null(x$xy)) stop("x does not contain xy coordinates; try to simulate date")
+    if(is.null(x$xy)) stop("x does not contain xy coordinates - try converting to graphNEL for plotting")
 
 
     ## ## CONVERSION TO A SEQTRACK-LIKE OBJECT ##
