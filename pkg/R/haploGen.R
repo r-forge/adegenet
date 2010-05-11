@@ -9,9 +9,9 @@
 ## mean.repro, sd.repro: average number of transmissions and its standard deviation (normal dist)
 ##
 haploGen <- function(seq.length=1000, mu=0.0001,
-                     Tmax=50, mean.gen.time=5, sd.gen.time=1,
+                     t.max=50, mean.gen.time=5, sd.gen.time=1,
                      mean.repro=2, sd.repro=1, max.nb.haplo=1e3,
-                     geo.sim=TRUE, grid.size=5, lambda.xy=0.5, matConnect=NULL,
+                     geo.sim=TRUE, grid.size=5, lambda.xy=0.5, mat.connect=NULL,
                      ini.n=1, ini.xy=NULL){
 
     ## CHECKS ##
@@ -83,7 +83,7 @@ haploGen <- function(seq.length=1000, mu=0.0001,
     }
 
     ## where does a transmission occur (destination)?
-    if(is.null(matConnect)){ # use universal lambda param
+    if(is.null(mat.connect)){ # use universal lambda param
         xy.dupli <- function(cur.xy, nbLoc){
             mvt <- rpois(2*nbLoc, lambda.xy) * sample(c(-1,1), size=2*nbLoc, replace=TRUE)
             res <- t(matrix(mvt, nrow=2) + as.vector(cur.xy))
@@ -92,14 +92,14 @@ haploGen <- function(seq.length=1000, mu=0.0001,
             return(res)
         }
     } else { # use location-dependent proba of dispersal between locations
-        if(any(matConnect < 0)) stop("Negative values in matConnect (probabilities expected!)")
-        matConnect <- prop.table(matConnect,1)
+        if(any(mat.connect < 0)) stop("Negative values in mat.connect (probabilities expected!)")
+        mat.connect <- prop.table(mat.connect,1)
         xy.dupli <- function(cur.xy, nbLoc){
-            ## lambda.xy <- matConnect[cur.xy[1] , cur.xy[2]]
+            ## lambda.xy <- mat.connect[cur.xy[1] , cur.xy[2]]
             ##             mvt <- rpois(2*nbLoc, lambda.xy) * sample(c(-1,1), size=2*nbLoc, replace=TRUE)
             ##             res <- t(matrix(mvt, nrow=2) + as.vector(cur.xy))
             idxAncesLoc <- myGrid[cur.xy[1], cur.xy[2]]
-            newLoc <- sample(1:grid.size^2, size=nbLoc, prob=matConnect[idxAncesLoc,], replace=TRUE) # get new locations
+            newLoc <- sample(1:grid.size^2, size=nbLoc, prob=mat.connect[idxAncesLoc,], replace=TRUE) # get new locations
             res <- cbind(row(myGrid)[newLoc] , col(myGrid)[newLoc]) # get coords of new locations
             return(res)
         }
@@ -153,7 +153,7 @@ haploGen <- function(seq.length=1000, mu=0.0001,
         nbDes <- nb.desc()
         if(nbDes==0) return(NULL) # stop if no descendant
         newDates <- sapply(1:nbDes, function(i) date.dupli(date)) # find dates for descendants
-        newDates <- newDates[newDates <= Tmax] # don't store future sequences
+        newDates <- newDates[newDates <= t.max] # don't store future sequences
         nbDes <- length(newDates)
         if(nbDes==0) return(NULL) # stop if no suitable date
         newSeq <- lapply(1:nbDes, function(i) seq.dupli(seq)) # generate new sequences
@@ -174,7 +174,7 @@ haploGen <- function(seq.length=1000, mu=0.0001,
         nbDes <- nb.desc()
         if(nbDes==0) return(NULL) # stop if no descendant
         newDates <- sapply(1:nbDes, function(i) date.dupli(date)) # find dates for descendants
-        newDates <- newDates[newDates <= Tmax] # don't store future sequences
+        newDates <- newDates[newDates <= t.max] # don't store future sequences
         nbDes <- length(newDates)
         if(nbDes==0) return(NULL) # stop if no suitable date
         newSeq <- lapply(1:nbDes, function(i) seq.dupli(seq)) # generate new sequences
@@ -227,9 +227,9 @@ haploGen <- function(seq.length=1000, mu=0.0001,
     ## PERFORM SIMULATIONS - SPATIAL CASE ##
     if(geo.sim){
         ## some checks
-        if(!is.null(matConnect)) {
-            if(nrow(matConnect) != ncol(matConnect)) stop("matConnect is not a square matrix")
-            if(nrow(matConnect) != grid.size^2) stop("dimension of matConnect does not match grid size")
+        if(!is.null(mat.connect)) {
+            if(nrow(mat.connect) != ncol(mat.connect)) stop("mat.connect is not a square matrix")
+            if(nrow(mat.connect) != grid.size^2) stop("dimension of mat.connect does not match grid size")
         }
 
         ## initialization
@@ -260,7 +260,7 @@ haploGen <- function(seq.length=1000, mu=0.0001,
             resize.result.xy()
             ## VERBOSE OUTPUT FOR DEBUGGING ##
             ## cat("\nNb strains:",length(res$ances),"/",max.nb.haplo)
-            ##             cat("\nLatest date:", max(res$dates),"/",Tmax)
+            ##             cat("\nLatest date:", max(res$dates),"/",t.max)
             ##             cat("\nRemaining strains to duplicate", sum(toExpand))
             ##             cat("\n",append=TRUE,file="haploGenTime.out")
             ##             iter.time <- as.numeric(difftime(Sys.time(),time.previous,unit="sec"))
@@ -437,7 +437,7 @@ as.seqTrack.haploGen <- function(x){
 ################
 ## plotHaploGen
 ################
-plotHaploGen <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", add=FALSE, ...){
+plotHaploGen <- function(x, annot=FALSE, date.range=NULL, col=NULL, bg="grey", add=FALSE, ...){
 
     ## SOME CHECKS ##
     if(class(x)!="haploGen") stop("x is not a haploGen object")
@@ -463,7 +463,7 @@ plotHaploGen <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", ad
 
 
     ## CALL TO PLOTSEQTRACK ##
-    plotSeqTrack(x=res, xy=xy, annot=annot, dateRange=dateRange,
+    plotSeqTrack(x=res, xy=xy, annot=annot, date.range=date.range,
                         col=col, bg=bg, add=add, ...)
 
     return(invisible(res))
@@ -478,7 +478,8 @@ plotHaploGen <- function(x, annot=FALSE, dateRange=NULL, col=NULL, bg="grey", ad
 ###################
 ## sample.haploGen
 ###################
-sample.haploGen <- function(x, n, rDate=.rTimeSeq, arg.rDate=NULL){
+sample.haploGen <- function(x, n){
+##sample.haploGen <- function(x, n, rDate=.rTimeSeq, arg.rDate=NULL){
     ## EXTRACT THE SAMPLE ##
     res <- x[sample(1:nrow(x$seq), n, replace=FALSE)]
 
@@ -497,18 +498,16 @@ sample.haploGen <- function(x, n, rDate=.rTimeSeq, arg.rDate=NULL){
         L <- 1000
     }
 
-    truedates <- res$dates
-    daterange <- diff(range(res$dates,na.rm=TRUE))
+    ## truedates <- res$dates
+    ## daterange <- diff(range(res$dates,na.rm=TRUE))
 
-    if(identical(rDate,.rTimeSeq)){
-        sampdates <- .rTimeSeq(n=length(truedates), mu=mu0, L=L, maxNbDays=daterange/2)
-    } else{
-        arg.rDate$n <- n
-        sampdates <- do.call(rDate, arg.rDate)
-    }
-    sampdates <- truedates + abs(sampdates)
-
-    res$dates <- sampdates
+    ## if(identical(rDate,.rTimeSeq)){
+    ##     sampdates <- .rTimeSeq(n=length(truedates), mu=mu0, L=L, maxNbDays=daterange/2)
+    ## } else{
+    ##     arg.rDate$n <- n
+    ##     sampdates <- do.call(rDate, arg.rDate)
+    ## }
+    ## sampdates <- truedates + abs(sampdates)
 
     return(res)
 } # end sample.haploGen
@@ -539,6 +538,17 @@ setAs("haploGen", "graphNEL", def=function(from){
     res <- ftM2graphNEL(ft=cbind(from$ances[!areNA], from$id[!areNA]), W=w, edgemode = "directed", V=from$id)
     return(res)
 })
+
+
+
+
+
+
+
+
+
+
+
 
 
 
