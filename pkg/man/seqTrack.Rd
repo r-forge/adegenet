@@ -144,5 +144,9 @@ get.likelihood(\ldots)
   \code{\link[ape]{dist.dna}} to compute pairwise genetic distances in aligned sequences.
 }
 \examples{
-
+if(require(ape)){
+dat <- read.csv(system.file("files/pdH1N1-data.csv",package="adegenet"))
+ha <-  read.dna(system.file("files/pdH1N1-HA.fasta",package="adegenet"), format="fa")
+na <- read.dna(system.file("files/pdH1N1-NA.fasta",package="adegenet"), format="fa")
+}
 }
