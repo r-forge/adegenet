@@ -250,7 +250,7 @@ plotSeqTrack <- function(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL,
         on.exit(par(bg=obg))
         if(!add){
             par(bg=bg)
-            plot(xy, type="n")
+            plot(xy, type="n", ...)
         }
     }
 

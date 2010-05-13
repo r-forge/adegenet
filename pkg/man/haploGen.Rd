@@ -11,7 +11,7 @@
 \alias{as.seqTrack.haploGen}
 \alias{plotHaploGen}
 \alias{sample.haploGen}
-\alias{as,haploGen,graphNEL-method}
+%\alias{as,haploGen,graphNEL-method}
 \alias{coerce,haploGen,graphNEL-method}
 \title{Simulation of populations of haplotypes}
 \description{
@@ -29,13 +29,13 @@ haploGen(seq.length=1000, mu=0.0001, t.max=50,
 
 print.haploGen(x, ...)
 
-"[.haploGen"(x,i,j,drop=FALSE)
+\method{[}{haploGen}(x, i, j, drop=FALSE)
 
-labels.haploGen(object, ...)
+\method{labels}{haploGen}(object, ...)
 
 as.POSIXct.haploGen(x, tz="", origin=as.POSIXct("2000/01/01"), ...)
 
-seqTrack.haploGen(x, best=c("min","max"), prox.mat=NULL, ...)
+\method{seqTrack}{haploGen}(x, best=c("min","max"), prox.mat=NULL, ...)
 
 as.seqTrack.haploGen(x)
 
@@ -43,7 +43,7 @@ plotHaploGen(x, annot=FALSE, date.range=NULL, col=NULL, bg="grey", add=FALSE, ..
 
 sample.haploGen(x, n)
 
-setAs("haploGen", "graphNEL", def=function(from)
+\S4method{coerce}{haploGen, graphNEL}(from, to)
 
 }
 \arguments{
@@ -65,5 +65,6 @@ setAs("haploGen", "graphNEL", def=function(from)
   \item{prox.mat}{}
   \item{annot,date.range,col,bg,add}{}
   \item{n}{}
+\item{from,to}{}
  }
 \author{Thibaut Jombart \email{t.jombart@imperial.ac.uk}}

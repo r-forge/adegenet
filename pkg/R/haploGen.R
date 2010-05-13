@@ -21,15 +21,18 @@ haploGen <- function(seq.length=1000, mu=0.0001, t.max=50,
 
     ## HANDLE ARGUMENTS ##
     if(is.numeric(mu)){
-        mu <- function(){mu}
+        mu.val <- mu
+        mu <- function(){return(mu.val)}
     }
 
     if(is.numeric(gen.time)){
-        gen.time <- function(){gen.time}
+        gen.time.val <- gen.time
+        gen.time <- function(){gen.time.val}
     }
 
     if(is.numeric(repro)){
-        repro <- function(){repro}
+        repro.val <- repro
+        repro <- function(){repro.val}
     }
 
 
@@ -533,7 +536,7 @@ sample.haploGen <- function(x, n){
 ##########################
 ## as("haploGen", "graphNEL")
 ##########################
-setOldClass("haploGen")
+if(require(graph)) setOldClass("haploGen")
 setAs("haploGen", "graphNEL", def=function(from){
     if(!require(ape)) stop("package ape is required")
     if(!require(graph)) stop("package graph is required")
