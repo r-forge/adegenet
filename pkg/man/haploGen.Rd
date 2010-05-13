@@ -137,7 +137,7 @@ proper seqTrack analysis, but just a format conversion convenient for
 plotting \code{haploGen} objects.
 }
 \details{
-=== Dependences with other packages ===\cr
+=== Dependencies with other packages ===\cr
 - ape package is required as it implements efficient handling of DNA
 sequences used in \code{haploGen} objects. To install this package,
 simply type:\cr
@@ -161,4 +161,19 @@ See the respective vignettes for more information on using these packages.
   \code{haploGen} object. This functionality requires the \code{graph}
   package (see 'details').
 }
+\examples{
+if(require(ape)){
+x <- haploGen(repro=2)
+x
+plotHaploGen(x, bg="white")
+title("Spatial dispersion of the haplotypes")
 
+if(require(graph) & require(Rgraphviz)){
+g=as(x, "graphNEL")
+g
+renderGraph(layoutGraph(g))
+}
+
+
+}
+}
