@@ -8,7 +8,7 @@
 ## mean.gen.time, sd.gen.time: average time for transmission and its standard deviation (normal dist)
 ## mean.repro, sd.repro: average number of transmissions and its standard deviation (normal dist)
 ##
-haploGen <- function(seq.length=1000, mu=0.0001, t.max=50,
+haploGen <- function(seq.length=1000, mu=0.0001, t.max=20,
                      gen.time=function(){round(rnorm(1,5,1))},
                      repro=function(){round(rnorm(1,2,1))}, max.nb.haplo=1e3,
                      geo.sim=TRUE, grid.size=5, lambda.xy=0.5,
@@ -60,13 +60,14 @@ haploGen <- function(seq.length=1000, mu=0.0001, t.max=50,
     }
 
     ## duplicate a sequence (including possible mutations)
-    seq.dupli <- function(seq){
-        toChange <- as.logical(rbinom(n=seq.length, size=1, prob=mu()))
-        res <- seq
+    seq.dupli <- function(seq, T){ # T is the number of time units between ancestor and decendent
+        ## toChange <- as.logical(rbinom(n=seq.length, size=1, prob=mu())) # can be faster
+        temp <- rbinom(n=1, size=seq.length*T, prob=mu()) # total number of mutations
+        toChange <- sample(1:seq.length, size=temp, replace=FALSE)
         if(sum(toChange)>0) {
-            res[toChange] <- substi(res[toChange])
+            seq[toChange] <- substi(seq[toChange])
         }
-        return(res)
+        return(seq)
     }
 
     ## what is the name of the new sequences?
@@ -173,7 +174,7 @@ haploGen <- function(seq.length=1000, mu=0.0001, t.max=50,
         newDates <- newDates[newDates <= t.max] # don't store future sequences
         nbDes <- length(newDates)
         if(nbDes==0) return(NULL) # stop if no suitable date
-        newSeq <- lapply(1:nbDes, function(i) seq.dupli(seq)) # generate new sequences
+        newSeq <- lapply(1:nbDes, function(i) seq.dupli(seq, newDates[i]-date)) # generate new sequences
         class(newSeq) <- "DNAbin" # lists of DNAbin vectors must also have class "DNAbin"
         newSeq <- as.matrix(newSeq) # list DNAbin -> matrix DNAbin with nbDes rows
         rownames(newSeq) <- seqname.gen(nbDes) # find new labels for these new sequences
@@ -194,7 +195,7 @@ haploGen <- function(seq.length=1000, mu=0.0001, t.max=50,
         newDates <- newDates[newDates <= t.max] # don't store future sequences
         nbDes <- length(newDates)
         if(nbDes==0) return(NULL) # stop if no suitable date
-        newSeq <- lapply(1:nbDes, function(i) seq.dupli(seq)) # generate new sequences
+        newSeq <- lapply(1:nbDes, function(i) seq.dupli(seq, newDates[i]-date)) # generate new sequences
         class(newSeq) <- "DNAbin" # lists of DNAbin vectors must also have class "DNAbin"
         newSeq <- as.matrix(newSeq) # list DNAbin -> matrix DNAbin with nbDes rows
         rownames(newSeq) <- seqname.gen(nbDes) # find new labels for these new sequences
@@ -231,6 +232,7 @@ haploGen <- function(seq.length=1000, mu=0.0001, t.max=50,
         res$id <- as.character(1:length(res$ances))
         res$ances <- as.character(res$ances)
         names(res$dates) <- rownames(res$seq)
+        res$call <- match.call()
         class(res) <- "haploGen"
         return(res)
 
