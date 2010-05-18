@@ -8,7 +8,7 @@
 ## mean.gen.time, sd.gen.time: average time for transmission and its standard deviation (normal dist)
 ## mean.repro, sd.repro: average number of transmissions and its standard deviation (normal dist)
 ##
-haploGen <- function(seq.length=1000, mu=0.0001, t.max=20,
+haploGen <- function(seq.length=10000, mu=0.0001, t.max=20,
                      gen.time=function(){round(rnorm(1,5,1))},
                      repro=function(){round(rnorm(1,2,1))}, max.nb.haplo=1e3,
                      geo.sim=TRUE, grid.size=5, lambda.xy=0.5,
@@ -405,6 +405,7 @@ seqTrack.haploGen <- function(x, best=c("min","max"), prox.mat=NULL, ...){
     x.dates <- as.POSIXct(x)
     seq.length <- ncol(x$seq)
     myX <- myX * seq.length
+    myX <- as.matrix(myX)
     prevCall <- as.list(x$call)
     if(is.null(prevCall$mu)){
         mu0 <- 0.0001
