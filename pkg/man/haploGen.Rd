@@ -111,6 +111,9 @@ but not used.}
 in the sample}
   \item{from,to}{arguments of the conversion function, for converting a
 \code{haploGen} object into a \linkS4class{graphNEL}.}
+\item{tz, origin}{ aguments to be passed to \code{\link{as.POSIXct}}
+(see ?as.POSIXct)}
+\item{\ldots}{further arguments to be passed to other methods}
  }
 \author{Thibaut Jombart \email{t.jombart@imperial.ac.uk}}
 \references{
