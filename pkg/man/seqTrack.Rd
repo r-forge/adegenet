@@ -34,6 +34,7 @@ plotSeqTrack(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL, col=NULL,
                          date.range=NULL, plot=TRUE, \dots)
 
 get.likelihood(\ldots)
+
 \method{get.likelihood}{seqTrack}(x, mu, haplo.length, \ldots)
 }
 \arguments{
@@ -83,6 +84,7 @@ get.likelihood(\ldots)
   \item{plot}{a logical stating whether a plot should be drawn (TRUE,
     default), or not (FALSE). In all cases, the
     function invisibly returns plotting information.}
+  \item{\ldots}{further arguments to be passed to other methods}
 }
 \author{
   Thibaut Jombart \email{t.jombart@imperial.ac.uk}
@@ -141,7 +143,7 @@ get.likelihood(\ldots)
   previous command lines to install this package).
 }
 \seealso{
-  \code{\link[ape]{dist.dna}} to compute pairwise genetic distances in aligned sequences.
+  \code{\link[ape]{dist.dna}} in the ape package to compute pairwise genetic distances in aligned sequences.
 }
 \examples{
 if(require(ape)){
@@ -213,7 +215,7 @@ p <- get.likelihood(res, mu=.00502/365, haplo.length=nbNucl)
 head(res)
 tail(res)
 range(res$weight, na.rm=TRUE)
-barplot(table(res$weight)/sum(!is.na(res$weight)), ylab="Frequency", xlab="Mutations between ancestor and descendent")
+barplot(table(res$weight)/sum(!is.na(res$weight)), ylab="Frequency",xlab="Mutations between inferred ancestor and descendent", col="orange")
 
 
 ## DISPLAY SPATIO-TEMPORAL DYNAMICS 
@@ -232,10 +234,10 @@ opal <- palette()
 palette(rev(heat.colors(10)))
 plotSeqTrack(res, round(xy), add=TRUE,annot=FALSE,lwd=2, date.range=curRange, col=res$weight+1)
 title(paste(curRange, collapse=" to "))
-legend("bottomright", lty=1, leg=0:8, title="number of mutations", col=1:9, lwd=2)
+legend("bottom", lty=1, leg=0:8, title="number of mutations", col=1:9, lwd=2, horiz=TRUE)
 
 
-## SECOND STAGE
+## SECOND STAGE:
 ## SPREAD WITHIN AMERICA, FIRST SEEDING OUTSIDE AMERICA
 curRange <- as.POSIXct(c("2009-04-30","2009-05-07"))
 par(bg="deepskyblue")
@@ -247,7 +249,7 @@ title(paste(curRange, collapse=" to "))
 legend("bottom", lty=1, leg=0:8, title="number of mutations", col=1:9,lwd=2, horiz=TRUE)
 
 
-## THIRD STAGE
+## THIRD STAGE:
 ## PANDEMIC
 curRange <- as.POSIXct(c("2009-05-15","2009-05-25"))
 par(bg="deepskyblue")
