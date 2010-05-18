@@ -40,13 +40,13 @@ haploGen(seq.length=10000, mu=0.0001, t.max=20,
               geo.sim=TRUE, grid.size=5, lambda.xy=0.5,
               mat.connect=NULL, ini.n=1, ini.xy=NULL)
 
-print.haploGen(x, \ldots)
+\method{print}{haploGen}(x, \ldots)
 
 \method{[}{haploGen}(x, i, j, drop=FALSE)
 
 \method{labels}{haploGen}(object, \ldots)
 
-as.POSIXct.haploGen(x, tz="", origin=as.POSIXct("2000/01/01"), \ldots)
+\method{as.POSIXct}{haploGen}(x, tz="", origin=as.POSIXct("2000/01/01"), \ldots)
 
 \method{seqTrack}{haploGen}(x, best=c("min","max"), prox.mat=NULL, \ldots)
 
