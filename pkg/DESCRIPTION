@@ -10,5 +10,6 @@ Maintainer: Thibaut Jombart <t.jombart@imperial.ac.uk>
 Suggests: ade4, genetics, hierfstat, spdep, tripack, ape, pegas, graph, RBGL
 Depends: methods, MASS
 Description: Classes and functions for genetic data analysis within the multivariate framework.
+Collate: auxil.R  classes.R basicMethods.R chooseCN.R colorplot.R coords.monmonier.R dapc.R dist.genpop.R export.R find.clust.R fstat.R genind2genpop.R gstat.randtest.R handling.R haploGen.R haploPop.R Hs.R HWE.R hybridize.R import.R loadingplot.R makefreq.R monmonier.R old2new.R PCtest.R propShared.R propTyped.R scale.R seqTrack.R sequences.R setAs.R spca.R spca.rtests.R zzz.R 
 License: GPL (>=2)
 LazyLoad: yes
