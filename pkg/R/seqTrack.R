@@ -307,10 +307,9 @@ get.likelihood.seqTrack <- function(x, mu, haplo.length,...){
     anc.dates <- as.POSIXct(x$ances.date)
     nb.days <- abs(as.integer(anc.dates-dates))
     nb.mut <- x$weight
-    ##mu <- mu/365
-    ##mu <- mu*nb.days
 
-    res <- dbinom(nb.mut, size=seq.length*nb.days, prob=mu)
+    ##    res <- dbinom(nb.mut, size=haplo.length*nb.days, prob=mu)
+    res <- dpois(x=nb.mut, lambda=mu*haplo.length*nb.days)
 
     return(res)
 } # end get.likelihood.seqTrack
