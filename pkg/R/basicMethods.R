@@ -124,6 +124,9 @@ setMethod ("show", "genpop", function(object){
 ############################
 # Method summary for genind
 ############################
+if(!isGeneric("summary")){
+    setGeneric("summary")
+}
 setMethod ("summary", signature(object="genind"), function(object, ...){
   x <- object
   if(!is.genind(x)) stop("Provided object is not a valid genind.")
