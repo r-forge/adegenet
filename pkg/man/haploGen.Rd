@@ -34,7 +34,7 @@
   \code{haploGen} objects.
 }
 \usage{
-haploGen(seq.length=1000, mu=0.0001, t.max=20,
+haploGen(seq.length=10000, mu=0.0001, t.max=20,
               gen.time=function(){round(rnorm(1,5,1))},
               repro=function(){round(rnorm(1,2,1))}, max.nb.haplo=1e3,
               geo.sim=TRUE, grid.size=5, lambda.xy=0.5,
@@ -163,17 +163,25 @@ See the respective vignettes for more information on using these packages.
 }
 \examples{
 if(require(ape)){
+## PERFORM SIMULATIONS
 x <- haploGen(repro=2)
 x
+
+## PLOT SPATIAL SPREAD
 plotHaploGen(x, bg="white")
 title("Spatial dispersion of the haplotypes")
 
+## PLOT GENEALOGY
 if(require(graph) & require(Rgraphviz)){
 g=as(x, "graphNEL")
 g
 renderGraph(layoutGraph(g))
 }
 
+
+## USE SEQTRACK RECONSTRUCTION
+x.recons <- seqTrack(x)
+mean(x.recons$ances==x$ances, na.rm=TRUE) # proportion of correct reconstructions
 
 }
 }
