@@ -324,7 +324,7 @@ get.likelihood.seqTrack <- function(x, mu, haplo.length,...){
 if(require(graph)){
 setOldClass("seqTrack")
 setAs("seqTrack", "graphNEL", def=function(from){
-    if(!require(ape)) stop("package ape is required")
+    ##    if(!require(ape)) stop("package ape is required")
     if(!require(graph)) stop("package graph is required")
 
     ori.labels <- rownames(from)

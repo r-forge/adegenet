@@ -1,9 +1,5 @@
 
 
-
-
-
-
 setMethod("$","genpop",function(x,name) {
     return(slot(x,name))
 })
@@ -85,7 +81,7 @@ setMethod("[", "genind",
 
 
 ## genpop
-setMethod("[","genpop",
+setMethod("[", "genpop",
           function(x, i, j, ..., loc=NULL, treatOther=TRUE, drop=FALSE) {
 
               if (missing(i)) i <- TRUE
