@@ -321,6 +321,7 @@ get.likelihood.seqTrack <- function(x, mu, haplo.length,...){
 ##########################
 ## as("seqTrack", "graphNEL")
 ##########################
+if(require(graph)){
 setOldClass("seqTrack")
 setAs("seqTrack", "graphNEL", def=function(from){
     if(!require(ape)) stop("package ape is required")
@@ -334,6 +335,7 @@ setAs("seqTrack", "graphNEL", def=function(from){
     res <- ftM2graphNEL(ft=cbind(ori.labels[from$ances], ori.labels[from$id]), W=from$weight, edgemode = "directed", V=ori.labels)
     return(res)
 })
+}
 
 
 

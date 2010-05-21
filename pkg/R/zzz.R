@@ -6,5 +6,4 @@
 
     packageStartupMessage(startup.txt)
 
-    require(methods)
 }
