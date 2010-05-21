@@ -18,8 +18,7 @@ setMethod("$<-","genpop",function(x,name,value) {
 # '[' operator
 ###############
 ## genind
-setMethod("[", "genind",
-          function(x, i, j, ..., loc=NULL, treatOther=TRUE, drop=FALSE) {
+setMethod("[", signature(x="genind", i="ANY", j="ANY", drop="ANY"), function(x, i, j, ..., loc=NULL, treatOther=TRUE, drop=FALSE) {
 
               if (missing(i)) i <- TRUE
               if (missing(j)) j <- TRUE
@@ -78,6 +77,9 @@ setMethod("[", "genind",
 
               return(res)
           })
+
+
+
 
 
 ## genpop
