@@ -56,8 +56,7 @@ plotHaploGen(x, annot=FALSE, date.range=NULL, col=NULL, bg="grey", add=FALSE, \l
 
 sample.haploGen(x, n)
 
-\S4method{coerce}{haploGen, graphNEL}(from, to)
-
+\code{as(object, class)}
 }
 \arguments{
   \item{seq.length}{an integer indicating the length of the simulated
@@ -109,7 +108,7 @@ but not used.}
   \item{annot,date.range,col,bg,add}{arguments to be passed to \code{\link{plotSeqTrack}}.}
   \item{n}{an integer indicating the number of haplotypes to be retained
 in the sample}
-  \item{from,to}{arguments of the conversion function, for converting a
+  \item{object,class}{arguments of the conversion function, for converting a
 \code{haploGen} object into a \linkS4class{graphNEL}.}
 \item{tz, origin}{ aguments to be passed to \code{\link{as.POSIXct}}
 (see ?as.POSIXct)}
