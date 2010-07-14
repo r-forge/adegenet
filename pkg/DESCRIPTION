@@ -1,6 +1,6 @@
 Package: adegenet
-Version: 1.2-4
-Date: 2009/04/15
+Version: 1.2-5
+Date: 2010/07/14
 Title: adegenet: a R package for the multivariate analysis of genetic markers.
 Author:  Thibaut Jombart <t.jombart@imperial.ac.uk>
   with contributions of: Peter Solymos, Francois Balloux

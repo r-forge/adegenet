@@ -90,8 +90,9 @@ get.likelihood(\ldots)
   Thibaut Jombart \email{t.jombart@imperial.ac.uk}
 }
 \references{
-  Jombart T, Eggo R, Dodd P, Balloux F (accepted) Reconstructing disease
-  outbreaks from genetic data: a graph approach. Heredity.
+  Jombart T, Eggo R, Dodd P, Balloux F (2010) Reconstructing disease
+  outbreaks from genetic data: a graph approach. Heredity. doi:
+  10.1038/hdy.2010.78.
 }
 \value{
   === output of seqTrack ===\cr
