@@ -42,7 +42,7 @@ haploGen(seq.length=10000, mu=0.0001, t.max=20,
 
 \method{print}{haploGen}(x, \ldots)
 
-\method{[}{haploGen}(x, i, j, drop=FALSE)
+\method{"["}{haploGen}(x, i, j, drop=FALSE)
 
 \method{labels}{haploGen}(object, \ldots)
 
@@ -56,7 +56,7 @@ plotHaploGen(x, annot=FALSE, date.range=NULL, col=NULL, bg="grey", add=FALSE, \l
 
 sample.haploGen(x, n)
 
-\code{as(object, class)}
+as(object, class)
 }
 \arguments{
   \item{seq.length}{an integer indicating the length of the simulated
