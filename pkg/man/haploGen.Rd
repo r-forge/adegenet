@@ -40,8 +40,8 @@ haploGen(seq.length=10000, mu=0.0001, t.max=20,
               repro=function(){round(rnorm(1,2,1))}, max.nb.haplo=1e3,
               geo.sim=TRUE, grid.size=5, lambda.xy=0.5,
               mat.connect=NULL, ini.n=1, ini.xy=NULL)
-% \method{print}{haploGen}(x, \dots)
-% \method{"["}{haploGen}(x, i, j, drop=FALSE)
+\method{print}{haploGen}(x, \dots)
+\method{[}{haploGen}(x, i, j, drop=FALSE)
 \method{labels}{haploGen}(object, \dots)
 \method{as.POSIXct}{haploGen}(x, tz="", origin=as.POSIXct("2000/01/01"), \dots)
 \method{seqTrack}{haploGen}(x, best=c("min","max"), prox.mat=NULL, \dots)
@@ -111,8 +111,9 @@ sample.haploGen(x, n)
 }
 \author{Thibaut Jombart \email{t.jombart@imperial.ac.uk}}
 \references{
-  Jombart T, Eggo R, Dodd P, Balloux F (accepted) Reconstructing disease
-  outbreaks from genetic data: a graph approach. Heredity.
+  Jombart T, Eggo R, Dodd P, Balloux F (2010) Reconstructing disease
+  outbreaks from genetic data: a graph approach. Heredity. doi:
+  10.1038/hdy.2010.78.
 }
 \value{
   === haploGen class ===\cr
