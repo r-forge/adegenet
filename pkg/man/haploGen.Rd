@@ -40,23 +40,23 @@ haploGen(seq.length=10000, mu=0.0001, t.max=20,
               geo.sim=TRUE, grid.size=5, lambda.xy=0.5,
               mat.connect=NULL, ini.n=1, ini.xy=NULL)
 
-\method{print}{haploGen}(x, \ldots)
+\method{print}{haploGen}(x, \dots)
 
 \method{"["}{haploGen}(x, i, j, drop=FALSE)
 
-\method{labels}{haploGen}(object, \ldots)
+\method{labels}{haploGen}(object, \dots)
 
-\method{as.POSIXct}{haploGen}(x, tz="", origin=as.POSIXct("2000/01/01"), \ldots)
+\method{as.POSIXct}{haploGen}(x, tz="", origin=as.POSIXct("2000/01/01"), \dots)
 
-\method{seqTrack}{haploGen}(x, best=c("min","max"), prox.mat=NULL, \ldots)
+\method{seqTrack}{haploGen}(x, best=c("min","max"), prox.mat=NULL, \dots)
 
 as.seqTrack.haploGen(x)
 
-plotHaploGen(x, annot=FALSE, date.range=NULL, col=NULL, bg="grey", add=FALSE, \ldots)
+plotHaploGen(x, annot=FALSE, date.range=NULL, col=NULL, bg="grey", add=FALSE, \dots)
 
 sample.haploGen(x, n)
 
-as(object, class)
+\S4method{coerce}{haploGen,graphNEL}(from, to)
 }
 \arguments{
   \item{seq.length}{an integer indicating the length of the simulated
@@ -108,11 +108,11 @@ but not used.}
   \item{annot,date.range,col,bg,add}{arguments to be passed to \code{\link{plotSeqTrack}}.}
   \item{n}{an integer indicating the number of haplotypes to be retained
 in the sample}
-  \item{object,class}{arguments of the conversion function, for converting a
+  \item{from, to}{arguments of the conversion function, for converting a
 \code{haploGen} object into a \linkS4class{graphNEL}.}
 \item{tz, origin}{ aguments to be passed to \code{\link{as.POSIXct}}
 (see ?as.POSIXct)}
-\item{\ldots}{further arguments to be passed to other methods}
+\item{\dots}{further arguments to be passed to other methods}
  }
 \author{Thibaut Jombart \email{t.jombart@imperial.ac.uk}}
 \references{
