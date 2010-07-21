@@ -160,7 +160,7 @@ seqTrack.matrix <- function(x, x.names, x.dates, best=c("min","max"),
 ################
 plotSeqTrack <- function(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL,
                          col=NULL, bg="grey", add=FALSE, quiet=FALSE, date.range=NULL,
-                         plot=TRUE,...){
+                         jitter.arrows=0, plot=TRUE,...){
 
     ## CHECKS ##
     if(!inherits(x,"seqTrack")) stop("x is not a seqTrack object")
@@ -262,11 +262,27 @@ plotSeqTrack <- function(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL,
             ## handle segments/arrows with length 0 ##
             nullLength <- (abs(x.from-x.to)<1e-10) & (abs(y.from-y.to)<1e-10)
 
+            ## handle random noise around coordinates
+            if(jitter.arrows>0){
+                x.from[!nullLength] <- jitter(x.from[!nullLength], jitter.arrows)
+                x.to[!nullLength] <- jitter(x.to[!nullLength], jitter.arrows)
+                y.from[!nullLength] <- jitter(y.from[!nullLength], jitter.arrows)
+                y.to[!nullLength] <- jitter(y.to[!nullLength], jitter.arrows)
+            }
+
             arrows(x.from[!nullLength], y.from[!nullLength],
                    x.to[!nullLength], y.to[!nullLength],
                    col=col[!nullLength], angle=15, ...)
         } else{
         ## SEGMENTS
+            ## handle random noise around coordinates
+            if(jitter.arrows>0){
+                x.from[!nullLength] <- jitter(x.from[!nullLength], jitter.arrows)
+                x.to[!nullLength] <- jitter(x.to[!nullLength], jitter.arrows)
+                y.from[!nullLength] <- jitter(y.from[!nullLength], jitter.arrows)
+                y.to[!nullLength] <- jitter(y.to[!nullLength], jitter.arrows)
+            }
+
             segments(x.from, y.from, x.to, y.to, col=col,...)
         }
 
