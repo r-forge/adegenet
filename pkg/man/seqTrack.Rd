@@ -31,7 +31,7 @@ seqTrack(\ldots)
 
 plotSeqTrack(x, xy, use.arrows=TRUE, annot=TRUE, labels=NULL, col=NULL,
                          bg="grey", add=FALSE, quiet=FALSE,
-                         date.range=NULL, plot=TRUE, \dots)
+                         date.range=NULL, jitter.arrows=0, plot=TRUE, \dots)
 
 get.likelihood(\ldots)
 
@@ -80,7 +80,10 @@ get.likelihood(\ldots)
   \item{quiet}{a logical stating whether messages other than errors
     should be displayed (FALSE, default), or hidden (TRUE).}
    \item{date.range}{a vector of length two with POSIXct format indicating
-    the time window for which ancestries should be displayed.}
+     the time window for which ancestries should be displayed.}
+   \item{jitter.arrows}{a positive number indicating the amount of noise
+   to be added to coordinates of arrows; useful when several arrows
+   overlap. See \code{\link{jitter}}.}
   \item{plot}{a logical stating whether a plot should be drawn (TRUE,
     default), or not (FALSE). In all cases, the
     function invisibly returns plotting information.}
