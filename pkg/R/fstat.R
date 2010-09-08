@@ -29,12 +29,12 @@ fstat <- function(x, pop=NULL, fstonly=FALSE){
 
 
 ###############
-# fst function
+## pairwise.fst
 ###############
-#
-# classical fst sensu Nei
-#
-pairwise.fst <- function(x, pop=NULL, res.type=c("dist","matrix")){
+##
+## pairwise fst sensu Nei (Ht - mean(Hs))/Ht
+##
+pairwise.fst <- function(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRUE){
     ## MISC CHECKS ##
     if(!is.genind(x)) stop("x is not a valid genind object")
     if(!is.null(pop)){
@@ -46,6 +46,8 @@ pairwise.fst <- function(x, pop=NULL, res.type=c("dist","matrix")){
         warning("There is only one pop - returning NULL")
         return(NULL)
     }
+
+    res.type <- match.arg(res.type)
 
 
     ## COMPUTATIONS ##
@@ -70,5 +72,22 @@ pairwise.fst <- function(x, pop=NULL, res.type=c("dist","matrix")){
     for(i in 1:ncol(allPairs)){
         vecRes[i] <- f1(lx[[allPairs[1,i]]], lx[[allPairs[2,i]]])
     }
+
+
+    squelres <- dist(1:length(levPop))
+    res <- vecRes
+    attributes(res) <- attributes(squelres)
+
+    if(res.type=="matrix"){
+        res <- as.matrix(res)
+        if(truenames){
+            lab <- x@pop.names
+        } else {
+            lab <- names(x@pop.names)
+        }
+
+        colnames(res) <- rownames(res) <- lab
+    }
+
     return(res)
 } # end of pairwise.fst
