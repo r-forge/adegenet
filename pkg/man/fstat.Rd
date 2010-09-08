@@ -1,25 +1,47 @@
 \encoding{UTF-8}
 \name{fstat}
 \alias{fstat}
+\alias{pairwise.fst}
 \title{F statistics for genind objects}
-\description{This function is a wrapper of \code{varcomp.glob} for
-  \linkS4class{genind} objects. It computes F statistics (Fst, Fis, Fit)
+\description{
+  The function \code{fstat} computes a global Fst, while
+  \code{pairwise.fst} computes Nei's pairwise Fst between all pairs of
+  populations. Both functions are designed for \linkS4class{genind}
+  objects.
+
+  \code{fstat} is wrapper for \code{varcomp.glob} from package
+  \code{hierfstat} for \linkS4class{genind} objects. It computes F statistics (Fst, Fis, Fit)
   given a set of genotypes and a grouping factor.
+
+  \code{pairwise.fst} is a simple implementation of Nei's Fst (see details)
 }
 \usage{
 fstat(x, pop=NULL, fstonly=FALSE)
+pairwise.fst(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRUE)
 }
 \arguments{
   \item{x}{an object of class \linkS4class{genind}.}
   \item{pop}{a factor giving the 'population' of each individual. If NULL,
-  pop is seeked from x\@pop. Note that the term population refers in
-  fact to any grouping of individuals'.}
-\item{fstonly}{a logical stating whether only the Fst value should be
-  returned (TRUE) instead of all F statistics (FALSE, default).}
-  }
+    pop is seeked from x\@pop. Note that the term population refers in
+    fact to any grouping of individuals'.}
+  \item{fstonly}{a logical stating whether only the Fst value should be
+    returned (TRUE) instead of all F statistics (FALSE, default).}
+  \item{res.type}{the type of result required: a \code{dist} object, or a
+    symmetric matrix}
+  \item{truenames}{a logical indicating whether true labels (as opposed
+    to generic labels) should be used to name the output.}
+}
 \value{A matrix of F statistics.}
-\seealso{\code{\link[hierfstat]{varcomp.glob}},
+\seealso{\code{\link{Hs}}, \code{\link[hierfstat]{varcomp.glob}},
   \code{\link{gstat.randtest}}
+}
+\details{
+  Let A and B be two populations, with expected heterozygocity Hs(A) and
+  Hs(B), respectively. We denote Ht the expected heterozygocity of a
+  population pooling A and B. Then, the pairwise Fst \eqn{Fst(A,B)} is
+  computed as:\cr
+
+  \eqn{\frac{(Ht - (Hs(A)+Hs(B))/2 )}{Ht} \cr
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
