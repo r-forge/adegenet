@@ -54,8 +54,10 @@ pairwise.fst <- function(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRU
 
     ## function to compute one Fst ##
     f1 <- function(pop1, pop2){ # pop1 and pop2 are genind obj. with a single pop each
+        n1 <- nrow(pop1@tab)
+        n2 <- nrow(pop2@tab)
         temp <- repool(pop1,pop2)
-        b <- mean(Hs(temp))
+        b <- weighted.mean(Hs(temp), c(n1,n2)) # mean Hs is weighted for pop sizes
         pop(temp) <- NULL
         a <- Hs(temp)
         return((a-b)/a)
