@@ -36,12 +36,13 @@ pairwise.fst(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRUE)
   \code{\link{gstat.randtest}}
 }
 \details{
-  Let A and B be two populations, with expected heterozygocity Hs(A) and
-  Hs(B), respectively. We denote Ht the expected heterozygocity of a
-  population pooling A and B. Then, the pairwise Fst \eqn{Fst(A,B)} is
-  computed as:\cr
+  Let A and B be two populations of population sizes \eqn{n_A} and
+  \eqn{n_B}, with expected heterozygosity Hs(A) and Hs(B),
+  respectively. We denote Ht the expected heterozygosity of a population
+  pooling A and B. Then, the pairwise Fst \eqn{Fst(A,B)} is computed
+  as:\cr
 
-  \eqn{\frac{(Ht - (Hs(A)+Hs(B))/2 )}{Ht} \cr
+  \eqn{\frac{(Ht - (n_A Hs(A) + n_B Hs(B))/(n_A + n_B) )}{Ht} \cr
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
