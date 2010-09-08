@@ -25,22 +25,27 @@ fstat <- function(x, pop=NULL, fstonly=FALSE){
 
 
 
-## ###############
-## # fst function
-## ###############
-## #
-## # classical fst sensu Weir 1996 Genetic data analysis II pp. 166-167
-## #
-## fst <- function(x, pop=NULL){
-##     ## misc checks
-##     if(!is.genind(x)) stop("x is not a valid genind object")
-##     if(!require(hierfstat)) stop("hierfstat package is required. Please install it.")
 
-##     if(is.null(pop)) pop <- x@pop
-##     if(is.null(pop)) stop("no pop factor provided")
-##     if(length(pop)!=nrow(x@tab)) stop("pop has a wrong length.")
 
-##     ## computations
 
-##     return(res)
-## }
+###############
+# fst function
+###############
+#
+# classical fst sensu Nei
+#
+pairwise.fst <- function(x, pop=NULL){
+    ## MISC CHECKS ##
+    if(!is.genind(x)) stop("x is not a valid genind object")
+
+    if(is.null(pop)) pop <- pop(x)
+    if(is.null(pop)) stop("no pop factor provided")
+    if(length(pop)!=nrow(x@tab)) stop("pop has a wrong length.")
+
+
+    ## COMPUTATIONS ##
+
+
+
+    return(res)
+} # end of pairwise.fst
