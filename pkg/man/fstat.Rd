@@ -13,10 +13,12 @@
   \code{hierfstat} for \linkS4class{genind} objects. It computes F statistics (Fst, Fis, Fit)
   given a set of genotypes and a grouping factor.
 
-  \code{pairwise.fst} is a simple implementation of Nei's Fst (see details)
+  \code{pairwise.fst} is an implementation of Nei's Fst in which
+  heretozygosities are weighted by group sizes (see details).
 }
 \usage{
 fstat(x, pop=NULL, fstonly=FALSE)
+
 pairwise.fst(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRUE)
 }
 \arguments{
@@ -48,7 +50,13 @@ pairwise.fst(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRUE)
 \examples{
 if(require(hierfstat)){
 data(nancycats)
+
+## Fst, Fis, Fit
 fstat(nancycats)
+
+## pairwise Fst
+mat.fst <- pairwise.fst(nancycats, res.type="matrix")
+mat.fst
 }
 }
 \keyword{multivariate}
