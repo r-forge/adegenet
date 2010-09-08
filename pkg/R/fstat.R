@@ -34,18 +34,41 @@ fstat <- function(x, pop=NULL, fstonly=FALSE){
 #
 # classical fst sensu Nei
 #
-pairwise.fst <- function(x, pop=NULL){
+pairwise.fst <- function(x, pop=NULL, res.type=c("dist","matrix")){
     ## MISC CHECKS ##
     if(!is.genind(x)) stop("x is not a valid genind object")
-
-    if(is.null(pop)) pop <- pop(x)
-    if(is.null(pop)) stop("no pop factor provided")
-    if(length(pop)!=nrow(x@tab)) stop("pop has a wrong length.")
+    if(!is.null(pop)){
+        pop(x) <- pop
+    }
+    temp <- pop(x)
+    if(is.null(temp)) stop("no grouping factor (pop) provided")
+    if(length(levels(temp)) < 2){
+        warning("There is only one pop - returning NULL")
+        return(NULL)
+    }
 
 
     ## COMPUTATIONS ##
 
+    ## function to compute one Fst ##
+    f1 <- function(pop1, pop2){ # pop1 and pop2 are genind obj. with a single pop each
+        temp <- repool(pop1,pop2)
+        b <- mean(Hs(temp))
+        pop(temp) <- NULL
+        a <- Hs(temp)
+        return((a-b)/a)
+    }
 
 
+    ## compute pairwise Fst for all pairs
+    lx <- seppop(x)
+    temp <- pop(x)
+    levPop <- levels(temp)
+    allPairs <- combn(1:length(levPop), 2)
+
+    vecRes <- numeric()
+    for(i in 1:ncol(allPairs)){
+        vecRes[i] <- f1(lx[[allPairs[1,i]]], lx[[allPairs[2,i]]])
+    }
     return(res)
 } # end of pairwise.fst
