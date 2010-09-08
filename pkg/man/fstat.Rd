@@ -42,7 +42,7 @@ pairwise.fst(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRUE)
   pooling A and B. Then, the pairwise Fst \eqn{Fst(A,B)} is computed
   as:\cr
 
-  \eqn{\frac{(Ht - (n_A Hs(A) + n_B Hs(B))/(n_A + n_B) )}{Ht} \cr
+  \eqn{\frac{(Ht - (n_A Hs(A) + n_B Hs(B))/(n_A + n_B) )}{Ht}} \cr
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
