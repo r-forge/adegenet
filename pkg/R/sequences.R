@@ -84,6 +84,8 @@ alignment2genind <- function(x, pop=NULL, exp.char=c("a","t","g","c"), na.char="
     ## misc checks
     if(!inherits(x,"alignment")) stop("x is not a alignment object")
     if(!require(seqinr)) stop("The package seqinr is required.")
+    N <- length(x$seq)
+    if(!is.null(x$nam) && length(x$nam)!=N) stop("Inconsistent names in x (length of x$nam and x$seq do not match). ")
 
 
     ## convert alignment to matrix of characters
