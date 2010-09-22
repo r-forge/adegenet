@@ -1,5 +1,5 @@
 \encoding{UTF-8}
-\name{fstat}
+\name{F statistics}
 \alias{fstat}
 \alias{Fst}
 \alias{FST}
@@ -27,16 +27,17 @@ pairwise.fst(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRUE)
 \arguments{
   \item{x}{an object of class \linkS4class{genind}.}
   \item{pop}{a factor giving the 'population' of each individual. If NULL,
-    pop is seeked from x\@pop. Note that the term population refers in
+    pop is seeked from \code{pop(x)}. Note that the term population refers in
     fact to any grouping of individuals'.}
   \item{fstonly}{a logical stating whether only the Fst value should be
     returned (TRUE) instead of all F statistics (FALSE, default).}
-  \item{res.type}{the type of result required: a \code{dist} object, or a
+  \item{res.type}{the type of result to be returned: a \code{dist} object, or a
     symmetric matrix}
   \item{truenames}{a logical indicating whether true labels (as opposed
     to generic labels) should be used to name the output.}
 }
-\value{A matrix of F statistics.}
+\value{
+  A vector, a matrix, or a dist object containing F statistics.}
 \seealso{\code{\link{Hs}}, \code{\link[hierfstat]{varcomp.glob}},
   \code{\link{gstat.randtest}}
 }
@@ -45,13 +46,13 @@ pairwise.fst(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRUE)
   populations. Proc Natl Acad Sci USA, 70: 3321-3323
 }
 \details{
-  Let A and B be two populations of population sizes \eqn{n_A} and
-  \eqn{n_B}, with expected heterozygosity Hs(A) and Hs(B),
-  respectively. We denote Ht the expected heterozygosity of a population
-  pooling A and B. Then, the pairwise Fst \eqn{Fst(A,B)} is computed
+  Let \eqn{A} and \eqn{B} be two populations of population sizes \eqn{n_A} and
+  \eqn{n_B}, with expected heterozygosity (averaged over loci) \eqn{Hs(A)} and \eqn{Hs(B)},
+  respectively. We denote \eqn{Ht} the expected heterozygosity of a population
+  pooling \eqn{A} and \eqn{B}. Then, the pairwise \eqn{Fst} between \eqn{A} and \eqn{B} is computed
   as:\cr
 
-  \eqn{\frac{(Ht - (n_A Hs(A) + n_B Hs(B))/(n_A + n_B) )}{Ht}} \cr
+ \eqn{  Fst(A,B) = \frac{(Ht - (n_A Hs(A) + n_B Hs(B))/(n_A + n_B) )}{Ht}} \cr
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
