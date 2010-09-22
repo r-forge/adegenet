@@ -89,7 +89,7 @@
    Several functions allow to use usual, and less usual analyses:\cr
    - \code{\link{HWE.test.genind}}: performs HWE test for all
    populations and loci combinations \cr
-   - \code{\link{pairwise.fst}}: computes simple pairwise Fst between populations
+   - \code{\link{pairwise.fst}}: computes simple pairwise Fst between populations\cr
    - \code{\link{gstat.randtest}}: performs a Monte Carlo test of Goudet's G statistic, measuring
    population structure (based on \code{\link[hierfstat]{g.stats.glob}} package \code{hierfstat}).\cr
    - \code{\link{dist.genpop}}: computes 5 genetic distances among populations. \cr
