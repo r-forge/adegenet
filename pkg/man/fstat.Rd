@@ -1,6 +1,9 @@
 \encoding{UTF-8}
 \name{fstat}
 \alias{fstat}
+\alias{Fst}
+\alias{FST}
+\alias{fst}
 \alias{pairwise.fst}
 \title{F statistics for genind objects}
 \description{
@@ -36,6 +39,10 @@ pairwise.fst(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRUE)
 \value{A matrix of F statistics.}
 \seealso{\code{\link{Hs}}, \code{\link[hierfstat]{varcomp.glob}},
   \code{\link{gstat.randtest}}
+}
+\references{
+  Nei, M. (1973) Analysis of gene diversity in subdivided
+  populations. Proc Natl Acad Sci USA, 70: 3321-3323
 }
 \details{
   Let A and B be two populations of population sizes \eqn{n_A} and
