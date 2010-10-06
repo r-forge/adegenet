@@ -8,7 +8,7 @@ dapc <- function (x, ...) UseMethod("dapc")
 #################
 dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
                             center=TRUE, scale=FALSE, var.contrib=FALSE,
-                            pca.select=c("nbEig","percVar"), perc.pca=NULL, ...){
+                            pca.select=c("nbEig","percVar"), perc.pca=NULL, ..., dudi=NULL){
 
     ## FIRST CHECKS
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
@@ -18,22 +18,27 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     pca.select <- match.arg(pca.select)
     if(!is.null(perc.pca) & is.null(n.pca)) pca.select <- "percVar"
     if(is.null(perc.pca) & !is.null(n.pca)) pca.select <- "nbEig"
+    if(!is.null(dudi) && !inherits(dudi, "dudi")) stop("dudi provided, but not of class 'dudi'")
 
 
     ## SOME GENERAL VARIABLES
     N <- nrow(x)
 
-    ## PERFORM PCA ##
-    maxRank <- min(dim(x))
 
-    pcaX <- dudi.pca(x, center = center, scale = scale, scannf = FALSE, nf=maxRank)
+    if(is.null(dudi)){ # if no dudi provided
+        ## PERFORM PCA ##
+        maxRank <- min(dim(x))
+        pcaX <- dudi.pca(x, center = center, scale = scale, scannf = FALSE, nf=maxRank)
+    } else { # else use the provided dudi
+        pcaX <- dudi
+    }
     cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
 
     ## select the number of retained PC for PCA
     if(is.null(n.pca) & pca.select=="nbEig"){
-            plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
-            cat("Choose the number PCs to retain (>=1): ")
-            n.pca <- as.integer(readLines(n = 1))
+        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
+        cat("Choose the number PCs to retain (>=1): ")
+        n.pca <- as.integer(readLines(n = 1))
     }
 
     if(is.null(perc.pca) & pca.select=="percVar"){
@@ -162,6 +167,15 @@ dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
 
 
 
+
+
+
+##################
+# Function dapc.dudi
+##################
+dapc.dudi <- function(x, grp, ...){
+    return(dapc.data.frame(x$li, grp, dudi=x, ...))
+}
 
 
 
