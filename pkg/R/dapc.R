@@ -50,6 +50,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     ## get n.pca from the % of variance to conserve
     if(!is.null(perc.pca)){
         n.pca <- min(which(cumVar >= perc.pca))
+        if(perc.pca > 99.999) n.pca <- length(pcaX$eig)
         if(n.pca<1) n.pca <- 1
     }
 
@@ -68,7 +69,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
 
 
      ## PERFORM DA ##
-    ldaX <- lda(XU, grp)
+    ldaX <- lda(XU, grp, tol=1e-30) # tol=1e-30 is a kludge, but a safe (?) one to avoid fancy rescaling by lda.default
     if(is.null(n.da)){
         barplot(ldaX$svd^2, xlab="Linear Discriminants", ylab="F-statistic", main="Discriminant analysis eigenvalues", col=heat.colors(length(levels(grp))) )
         cat("Choose the number discriminant functions to retain (>=1): ")
@@ -325,6 +326,19 @@ assignplot <- function(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3){
     return(invisible(match.call()))
 } # end assignplot
 
+
+
+
+
+
+############
+## crossval
+############
+crossval <- function (x, ...) UseMethod("crossval")
+
+crossval.dapc <- function(){
+
+}
 
 
 
