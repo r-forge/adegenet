@@ -331,6 +331,39 @@ assignplot <- function(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3){
 
 
 
+###############
+## a.score
+###############
+a.score <- function(x, n.sim=10, n.da=length(levels(x$grp)), ...){
+    if(!inherits(x,"dapc")) stop("x is not a dapc object")
+
+    ## perform DAPC based on permuted groups
+    lsim <- lapply(1:n.sim, function(i) summary(dapc(x$tab, sample(x$grp), n.pca=ncol(x$tab), n.da=n.da))$assign.per.pop)
+    sumry <- summary(x)
+
+    ## get the a-scores
+    lscores <- lapply(lsim, function(e) (sumry$assign.per.pop-e)/(1-e))
+
+    ## make a table of a-scores
+    tab <- data.frame(lscores)
+    colnames(tab) <- paste("sim", 1:n.sim, sep=".")
+    rownames(tab) <- names(sumry$assign.per.pop)
+    tab <- t(as.matrix(tab))
+
+    ## make result
+    res <- list()
+    res$tab <- tab
+    res$pop.score <- apply(tab, 2, mean)
+    res$mean <- mean(tab)
+
+    return(res)
+
+} # end a.score
+
+
+
+
+
 ############
 ## crossval
 ############
