@@ -342,7 +342,14 @@ a.score <- function(x, n.sim=10, n.da=length(levels(x$grp)), ...){
     sumry <- summary(x)
 
     ## get the a-scores
-    lscores <- lapply(lsim, function(e) (sumry$assign.per.pop-e)/(1-e))
+    f1 <- function(Pt, Pf){
+        tol <- 1e-7
+        res <- (Pt-Pf) / (1-Pf)
+        res[Pf > (1-tol)] <- 0
+        return(res)
+    }
+
+    lscores <- lapply(lsim, function(e) f1(sumry$assign.per.pop, e))
 
     ## make a table of a-scores
     tab <- data.frame(lscores)
