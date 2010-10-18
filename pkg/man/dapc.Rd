@@ -168,9 +168,10 @@ should match the number of groups, not the number of individuals.}
   - \code{scatter.dapc, assignplot} return the matched call.\cr
 }
 \references{
-Jombart, T., Devillard, S. and Balloux, F.
-Discriminant analysis of principal components: a new method for the analysis of
-genetically structured populations. Submitted to \emph{BMC genetics}.
+  Jombart T, Devillard S and Balloux F  (2010) Discriminant analysis of
+  principal components: a new method for the analysis of genetically
+  structured populations. BMC Genetics
+  11:94. doi:10.1186/1471-2156-11-94
 }
 \seealso{
   - \code{\link{find.clusters}}: to identify clusters without prior.

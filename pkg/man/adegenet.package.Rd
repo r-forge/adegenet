@@ -177,19 +177,25 @@
   Dominique Pontier, Daniel Maillard, Francois Balloux
 }
 \references{
-  Jombart T. (2008) adegenet: a R package for the multivariate analysis of
-  genetic markers \emph{Bioinformatics} 24: 1403-1405. doi: 10.1093/bioinformatics/btn129\cr
+  Jombart T. (2008) adegenet: a R package for the multivariate analysis
+  of genetic markers \emph{Bioinformatics} 24: 1403-1405. doi:
+  10.1093/bioinformatics/btn129\cr
+
+  Jombart T, Devillard S and Balloux F (2010) Discriminant analysis of
+  principal components: a new method for the analysis of genetically
+  structured populations. BMC Genetics 11:94.
+  doi:10.1186/1471-2156-11-94\cr
 
   Jombart T, Eggo R, Dodd P, Balloux F (2010) Reconstructing disease
   outbreaks from genetic data: a graph approach. \emph{Heredity}. doi:
   10.1038/hdy.2010.78.\cr
-
-  Jombart, T., Devillard, S. and Balloux, F.
-  Discriminant analysis of principal components: a new method for the analysis of
-  genetically structured populations. Submitted to \emph{BMC genetics}.\cr
+  
+  Jombart, T., Devillard, S., Dufour, A.-B. and Pontier, D.  Revealing
+  cryptic spatial patterns in genetic variability by a new multivariate
+  method. \emph{Heredity}, \bold{101}, 92--103.\cr
 
   See adegenet website: \url{http://adegenet.r-forge.r-project.org/}\cr
-
+  
   Please post your questions on 'the adegenet forum': adegenet-forum@lists.r-forge.r-project.org
 
 }
