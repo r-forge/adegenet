@@ -340,7 +340,7 @@ a.score <- function(x, n.sim=10, n.pca=ncol(x$tab), n.da=length(levels(x$grp)), 
     if(n.da>length(levels(x$grp))) stop("too many DA axes retained")
 
     ## perform DAPC based on permuted groups
-    lsim <- lapply(1:n.sim, function(i) summary(dapc(x$tab[,1:n.pca], sample(x$grp), n.pca=n.pca, n.da=n.da))$assign.per.pop)
+    lsim <- lapply(1:n.sim, function(i) summary(dapc(x$tab[,1:n.pca,drop=FALSE], sample(x$grp), n.pca=n.pca, n.da=n.da))$assign.per.pop)
     sumry <- summary(x)
 
     ## get the a-scores
