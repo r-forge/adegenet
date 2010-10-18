@@ -60,6 +60,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     n.pca <- min(X.rank, n.pca)
     if(n.pca >= N) stop("number of retained PCs of PCA is greater than N")
     if(n.pca > N/3) warning("number of retained PCs of PCA may be too large (> N /3)\n results may be unstable ")
+    n.pca <- round(n.pca)
 
     U <- pcaX$c1[, 1:n.pca, drop=FALSE] # principal axes
     XU <- pcaX$li[, 1:n.pca, drop=FALSE] # principal components
@@ -77,6 +78,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     }
 
     n.da <- min(n.da, length(levels(grp))-1, n.pca) # can't be more than K-1 disc. func., or more than n.pca
+    n.da <- round(n.da)
     predX <- predict(ldaX, dimen=n.da)
 
 
