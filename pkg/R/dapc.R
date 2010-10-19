@@ -379,22 +379,78 @@ a.score <- function(x, n.sim=10, n.pca=ncol(x$tab), n.da=length(levels(x$grp)), 
 
 
 ##############
-## optim.ascore
+## optim.a.score
 ##############
-optim.ascore <- function(x, n.da=length(levels(x$grp)), min.dim=1, max.dim=ncol(x$tab), ...){
-    ## a few checks
+optim.a.score <- function(x, n.pca=1:ncol(x$tab), smart=TRUE, n=10, plot=FALSE,
+                         n.da=length(levels(x$grp)), ...){
+    ## A FEW CHECKS ##
     if(!inherits(x,"dapc")) stop("x is not a dapc object")
     if(n.pca>ncol(x$tab)) stop("too many PCA axes retained")
     if(n.da>length(levels(x$grp))) stop("too many DA axes retained")
 
 
-    ## auxiliary function
+    ## AUXILIARY FUNCTION ##
     f1 <- function(ndim){
-        a.score(x, n.pca=ndim, n.da=n.da)$mean
+        a.score(x, n.pca=ndim, n.da=n.da)$pop.score
     }
 
 
+    ## SMART: COMPUTE A FEW VALUES, PREDICT THE BEST PICK ##
+    if(smart){
+        if(!require(stats)) stop("the package stats is required for 'smart' option")
+        o.min <- min(n.pca)
+        o.max <- max(n.pca)
+        n.pca <- pretty(n.pca, n) # get evenly spaced nb of retained PCs
+        n.pca <- n.pca[n.pca>0 & n.pca<=ncol(x$tab)]
+        if(!any(o.min==n.pca)) n.pca <- c(o.min, n.pca) # make sure range is OK
+        if(!any(o.max==n.pca)) n.pca <- c(o.max, n.pca) # make sure range is OK
+        lres <- lapply(n.pca, f1)
+        names(lres) <- n.pca
+        means <- sapply(lres, mean)
+        sp1 <- smooth.spline(n.pca, means) # spline smoothing
+        pred <- predict(sp1, x=1:max(n.pca))
+        best <- pred$x[which.max(pred$y)]
+    } else { ## DO NOT TRY TO BE SMART ##
+        lres <- lapply(n.pca, f1)
+        names(lres) <- n.pca
+        best <- which.max(sapply(lres, mean))
+        means <- sapply(lres, mean)
+    }
+
+
+
+    ## MAKE FINAL OUTPUT ##
+    res <- list()
+    res$pop.score <- lres
+    res$mean <- means
+    res$best <- best
+
+
+    ## PLOTTING (OPTIONAL) ##
+    if(plot){
+        if(smart){
+            boxplot(lres, at=n.pca, col="gold", xlab="Number of retained PCs", ylab="a-score", xlim=range(n.pca))
+            lines(pred, lwd=3)
+            points(pred$x[best], pred$y[best], col="red", lwd=3)
+            title("a-score optimisation - spline interpolation")
+            mtext(paste("Optimal number of PCs:", res$best), side=3)
+        } else {
+            myCol <- rep("gold", length(lres))
+            myCol[best] <- "red"
+            boxplot(lres, at=n.pca, col=myCol, xlab="Number of retained PCs", ylab="a-score", xlim=range(n.pca))
+            lines(n.pca, sapply(lres, mean), lwd=3, type="b")
+            myCol <- rep("black", length(lres))
+            myCol[best] <- "red"
+            points(n.pca, res$mean, lwd=3, col=myCol)
+            title("a-score optimisation - basic search")
+            mtext(paste("Optimal number of PCs:", res$best), side=3)
+        }
+    }
+
+    return(res)
 }
+
+
 
 
 
