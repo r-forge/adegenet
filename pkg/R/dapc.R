@@ -340,7 +340,7 @@ a.score <- function(x, n.sim=10, ...){
     if(!inherits(x,"dapc")) stop("x is not a dapc object")
 
     ## perform DAPC based on permuted groups
-    lsim <- lapply(1:n.sim, function(i) summary(dapc(x$tab, sample(x$grp), n.pca=n.pca, n.da=n.da))$assign.per.pop)
+    lsim <- lapply(1:n.sim, function(i) summary(dapc(x$tab, sample(x$grp), n.pca=x$n.pca, n.da=x$n.da))$assign.per.pop)
     sumry <- summary(x)
 
     ## get the a-scores
@@ -389,7 +389,8 @@ optim.a.score <- function(x, n.pca=1:ncol(x$tab), smart=TRUE, n=10, plot=TRUE,
 
     ## AUXILIARY FUNCTION ##
     f1 <- function(ndim){
-        a.score(x, n.pca=ndim, n.da=n.da, n.sim=n.sim)$pop.score
+        temp <- dapc(x$tab[,1:ndim,drop=FALSE], x$grp, n.pca=ndim, n.da=x$n.da)
+        a.score(temp, n.sim=n.sim)$pop.score
     }
 
 
