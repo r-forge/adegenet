@@ -413,7 +413,7 @@ optim.a.score <- function(x, n.pca=1:ncol(x$tab), smart=TRUE, n=10, plot=TRUE,
         n.pca <- 1:n.pca
     }
     if(length(n.da)==1){
-        n.da <- 1:da
+        n.da <- 1:n.da
     }
 
 
