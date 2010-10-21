@@ -402,9 +402,20 @@ optim.a.score <- function(x, n.pca=1:ncol(x$tab), smart=TRUE, n=10, plot=TRUE,
                          n.sim=10, n.da=length(levels(x$grp)), ...){
     ## A FEW CHECKS ##
     if(!inherits(x,"dapc")) stop("x is not a dapc object")
-    if(max(n.pca)>ncol(x$tab)) stop("too many PCA axes retained")
-    if(n.da>length(levels(x$grp))) stop("too many DA axes retained")
+    if(max(n.pca)>ncol(x$tab)) {
+        n.pca <- min(n.pca):ncol(x$tab)
+    }
+    if(n.da>length(levels(x$grp))){
+        n.da <- min(n.da):length(levels(x$grp))
+    }
     pred <- NULL
+    if(length(n.pca)==1){
+        n.pca <- 1:n.pca
+    }
+    if(length(n.da)==1){
+        n.da <- 1:da
+    }
+
 
     ## AUXILIARY FUNCTION ##
     f1 <- function(ndim){
