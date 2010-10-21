@@ -278,16 +278,17 @@ scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), po
             add.scatter.eig(x$eig, ncol(x$loadings), axes[1], axes[2], posi=posi, ratio=ratio, csub=csub)
         }
     } else {
-        ## get densities
-        ldens <- tapply(x$ind.coord[,1], x$grp, density)
-        allx <- unlist(lapply(ldens, function(e) e$x))
-        ally <- unlist(lapply(ldens, function(e) e$y))
+        ## get plotted axis
         if(ncol(x$ind.coord)==1) {
             pcLab <- 1
         } else{
             pcLab <- xax
         }
-        par(bg=bg)
+        ## get densities
+        ldens <- tapply(x$ind.coord[,pcLab], x$grp, density)
+        allx <- unlist(lapply(ldens, function(e) e$x))
+        ally <- unlist(lapply(ldens, function(e) e$y))
+         par(bg=bg)
         plot(allx, ally, type="n", xlab=paste("Discriminant function", pcLab), ylab="Density")
         for(i in 1:length(ldens)){
             lines(ldens[[i]]$x,ldens[[i]]$y, col=col[i], lwd=2)
