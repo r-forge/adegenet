@@ -484,20 +484,20 @@ optim.a.score <- function(x, n.pca=1:ncol(x$tab), smart=TRUE, n=10, plot=TRUE,
 
 
 
-############
-## crossval
-############
-crossval <- function (x, ...) UseMethod("crossval")
+## ############
+## ## crossval
+## ############
+## crossval <- function (x, ...) UseMethod("crossval")
 
-crossval.dapc <- function(){
+## crossval.dapc <- function(){
 
-}
+## }
 
 
 
-###############
-## randtest.dapc
-###############
-##randtest.dapc <- function(x, nperm = 999, ...){
+## ###############
+## ## randtest.dapc
+## ###############
+## ##randtest.dapc <- function(x, nperm = 999, ...){
 
-##} # end randtest.dapc
+## ##} # end randtest.dapc
