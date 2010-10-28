@@ -115,9 +115,9 @@
    - \code{\link{Hs}}: computes the average expected heterozygosity by
    population in a \linkS4class{genpop}. Classically Used as a measure
    of genetic diversity.\cr
-   - \code{\link{find.clusters}} and \code{\link{dapc}}: implements the
+   - \code{\link{find.clusters}} and \code{\link{dapc}}: implement the
    Discriminant Analysis of Principal Component (DAPC, Jombart et al.,
-   submitted).\cr
+   2010).\cr
    - \code{\link{seqTrack}}: implements the SeqTrack algorithm for
    recontructing transmission trees of pathogens (Jombart et al.,
    2010) .\cr
@@ -166,7 +166,7 @@
     Package: \tab adegenet\cr
     Type: \tab Package\cr
     Version: \tab 1.2-7\cr
-    Date: \tab 2010-??-?? \cr
+    Date: \tab 2010-10-28 \cr
     License: \tab GPL (>=2)
   }  
 }
