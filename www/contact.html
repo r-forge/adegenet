@@ -11,7 +11,8 @@
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <br>
 <div style="margin-left: 40px;"><img alt="" src="images/bullet.png"
  style="width: 10px; height: 10px;"> <span style="font-weight: bold;">The
-adegenet forum<br>
+adegenet
+forum<br>
 </span>For all discussions/questions related to adegenet.<br>
 - one address: adegenet-forum AT lists DOT r-forge DOT r-project
 DOT org<br>
@@ -42,11 +43,14 @@ preceeded with 'adegenet-forum', or <a
  href="http://lists.r-forge.r-project.org/pipermail/adegenet-forum/">browse
 the
 archives</a> of adegenet forum<br>
+- the most frequent questions and their answers are listed at the
+bottom of this page.<br>
 <br>
 <br>
 <img alt="" src="images/bullet.png" style="width: 10px; height: 10px;">
 For more general questions<span style="font-weight: bold;"> </span>about
-the analysis of genetic
+the
+analysis of genetic
 markers in R, use the <a target="_top"
  href="https://stat.ethz.ch/mailman/listinfo/r-sig-genetics">R-sig-genetics</a>
 mailing list.<br>
@@ -71,6 +75,31 @@ ask questions concerning the
 package.</span> Browsable archives of this mailing list allow other
 users to
 benefit from previous answers.<br>
+<br>
+<span style="color: rgb(0, 102, 0); font-weight: bold;">Here are some
+frequently asked questions (and their answers):</span><br>
+<br>
+<span style="color: rgb(0, 153, 0);"># 1: How do I know which R version
+/ adegenet version I'm using?</span><br>
+For R version, type:<br>
+<span style="font-family: monospace;">R.version<br>
+<br>
+</span>For adegenet version, type:<br style="font-family: monospace;">
+<span style="font-family: monospace;">packageDescription("adegenet",
+field="Version")</span><br style="font-family: monospace;">
+<br>
+<br>
+<span style="color: rgb(0, 153, 0);"># 2: Loading adegenet fails on
+windows Vista; what's going on?</span><br>
+This is likely caused by a wrong installation of the package, or not
+installing the dependencies.<br>
+Start R in 'Administrator' mode (right click on R's icon -&gt; "start
+as administrator"), then type:<br>
+<span style="font-family: monospace;">install.packages("adegenet",
+dep=TRUE)</span><br style="font-family: monospace;">
+<br>
+<br>
+<br>
 <br>
 </div>
 </body>
