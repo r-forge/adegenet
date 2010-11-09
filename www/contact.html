@@ -50,7 +50,8 @@ bottom of this page.<br>
 <img alt="" src="images/bullet.png" style="width: 10px; height: 10px;">
 For more general questions<span style="font-weight: bold;"> </span>about
 the
-analysis of genetic
+analysis
+of genetic
 markers in R, use the <a target="_top"
  href="https://stat.ethz.ch/mailman/listinfo/r-sig-genetics">R-sig-genetics</a>
 mailing list.<br>
@@ -97,6 +98,15 @@ Start R in 'Administrator' mode (right click on R's icon -&gt; "start
 as administrator"), then type:<br>
 <span style="font-family: monospace;">install.packages("adegenet",
 dep=TRUE)</span><br style="font-family: monospace;">
+<br>
+<br>
+<span style="color: rgb(0, 153, 0);"># 3: Help pages are not found on
+windows...</span><br>
+This is likely because your R installation did not include help pages
+in html. You need to specify you want to use help in text mode. This is
+achieved by typing:<br>
+<span style="font-family: monospace;">options("help_type"="text")</span><br
+ style="font-family: monospace;">
 <br>
 <br>
 <br>
