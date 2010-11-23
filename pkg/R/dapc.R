@@ -266,7 +266,7 @@ summary.dapc <- function(object, ...){
 ##############
 ## scatter.dapc
 ##############
-scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), pch=20, cex=1, posi="bottomleft", bg="grey", ratio=0.3,
+scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), pch=20, posi="bottomleft", bg="grey", ratio=0.3,
                          cstar = 1, cellipse = 1.5, axesell = TRUE, label = levels(x$grp), clabel = 1, xlim = NULL, ylim = NULL,
                          grid = TRUE, addaxes = TRUE, origin = c(0,0), include.origin = TRUE, sub = "", csub = 1, possub = "bottomleft", cgrid = 1,
                          pixmap = NULL, contour = NULL, area = NULL, ...){
