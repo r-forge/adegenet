@@ -11,7 +11,7 @@ inbreeding <- function(x, pop=NULL, truenames=TRUE, res.type=c("mean","byloc"), 
 
     if(!is.null(pop)) pop(x) <- pop
     if(is.null(x@pop) && is.null(pop)) {
-        pop <- factor(rep(1, nrow(x@tab)))
+        pop(x) <- factor(rep(1, nrow(x@tab)))
     }
 
 
