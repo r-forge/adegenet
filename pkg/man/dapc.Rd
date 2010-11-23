@@ -53,7 +53,7 @@
 \method{summary}{dapc}(object, \dots)
 
 \method{scatter}{dapc}(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), pch=20,
-                         cex=1, posi="bottomleft", bg="grey", ratio=0.3, cstar = 1,
+                         posi="bottomleft", bg="grey", ratio=0.3, cstar = 1,
                          cellipse = 1.5, axesell = TRUE, label = levels(x$grp),
                          clabel = 1, xlim = NULL, ylim = NULL, grid = TRUE, addaxes =
                          TRUE, origin = c(0,0), include.origin = TRUE, sub = "", csub
@@ -105,7 +105,7 @@ mean 0 (TRUE, default) or not (FALSE). Always TRUE for \linkS4class{genind} obje
   should be shown in x and y axes. }
 \item{col}{a suitable color to be used for groups. The specified vector
 should match the number of groups, not the number of individuals.}
-\item{posi,bg,ratio,csub}{arguments used to customize the inset in scatterplots
+\item{posi,bg,ratio}{arguments used to customize the inset in scatterplots
   of DAPC results. See \code{\link[ade4]{add.scatter}} documentation in the
   ade4 package for
   more details.}
@@ -124,7 +124,7 @@ should match the number of groups, not the number of individuals.}
   ignored, and this object will be used as a prior step for variable
   orthogonalisation.}
 \item{cstar,cellipse,axesell,label,clabel,xlim,ylim,grid,addaxes,origin,include.origin,sub,csub,possub,cgrid,pixmap,contour,area}{arguments
-passed to \code{\link{s.class}}; see \code{?s.class} for more informations}
+passed to \code{\link[ade4]{s.class}}; see \code{?s.class} for more informations}
 }
 \details{
   The Discriminant Analysis of Principal Components (DAPC) is designed
