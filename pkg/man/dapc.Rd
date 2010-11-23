@@ -52,9 +52,13 @@
 
 \method{summary}{dapc}(object, \dots)
 
-\method{scatter}{dapc}(x, xax=1, yax=2,
-        col=rainbow(length(levels(x$grp))), posi="bottomleft", bg="grey",
-        ratio=0.3, csub=1.2, \ldots)
+\method{scatter}{dapc}(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), pch=20,
+                         cex=1, posi="bottomleft", bg="grey", ratio=0.3, cstar = 1,
+                         cellipse = 1.5, axesell = TRUE, label = levels(x$grp),
+                         clabel = 1, xlim = NULL, ylim = NULL, grid = TRUE, addaxes =
+                         TRUE, origin = c(0,0), include.origin = TRUE, sub = "", csub
+                         = 1, possub = "bottomleft", cgrid = 1, pixmap = NULL,
+                         contour = NULL, area = NULL, \ldots)
 
 assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
 }
@@ -89,7 +93,7 @@ mean 0 (TRUE, default) or not (FALSE). Always TRUE for \linkS4class{genind} obje
   retained axes of PCA.}
 \item{\ldots}{further arguments to be passed to other functions. For
   \code{dapc.matrix}, arguments are to match those of
-  \code{dapc.data.frame}.}
+  \code{dapc.data.frame}; for \code{scatter}, arguments passed to \code{points}.}
 \item{object}{a \code{dapc} object.}
 \item{scale.method}{a \code{character} specifying the scaling method to be used
   for allele frequencies, which must match "sigma" (usual estimate of standard
@@ -117,7 +121,10 @@ should match the number of groups, not the number of individuals.}
   more details).}
 \item{dudi}{optionally, a multivariate analysis with the class
   \code{dudi} (from the ade4 package). If provided, prior PCA will be
-  ignored, and this object will be used as a prior step for variable orthogonalisation.}
+  ignored, and this object will be used as a prior step for variable
+  orthogonalisation.}
+\item{cstar,cellipse,axesell,label,clabel,xlim,ylim,grid,addaxes,origin,include.origin,sub,csub,possub,cgrid,pixmap,contour,area}{arguments
+passed to \code{\link{s.class}}; see \code{?s.class} for more informations}
 }
 \details{
   The Discriminant Analysis of Principal Components (DAPC) is designed
@@ -197,5 +204,15 @@ example(eHGDP)
 example(H3N2)
 }
 
+## showing different scatter options ##
+data(H3N2)
+pop(H3N2) <- factor(H3N2$other$epid)
+dapc1 <- dapc(H3N2, all.contrib=FALSE, scale=FALSE, n.pca=150, n.da=5)
+
+## remove internal segments and ellipses, different pch
+scatter(dapc1, cell=0, pch=18:23, cstar=0)
+
+## only ellipse, custom labels
+scatter(dapc1, cell=2, pch="", cstar=0, posi="top", lab=paste("year\n",2001:2006), axesel=FALSE, col=terrain.colors(10))
 }
 \keyword{multivariate}
