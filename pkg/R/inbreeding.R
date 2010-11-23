@@ -11,7 +11,6 @@ inbreeding <- function(x, pop=NULL, truenames=TRUE, res.type=c("mean","byloc"), 
 
     if(!is.null(pop)) pop(x) <- pop
     if(is.null(x@pop) && is.null(pop)) {
-        if(!quiet) warning("\npop is not provided either in x or in pop - assuming one single group")
         pop <- factor(rep(1, nrow(x@tab)))
     }
 
