@@ -21,11 +21,12 @@ inbreeding <- function(x, pop=NULL, truenames=TRUE, res.type=c("mean","byloc"), 
     tabfreq2 <- (makefreq(x = genind2genpop(x, quiet = TRUE), quiet=TRUE, truenames=truenames)$tab) ^2
     sumpi2 <- t(apply(tabfreq2, 1, tapply, x$loc.fac, sum))
 
-    ## function to check a 1-locus genotype for heterozigocity
-    ## returns 1 if heteroz, 0 otherwise
+    ## function to check a 1-locus genotype for homozigosity
+    ## returns 1 if homoz, 0 otherwise
+    ## !!! NOTE : reverse the values returned by f1 to obtain a strange thing !!!
     f1 <- function(gen){
         if(any(is.na(gen))) return(NA)
-        if(sum(abs(gen-0.5) < 1e-10)==2) return(1)
+        if(any(round(gen, 10)==1)) return(1)
         return(0)
     }
 
@@ -35,7 +36,7 @@ inbreeding <- function(x, pop=NULL, truenames=TRUE, res.type=c("mean","byloc"), 
     } else
     X <- x$tab
 
-    heterotab <- t(apply(X, 1, tapply, x@loc.fac, f1))
+    homotab <- t(apply(X, 1, tapply, x@loc.fac, f1))
 
 
     ## get pi2 for the appropriate pop
@@ -50,7 +51,7 @@ inbreeding <- function(x, pop=NULL, truenames=TRUE, res.type=c("mean","byloc"), 
 
 
     ## COMPUTE FINAL RESULT ##
-    num <- heterotab - tabpi2
+    num <- homotab - tabpi2
     denom <- tabpi2 * (1 - tabpi2)
     res <- num / denom
     if(res.type=="byloc") return(res)
