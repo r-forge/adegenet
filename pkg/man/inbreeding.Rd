@@ -46,7 +46,7 @@ inbreeding(x, pop=NULL, truenames=TRUE, res.type=c("mean","byloc"), plot=TRUE, \
 \details{
   Let \eqn{p_i} refer to the allele frequencies in a population. Let
   \eqn{h} be an variable which equates 1 if the individual is
-  heterozygote, and 0 otherwise. For one locus, Balloux's inbreeding coefficient is
+  homozygote, and 0 otherwise. For one locus, Balloux's inbreeding coefficient is
   defined as:
 
   \eqn{  \frac{h - \sum_i p_i^2}{ \sum_i p_i^2 (1- \sum_i p_i^2)} } \cr
