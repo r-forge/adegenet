@@ -52,15 +52,25 @@ inbreeding <- function(x, pop=NULL, truenames=TRUE, res.type=c("mean","byloc"), 
 
     ## COMPUTE FINAL RESULT ##
     num <- homotab - tabpi2
-    denom <- tabpi2 * (1 - tabpi2)
+    ## denom <- tabpi2 * (1 - tabpi2) # does not actually compute a weighted mean
+    denom <- 1 - tabpi2
     res <- num / denom
+    ## return values per locus ##
     if(res.type=="byloc") return(res)
 
-    res <- apply(res, 1, mean, na.rm=TRUE)
+    ## return mean weighted by effective nb of alleles ##
+    wtab <- 1/tabpi2
+    wtab[is.na(res)] <- NA
+    wtab <- t(apply(wtab, 1, function(e) return(e/sum(e,na.rm=TRUE))))
+    res <- wtab * res
+
+    res <- apply(res, 1, sum, na.rm=TRUE)
     if(plot){
         par(bg="grey")
         nPop <- length(unique(popx))
         myCol <- rainbow(nPop)[as.integer(pop(x))]
+        if(min(res)>0) ylim <- c(0, 1.1*max(res))
+        if(max(res)<0) ylim <- c(min(res), 0+abs(min(res))*0.1)
         plot(res, col=myCol, type="h", ylab="Inbreeding", xlab="Individuals", ...)
     }
 
