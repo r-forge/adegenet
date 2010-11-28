@@ -34,6 +34,9 @@ inbreeding(x, pop=NULL, truenames=TRUE, res.type=c("mean","byloc"), plot=TRUE, \
   of inbreeding coefficient values.
 }
 \seealso{
+  \code{\link{inbreeding.ml}}: a maximum-likelihood estimation of
+  inbreeding.
+  
   \code{\link{Hs}}, \code{\link[hierfstat]{varcomp.glob}},
   \code{\link{gstat.randtest}}
 }
@@ -49,9 +52,16 @@ inbreeding(x, pop=NULL, truenames=TRUE, res.type=c("mean","byloc"), plot=TRUE, \
   homozygote, and 0 otherwise. For one locus, Balloux's inbreeding coefficient is
   defined as:
 
-  \eqn{  \frac{h - \sum_i p_i^2}{ \sum_i p_i^2 (1- \sum_i p_i^2)} } \cr
+  \eqn{  \frac{h - \sum_i p_i^2}{ \sum_i p_i^2 (1- \sum_i p_i^2)} }
 
-  For multi-locus genotypes, inbreeding values are averaged over the loci.
+  For multi-locus genotypes, inbreeding values are averaged over the
+  loci.
+
+  Important note: to estimate F, the probability of being homozygote at
+  a locus an individual has to be inferred from a single
+  observation. This can results in inaccuracy of the estimation of F,
+  and possible negative values. To circumvent such issues, use the
+  maximum-likelihood estimation of F (\code{\link{inbreeding.ml}}).
 }
 \author{
   Implementation: Thibaut Jombart \email{t.jombart@imperial.ac.uk}\cr
