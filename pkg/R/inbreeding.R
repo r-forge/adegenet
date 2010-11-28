@@ -89,7 +89,7 @@ inbreeding <- function(x, pop=NULL, truenames=TRUE, res.type=c("mean","byloc"), 
 ###############
 ## inbreeding.ml
 ###############
-inbreeding.ml <- function(x, pop=NULL, truenames=TRUE, res.type=c("sample","function"), N=500, M=N*10, ...){
+inbreeding.ml <- function(x, pop=NULL, truenames=TRUE, res.type=c("sample","function"), N=200, M=N*10){
     ## CHECKS ##
     if(!is.genind(x)) stop("x is not a valid genind object")
     checkType(x)
