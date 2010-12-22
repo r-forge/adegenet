@@ -152,12 +152,28 @@ setAs("SNPbin", "integer", def=function(from){
 ## show method
 ##############
 setMethod ("show", "SNPbin", function(object){
-
-    cat("\n", )
-
-  cat("\n@call: ")
-  print(x@call)
+    cat(" === S4 class SNPbin ===")
+    if(!is.null(x@label)) {
+        cat("\n", x@label)
+    }
+    cat("\n", nLoc(object), "SNPs coded as bits")
+    temp <- round(length(object@NA.posi)/nLoc(object) *100,2)
+    cat("\n", length(object@NA.posi), " (", temp," %) missing data\n", sep="")
 }) # end show method
+
+
+
+
+
+############
+## accessors
+############
+setMethod("nLoc","SNPbin", function(x,...){
+    return(x@n.loc)
+})
+
+
+
 
 
 
