@@ -1,18 +1,14 @@
-##
-## NOTE :
-## it is possible to recode each set of 8 binary values on a basis like 'basbin'
-## each genotype of 8 snp is then uniquely mapped to a number on 0:255
-## basbin <- 2^(0:7)
-## all(sapply(apply(SNPCOMB, 1, function(e) basbin[as.logical(e)]), sum) == 0:255)
-##
-##
-##
 
 
+###############
+##
+##   CLASSES
+##
+###############
 
-####################
+###############
 ## SNPbin class
-####################
+###############
 setClass("SNPbin", representation(snp = "raw",
                                   n.loc = "integer",
                                   NA.posi = "integer",
@@ -22,6 +18,27 @@ setClass("SNPbin", representation(snp = "raw",
 
 
 
+###############
+## genlight class
+###############
+setClass("genlight", representation(tab = "list",
+                                    n.loc = "integer",
+                                    ind.names = "charOrNULL",
+                                    loc.names = "charOrNULL"),
+         prototype(tab = list(0), n.loc = integer(0), ind.names = NULL, loc.names = NULL))
+
+
+
+
+
+
+
+
+#####################
+##
+##   CONSTRUCTORS
+##
+#####################
 
 ####################
 ## SNPbin constructor
@@ -72,6 +89,96 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+################################
+##
+##   METHODS AND ACCESSORS
+##
+################################
+
+###############
+## show SNPbin
+###############
+setMethod ("show", "SNPbin", function(object){
+    cat(" === S4 class SNPbin ===")
+    if(!is.null(x@label)) {
+        cat("\n", x@label)
+    }
+    cat("\n", nLoc(object), "SNPs coded as bits")
+    temp <- round(length(object@NA.posi)/nLoc(object) *100,2)
+    cat("\n", length(object@NA.posi), " (", temp," %) missing data\n", sep="")
+}) # end show method
+
+
+
+
+############
+## accessors
+############
+setMethod("nLoc","SNPbin", function(x,...){
+    return(x@n.loc)
+})
+
+
+setMethod("$","SNPbin",function(x,name) {
+    return(slot(x,name))
+})
+
+
+setMethod("$","genlight",function(x,name) {
+    return(slot(x,name))
+})
+
+
+setMethod("names", signature(x = "SNPbin"), function(x){
+    return(slotNames(x))
+})
+
+
+setMethod("names", signature(x = "genlight"), function(x){
+    return(slotNames(x))
+})
+
+
+
+
+
+###############
+## '[' operators
+###############
+## SNPbin
+setMethod("[", signature(x="SNPbin", i="ANY"), function(x, i) {
+    if (missing(i)) i <- TRUE
+    temp <- .SNPbin2int(x) # data as integers with NAs
+    x <- new("SNPbin", snp=temp[i], label=x@label)
+    return(x)
+}) # end [] for SNPbin
+
+
+
+
+
+
+
+###################
+##
+##   CONVERSIONS
+##
+###################
+
+############
+## .bin2raw
+###########
 ## each byte takes a value on [0,255]
 
 ## function to code multiple SNPs on a byte
@@ -114,7 +221,6 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
 
 
 
-
 #############
 ## .SNPbin2int
 #############
@@ -144,33 +250,9 @@ setAs("SNPbin", "integer", def=function(from){
 })
 
 
-
-
-
-
-##############
-## show method
-##############
-setMethod ("show", "SNPbin", function(object){
-    cat(" === S4 class SNPbin ===")
-    if(!is.null(x@label)) {
-        cat("\n", x@label)
-    }
-    cat("\n", nLoc(object), "SNPs coded as bits")
-    temp <- round(length(object@NA.posi)/nLoc(object) *100,2)
-    cat("\n", length(object@NA.posi), " (", temp," %) missing data\n", sep="")
-}) # end show method
-
-
-
-
-
-############
-## accessors
-############
-setMethod("nLoc","SNPbin", function(x,...){
-    return(x@n.loc)
-})
+as.integer.SNPbin <- function(x, ...){
+    return(as(x, "integer"))
+}
 
 
 
