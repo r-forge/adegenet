@@ -1,18 +1,178 @@
+##
+## NOTE :
+## it is possible to recode each set of 8 binary values on a basis like 'basbin'
+## each genotype of 8 snp is then uniquely mapped to a number on 0:255
+## basbin <- 2^(0:7)
+## all(sapply(apply(SNPCOMB, 1, function(e) basbin[as.logical(e)]), sum) == 0:255)
+##
+##
+##
+
+
+
+####################
+## SNPbin class
+####################
+setClass("SNPbin", representation(snp = "raw",
+                                  n.loc = "integer",
+                                  NA.posi = "integer",
+                                  label = "charOrNULL"),
+         prototype(snp = raw(0), n.loc = integer(0), label = NULL))
+
+
+
+
+
+####################
+## SNPbin constructor
+####################
+setMethod("initialize", "SNPbin", function(.Object, ...) {
+    x <- .Object
+    input <- list(...)
+    if(length(input)==1) names(input) <- "snp"
+
+
+    ## handle snp data ##
+    if(!is.null(input$snp)){
+        if(is.raw(input$snp)){
+            x@snp <-input$snp
+        }
+
+        ## conversion from a vector of 0/1 (integers)
+        if(is.numeric(input$snp) | is.integer(input$snp)){
+            temp <- na.omit(unique(input$snp))
+            if(!all(temp %in% c(0,1))){
+                stop("Values of SNPs are not all 0, 1, or NA")
+            }
+
+            temp <- .bin2raw(input$snp)
+            x@snp <- temp$snp
+            x@n.loc <- temp$n.loc
+            x@NA.posi <- temp$NA.posi
+            return(x)
+        }
+    }
+
+
+    ## handle n.loc ##
+    if(!is.null(input$n.loc)){
+        x@n.loc <- as.integer(input$n.loc)
+    } else {
+        x@n.loc <- as.integer(length(x@snp)*8)
+    }
+
+
+    ## handle NA.posi ##
+    if(!is.null(input$NA.posi)){
+        x@NA.posi <- as.integer(input$NA.posi)
+    }
+
+    return(x)
+}) # end SNPbin constructor
+
+
+
 ## each byte takes a value on [0,255]
 
 ## function to code multiple SNPs on a byte
-## 7 combinations of SNPs can be coded on a single byte
+## 8 combinations of SNPs can be coded on a single byte
 ## we use bytes values from [1,128]
 ## 200 is a missing value
-SNPCOMB <- expand.grid(rep(list(c(0,1)), 7))
+.bin2raw <- function(vecSnp){
+    ## was required in pure-R version
+    ## SNPCOMB <- as.matrix(expand.grid(rep(list(c(0,1)), 8)))
+    ## colnames(SNPCOMB) <- NULL
+
+    ## handle missing data
+    NAposi <- which(is.na(vecSnp))
+    if(length(NAposi)>0){
+        vecSnp[is.na(vecSnp)] <- 0L
+    }
 
 
-f1 <- function(vecSnp){
-    nbBytes <- 1+ length(vecSnp) %/% 7
-    out.length <- 7*nbBytes
-    temp <- c(vecSnp, rep(0, out.length-length(vecSnp))) # fill the end with 0 of necessary
-    sapply(seq(1, by=7, length=nbBytes), function(i) which(apply(SNPCOMB,1, function(e) all(vecSnp[i:(i+7)]==e))) )
+    nbBytes <- 1+ length(vecSnp) %/% 8
+    ori.length <- length(vecSnp)
+    new.length <- 8*nbBytes
+    vecSnp <- c(vecSnp, rep(0, new.length-ori.length)) # fill the end with 0 of necessary
 
 
-    as.raw(length(vecSnp))
-}
+    ## map info to bytes (0:255)
+    vecSnp <- as.integer(vecSnp)
+    vecRaw <- integer(nbBytes)
+
+    vecRaw <- .C("binIntToBytes", vecSnp, length(vecSnp), vecRaw, nbBytes, PACKAGE="adegenet")[[3]]
+    ## vecraw <- sapply(seq(1, by=8, length=nbBytes), function(i) which(apply(SNPCOMB,1, function(e) all(temp[i:(i+7)]==e))) ) # old R version
+
+    ## code information as raw and add missing data
+    vecRaw <- as.raw(vecRaw)
+    res <- list(snp=vecRaw, n.loc=as.integer(ori.length), NA.posi=as.integer(NAposi))
+    return(res)
+} # end .bin2raw
+
+
+
+
+
+
+
+#############
+## .SNPbin2int
+#############
+## convert SNPbin to integers (0/1)
+.SNPbin2int <- function(x){
+    SNPCOMB <- as.matrix(expand.grid(rep(list(c(0,1)), 8)))
+    colnames(SNPCOMB) <- NULL
+    res <- unlist(lapply(as.integer(x@snp), function(i) SNPCOMB[i+1,]))
+    res <- res[1:x@n.loc]
+    if(length(x@NA.posi)>0){
+        res[x@NA.posi] <- NA
+    }
+    return(res)
+} # end .SNPbin2int
+
+
+
+
+
+
+#############
+## as methods
+#############
+setAs("SNPbin", "integer", def=function(from){
+    res <- .SNPbin2int(from)
+    return(res)
+})
+
+
+
+
+
+
+##############
+## show method
+##############
+setMethod ("show", "SNPbin", function(object){
+
+    cat("\n", )
+
+  cat("\n@call: ")
+  print(x@call)
+}) # end show method
+
+
+
+
+
+
+
+
+
+################################
+## testing :
+##
+## dat <- sample(c(0,1,NA), 1e6, prob=c(.5, .495, .005), replace=TRUE)
+## x <- new("SNPbin", dat)
+
+## identical(as(x, "integer"),dat) # MUST BE TRUE
+
+## object.size(dat)/object.size(x) # EFFICIENCY OF CONVERSION
