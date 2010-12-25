@@ -322,16 +322,22 @@ as.integer.SNPbin <- function(x, ...){
 ################################
 ## testing :
 ##
-## HAPLOID DATA
 ##
 ## library(adegenet)
 
-## dat <- sample(c(0L,1L,NA), 1e6, prob=c(.5, .495, .005), replace=TRUE)
+## HAPLOID DATA - NO NA
+## dat <- sample(c(0,1), 1e6, replace=TRUE)
 ## x <- new("SNPbin", dat)
-
 ## identical(as(x, "integer"),dat) # SHOULD NORMALLY BE TRUE
 ## all(as(x, "integer") == dat, na.rm=TRUE) # MUST BE TRUE
+## object.size(dat)/object.size(x) # EFFICIENCY OF CONVERSION
 
+
+## HAPLOID DATA - WITH NAs
+## dat <- sample(c(0,1,NA), 1e6, prob=c(.5, .49, .01), replace=TRUE)
+## x <- new("SNPbin", dat)
+## identical(as(x, "integer"),dat) # SHOULD NORMALLY BE TRUE
+## all(as(x, "integer") == dat, na.rm=TRUE) # MUST BE TRUE
 ## object.size(dat)/object.size(x) # EFFICIENCY OF CONVERSION
 
 
