@@ -230,10 +230,6 @@ setMethod("[", signature(x="SNPbin", i="ANY"), function(x, i) {
 ## function to code multiple SNPs on a byte
 ## 8 combinations of SNPs can be coded onto a single byte (0->255)
 .bin2raw <- function(vecSnp){
-    ## was required in pure-R version
-    ## SNPCOMB <- as.matrix(expand.grid(rep(list(c(0,1)), 8)))
-    ## colnames(SNPCOMB) <- NULL
-
     ## handle missing data
     NAposi <- which(is.na(vecSnp))
     if(length(NAposi)>0){
@@ -241,7 +237,8 @@ setMethod("[", signature(x="SNPbin", i="ANY"), function(x, i) {
     }
 
 
-    nbBytes <- 1+ length(vecSnp) %/% 8
+    nbBytes <- length(vecSnp) %/% 8
+    if(length(vecSnp) %% 8 > 0) {nbBytes <- nbBytes +1}
     ori.length <- length(vecSnp)
     new.length <- 8*nbBytes
     vecSnp <- c(vecSnp, rep(0, new.length-ori.length)) # fill the end with 0 of necessary
