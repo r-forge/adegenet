@@ -14,7 +14,7 @@ setClass("SNPbin", representation(snp = "list",
                                   NA.posi = "integer",
                                   label = "charOrNULL",
                                   ploidy = "integer"),
-         prototype(snp = list(0), n.loc = integer(0), label = NULL, ploidy = 1L))
+         prototype(snp = list(), n.loc = integer(0), label = NULL, ploidy = 1L))
 
 
 
@@ -22,12 +22,12 @@ setClass("SNPbin", representation(snp = "list",
 ###############
 ## genlight class
 ###############
-setClass("genlight", representation(tab = "list",
+setClass("genlight", representation(gen = "list",
                                     n.loc = "integer",
                                     ind.names = "charOrNULL",
                                     loc.names = "charOrNULL",
                                     ploidy = "integer"),
-         prototype(tab = list(0), n.loc = integer(0), ind.names = NULL, loc.names = NULL, ploidy = 1L))
+         prototype(gen = list(0), n.loc = integer(0), ind.names = NULL, loc.names = NULL, ploidy = 1L))
 
 
 
@@ -52,7 +52,7 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
 
 
     ## handle snp data ##
-    if(!is.null(input$snp)){
+    if(!is.null(input$snp) && length(input$snp)>1){
         ## a vector of raw is provided
         if(is.raw(input$snp)){
             x@snp <-list(input$snp)
@@ -130,6 +130,25 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
 
 
 
+
+
+
+####################
+## genlight constructor
+####################
+setMethod("initialize", "genlight", function(.Object, ...) {
+    x <- .Object
+    input <- list(...)
+    if(length(input)==1) names(input) <- "gen"
+
+
+    ## handle gen (SNPbin list) ##
+    if(!is.null(input$gen)){
+
+    }
+
+
+}) # end genlight constructor
 
 
 
