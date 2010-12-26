@@ -517,6 +517,23 @@ setMethod("nLoc","genpop", function(x,...){
 
 
 
+#######
+# nInd
+#######
+setGeneric("nInd", function(x,...){
+    standardGeneric("nInd")
+})
+
+
+
+setMethod("nInd","genind", function(x,...){
+    return(nrow(x@tab))
+})
+
+
+
+
+
 ######
 # pop
 ######

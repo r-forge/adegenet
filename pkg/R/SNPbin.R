@@ -28,7 +28,7 @@ setClass("genlight", representation(gen = "list",
                                     loc.names = "charOrNULL",
                                     loc.all = "charOrNULL",
                                     ploidy = "integer"),
-         prototype(gen = list(0), n.loc = integer(0), ind.names = NULL, loc.names = NULL, loc.all = NULL, ploidy = 1L))
+         prototype(gen = list(), n.loc = integer(0), ind.names = NULL, loc.names = NULL, loc.all = NULL, ploidy = 1L))
 
 
 
@@ -153,13 +153,23 @@ setMethod("initialize", "genlight", function(.Object, ...) {
                 input$gen <- lapply(input$gen, as.integer)
             } else { # all seems fine
                 x@gen <- input$gen
+                if(is.null(input$ind.names)){
+                    input$ind.names <- names(input$gen)
+                }
             }
         }
 
 
         ## input$gen is a matrix or a data.frame
         if(is.matrix(input$gen) | is.data.frame(input$gen)){
-            input$gen <- lapply(1:nrow(input$gen), function(i) input$gen[i,])
+            if(is.null(input$ind.names)){
+                input$ind.names <- rownames(input$gen)
+            }
+            if(is.null(input$loc.names)){
+                input$loc.names <- colnames(input$gen)
+            }
+          input$gen <- lapply(1:nrow(input$gen), function(i) input$gen[i,])
+
         }
 
 
@@ -176,84 +186,94 @@ setMethod("initialize", "genlight", function(.Object, ...) {
                 }
             }
 
+            ## name individuals if needed
+            if(is.null(input$ind.names)){
+                input$ind.names <- names(input$gen)
+            }
+
             ## create SNPbin list
-            x@snp <- lapply(input$gen, function(e) new("SNPbin",e))
+            x@gen <- lapply(input$gen, function(e) new("SNPbin",e))
         }
     }
 
 
-    ## HANDLE INPUT$IND.NAMES ##
-    if(!is.null(input$ind.names)){
-        input$ind.names <- as.character(input$ind.names)
+    if(length(x@gen) > 0) { # if non-emtpy object
+        ## HANDLE INPUT$IND.NAMES ##
+        if(!is.null(input$ind.names)){
+            input$ind.names <- as.character(input$ind.names)
 
-        ## check length consistency
-        if(length(input$ind.names) != length(x@gen)) stop("Inconsistent length for ind.names.")
+            ## check length consistency
+            if(length(input$ind.names) != nInd(x)) stop("Inconsistent length for ind.names.")
 
-        ## ## name list and each SNPbin ## THIS DUPLICATES THE INFORMATION
-        ## names(x@gen) <- input$ind.names
-        ## for(i in 1:length(x@gen)){
-        ##     x@gen[[i]]@label <- input$ind.names[i]
-        ## }
-    }
-
-
-    ## HANDLE INPUT$N.LOC ##
-    if(!is.null(input$n.loc)){ # n.loc is provided
-        input$n.loc <- as.integer(input$n.loc)
-
-        ## check length consistency
-        if(input$n.loc != nLoc(x@gen[[1]])) {
-            warning("Inconsistent number of loci (n.loc) - ignoring this argument.")
-        } else {
-            x@n.loc <- input$n.loc
+            ## ## name list and each SNPbin ## THIS DUPLICATES THE INFORMATION
+            ## names(x@gen) <- input$ind.names
+            ## for(i in 1:length(x@gen)){
+            ##     x@gen[[i]]@label <- input$ind.names[i]
+            ## }
         }
-    } else { # n.loc is not provided
-        x@n.loc <- nLoc(x@gen[[1]])
-    }
 
 
-    ## HANDLE INPUT$PLOIDY ##
-    if(!is.null(input$ploidy)){ # ploidy is provided
-        input$ploidy <- as.integer(input$ploidy)
-        input$ploidy <- rep(input$ploidy, length=length(x@gen))
-        x@ploidy <- input$ploidy
-    } else { # ploidy is not provided
-        x@ploidy <- sapply(x@gen, function(e) e@ploidy)
-    }
+        ## HANDLE INPUT$N.LOC ##
+        if(!is.null(input$n.loc)){ # n.loc is provided
+            input$n.loc <- as.integer(input$n.loc)
 
-
-    ## HANDLE INPUT$LOC.NAMES ##
-    if(!is.null(input$loc.names) && length(input$loc.names)>0){ # ploidy is provided
-        input$loc.names <- as.character(input$loc.names)
-
-        ## check length consistency
-        if(length(input$loc.names) != x@n.loc){
-            warning("Inconsistent length for loc.names - ignoring this argument.")
-        } else {
-            x@loc.names <- input$loc.names
-        }
-    }
-
-
-    ## HANDLE INPUT$LOC.ALL ##
-    if(!is.null(input$loc.all) && length(input$loc.all)>0){ # ploidy is provided
-        input$loc.all <- as.character(input$loc.all)
-
-        ## check length consistency
-        if(length(input$loc.all) != x@n.loc){
-            warning("Inconsistent length for loc.all - ignoring this argument.")
-        } else {
-            ## check string consistency (format is e.g. "a/t")
-            if(any(grep("^[[:alpha:]]{1}/[[:alpha:]]{1}$", input$loc.all) != 1:length(x@gen))){
-                input$loc.all <- gsub("[[:space:]]","", input$loc.all)
-                warning("Miss-formed strings in loc.all (must be e.g. 'c/g') - ignoring this argument.")
+            ## check length consistency
+            if(input$n.loc != nLoc(x@gen[[1]])) {
+                warning("Inconsistent number of loci (n.loc) - ignoring this argument.")
             } else {
-                x@loc.all <- input$loc.all
+                x@n.loc <- input$n.loc
+            }
+        } else { # n.loc is not provided
+            x@n.loc <- nLoc(x@gen[[1]])
+        }
+
+
+        ## HANDLE INPUT$PLOIDY ##
+        if(!is.null(input$ploidy)){ # ploidy is provided
+            input$ploidy <- as.integer(input$ploidy)
+            input$ploidy <- rep(input$ploidy, length=length(x@gen))
+            x@ploidy <- input$ploidy
+        } else { # ploidy is not provided
+            x@ploidy <- sapply(x@gen, function(e) e@ploidy)
+        }
+
+
+        ## HANDLE INPUT$LOC.NAMES ##
+        if(!is.null(input$loc.names) && length(input$loc.names)>0){ # ploidy is provided
+            input$loc.names <- as.character(input$loc.names)
+
+            ## check length consistency
+            if(length(input$loc.names) != x@n.loc){
+                warning("Inconsistent length for loc.names - ignoring this argument.")
+            } else {
+                x@loc.names <- input$loc.names
             }
         }
-    }
 
 
+        ## HANDLE INPUT$LOC.ALL ##
+        if(!is.null(input$loc.all) && length(input$loc.all)>0){ # ploidy is provided
+            input$loc.all <- as.character(input$loc.all)
+
+            ## check length consistency
+            if(length(input$loc.all) != x@n.loc){
+                warning("Inconsistent length for loc.all - ignoring this argument.")
+            } else {
+                ## check string consistency (format is e.g. "a/t")
+                if(any(grep("^[[:alpha:]]{1}/[[:alpha:]]{1}$", input$loc.all) != 1:length(x@gen))){
+                    input$loc.all <- gsub("[[:space:]]","", input$loc.all)
+                    warning("Miss-formed strings in loc.all (must be e.g. 'c/g') - ignoring this argument.")
+                } else {
+                    x@loc.all <- input$loc.all
+                }
+            }
+        }
+
+    } # end if non-empty @gen
+
+
+    ## RETURN OBJECT ##
+    return(x)
 }) # end genlight constructor
 
 
@@ -298,6 +318,11 @@ setMethod("nLoc","SNPbin", function(x,...){
 
 setMethod("nLoc","genlight", function(x,...){
     return(x@n.loc)
+})
+
+
+setMethod("nInd","genlight", function(x,...){
+    return(length(x@gen))
 })
 
 
