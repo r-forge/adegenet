@@ -53,7 +53,7 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
 
 
     ## handle snp data ##
-    if(!is.null(input$snp) && length(input$snp)>1){
+    if(!is.null(input$snp) && length(input$snp)>0){
         ## a vector of raw is provided
         if(is.raw(input$snp)){
             x@snp <-list(input$snp)
@@ -73,6 +73,7 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
             ## determine ploidy
             if(is.null(input$ploidy)){
                 input$ploidy <- max(input$snp, na.rm=TRUE)
+                if(input$ploidy==0) input$ploidy <- 1
             }
             input$ploidy <- as.integer(input$ploidy)
             if(input$ploidy<1) stop("Ploidy is less than 1")
@@ -426,6 +427,33 @@ setMethod("[", signature(x="SNPbin", i="ANY"), function(x, i) {
 
 
 
+## lightgen
+setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x, i, j, ...) {
+    if (missing(i)) i <- TRUE
+    if (missing(j)) j <- TRUE
+
+    ## subset individuals
+    x@gen <- x@gen[i]
+    x@ind.names <- x@ind.names[i]
+    if(!is.null(x@ploidy)) {
+        ori.ploidy <- ploidy(x)[i]
+    } else {
+        ori.ploidy <- NULL
+    }
+
+    ## subset loci
+    x <- as.matrix(x)[, j, drop=FALSE]
+    x <- x[!apply(x, 1, function(e) all(is.na(e))), , drop=FALSE] # remove indiv that are all NAs
+    x <- x[, !apply(x, 2, function(e) all(is.na(e))), drop=FALSE] # remove loci that are all NAs
+
+    x <- new("genlight", gen=x, ploidy=ori.ploidy)
+
+    return(x)
+}) # end [] for SNPbin
+
+
+
+
 
 
 ###################
@@ -620,7 +648,7 @@ as.list.genlight <- function(x, ...){
 
 ## SIMPLE TEST
 ## library(adegenet)
-## dat <- list(toto=c(1,1,0), titi=c(NA,1,1,0), tata=c(NA,0,3, NA))
+## dat <- list(toto=c(1,1,0,0), titi=c(NA,1,1,0), tata=c(NA,0,3, NA))
 ## x <- new("genlight", dat)
 ## x
 ## as.list(x)
@@ -630,13 +658,24 @@ as.list.genlight <- function(x, ...){
 ## identical(x, new("genlight", as.matrix(x))) # round trip - matrix - MUST BE TRUE
 ## identical(x, new("genlight", as.data.frame(x))) # round trip - data.frame - MUST BE TRUE
 
+## ## test subsetting
+## identical(as.list(x[c(1,3)]), as.list(x)[c(1,3)]) # MUST BE TRUE
+## identical(x, x[]) # MUST BE TRUE
+## all.equal(t(as.matrix(as.data.frame(dat)))[,1:3], as.matrix(x[,1:3])) # MUST BE TRUE
 
 
-## ## BIG SCALE TEST - HAPLOID DATA WITH NA
-## dat <- lapply(1:100, function(i) sample(c(0,1,NA), 1e6, prob=c(.5, .49, .01), replace=TRUE))
+
+
+## ## ## BIG SCALE TEST - HAPLOID DATA WITH NA
+## library(adegenet)
+## dat <- lapply(1:50, function(i) sample(c(0,1,NA), 1e6, prob=c(.5, .49, .01), replace=TRUE))
 ## names(dat) <- paste("indiv", 1:length(dat))
 ## print(object.size(dat), unit="aut")
 
 ## system.time(x <- new("genlight", dat)) # conversion + time taken
 ## print(object.size(x), unit="au")
 ## object.size(dat)/object.size(x) # conversion efficiency
+
+
+## ## time taken by subsetting (quite long, +- 35sec)
+## system.time(y <- x[1:10, 1:5e5])
