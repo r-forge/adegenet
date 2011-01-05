@@ -27,8 +27,8 @@ setClass("genlight", representation(gen = "list",
                                     ind.names = "charOrNULL",
                                     loc.names = "charOrNULL",
                                     loc.all = "charOrNULL",
-                                    ploidy = "integer"),
-         prototype(gen = list(), n.loc = integer(0), ind.names = NULL, loc.names = NULL, loc.all = NULL, ploidy = 1L))
+                                    ploidy = "intOrNULL"),
+         prototype(gen = list(), n.loc = integer(0), ind.names = NULL, loc.names = NULL, loc.all = NULL, ploidy=NULL))
 
 
 
@@ -167,8 +167,13 @@ setMethod("initialize", "genlight", function(.Object, ...) {
             }
             if(is.null(input$loc.names)){
                 input$loc.names <- colnames(input$gen)
+                if(is.data.frame(input$gen)){ # do not use names if these are the default names of a data.frame
+                    if(identical(colnames(input$gen), paste("V", 1:ncol(input$gen), sep=""))){
+                        input$loc.names <- NULL
+                    }
+                }
             }
-          input$gen <- lapply(1:nrow(input$gen), function(i) input$gen[i,])
+          input$gen <- lapply(1:nrow(input$gen), function(i) as.integer(input$gen[i,]))
 
         }
 
@@ -203,13 +208,20 @@ setMethod("initialize", "genlight", function(.Object, ...) {
             input$ind.names <- as.character(input$ind.names)
 
             ## check length consistency
-            if(length(input$ind.names) != nInd(x)) stop("Inconsistent length for ind.names.")
+            if(length(input$ind.names) != nInd(x)){
+                stop("Inconsistent length for ind.names.")
+            } else {
+                ## assign value to the output object
+                x@ind.names <- input$ind.names
+                ## ## name list and each SNPbin ## THIS DUPLICATES THE INFORMATION
+                ## names(x@gen) <- input$ind.names
+                ## for(i in 1:length(x@gen)){
+                ##     x@gen[[i]]@label <- input$ind.names[i]
+                ## }
 
-            ## ## name list and each SNPbin ## THIS DUPLICATES THE INFORMATION
-            ## names(x@gen) <- input$ind.names
-            ## for(i in 1:length(x@gen)){
-            ##     x@gen[[i]]@label <- input$ind.names[i]
-            ## }
+            }
+
+
         }
 
 
@@ -229,12 +241,11 @@ setMethod("initialize", "genlight", function(.Object, ...) {
 
 
         ## HANDLE INPUT$PLOIDY ##
+        ## note: if not provided, @ploidy is NULL (saves some space)
         if(!is.null(input$ploidy)){ # ploidy is provided
             input$ploidy <- as.integer(input$ploidy)
             input$ploidy <- rep(input$ploidy, length=length(x@gen))
             x@ploidy <- input$ploidy
-        } else { # ploidy is not provided
-            x@ploidy <- sapply(x@gen, function(e) e@ploidy)
         }
 
 
@@ -273,6 +284,7 @@ setMethod("initialize", "genlight", function(.Object, ...) {
 
 
     ## RETURN OBJECT ##
+    names(x@gen) <- NULL # do not store ind.names twice
     return(x)
 }) # end genlight constructor
 
@@ -304,6 +316,29 @@ setMethod ("show", "SNPbin", function(object){
     temp <- round(length(object@NA.posi)/nLoc(object) *100,2)
     cat("\n ", length(object@NA.posi), " (", temp," %) missing data\n", sep="")
 }) # end show method
+
+
+
+
+
+###############
+## show SNPbin
+###############
+setMethod ("show", "genlight", function(object){
+    cat(" === S4 class genlight ===")
+    cat("\n", nInd(object), "genotypes with", nLoc(object),  "binary SNPs")
+    temp <- unique(ploidy(object))
+    if(length(temp)==1){
+        cat("\n Ploidy:", temp)
+    } else {
+        temp <- summary(ploidy(object))
+        cat("\n Ploidy statistics (min/median/max):", temp[1], "/", temp[3], "/", temp[6])
+    }
+    temp <- sapply(object@gen, function(e) length(e@NA.posi))
+    ## temp <- round(length(object@NA.posi)/nLoc(object) *100,2)
+    cat("\n ", sum(temp), " (", round(sum(temp)/(nInd(object)*nLoc(object)),2)," %) missing data\n", sep="")
+}) # end show method
+
 
 
 
@@ -345,6 +380,33 @@ setMethod("names", signature(x = "genlight"), function(x){
     return(slotNames(x))
 })
 
+
+setMethod("ploidy","SNPbin", function(x,...){
+    return(x@ploidy)
+})
+
+
+
+setMethod("ploidy","genlight", function(x,...){
+    if(!is.null(x@ploidy)){
+        res <- x@ploidy
+    } else {
+        res <- sapply(x@gen, function(e) e@ploidy)
+    }
+    names(res) <- x@ind.names
+    return(res)
+})
+
+
+
+setMethod("locNames","genlight", function(x,...){
+    return(x@loc.names)
+})
+
+
+setMethod("indNames","genlight", function(x,...){
+    return(x@ind.names)
+})
 
 
 
@@ -459,6 +521,43 @@ as.integer.SNPbin <- function(x, ...){
 }
 
 
+setAs("genlight", "matrix", def=function(from){
+    res <- unlist(lapply(from@gen, as.integer))
+    res <- matrix(res, ncol=nLoc(from), nrow=nInd(from), byrow=TRUE)
+    colnames(res) <- locNames(from)
+    rownames(res) <- indNames(from)
+    return(res)
+})
+
+
+as.matrix.genlight <- function(x, ...){
+    return(as(x, "matrix"))
+}
+
+
+setAs("genlight", "data.frame", def=function(from){
+    return(as.data.frame(as.matrix(from)))
+})
+
+
+as.data.frame.genlight <- function(x, ...){
+    return(as(x, "data.frame"))
+}
+
+
+setAs("genlight", "list", def=function(from){
+    res <- lapply(from@gen, as.integer)
+    names(res) <- indNames(from)
+    return(res)
+})
+
+
+as.list.genlight <- function(x, ...){
+    return(as(x, "list"))
+}
+
+
+
 
 
 
@@ -470,13 +569,13 @@ as.integer.SNPbin <- function(x, ...){
 
 
 ################################
-## testing :
+## testing SNPbin
 ##
 ##
 ## library(adegenet)
 
 ## HAPLOID DATA - NO NA
-## dat <- sample(c(0,1), 1e6, replace=TRUE)
+## dat <- sample(c(0L,1L), 1e6, replace=TRUE)
 ## x <- new("SNPbin", dat)
 ## identical(as(x, "integer"),dat) # SHOULD NORMALLY BE TRUE
 ## all(as(x, "integer") == dat, na.rm=TRUE) # MUST BE TRUE
@@ -509,3 +608,24 @@ as.integer.SNPbin <- function(x, ...){
 ## identical(as(x, "integer"),dat) # MUST BE TRUE
 
 ## object.size(dat)/object.size(x) # EFFICIENCY OF CONVERSION
+
+
+
+
+################################
+## testing genlight
+##
+##
+
+
+## SIMPLE TEST
+library(adegenet)
+dat <- list(toto=c(1,1,0), titi=c(NA,1,1,0), tata=c(NA,0,3, NA))
+x <- new("genlight", dat)
+x
+as.list(x)
+as.matrix(x)
+
+identical(x, new("genlight", as.list(x))) # round trip - list - MUST BE TRUE
+identical(x, new("genlight", as.matrix(x))) # round trip - matrix - MUST BE TRUE
+identical(x, new("genlight", as.data.frame(x))) # round trip - data.frame - MUST BE TRUE

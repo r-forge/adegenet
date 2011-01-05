@@ -85,3 +85,5 @@ Fdens[[1]]
 
 ## plot the first 10 functions
 invisible(sapply(Fdens[1:10], plot, ylab="Density", main="Density of probability of F values"))
+
+}
