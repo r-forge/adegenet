@@ -618,3 +618,46 @@ setMethod("locNames","genpop", function(x, withAlleles=FALSE, ...){
     return(res)
 })
 
+
+
+
+###########
+# indNames
+###########
+setGeneric("indNames", function(x,...){
+    standardGeneric("indNames")
+})
+
+
+
+setMethod("indNames","genind", function(x, ...){
+    return(x@ind.names)
+})
+
+
+
+
+
+
+
+#######
+# ploidy
+#######
+setGeneric("ploidy", function(x,...){
+    standardGeneric("ploidy")
+})
+
+
+
+setMethod("ploidy","genind", function(x,...){
+    return(nrow(x@ploidy))
+})
+
+
+
+setMethod("ploidy","genpop", function(x,...){
+    return(nrow(x@ploidy))
+})
+
+
+
