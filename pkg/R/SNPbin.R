@@ -619,13 +619,24 @@ as.list.genlight <- function(x, ...){
 
 
 ## SIMPLE TEST
-library(adegenet)
-dat <- list(toto=c(1,1,0), titi=c(NA,1,1,0), tata=c(NA,0,3, NA))
-x <- new("genlight", dat)
-x
-as.list(x)
-as.matrix(x)
+## library(adegenet)
+## dat <- list(toto=c(1,1,0), titi=c(NA,1,1,0), tata=c(NA,0,3, NA))
+## x <- new("genlight", dat)
+## x
+## as.list(x)
+## as.matrix(x)
 
-identical(x, new("genlight", as.list(x))) # round trip - list - MUST BE TRUE
-identical(x, new("genlight", as.matrix(x))) # round trip - matrix - MUST BE TRUE
-identical(x, new("genlight", as.data.frame(x))) # round trip - data.frame - MUST BE TRUE
+## identical(x, new("genlight", as.list(x))) # round trip - list - MUST BE TRUE
+## identical(x, new("genlight", as.matrix(x))) # round trip - matrix - MUST BE TRUE
+## identical(x, new("genlight", as.data.frame(x))) # round trip - data.frame - MUST BE TRUE
+
+
+
+## ## BIG SCALE TEST - HAPLOID DATA WITH NA
+## dat <- lapply(1:100, function(i) sample(c(0,1,NA), 1e6, prob=c(.5, .49, .01), replace=TRUE))
+## names(dat) <- paste("indiv", 1:length(dat))
+## print(object.size(dat), unit="aut")
+
+## system.time(x <- new("genlight", dat)) # conversion + time taken
+## print(object.size(x), unit="au")
+## object.size(dat)/object.size(x) # conversion efficiency
