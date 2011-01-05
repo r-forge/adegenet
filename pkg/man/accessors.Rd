@@ -10,6 +10,8 @@
 \alias{nLoc}
 \alias{nLoc,genind-method}
 \alias{nLoc,genpop-method}
+\alias{nInd}
+\alias{nInd,genind-method}
 \alias{pop}
 \alias{pop<-}
 \alias{pop,genind-method}
@@ -17,6 +19,11 @@
 \alias{locNames}
 \alias{locNames,genind-method}
 \alias{locNames,genpop-method}
+\alias{indNames}
+\alias{indNames,genind-method}
+\alias{ploidy}
+\alias{ploidy,genind-method}
+\alias{ploidy,genpop-method}
 \title{ Accessors for adegenet objects}
 \description{
   An accessor is a function that allows to interact with slots of an
@@ -48,21 +55,30 @@
 }
 \section{Methods}{
   \describe{
+    \item{nInd}{returns the number of individuals in the \code{genind} object}
     \item{nLoc}{returns the number of loci of the object}
     \item{pop}{returns the population factor of the object, using true
       (as opposed to generic) levels.}
     \item{pop<-}{replacement method for the \code{@pop} slot of an
       object. The content of \code{@pop} and \code{@pop.names} is updated
       automatically.}
+    \item{indNames}{returns the true names of individuals.}
     \item{locNames}{returns the true names of markers and/or alleles.}
+    \item{ploidy}{returns the ploidy of the data.}
   }
 }
 \usage{
+nInd(x, \dots)
 nLoc(x, \dots)
 pop(x)
+indNames(x, \dots)
+\S4method{indNames}{genind}(x, \dots)
 locNames(x, \dots)
 \S4method{locNames}{genind}(x, withAlleles=FALSE, \dots)
 \S4method{locNames}{genpop}(x, withAlleles=FALSE, \dots)
+ploidy(x, \dots)
+\S4method{ploidy}{genind}(x, \dots)
+\S4method{ploidy}{genpop}(x, \dots)
 }
 \arguments{
   \item{x}{a \linkS4class{genind} or a \linkS4class{genpop} object.}

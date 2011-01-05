@@ -372,6 +372,18 @@ setMethod("$","genlight",function(x,name) {
 })
 
 
+setMethod("$<-","SNPbin",function(x,name,value) {
+  slot(x,name,check=TRUE) <- value
+  return(x)
+})
+
+
+setMethod("$<-","genlight",function(x,name,value) {
+  slot(x,name,check=TRUE) <- value
+  return(x)
+})
+
+
 setMethod("names", signature(x = "SNPbin"), function(x){
     return(slotNames(x))
 })
