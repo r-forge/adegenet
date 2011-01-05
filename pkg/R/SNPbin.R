@@ -570,6 +570,9 @@ setAs("genlight", "matrix", def=function(from){
 })
 
 
+## KLUDGE - needed for as.matrix.genlight to be dispatched correctly (R-2.12.1)
+setGeneric("as.matrix")
+
 as.matrix.genlight <- function(x, ...){
     return(as(x, "matrix"))
 }

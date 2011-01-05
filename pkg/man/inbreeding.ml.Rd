@@ -10,7 +10,7 @@
   individuals of a \linkS4class{genind} object.
 }
 \usage{
-inbreeding(x, pop = NULL, truenames = TRUE, res.type = c("sample", "function"), N = 200, M = N * 10)
+inbreeding.ml(x, pop = NULL, truenames = TRUE, res.type = c("sample", "function"), N = 200, M = N * 10)
 }
 \arguments{
   \item{x}{an object of class \linkS4class{genind}.}

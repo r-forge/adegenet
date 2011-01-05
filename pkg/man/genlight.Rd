@@ -15,11 +15,14 @@
 \alias{locNames,genlight-method}
 \alias{indNames,genlight-method}
 \alias{as,genlight,matrix-method}
-\alias{as.matrix,genlight-method}
+\alias{coerce,genlight,matrix-method}
+\alias{as.matrix.genlight}
 \alias{as,genlight,data.frame-method}
-\alias{as.data.frame,genlight-method}
+\alias{coerce,genlight,data.frame-method}
+\alias{as.data.frame.genlight}
 \alias{as,genlight,list-method}
-\alias{as.list,genlight-method}
+\alias{coerce,genlight,list-method}
+\alias{as.list.genlight}
 % \alias{,genlight-method}
 % \alias{,genlight-method}
 % \alias{,genlight-method}
@@ -170,7 +173,7 @@ dat <- lapply(1:50, function(i) sample(c(0,1,NA), 1e6, prob=c(.5, .49, .01), rep
 names(dat) <- paste("indiv", 1:length(dat))
 print(object.size(dat), unit="aut") # size of the original data
 
-x <- new("genlight", dat) # conversion + time taken
+x <- new("genlight", dat) # conversion
 x
 print(object.size(x), unit="au") # size of the genlight object
 object.size(dat)/object.size(x) # conversion efficiency
