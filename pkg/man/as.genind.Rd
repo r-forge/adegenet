@@ -56,7 +56,6 @@ is.genind(x)
 
   - \linkS4class{genlight} for an efficient storage of binary SNPs genotypes\cr
 }
-}
 \examples{
 data(nancycats)
 nancycats@loc.names
