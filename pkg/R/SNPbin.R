@@ -347,36 +347,36 @@ setMethod ("show", "genlight", function(object){
 ############
 ## accessors
 ############
+
+## nLoc
 setMethod("nLoc","SNPbin", function(x,...){
     return(x@n.loc)
 })
-
 
 setMethod("nLoc","genlight", function(x,...){
     return(x@n.loc)
 })
 
 
+## nInd
 setMethod("nInd","genlight", function(x,...){
     return(length(x@gen))
 })
 
 
+## $
 setMethod("$","SNPbin",function(x,name) {
     return(slot(x,name))
 })
-
 
 setMethod("$","genlight",function(x,name) {
     return(slot(x,name))
 })
 
-
 setMethod("$<-","SNPbin",function(x,name,value) {
   slot(x,name,check=TRUE) <- value
   return(x)
 })
-
 
 setMethod("$<-","genlight",function(x,name,value) {
   slot(x,name,check=TRUE) <- value
@@ -384,21 +384,20 @@ setMethod("$<-","genlight",function(x,name,value) {
 })
 
 
+## names
 setMethod("names", signature(x = "SNPbin"), function(x){
     return(slotNames(x))
 })
-
 
 setMethod("names", signature(x = "genlight"), function(x){
     return(slotNames(x))
 })
 
 
+## ploidy
 setMethod("ploidy","SNPbin", function(x,...){
     return(x@ploidy)
 })
-
-
 
 setMethod("ploidy","genlight", function(x,...){
     if(!is.null(x@ploidy)){
@@ -411,14 +410,70 @@ setMethod("ploidy","genlight", function(x,...){
 })
 
 
+setMethod("ploidy<-","SNPbin",function(x,value, ...) {
+    value <- as.integer(value)
+    if(any(value)<1) stop("Negative or null values provided")
+    if(any(is.na(value))) stop("NA values provided")
+    if(length(value)>1) warning("Several ploidy numbers provided; using only the first integer")
+    slot(x,"ploidy",check=TRUE) <- value[1]
+    return(x)
+})
 
+setMethod("ploidy<-","genlight",function(x,value, ...) {
+    value <- as.integer(value)
+    if(any(value)<1) stop("Negative or null values provided")
+    if(any(is.na(value))) stop("NA values provided")
+    if(length(value) != nInd(x)) stop("Length of the provided vector does not match nInd(x)")
+    slot(x,"ploidy",check=TRUE) <- value
+    return(x)
+})
+
+
+## locNames
 setMethod("locNames","genlight", function(x,...){
     return(x@loc.names)
 })
 
 
+setMethod("locNames<-","genlight",function(x,value, ...) {
+    value <- as.character(value)
+    if(length(value) != nLoc(x)) stop("Vector length does no match number of loci")
+    slot(x,"loc.names",check=TRUE) <- value
+    return(x)
+})
+
+
+## indNames
 setMethod("indNames","genlight", function(x,...){
     return(x@ind.names)
+})
+
+
+setMethod("indNames<-","genlight",function(x,value, ...) {
+    value <- as.character(value)
+    if(length(value) != nInd(x)) stop("Vector length does no match number of individuals")
+    slot(x,"ind.names",check=TRUE) <- value
+    return(x)
+})
+
+
+## allNames
+setMethod("allNames","genlight", function(x,...){
+    return(x@loc.all)
+})
+
+
+## NA.posi
+setGeneric("NA.posi", function(x, ...) standardGeneric("NA.posi"))
+
+setMethod("NA.posi","SNPbin", function(x,...){
+    return(x@NA.posi)
+})
+
+setMethod("NA.posi","genlight", function(x,...){
+    res <- lapply(x@gen, function(e) e@NA.posi)
+    names(res) <- indNames(x)
+    return(res)
 })
 
 
