@@ -594,6 +594,9 @@ setGeneric("locNames", function(x,...){
     standardGeneric("locNames")
 })
 
+setGeneric("locNames<-", function(x, value, ...) {
+    standardGeneric("locNames<-")
+})
 
 
 setMethod("locNames","genind", function(x, withAlleles=FALSE, ...){
@@ -607,6 +610,14 @@ setMethod("locNames","genind", function(x, withAlleles=FALSE, ...){
 })
 
 
+setMethod("locNames<-","genind",function(x,value, ...) {
+    value <- as.character(value)
+    if(length(value) != nLoc(x)) stop("Vector length does no match number of loci")
+    names(value) <- names(locNames(x))
+    slot(x,"loc.names",check=TRUE) <- value
+    return(x)
+})
+
 
 setMethod("locNames","genpop", function(x, withAlleles=FALSE, ...){
     ## return simply locus names
@@ -619,6 +630,13 @@ setMethod("locNames","genpop", function(x, withAlleles=FALSE, ...){
 })
 
 
+setMethod("locNames<-","genpop",function(x,value, ...) {
+    value <- as.character(value)
+    if(length(value) != nLoc(x)) stop("Vector length does no match number of loci")
+    names(value) <- names(locNames(x))
+    slot(x,"loc.names",check=TRUE) <- value
+    return(x)
+})
 
 
 ###########
@@ -628,14 +646,41 @@ setGeneric("indNames", function(x,...){
     standardGeneric("indNames")
 })
 
-
+setGeneric("indNames<-", function(x, value, ...){
+    standardGeneric("indNames<-")
+})
 
 setMethod("indNames","genind", function(x, ...){
     return(x@ind.names)
 })
 
 
+setMethod("indNames<-","genind",function(x,value, ...) {
+    value <- as.character(value)
+    if(length(value) != nInd(x)) stop("Vector length does no match number of individuals")
+    names(value) <- names(indNames(x))
+    slot(x,"ind.names",check=TRUE) <- value
+    return(x)
+})
 
+
+
+
+
+##########
+# allNames
+##########
+setGeneric("allNames", function(x,...){
+    standardGeneric("allNames")
+})
+
+setMethod("allNames","genind", function(x, ...){
+    return(x@all.names)
+})
+
+setMethod("allNames","genpop", function(x, ...){
+    return(x@all.names)
+})
 
 
 
@@ -647,17 +692,37 @@ setGeneric("ploidy", function(x,...){
     standardGeneric("ploidy")
 })
 
-
+setGeneric("ploidy<-", function(x, value, ...){
+    standardGeneric("ploidy<-")
+})
 
 setMethod("ploidy","genind", function(x,...){
     return(nrow(x@ploidy))
 })
 
 
+setMethod("ploidy<-","genind",function(x,value, ...) {
+    value <- as.integer(value)
+    if(any(value)<1) stop("Negative or null values provided")
+    if(any(is.na(value))) stop("NA values provided")
+    if(length(value)>1) warning("Several ploidy numbers provided; using only the first integer")
+    slot(x,"ploidy",check=TRUE) <- value[1]
+    return(x)
+})
+
 
 setMethod("ploidy","genpop", function(x,...){
     return(nrow(x@ploidy))
 })
 
+
+setMethod("ploidy<-","genind",function(x,value, ...) {
+    value <- as.integer(value)
+    if(any(value)<1) stop("Negative or null values provided")
+    if(any(is.na(value))) stop("NA values provided")
+    if(length(value)>1) warning("Several ploidy numbers provided; using only the first integer")
+    slot(x,"ploidy",check=TRUE) <- value[1]
+    return(x)
+})
 
 
