@@ -323,7 +323,7 @@ setMethod ("show", "SNPbin", function(object){
 
 
 ###############
-## show SNPbin
+## show genlight
 ###############
 setMethod ("show", "genlight", function(object){
     cat(" === S4 class genlight ===")
@@ -336,7 +336,6 @@ setMethod ("show", "genlight", function(object){
         cat("\n Ploidy statistics (min/median/max):", temp[1], "/", temp[3], "/", temp[6])
     }
     temp <- sapply(object@gen, function(e) length(e@NA.posi))
-    ## temp <- round(length(object@NA.posi)/nLoc(object) *100,2)
     cat("\n ", sum(temp), " (", round(sum(temp)/(nInd(object)*nLoc(object)),2)," %) missing data\n", sep="")
 }) # end show method
 
