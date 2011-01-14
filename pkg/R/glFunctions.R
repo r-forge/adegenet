@@ -153,7 +153,7 @@ glVar <- function(x, alleleAsUnit=TRUE){
 ##
 ## PCA for genlight objects
 ##
-glPca <- function(x, center=TRUE, scale=FALSE, scannf=TRUE, nf=2, loadings=TRUE){
+glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE){
     if(!inherits(x, "genlight")) stop("x is not a genlight object")
 
     ## COMPUTE MEANS AND VARIANCES ##
@@ -163,9 +163,10 @@ glPca <- function(x, center=TRUE, scale=FALSE, scannf=TRUE, nf=2, loadings=TRUE)
     }
 
     if(scale){
-        vecSd <- sqrt(glVar(x, alleleAsUnit=FALSE))
-        if(any(is.na(vecSd))) stop("NAs detected in the vector of variances")
+        vecVar <- glVar(x, alleleAsUnit=FALSE)
+        if(any(is.na(vecVar))) stop("NAs detected in the vector of variances")
     }
+
 
     ## COMPUTE DOT PRODUCTS BETWEEN GENOTYPES ##
     ## to be fast, a particular function is defined for each case of centring/scaling
@@ -173,57 +174,53 @@ glPca <- function(x, center=TRUE, scale=FALSE, scannf=TRUE, nf=2, loadings=TRUE)
     myPloidy <- ploidy(x)
 
     ## NO CENTRING / NO SCALING
-      if(!centre & !scale){
+      if(!center & !scale){
         dotProd <- function(a,b, ploid.a, ploid.b){ # a and b are two SNPbin objects
             a <- as.integer(a) / ploid.a
             a[is.na(a)] <- 0
             b <- as.integer(b) / ploidy.b
             b[is.na(b)] <- 0
-            res <- sum( a*b, na.rm=TRUE )
-            return(res)
+            return(sum( a*b, na.rm=TRUE))
         }
     }
 
     ## CENTRING / NO SCALING
-    if(centre & !scale){
+    if(center & !scale){
         dotProd <- function(a,b, ploid.a, ploid.b){ # a and b are two SNPbin objects
             a <- as.integer(a) / ploid.a
             a[is.na(a)] <- vecMeans[is.na(a)]
             b <- as.integer(b) / ploid.b
             b[is.na(b)] <- vecMeans[is.na(b)]
-            res <- sum( (a-vecMeans) * (b-vecMeans), na.rm=TRUE )
-            return(res)
+            return(sum( (a-vecMeans) * (b-vecMeans), na.rm=TRUE) )
         }
     }
 
 
     ## NO CENTRING / SCALING (odd option...)
-    if(!centre & scale){
+    if(!center & scale){
         dotProd <- function(a,b, ploid.a, ploid.b){ # a and b are two SNPbin objects
             a <- as.integer(a) / ploid.a
             a[is.na(a)] <- 0
             b <- as.integer(b) / ploid.b
             b[is.na(b)] <- 0
-            res <- sum( a/vecSd * b/vecSd, na.rm=TRUE )
-            return(res)
+            return(sum( (a*b)/vecVar, na.rm=TRUE))
         }
     }
 
 
-    ## CENTRING/ SCALING
-    if(centre & scale){
+    ## CENTRING / SCALING
+    if(center & scale){
         dotProd <- function(a,b, ploid.a, ploid.b){ # a and b are two SNPbin objects
             a <- as.integer(a) / ploid.a
             a[is.na(a)] <- vecMeans[is.na(a)]
             b <- as.integer(b) / ploid.b
             a[is.na(a)] <- vecMeans[is.na(a)]
-            res <- sum( (a-vecMeans)/vecSd * (b-vecMeans)/vecSd, na.rm=TRUE )
-            return(res)
+            return( sum( ((a-vecMeans)*(b-vecMeans))/vecVar, na.rm=TRUE ) )
         }
     }
 
 
-    ## COMPUTE ALL POSSIBLE DOT PRODUCTS
+    ## COMPUTE ALL POSSIBLE DOT PRODUCTS (XX^T / n) ##
     allComb <- combn(1:nInd(x), 2)
     allProd <- unlist(lapply(1:ncol(allComb), function(i) dotProd(x@gen[[allComb[1,i]]], x@gen[[allComb[2,i]]], myPloidy[allComb[1,i]], myPloidy[allComb[2,i]]) ))
     allProd <- allProd / nInd(x) # assume uniform weights
@@ -235,16 +232,20 @@ glPca <- function(x, center=TRUE, scale=FALSE, scannf=TRUE, nf=2, loadings=TRUE)
     class(allProd) <- "dist"
     allProd <- as.matrix(allProd)
 
+    ## compute the diagonal
+    temp <- unlist(lapply(1:nInd(x), function(i) dotProd(x@gen[[i]], x@gen[[i]], myPloidy[i], myPloidy[i]) ))/nInd(x)
+    diag(allProd) <- temp
 
-    ## PERFORM EIGENANALYSIS ##
+
+    ## PERFORM THE ANALYSIS ##
     ## eigenanalysis
     eigRes <- eigen(allProd, symmetric=TRUE, only.values=FALSE)
-    rank <- sum(eigRes > 1e-10)
-    eigRes$values <- eigRes$value[1:rank]
-    eigRes$vectors <- eigRes$vectors[1:rank]
+    rank <- sum(eigRes$values > 1e-12)
+    eigRes$values <- eigRes$values[1:rank]
+    eigRes$vectors <- eigRes$vectors[, 1:rank, drop=FALSE]
 
     ## scan nb of axes retained
-    if(scannf){
+    if(is.null(nf)){
         barplot(eigRes$values, main="Eigenvalues", col=heat.colors(rank))
         cat("Select the number of axes: ")
         nf <- as.integer(readLines(n = 1))
@@ -252,32 +253,55 @@ glPca <- function(x, center=TRUE, scale=FALSE, scannf=TRUE, nf=2, loadings=TRUE)
 
     ## rescale PCs
     res <- list()
+    res$eig <- eigRes$values
+    ##res$matprod <- allProd # for debugging
+
     ## use: li = XQU = V\Lambda^(1/2)
-    res$scores <- sweep(eigRes$vectors[, 1:nf],2, sqrt(eigRes$values[1:nf]), FUN="*")
+    eigRes$vectors <- eigRes$vectors * sqrt(nInd(x)) # D-normalize vectors
+    res$scores <- sweep(eigRes$vectors[, 1:nf, drop=FALSE],2, sqrt(eigRes$values[1:nf]), FUN="*")
 
-    ## get loadings
+
+    ## GET LOADINGS ##
+    ## need to decompose X^TDV into a sum of n matrices of dim p*r
+    ## but only two such matrices are represented at a time
     if(loadings){
-        res$loadings <- matrix(0
+        res$loadings <- matrix(0, nrow=nLoc(x), ncol=nf) # create empty matrix
         ## use: c1 = X^TDV
-    ##     ##### TO FINISH !!!
-    ##     for(i in 1:nInd(x)){
-    ##         temp <- as.integer(x@gen[[i]]) / myPloidy[i]
-    ##         if(centre) {
-    ##             temp[is.na(temp)] <- vecMeans[is.na(temp)]
-    ##             temp <- temp - vecMeans
-    ##         } else {
-    ##             temp[is.na(temp)] <- 0
-    ##         }
-    ##         if(scale){
-    ##             temp <- temp/vecSd
-    ##         }
+        ## and X^TV = A_1 + ... + A_n
+        ## with A_k = X_[k-]^T v[k-]
+        for(k in 1:nInd(x)){
+            temp <- as.integer(x@gen[[k]]) / myPloidy[k]
+            if(center) {
+                temp[is.na(temp)] <- vecMeans[is.na(temp)]
+                temp <- temp - vecMeans
+            } else {
+                temp[is.na(temp)] <- 0
+            }
+            if(scale){
+                temp <- temp/vecSd
+            }
 
-    ##         res$loadings <- t(temp) %*% res$scores / N
-    ##     }
-    ## }
-    ## ## compute loadings
+            res$loadings <- res$loadings + matrix(temp) %*% eigRes$vectors[k, 1:nf, drop=FALSE]
+        }
 
-    names(res) <- locNames(x)
+        res$loadings <- res$loadings / nInd(x) # don't forget the /n of X_tDV
+        res$loadings <- sweep(res$loadings, 2, sqrt(eigRes$values[1:nf]), FUN="/")
+    }
+
+
+    ## FORMAT OUTPUT ##
+    colnames(res$scores) <- paste("PC", 1:nf, sep="")
+    rownames(res$scores) <- indNames(x)
+
+    if(!is.null(res$loadings)){
+        colnames(res$loadings) <- paste("Axis", 1:nf, sep="")
+        rownames(res$loadings) <- locNames(x)
+    }
+
+    res$call <- match.call()
+
+    class(res) <- "glPca"
+
     return(res)
 
 } # glPca
@@ -312,3 +336,36 @@ glPca <- function(x, center=TRUE, scale=FALSE, scannf=TRUE, nf=2, loadings=TRUE)
 
 ## all.equal(glMean(x,FALSE), apply(temp,2,mean,na.rm=TRUE)) # MUST BE TRUE
 ## all.equal(glVar(x,FALSE), apply(temp,2,f1)) # MUST BE TRUE
+
+
+
+
+#### TESTING PCA ####
+## M <- matrix(sample(c(0,1), 1e5, replace=TRUE), nrow=100)
+## rownames(M) <- paste("ind", 1:100)
+
+## ## perform glPca
+## x <- new("genlight",M)
+## toto <- glPca(x, nf=4)
+
+
+## ## perform ordinary PCA
+## titi <- dudi.pca(M, center=TRUE, scale=FALSE, scannf=FALSE, nf=4)
+
+
+## ## check results
+## all(round(abs(toto$scores), 10) == round(abs(titi$li), 10)) # MUST BE TRUE
+## all.equal(toto$eig, titi$eig) # MUST BE TRUE
+## all(round(abs(toto$loadings), 10)==round(abs(titi$c1), 10)) # MUST BE TRUE
+
+
+## test with NAs
+## M <- matrix(sample(c(0,1, NA), 1e5, replace=TRUE, prob=c(.495,.495,.01)), nrow=100)
+## rownames(M) <- paste("ind", 1:100)
+
+## ## perform glPca
+## x <- new("genlight",M)
+## toto <- glPca(x, nf=4)
+
+## round(cor(toto$scores),10) # must be diag(1,4)
+## round(t(toto$loadings) %*% toto$loadings,10) # must be diag(1,4)
