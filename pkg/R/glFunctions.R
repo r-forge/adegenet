@@ -359,7 +359,7 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE){
 ## all(round(abs(toto$loadings), 10)==round(abs(titi$c1), 10)) # MUST BE TRUE
 
 
-## test with NAs
+## TEST WITH NAS ##
 ## M <- matrix(sample(c(0,1, NA), 1e5, replace=TRUE, prob=c(.495,.495,.01)), nrow=100)
 ## rownames(M) <- paste("ind", 1:100)
 
@@ -369,3 +369,14 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE){
 
 ## round(cor(toto$scores),10) # must be diag(1,4)
 ## round(t(toto$loadings) %*% toto$loadings,10) # must be diag(1,4)
+
+
+## LARGE SCALE TEST ##
+## perform glPca
+## M <- matrix(sample(c(0,1), 200*1e6, replace=TRUE), nrow=200)
+## x <- new("genlight",M) # too slow, check what's fucked up
+## toto <- glPca(x, nf=4)
+
+## round(cor(toto$scores),10) # must be diag(1,4)
+## round(t(toto$loadings) %*% toto$loadings,10) # must be diag(1,4)
+
