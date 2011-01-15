@@ -147,7 +147,7 @@ setMethod("initialize", "genlight", function(.Object, ...) {
     ## HANDLE INPUT$GEN ##
     if(!is.null(input$gen)){
         ## input$gen is a list of SNPbin ##
-        if(is.list(input$gen) & all(sapply(input$gen, class)=="SNPbin")){
+        if(is.list(input$gen) && all(sapply(input$gen, class)=="SNPbin")){
             ## check nb of loci in each SNPbin
             if(length(unique(sapply(input$gen, nLoc)))>1) {
                 warning("SNPbin objects have different numbers of loci")
@@ -174,13 +174,13 @@ setMethod("initialize", "genlight", function(.Object, ...) {
                     }
                 }
             }
-          input$gen <- lapply(1:nrow(input$gen), function(i) as.integer(input$gen[i,]))
-
+            ##input$gen <- lapply(1:nrow(input$gen), function(i) as.integer(input$gen[i,]))
+            x@gen <- lapply(1:nrow(input$gen), function(i) new("SNPbin", as.integer(input$gen[i,])) )
         }
 
 
         ## input$gen is a list of integers/numeric ##
-        if(is.list(input$gen) & all(sapply(input$gen, class) %in% c("integer","numeric"))){
+        if(is.list(input$gen) && all(sapply(input$gen, class) %in% c("integer","numeric"))){
             ## check length consistency
             lengthvec <- sapply(input$gen, length)
 
