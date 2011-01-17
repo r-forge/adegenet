@@ -27,8 +27,9 @@ setClass("genlight", representation(gen = "list",
                                     ind.names = "charOrNULL",
                                     loc.names = "charOrNULL",
                                     loc.all = "charOrNULL",
-                                    ploidy = "intOrNULL"),
-         prototype(gen = list(), n.loc = integer(0), ind.names = NULL, loc.names = NULL, loc.all = NULL, ploidy=NULL))
+                                    ploidy = "intOrNULL",
+                                    other = "list"),
+         prototype(gen = list(), n.loc = integer(0), ind.names = NULL, loc.names = NULL, loc.all = NULL, ploidy=NULL, other=list()))
 
 
 
@@ -138,7 +139,12 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
 ####################
 ## genlight constructor
 ####################
-setMethod("initialize", "genlight", function(.Object, ...) {
+setMethod("initialize", "genlight", function(.Object, ..., multicore=require("multicore"), n.cores=NULL) {
+    if(multicore && !require(multicore)) stop("multicore package requested but not installed")
+    if(multicore && is.null(n.cores)){
+        n.cores <- multicore:::detectCores()
+    }
+
     x <- .Object
     input <- list(...)
     if(length(input)==1) names(input) <- "gen"
@@ -175,7 +181,11 @@ setMethod("initialize", "genlight", function(.Object, ...) {
                 }
             }
             ##input$gen <- lapply(1:nrow(input$gen), function(i) as.integer(input$gen[i,]))
-            x@gen <- lapply(1:nrow(input$gen), function(i) new("SNPbin", as.integer(input$gen[i,])) )
+            if(multicore){
+                x@gen <- mclapply(1:nrow(input$gen), function(i) new("SNPbin", as.integer(input$gen[i,])), mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE)
+            } else {
+                x@gen <- lapply(1:nrow(input$gen), function(i) new("SNPbin", as.integer(input$gen[i,])) )
+            }
         }
 
 
@@ -198,7 +208,11 @@ setMethod("initialize", "genlight", function(.Object, ...) {
             }
 
             ## create SNPbin list
-            x@gen <- lapply(input$gen, function(e) new("SNPbin",e))
+            if(multicore){
+                x@gen <- mclapply(input$gen, function(e) new("SNPbin",e), mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE)
+            } else {
+                x@gen <- lapply(input$gen, function(e) new("SNPbin",e))
+            }
         }
     }
 
