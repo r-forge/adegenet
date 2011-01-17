@@ -315,7 +315,7 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE){
 ## glNA(x)
 ## glSum(x)
 ## glMean(x)
-##
+
 ## same ploidy everywhere
 ## x <- new("genlight", list(c(0,0,1,1,0), c(1,1,1,0,0,1), c(0,0,0,1,1,1)))
 ## f1 <- function(e) {return(mean((e-mean(e, na.rm=TRUE))^2, na.rm=TRUE))}
@@ -371,10 +371,10 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE){
 ## round(t(toto$loadings) %*% toto$loadings,10) # must be diag(1,4)
 
 
-## LARGE SCALE TEST ##
-## perform glPca
+## ## LARGE SCALE TEST ##
+## ## perform glPca
 ## M <- matrix(sample(c(0,1), 200*1e6, replace=TRUE), nrow=200)
-## x <- new("genlight",M) # too slow, check what's fucked up
+## x <- new("genlight",M)
 ## toto <- glPca(x, nf=4)
 
 ## round(cor(toto$scores),10) # must be diag(1,4)
