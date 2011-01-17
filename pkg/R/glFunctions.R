@@ -12,7 +12,7 @@ glSum <- function(x, alleleAsUnit=TRUE){
     ## use ploidy (sum absolute frequencies)
     if(alleleAsUnit){
     res <- integer(nLoc(x))
-        for(e in x@gen){
+    for(e in x@gen){
             temp <- as.integer(e)
             temp[is.na(temp)] <- 0L
             res <- res + temp
@@ -153,8 +153,14 @@ glVar <- function(x, alleleAsUnit=TRUE){
 ##
 ## PCA for genlight objects
 ##
-glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE){
+glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE,
+                  multicore=require("multicore"), n.cores=NULL){
     if(!inherits(x, "genlight")) stop("x is not a genlight object")
+    if(multicore && !require(multicore)) stop("multicore package requested but not installed")
+    if(multicore && is.null(n.cores)){
+        n.cores <- multicore:::detectCores()
+    }
+
 
     ## COMPUTE MEANS AND VARIANCES ##
     if(center) {
@@ -222,7 +228,12 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE){
 
     ## COMPUTE ALL POSSIBLE DOT PRODUCTS (XX^T / n) ##
     allComb <- combn(1:nInd(x), 2)
-    allProd <- unlist(lapply(1:ncol(allComb), function(i) dotProd(x@gen[[allComb[1,i]]], x@gen[[allComb[2,i]]], myPloidy[allComb[1,i]], myPloidy[allComb[2,i]]) ))
+    if(multicore){
+        allProd <- unlist(mclapply(1:ncol(allComb), function(i) dotProd(x@gen[[allComb[1,i]]], x@gen[[allComb[2,i]]], myPloidy[allComb[1,i]], myPloidy[allComb[2,i]]),
+                                   mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE))
+    } else {
+        allProd <- unlist(lapply(1:ncol(allComb), function(i) dotProd(x@gen[[allComb[1,i]]], x@gen[[allComb[2,i]]], myPloidy[allComb[1,i]], myPloidy[allComb[2,i]]) ))
+    }
     allProd <- allProd / nInd(x) # assume uniform weights
 
     ## shape result as a matrix
@@ -233,7 +244,12 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE){
     allProd <- as.matrix(allProd)
 
     ## compute the diagonal
-    temp <- unlist(lapply(1:nInd(x), function(i) dotProd(x@gen[[i]], x@gen[[i]], myPloidy[i], myPloidy[i]) ))/nInd(x)
+    if(multicore){
+        temp <- unlist(mclapply(1:nInd(x), function(i) dotProd(x@gen[[i]], x@gen[[i]], myPloidy[i], myPloidy[i]),
+                                mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE))/nInd(x)
+    } else {
+        temp <- unlist(lapply(1:nInd(x), function(i) dotProd(x@gen[[i]], x@gen[[i]], myPloidy[i], myPloidy[i]) ))/nInd(x)
+    }
     diag(allProd) <- temp
 
 
@@ -373,9 +389,9 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE){
 
 ## ## LARGE SCALE TEST ##
 ## ## perform glPca
-## M <- matrix(sample(c(0,1), 200*1e6, replace=TRUE), nrow=200)
+## M <- matrix(sample(c(0,1), 50*1e5, replace=TRUE), nrow=50)
 ## x <- new("genlight",M)
-## toto <- glPca(x, nf=4)
+## toto <- glPca(x, nf=4, multicore=FALSE)
 
 ## round(cor(toto$scores),10) # must be diag(1,4)
 ## round(t(toto$loadings) %*% toto$loadings,10) # must be diag(1,4)
