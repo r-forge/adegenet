@@ -230,7 +230,7 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE,
     allComb <- combn(1:nInd(x), 2)
     if(multicore){
         allProd <- unlist(mclapply(1:ncol(allComb), function(i) dotProd(x@gen[[allComb[1,i]]], x@gen[[allComb[2,i]]], myPloidy[allComb[1,i]], myPloidy[allComb[2,i]]),
-                                   mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE))
+                                   mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE))
     } else {
         allProd <- unlist(lapply(1:ncol(allComb), function(i) dotProd(x@gen[[allComb[1,i]]], x@gen[[allComb[2,i]]], myPloidy[allComb[1,i]], myPloidy[allComb[2,i]]) ))
     }
@@ -246,7 +246,7 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE,
     ## compute the diagonal
     if(multicore){
         temp <- unlist(mclapply(1:nInd(x), function(i) dotProd(x@gen[[i]], x@gen[[i]], myPloidy[i], myPloidy[i]),
-                                mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE))/nInd(x)
+                                mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE))/nInd(x)
     } else {
         temp <- unlist(lapply(1:nInd(x), function(i) dotProd(x@gen[[i]], x@gen[[i]], myPloidy[i], myPloidy[i]) ))/nInd(x)
     }
@@ -389,10 +389,16 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE,
 
 ## ## LARGE SCALE TEST ##
 ## ## perform glPca
-## M <- matrix(sample(c(0,1), 50*1e5, replace=TRUE), nrow=50)
-## x <- new("genlight",M)
-## toto <- glPca(x, nf=4, multicore=FALSE)
+M <- matrix(sample(c(0,1), 100*1e6, replace=TRUE), nrow=100)
+x <- new("genlight",M)
+system.time(toto <- glPca(x, nf=4, n.core=6))
+system.time(titi <- dudi.pca(M,center=TRUE,scale=FALSE, scannf=FALSE, nf=4))
 
-## round(cor(toto$scores),10) # must be diag(1,4)
-## round(t(toto$loadings) %*% toto$loadings,10) # must be diag(1,4)
 
+
+round(cor(toto$scores),10) # must be diag(1,4)
+round(t(toto$loadings) %*% toto$loadings,10) # must be diag(1,4)
+
+## comparison ade4 / adegenet
+all(round(abs(titi$c1),8) == round(abs(toto$loadings),8))
+all(round(abs(titi$li),8) == round(abs(toto$scores),8))
