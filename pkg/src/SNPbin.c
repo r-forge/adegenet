@@ -181,7 +181,7 @@ void testRaw(unsigned char *a, int *n){
 .C("testRaw", raw(256), 256L, PACKAGE="adegenet")
 
 ## test raw->int conversion
-x <- sample(0:1,80,replace=TRUE)
+x <- sample(0:1,800,replace=TRUE)
 toto <- .bin2raw(x)$snp
 all(.C("bytesToBinInt", toto, length(toto), integer(length(toto)*8))[[3]]==x)
 
