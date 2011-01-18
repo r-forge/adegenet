@@ -23,7 +23,47 @@
 #include "adesub.h"
 
 
-/* 
+
+
+/*
+   ==========================
+   === INTERNAL FUNCTIONS ===
+   ==========================
+*/
+
+
+/* Maps one value from 0-255 to sequences of 8 binary values */
+void byteToBinInt(unsigned char in, int *out){
+	short int rest, i, temp;
+
+	rest = (int)in;
+
+	/* initialize all values to 0*/
+	for(i=0;i<=7;i++)
+		out[i]=0;
+
+	for(i=7;i>=0;i--){
+		temp = pow(2, i);
+		if(rest >= temp) {
+			out[i] = 1;
+			rest = rest- temp;
+			if(rest == 0) break;
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*
    ===============================
    === MAIN EXTERNAL FUNCTIONS ===
    ===============================
@@ -37,7 +77,7 @@
    - res: vector of integers valued on 0:255
    - ressize: length of res
 */
-void binIntToBytes(int *vecsnp, int *vecsize, int *vecres, int *ressize){
+void binIntToBytes(int *vecsnp, int *vecsize, unsigned char *vecres, int *ressize){
 	/* declarations */
 	int i, j, idres, *binBasis; /* must use dynamic allocation */
 
@@ -51,7 +91,7 @@ void binIntToBytes(int *vecsnp, int *vecsize, int *vecres, int *ressize){
 
 	/* set all values of vecres to 0 */
 	for(i=0;i < *ressize;i++){
-		vecres[i] = 0;
+		vecres[i] = 0x00;
 	}
 
 
@@ -70,16 +110,16 @@ void binIntToBytes(int *vecsnp, int *vecsize, int *vecres, int *ressize){
 	idres = 0;
 	j = 1;
 	for(i=0;i< *vecsize;i++){
-		vecres[idres] = vecres[idres] + binBasis[j] * vecsnp[i];
+		vecres[idres] = vecres[idres] + (unsigned char)(binBasis[j] * vecsnp[i]);
 		if(j == 8){
-			idres = idres +1;
+			idres++;
 			j = 1;
 		} else {
-			j = j+1;
+			j++;
 		}
 	}
-	
-	
+
+
 	/* free memory */
 	freeintvec(binBasis);
 
@@ -92,10 +132,58 @@ void binIntToBytes(int *vecsnp, int *vecsize, int *vecres, int *ressize){
 
 
 
+/* Maps an array of values from 0-255 to sequences of 8 binary values */
+void bytesToBinInt(unsigned char *vecbytes, int *vecsize, int *vecres){
+	int i, j, idres=0, *temp; /* idres: index in vecres*/
+	
+	temp = (int *) calloc(8, sizeof(int));
+
+	for(i=0;i<*vecsize;i++){
+		byteToBinInt(vecbytes[i], temp);
+		for(j=0;j<=7;j++){
+			vecres[j+idres] = temp[j];
+		}
+		idres = idres + 8;
+	}
+
+	free(temp);
+} /* end binIntToBytes*/
 
 
-/* TESTING */
+
+
+
+
+
+
+
+
+/* Simple test function */
+/* Test: increases for a raw (unsigned char) vector */
+void testRaw(unsigned char *a, int *n){
+	int i;
+	for(i=0; i<*n; i++){
+		a[i] = (unsigned char)(i);
+	}
+}
+
+
+
+
+
+
+
+
+/* TESTING in R */
+
 /*
+## test raw conversion
+.C("testRaw", raw(256), 256L, PACKAGE="adegenet")
 
+## test raw->int conversion
+x <- sample(0:1,80,replace=TRUE)
+toto <- .bin2raw(x)$snp
+all(.C("bytesToBinInt", toto, length(toto), integer(length(toto)*8))[[3]]==x)
 
 */
+
