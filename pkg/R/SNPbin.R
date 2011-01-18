@@ -587,9 +587,14 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
 ###########
 ## convert vector of raw to 0/1 integers
 .raw2bin <- function(x){
-    SNPCOMB <- as.matrix(expand.grid(rep(list(c(0,1)), 8)))
-    colnames(SNPCOMB) <- NULL
-    res <- unlist(lapply(as.integer(x), function(i) SNPCOMB[i+1,]))
+    if(!is.integer(x)) {
+        x <- as.integer(x)
+    }
+    ## SNPCOMB <- as.matrix(expand.grid(rep(list(c(0,1)), 8)))
+    ## colnames(SNPCOMB) <- NULL
+    ## res <- unlist(lapply(as.integer(x), function(i) SNPCOMB[i+1,]))
+    res <- .C("bytesToBinInt", x, length(x), integer(length(x)*8))[[3]]
+    return(res)
 } # end .raw2bin
 
 
