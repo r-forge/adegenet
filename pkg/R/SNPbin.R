@@ -587,9 +587,7 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
 ###########
 ## convert vector of raw to 0/1 integers
 .raw2bin <- function(x){
-    if(!is.integer(x)) {
-        x <- as.integer(x)
-    }
+    if(!is.raw(x)) stop("x is not of class raw")
     ## SNPCOMB <- as.matrix(expand.grid(rep(list(c(0,1)), 8)))
     ## colnames(SNPCOMB) <- NULL
     ## res <- unlist(lapply(as.integer(x), function(i) SNPCOMB[i+1,]))
@@ -689,6 +687,10 @@ as.list.genlight <- function(x, ...){
 ##
 ##
 ## library(adegenet)
+dat <- c(1,0,0,1,0,NA,1,0,0,0,0,1)
+x <- new("SNPbin",dat)
+as.integer(x)
+
 
 ## HAPLOID DATA - NO NA
 ## dat <- sample(c(0L,1L), 1e6, replace=TRUE)
@@ -734,7 +736,12 @@ as.list.genlight <- function(x, ...){
 ##
 
 
-## SIMPLE TEST
+## SIMPLE TESTS
+dat <- c(1,0,0,1,0,0,1,1,1,0,1)
+x <- new("SNPbin",dat)$snp[[1]]
+as.integer(x)==dat
+
+
 ## library(adegenet)
 ## dat <- list(toto=c(1,1,0,0), titi=c(NA,1,1,0), tata=c(NA,0,3, NA))
 ## x <- new("genlight", dat)
