@@ -182,7 +182,8 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
             }
             ##input$gen <- lapply(1:nrow(input$gen), function(i) as.integer(input$gen[i,]))
             if(multicore){
-                x@gen <- mclapply(1:nrow(input$gen), function(i) new("SNPbin", as.integer(input$gen[i,])), mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE)
+                x@gen <- mclapply(1:nrow(input$gen), function(i) new("SNPbin", as.integer(input$gen[i,])),
+                                  mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE)
             } else {
                 x@gen <- lapply(1:nrow(input$gen), function(i) new("SNPbin", as.integer(input$gen[i,])) )
             }
@@ -209,7 +210,7 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
 
             ## create SNPbin list
             if(multicore){
-                x@gen <- mclapply(input$gen, function(e) new("SNPbin",e), mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE)
+                x@gen <- mclapply(input$gen, function(e) new("SNPbin",e), mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE)
             } else {
                 x@gen <- lapply(input$gen, function(e) new("SNPbin",e))
             }
@@ -737,9 +738,9 @@ as.integer(x)
 
 
 ## SIMPLE TESTS
-dat <- c(1,0,0,1,0,0,1,1,1,0,1)
-x <- new("SNPbin",dat)$snp[[1]]
-as.integer(x)==dat
+## dat <- c(1,0,0,1,0,0,1,1,1,0,1)
+## x <- new("SNPbin",dat)$snp[[1]]
+## as.integer(x)==dat
 
 
 ## library(adegenet)
