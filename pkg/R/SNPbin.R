@@ -566,13 +566,13 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
 
     ## map info to bytes (0:255)
     vecSnp <- as.integer(vecSnp)
-    vecRaw <- integer(nbBytes)
+    ##vecRaw <- integer(nbBytes) # no longer needed - sending raw type directly
+    vecRaw <- raw(nbBytes)
 
     vecRaw <- .C("binIntToBytes", vecSnp, length(vecSnp), vecRaw, nbBytes, PACKAGE="adegenet")[[3]]
     ## vecraw <- sapply(seq(1, by=8, length=nbBytes), function(i) which(apply(SNPCOMB,1, function(e) all(temp[i:(i+7)]==e))) ) # old R version
 
-    ## code information as raw and add missing data
-    vecRaw <- as.raw(vecRaw)
+    ## return result
     res <- list(snp=vecRaw, n.loc=as.integer(ori.length), NA.posi=as.integer(NAposi))
     return(res)
 } # end .bin2raw
