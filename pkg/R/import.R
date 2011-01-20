@@ -710,3 +710,105 @@ import2genind <- function(file,missing=NA,quiet=FALSE, ...){
     return(invisible())
 }
 
+
+
+
+
+
+
+#######################
+# Function read.snp
+#######################
+read.snp <- function(file, quiet=FALSE, ...){
+    ##ext <- .readExt(file)
+    ##ext <- toupper(ext)
+    if(!quiet) cat("\n Converting data from a binary SNP data file to a genlight object... \n\n")
+
+    call <- match.call()
+
+
+    ## HANDLE THE COMMENTS ##
+    if(!quiet) cat("\n Reading comments... \n")
+
+    count <- 0L
+    i <- 0
+    while(count < 2L){
+        txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=i, nmax=1, blank.lines.skip=FALSE)
+        if(length(grep(">>>>", txt)>0)){
+            count <- count + 1L
+        }
+        i <- i+1
+    }
+
+    lines.to.skip <- i
+
+
+    ## READ GENERAL DATA (>>) ##
+    if(!quiet) cat("\n Reading general information... \n")
+
+    misc.info <- list()
+
+    txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=1)
+
+    while(length(grep(">>", txt))>0){
+        itemName <- gsub(">>","", txt)
+        itemName <- gsub("(^[[:space:]]+)|([[:space:]]+$)", "", itemName)
+        misc.info[itemName] <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip + 1, nmax=1)
+        lines.to.skip <-lines.to.skip + 2
+        txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=1)
+    }
+
+    ## transform each character string into a vector
+    misc.info <- sapply(misc.info, function(e) unlist(strsplit(e,"[[:space:]]+")))
+
+    ## READ GENOTYPE DATA ##
+    ## one genotype is read/converted at a time to spare RAM
+    if(!quiet) cat("\n Reading genotypes... \n")
+
+    res <- list() # this will be a list of SNPbin objects
+
+    txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=1)
+
+    while(length(grep(">", txt))>0){
+        indName <- gsub(">","", txt)
+        indName <- gsub("(^[[:space:]]+)|([[:space:]]+$)", "", indName)
+        temp <- strsplit(scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip + 1, nmax=1), "")[[1]]
+        temp <- suppressWarnings(as.integer(temp))
+        res[[length(res)+1]] <- new("SNPbin", temp)
+        names(res)[length(res)] <- indName
+        lines.to.skip <-lines.to.skip + 2
+        txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=1)
+    }
+
+
+    ## CHECK CONSISTENCY ##
+    n.loc <- unique(sapply(res, nLoc))
+    n.ind <- length(res)
+
+    if(length(n.loc)>1) {
+        print(n.loc)
+        stop("Differing numbers of loci detected between individuals.")
+    }
+
+    if(!is.null(misc.info$position) && length(misc.info$position)!=n.loc) stop("vector of positions of the SNPs does not match the number of SNPs")
+    if(!is.null(misc.info$allele) && length(misc.info$allele)!=n.loc) stop("vector of alleles of the SNPs does not match the number of SNPs")
+    if(!is.null(misc.info$chromosome) && length(misc.info$chromosome)!=n.loc) stop("vector of chromosomes of the SNPs does not match the number of SNPs")
+    if(!is.null(misc.info$population) && length(misc.info$population)!=n.ind) stop("vector of population of the individuals does not match the number of individuals")
+    if(!is.null(misc.info$ploidy) && length(misc.info$ploidy)>1 && length(misc.info$ploidy)!=n.ind) stop("vector of ploidy of the individuals has more than one value but does not match the number of individuals")
+
+
+    ## BUILD OUTPUT ##
+    ind.names <- names(res)
+    if(!is.null(misc.info$chromosome)){
+        other <- list(chromosome = misc.info$chromosome)
+    } else {
+        other <- list()
+    }
+
+    res <- new("genlight", gen=res, ind.names=ind.names, loc.names=misc.info$position, loc.all=misc.info$allele, ploidy=misc.info$ploidy, other=other)
+
+    if(!quiet) cat("\n...done.\n\n")
+
+    return(res)
+
+} # end read.snp
