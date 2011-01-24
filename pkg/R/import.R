@@ -775,8 +775,9 @@ read.snp <- function(file, quiet=FALSE, ...){
     txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=1)
 
     COUNT <- 0 # used to count the nb of genotypes read
-    
+
     while(length(grep(">", txt))>0){
+        COUNT <- COUNT + 1
         if(!quiet) {
             if(COUNT %% 10 == 0){
                 cat(COUNT)
@@ -784,7 +785,7 @@ read.snp <- function(file, quiet=FALSE, ...){
                 cat(".")
             }
         }
-        
+
         indName <- gsub(">","", txt)
         indName <- gsub("(^[[:space:]]+)|([[:space:]]+$)", "", indName)
         temp <- strsplit(scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip + 1, nmax=1), "")[[1]]
