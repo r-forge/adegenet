@@ -738,6 +738,11 @@ read.snp <- function(file, quiet=FALSE, ...){
             count <- count + 1L
         }
         i <- i+1
+        if(i>10){
+            warning("No comment section at the beginning of the file. Format may be wrong.")
+            i <- 0
+            break
+        }
     }
 
     lines.to.skip <- i
@@ -769,7 +774,17 @@ read.snp <- function(file, quiet=FALSE, ...){
 
     txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=1)
 
+    COUNT <- 0 # used to count the nb of genotypes read
+    
     while(length(grep(">", txt))>0){
+        if(!quiet) {
+            if(COUNT %% 10 == 0){
+                cat(COUNT)
+            } else {
+                cat(".")
+            }
+        }
+        
         indName <- gsub(">","", txt)
         indName <- gsub("(^[[:space:]]+)|([[:space:]]+$)", "", indName)
         temp <- strsplit(scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip + 1, nmax=1), "")[[1]]
@@ -782,6 +797,8 @@ read.snp <- function(file, quiet=FALSE, ...){
 
 
     ## CHECK CONSISTENCY ##
+    if(!quiet) cat("\n Checking consistency... \n")
+
     n.loc <- unique(sapply(res, nLoc))
     n.ind <- length(res)
 
@@ -798,6 +815,8 @@ read.snp <- function(file, quiet=FALSE, ...){
 
 
     ## BUILD OUTPUT ##
+    if(!quiet) cat("\n Building final object... \n")
+
     ind.names <- names(res)
     if(!is.null(misc.info$chromosome)){
         other <- list(chromosome = misc.info$chromosome)
