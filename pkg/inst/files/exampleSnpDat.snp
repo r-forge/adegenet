@@ -1,5 +1,4 @@
->>>> comments bellow this line <<<<
-
+>>>> begin comments - do not remove this line <<<<
 Here is a description of the format.
 Any information is stored on two lines, the first for the type of information, the second for the content.
 
@@ -35,7 +34,7 @@ For instance, in the following toy dataset:
 - toto ("10-0") is "at", "gg", not typed (NA) and "tt"
 
 
->>>> comments above this line <<<<
+>>>> end comments - do not remove this line <<<<
 >> position
 1 8 11 43
 >> allele
