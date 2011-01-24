@@ -287,8 +287,9 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
                 warning("Inconsistent length for loc.all - ignoring this argument.")
             } else {
                 ## check string consistency (format is e.g. "a/t")
-                if(any(grep("^[[:alpha:]]{1}/[[:alpha:]]{1}$", input$loc.all) != 1:nLoc(x@gen[[1]]))){
-                    input$loc.all <- gsub("[[:space:]]","", input$loc.all)
+                temp <- grep("^[[:alpha:]]{1}/[[:alpha:]]{1}$", input$loc.all)
+                if(any(! 1:nLoc(x@gen[[1]]) %in% temp)){
+                    ## input$loc.all <- gsub("[[:space:]]","", input$loc.all)
                     warning("Miss-formed strings in loc.all (must be e.g. 'c/g') - ignoring this argument.")
                 } else {
                     x@loc.all <- input$loc.all
