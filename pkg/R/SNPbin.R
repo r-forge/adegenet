@@ -28,8 +28,9 @@ setClass("genlight", representation(gen = "list",
                                     loc.names = "charOrNULL",
                                     loc.all = "charOrNULL",
                                     ploidy = "intOrNULL",
+                                    pop = "factorOrNULL",
                                     other = "list"),
-         prototype(gen = list(), n.loc = integer(0), ind.names = NULL, loc.names = NULL, loc.all = NULL, ploidy=NULL, other=list()))
+         prototype(gen = list(), n.loc = integer(0), ind.names = NULL, loc.names = NULL, loc.all = NULL, ploidy=NULL, pop=NULL, other=list()))
 
 
 
@@ -294,6 +295,17 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
                 } else {
                     x@loc.all <- input$loc.all
                 }
+            }
+        }
+
+        
+        ## HANDLE INPUT$POP ##
+        if(!is.null(input$pop)){
+            ## check length consistency
+            if(length(input$pop) != nInd(x)){
+                warning("Inconsistent length for pop - ignoring this argument.")
+            } else {
+                x@pop <- factor(pop)
             }
         }
 
