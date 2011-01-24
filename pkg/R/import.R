@@ -805,14 +805,29 @@ read.snp <- function(file, quiet=FALSE, ...){
 
     if(length(n.loc)>1) {
         print(n.loc)
-        stop("Differing numbers of loci detected between individuals.")
+        warning("!!! Differing numbers of loci detected between individuals !!!")
     }
 
-    if(!is.null(misc.info$position) && length(misc.info$position)!=n.loc) stop("vector of positions of the SNPs does not match the number of SNPs")
-    if(!is.null(misc.info$allele) && length(misc.info$allele)!=n.loc) stop("vector of alleles of the SNPs does not match the number of SNPs")
-    if(!is.null(misc.info$chromosome) && length(misc.info$chromosome)!=n.loc) stop("vector of chromosomes of the SNPs does not match the number of SNPs")
-    if(!is.null(misc.info$population) && length(misc.info$population)!=n.ind) stop("vector of population of the individuals does not match the number of individuals")
-    if(!is.null(misc.info$ploidy) && length(misc.info$ploidy)>1 && length(misc.info$ploidy)!=n.ind) stop("vector of ploidy of the individuals has more than one value but does not match the number of individuals")
+    if(!is.null(misc.info$position) && length(misc.info$position)!=n.loc) {
+        misc.info$position <- NULL
+        warning("vector of positions of the SNPs does not match the number of SNPs - ignoring this information")
+    }
+    if(!is.null(misc.info$allele) && length(misc.info$allele)!=n.loc) {
+        misc.info$allele <- NULL
+        warning("vector of alleles of the SNPs does not match the number of SNPs - ignoring this information")
+    }
+    if(!is.null(misc.info$chromosome) && length(misc.info$chromosome)!=n.loc) {
+        misc.info$chromosome <- NULL
+        warning("vector of chromosomes of the SNPs does not match the number of SNPs - ignoring this information")
+    }
+    if(!is.null(misc.info$population) && length(misc.info$population)!=n.ind) {
+        misc.info$population <- NULL
+        warning("vector of population of the individuals does not match the number of individuals - ignoring this information")
+    }
+    if(!is.null(misc.info$ploidy) && length(misc.info$ploidy)>1 && length(misc.info$ploidy)!=n.ind) {
+        isc.info$ploidy <- NULL
+        warning("vector of ploidy of the individuals has more than one value but does not match the number of individuals - ignoring this information")
+    }
 
 
     ## BUILD OUTPUT ##
@@ -825,7 +840,7 @@ read.snp <- function(file, quiet=FALSE, ...){
         other <- list()
     }
 
-    res <- new("genlight", gen=res, ind.names=ind.names, loc.names=misc.info$position, loc.all=misc.info$allele, ploidy=misc.info$ploidy, other=other)
+    res <- new("genlight", gen=res, ind.names=ind.names, loc.names=misc.info$position, loc.all=misc.info$allele, ploidy=misc.info$ploidy, pop=misc.info$population, other=other)
 
     if(!quiet) cat("\n...done.\n\n")
 
