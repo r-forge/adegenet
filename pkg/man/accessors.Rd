@@ -19,12 +19,26 @@
 \alias{locNames}
 \alias{locNames,genind-method}
 \alias{locNames,genpop-method}
+\alias{locNames<-}
+\alias{locNames<-,genind-method}
+\alias{locNames<-,genpop-method}
 \alias{indNames}
 \alias{indNames,genind-method}
+\alias{indNames<-}
+\alias{indNames<-,genind-method}
 \alias{ploidy}
 \alias{ploidy,genind-method}
 \alias{ploidy,genpop-method}
-\title{ Accessors for adegenet objects}
+\alias{ploidy<-}
+\alias{ploidy<-,genind-method}
+\alias{ploidy<-,genpop-method}
+\alias{alleles}
+\alias{alleles,genind-method}
+\alias{alleles,genpop-method}
+\alias{alleles<-}
+\alias{alleles<-,genind-method}
+\alias{alleles<-,genpop-method}
+\title{Accessors for adegenet objects}
 \description{
   An accessor is a function that allows to interact with slots of an
   object in a convenient way. Several accessors are available for \linkS4class{genind} or
@@ -63,8 +77,16 @@
       object. The content of \code{@pop} and \code{@pop.names} is updated
       automatically.}
     \item{indNames}{returns the true names of individuals.}
+    \item{indNames<-}{sets the true names of individuals using a vector of
+      length nInd(x).}
     \item{locNames}{returns the true names of markers and/or alleles.}
+    \item{locNames<-}{sets the true names of markers using a vector of
+      length nLoc(x).}
     \item{ploidy}{returns the ploidy of the data.}
+    \item{ploidy<-}{sets the ploidy of the data using an integer.}
+    \item{alleles}{returns the alleles of each locus.}
+    \item{alleles<-}{sets the alleles of each locus using a list with
+      one character vector for each locus.}
   }
 }
 \usage{

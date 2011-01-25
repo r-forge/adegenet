@@ -4,7 +4,6 @@
 \alias{print.glPca}
 \alias{scatter.glPca}
 \alias{loadingplot.glPca}
-
 \title{Principal Component Analysis for genlight objects}
 \description{
   These functions implement Principal Component Analysis (PCA) for
@@ -32,17 +31,16 @@ glPca(x, center = TRUE, scale = FALSE, nf = NULL, loadings = TRUE,
 
 \method{print}{glPca}(x, \dots)
 
-\method{summary}{glPca}(object, \dots)
-
 \method{scatter}{glPca}(x, xax = 1, yax = 2, posi = "bottomleft", bg = "white", 
     ratio = 0.3, label = rownames(x$scores), clabel = 1, xlim = NULL, 
     ylim = NULL, grid = TRUE, addaxes = TRUE, origin = c(0, 0), 
     include.origin = TRUE, sub = "", csub = 1, possub = "bottomleft", 
     cgrid = 1, pixmap = NULL, contour = NULL, area = NULL, \dots)
 
-\method{loadingplot}{glPca}(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfac=FALSE,
-            lab=rownames(x$loadings), cex.lab=0.7, cex.fac=1, lab.jitter=0,
-            main="Loading plot", xlab="SNP positions", ylab="Contributions", srt = 90, adj = c(0, 0.5), \dots)
+\method{loadingplot}{glPca}(x, at=NULL, threshold=NULL, axis=1,
+    fac=NULL, byfac=FALSE, lab=rownames(x$loadings), cex.lab=0.7, cex.fac=1,
+    lab.jitter=0, main="Loading plot", xlab="SNP positions",
+    ylab="Contributions", srt = 90, adj = c(0, 0.5), \dots)
 
 }
 \arguments{

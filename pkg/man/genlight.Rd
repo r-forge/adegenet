@@ -12,11 +12,17 @@
 \alias{$<-,genlight-method}
 \alias{names,genlight-method}
 \alias{ploidy,genlight-method}
+\alias{ploidy<-,genlight-method}
 \alias{locNames,genlight-method}
+\alias{locNames<-,genlight-method}
 \alias{indNames,genlight-method}
+\alias{indNames<-,genlight-method}
 \alias{alleles,genlight-method}
+\alias{alleles<-,genlight-method}
 \alias{pop,genlight-method}
 \alias{pop<-,genlight-method}
+\alias{NA.posi}
+\alias{NA.posi,genlight-method}
 \alias{as,genlight,matrix-method}
 \alias{coerce,genlight,matrix-method}
 \alias{as.matrix.genlight}
@@ -88,16 +94,19 @@
       SNPs.}
     \item{\code{loc.all}:}{a vector of characters indicating the alleles
       of each SNP.}
-    \item{\code{ploidy}:}{a vector of integers indicating the ploidy of each genotype.}
+    \item{\code{ploidy}:}{a vector of integers indicating the ploidy of each individual.}
+    \item{\code{pop}:}{a factor indicating the population of each
+      individual.}
+    \item{\code{other}:}{a list containing other miscellaneous information.}
   }
 }
 \section{Methods}{
   Here is a list of methods available for \code{genlight} objects. Most of
-    these methods are accessors, that is, functions which are used to
-    retrieve the content of the object. Specific manpages can exist for
-    accessors with more than one argument. These are indicated by a '*'
-    symbol next to the method's name. This list also contains methods
-    for conversion from \code{genlight} to other classes.
+  these methods are accessors, that is, functions which are used to
+  retrieve the content of the object. Specific manpages can exist for
+  accessors with more than one argument. These are indicated by a '*'
+  symbol next to the method's name. This list also contains methods
+  for conversion from \code{genlight} to other classes.
   \describe{
     \item{[}{\code{signature(x = "genlight")}: usual method to subset
       objects in R. Is to be applied as if the object was a matrix where
@@ -117,13 +126,23 @@
       the slots of the object.}
     \item{ploidy}{\code{signature(x = "genlight")}: returns the ploidy of
       the genotypes.}
+    \item{NA.posi}{\code{signature(x = "genlight")}: returns the indices
+      of missing values (NAs) as a list with one vector of integer for each individual.}
     \item{indNames}{\code{signature(x = "genlight")}: returns the names of
       the individuals, if provided when the object was contructed.}
+    \item{indNames<-}{\code{signature(x = "genlight")}: sets the names of
+      the individuals using a character vector of length \code{nInd(x)}.}
     \item{locNames}{\code{signature(x = "genlight")}: returns the names of
       the loci, if provided when the object was contructed.}
+    \item{locNames<-}{\code{signature(x = "genlight")}: sets the names of
+      the SNPs using a character vector of length \code{nLoc(x)}.}
     \item{alleles}{\code{signature(x = "genlight")}: returns the names
       of the alleles of each SNPs, if provided when the object was
       contructed.}
+    \item{alleles<-}{\code{signature(x = "genlight")}: sets the names
+      of the alleles of each SNPs using a character vector of length
+      \code{nLoc(x)}; for each SNP, two alleles must be provided,
+      separated by a "/", e.g. 'a/t', 'c/a', etc.}
     \item{pop}{\code{signature(x = "genlight")}: returns a factor
       indicating the population of each individual, if provided when the
       object was contructed.}

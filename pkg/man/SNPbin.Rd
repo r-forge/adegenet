@@ -11,9 +11,13 @@
 \alias{$<-,SNPbin-method}
 \alias{names,SNPbin-method}
 \alias{ploidy,SNPbin-method}
+\alias{ploidy<-,SNPbin-method}
 \alias{as,SNPbin,integer-method}
 \alias{coerce,SNPbin,integer-method}
 \alias{as.integer.SNPbin}
+\alias{NA.posi,SNPbin-method}
+\alias{,SNPbin-method}
+\alias{,SNPbin-method}
 % \alias{,SNPbin-method}
 % \alias{,SNPbin-method}
 % \alias{,SNPbin-method}
