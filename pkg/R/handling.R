@@ -668,17 +668,17 @@ setMethod("indNames<-","genind",function(x,value, ...) {
 
 
 ##########
-# allNames
+# alleles
 ##########
-setGeneric("allNames", function(x,...){
-    standardGeneric("allNames")
+setGeneric("alleles", function(x,...){
+    standardGeneric("alleles")
 })
 
-setMethod("allNames","genind", function(x, ...){
+setMethod("alleles","genind", function(x, ...){
     return(x@all.names)
 })
 
-setMethod("allNames","genpop", function(x, ...){
+setMethod("alleles","genpop", function(x, ...){
     return(x@all.names)
 })
 

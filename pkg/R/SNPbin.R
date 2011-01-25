@@ -305,7 +305,7 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
             if(length(input$pop) != nInd(x)){
                 warning("Inconsistent length for pop - ignoring this argument.")
             } else {
-                x@pop <- factor(pop)
+                x@pop <- factor(input$pop)
             }
         }
 
@@ -493,8 +493,8 @@ setMethod("indNames<-","genlight",function(x,value, ...) {
 })
 
 
-## allNames
-setMethod("allNames","genlight", function(x,...){
+## alleles
+setMethod("alleles","genlight", function(x,...){
     return(x@loc.all)
 })
 
