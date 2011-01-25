@@ -11,9 +11,11 @@
   variable (loadings) in a given analysis.
 }
 \usage{
-loadingplot(x, at=NULL, threshold=quantile(x,0.75), axis=1, fac=NULL, byfac=FALSE,
-            lab=names(x), cex.lab=0.7, cex.fac=1, lab.jitter=0,
-            main="Loading plot", xlab="Variables", ylab="Loadings",\dots)
+loadingplot(x, \dots)
+
+\method{loadingplot}{default}(x, at=NULL, threshold=quantile(x,0.75), axis=1, fac=NULL, byfac=FALSE,
+            lab=rownames(x), cex.lab=0.7, cex.fac=1, lab.jitter=0,
+            main="Loading plot", xlab="Variables", ylab="Loadings", srt = 0, adj = NULL, \dots)
 
 }
 \arguments{
@@ -41,6 +43,8 @@ loadingplot(x, at=NULL, threshold=quantile(x,0.75), axis=1, fac=NULL, byfac=FALS
   \item{main}{the main title of the figure.}
   \item{xlab}{the title of the x axis.}
   \item{ylab}{the title of the y axis.}
+  \item{srt}{rotation of the labels; see ?text.}
+  \item{adj}{adjustment of the labels; see ?text.}
   \item{\dots}{further arguments to be passed to the plot function.}
 }
   \value{
