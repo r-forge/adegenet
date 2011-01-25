@@ -14,7 +14,7 @@ setClass("SNPbin", representation(snp = "list",
                                   NA.posi = "integer",
                                   label = "charOrNULL",
                                   ploidy = "integer"),
-         prototype(snp = list(), n.loc = integer(0), label = NULL, ploidy = 1L))
+         prototype(snp = list(), n.loc = 0L, label = NULL, ploidy = 1L))
 
 
 
@@ -30,7 +30,7 @@ setClass("genlight", representation(gen = "list",
                                     ploidy = "intOrNULL",
                                     pop = "factorOrNULL",
                                     other = "list"),
-         prototype(gen = list(), n.loc = integer(0), ind.names = NULL, loc.names = NULL, loc.all = NULL, ploidy=NULL, pop=NULL, other=list()))
+         prototype(gen = list(), n.loc = 0L, ind.names = NULL, loc.names = NULL, loc.all = NULL, ploidy=NULL, pop=NULL, other=list()))
 
 
 
@@ -298,7 +298,7 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
             }
         }
 
-        
+
         ## HANDLE INPUT$POP ##
         if(!is.null(input$pop)){
             ## check length consistency
@@ -357,14 +357,19 @@ setMethod ("show", "genlight", function(object){
     cat(" === S4 class genlight ===")
     cat("\n", nInd(object), "genotypes with", nLoc(object),  "binary SNPs")
     temp <- unique(ploidy(object))
-    if(length(temp)==1){
-        cat("\n Ploidy:", temp)
-    } else {
-        temp <- summary(ploidy(object))
-        cat("\n Ploidy statistics (min/median/max):", temp[1], "/", temp[3], "/", temp[6])
+    if(!is.null(temp)){
+        if(length(temp)==1){
+            cat("\n Ploidy:", temp)
+        } else {
+            temp <- summary(ploidy(object))
+            cat("\n Ploidy statistics (min/median/max):", temp[1], "/", temp[3], "/", temp[6])
+        }
     }
     temp <- sapply(object@gen, function(e) length(e@NA.posi))
-    cat("\n ", sum(temp), " (", round(sum(temp)/(nInd(object)*nLoc(object)),2)," %) missing data\n", sep="")
+    if(length(temp>1)){
+        cat("\n ", sum(temp), " (", round(sum(temp)/(nInd(object)*nLoc(object)),2)," %) missing data", sep="")
+    }
+    cat("\n")
 }) # end show method
 
 
@@ -427,13 +432,17 @@ setMethod("ploidy","SNPbin", function(x,...){
 })
 
 setMethod("ploidy","genlight", function(x,...){
-    if(!is.null(x@ploidy)){
-        res <- x@ploidy
+    if(nInd(x)>0){
+        if(!is.null(x@ploidy)){
+            res <- x@ploidy
+        } else {
+            res <- sapply(x@gen, function(e) e@ploidy)
+        }
+        names(res) <- x@ind.names
+        return(res)
     } else {
-        res <- sapply(x@gen, function(e) e@ploidy)
+        return(NULL)
     }
-    names(res) <- x@ind.names
-    return(res)
 })
 
 
@@ -502,6 +511,20 @@ setMethod("NA.posi","genlight", function(x,...){
     names(res) <- indNames(x)
     return(res)
 })
+
+
+## pop
+setMethod("pop","genlight", function(x){
+    return(x@pop)
+})
+
+
+setMethod("pop<-","genlight",function(x,value) {
+    if(length(value) != nInd(x)) stop("Vector length does no match number of individuals")
+    slot(x,"pop", check=TRUE) <- factor(value)
+    return(x)
+})
+
 
 
 
