@@ -594,7 +594,7 @@ setGeneric("locNames", function(x,...){
     standardGeneric("locNames")
 })
 
-setGeneric("locNames<-", function(x, value, ...) {
+setGeneric("locNames<-", function(x, value) {
     standardGeneric("locNames<-")
 })
 
@@ -610,7 +610,7 @@ setMethod("locNames","genind", function(x, withAlleles=FALSE, ...){
 })
 
 
-setMethod("locNames<-","genind",function(x,value, ...) {
+setReplaceMethod("locNames","genind",function(x,value) {
     value <- as.character(value)
     if(length(value) != nLoc(x)) stop("Vector length does no match number of loci")
     names(value) <- names(locNames(x))
@@ -630,7 +630,7 @@ setMethod("locNames","genpop", function(x, withAlleles=FALSE, ...){
 })
 
 
-setMethod("locNames<-","genpop",function(x,value, ...) {
+setReplaceMethod("locNames","genpop",function(x,value) {
     value <- as.character(value)
     if(length(value) != nLoc(x)) stop("Vector length does no match number of loci")
     names(value) <- names(locNames(x))
@@ -646,7 +646,7 @@ setGeneric("indNames", function(x,...){
     standardGeneric("indNames")
 })
 
-setGeneric("indNames<-", function(x, value, ...){
+setGeneric("indNames<-", function(x, value){
     standardGeneric("indNames<-")
 })
 
@@ -655,7 +655,7 @@ setMethod("indNames","genind", function(x, ...){
 })
 
 
-setMethod("indNames<-","genind",function(x,value, ...) {
+setReplaceMethod("indNames","genind",function(x,value) {
     value <- as.character(value)
     if(length(value) != nInd(x)) stop("Vector length does no match number of individuals")
     names(value) <- names(indNames(x))
@@ -674,14 +674,34 @@ setGeneric("alleles", function(x,...){
     standardGeneric("alleles")
 })
 
+setGeneric("alleles<-", function(x, value){
+    standardGeneric("alleles<-")
+})
+
 setMethod("alleles","genind", function(x, ...){
     return(x@all.names)
 })
+
+setReplaceMethod("alleles","genind", function(x, value){
+    if(!is.list(value)) stop("replacement value must be a list")
+    if(length(value)!=nLoc(x)) stop("replacement list must be of length nLoc(x)")
+    if(any(sapply(value, length) != x$loc.nall)) stop("number of replacement alleles do not match that of the object")
+    x@all.names <- value
+    return(x)
+})
+
 
 setMethod("alleles","genpop", function(x, ...){
     return(x@all.names)
 })
 
+setReplaceMethod("alleles","genpop", function(x, value){
+    if(!is.list(value)) stop("replacement value must be a list")
+    if(length(value)!=nLoc(x)) stop("replacement list must be of length nLoc(x)")
+    if(any(sapply(value, length) != x$loc.nall)) stop("number of replacement alleles do not match that of the object")
+    x@all.names <- value
+    return(x)
+})
 
 
 
@@ -692,7 +712,7 @@ setGeneric("ploidy", function(x,...){
     standardGeneric("ploidy")
 })
 
-setGeneric("ploidy<-", function(x, value, ...){
+setGeneric("ploidy<-", function(x, value){
     standardGeneric("ploidy<-")
 })
 
@@ -701,7 +721,7 @@ setMethod("ploidy","genind", function(x,...){
 })
 
 
-setMethod("ploidy<-","genind",function(x,value, ...) {
+setReplaceMethod("ploidy","genind",function(x,value) {
     value <- as.integer(value)
     if(any(value)<1) stop("Negative or null values provided")
     if(any(is.na(value))) stop("NA values provided")
@@ -716,7 +736,7 @@ setMethod("ploidy","genpop", function(x,...){
 })
 
 
-setMethod("ploidy<-","genind",function(x,value, ...) {
+setReplaceMethod("ploidy","genind",function(x,value) {
     value <- as.integer(value)
     if(any(value)<1) stop("Negative or null values provided")
     if(any(is.na(value))) stop("NA values provided")

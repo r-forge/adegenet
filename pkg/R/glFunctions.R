@@ -184,7 +184,7 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE,
         dotProd <- function(a,b, ploid.a, ploid.b){ # a and b are two SNPbin objects
             a <- as.integer(a) / ploid.a
             a[is.na(a)] <- 0
-            b <- as.integer(b) / ploidy.b
+            b <- as.integer(b) / ploid.b
             b[is.na(b)] <- 0
             return(sum( a*b, na.rm=TRUE))
         }
@@ -281,6 +281,7 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE,
     ## need to decompose X^TDV into a sum of n matrices of dim p*r
     ## but only two such matrices are represented at a time
     if(loadings){
+        vecSd <- sqrt(vecVar)
         res$loadings <- matrix(0, nrow=nLoc(x), ncol=nf) # create empty matrix
         ## use: c1 = X^TDV
         ## and X^TV = A_1 + ... + A_n
@@ -406,7 +407,7 @@ loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfa
                                main=main, xlab=xlab, ylab=ylab, srt=srt, adj=adj, ...)
 
     axis(1)
-    
+
     return(invisible(res))
 } # end loadingplot.glPca
 

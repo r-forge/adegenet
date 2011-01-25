@@ -738,7 +738,7 @@ read.snp <- function(file, quiet=FALSE, ...){
             count <- count + 1L
         }
         i <- i+1
-        if(i>10){
+        if(count==0L && i>10){
             warning("No comment section at the beginning of the file. Format may be wrong.")
             i <- 0
             break

@@ -405,6 +405,7 @@ setMethod("$","genlight",function(x,name) {
     return(slot(x,name))
 })
 
+
 setMethod("$<-","SNPbin",function(x,name,value) {
   slot(x,name,check=TRUE) <- value
   return(x)
@@ -446,7 +447,7 @@ setMethod("ploidy","genlight", function(x,...){
 })
 
 
-setMethod("ploidy<-","SNPbin",function(x,value, ...) {
+setReplaceMethod("ploidy","SNPbin",function(x,value) {
     value <- as.integer(value)
     if(any(value)<1) stop("Negative or null values provided")
     if(any(is.na(value))) stop("NA values provided")
@@ -455,7 +456,7 @@ setMethod("ploidy<-","SNPbin",function(x,value, ...) {
     return(x)
 })
 
-setMethod("ploidy<-","genlight",function(x,value, ...) {
+setReplaceMethod("ploidy","genlight",function(x,value) {
     value <- as.integer(value)
     if(any(value)<1) stop("Negative or null values provided")
     if(any(is.na(value))) stop("NA values provided")
@@ -471,7 +472,7 @@ setMethod("locNames","genlight", function(x,...){
 })
 
 
-setMethod("locNames<-","genlight",function(x,value, ...) {
+setReplaceMethod("locNames","genlight",function(x,value) {
     value <- as.character(value)
     if(length(value) != nLoc(x)) stop("Vector length does no match number of loci")
     slot(x,"loc.names",check=TRUE) <- value
@@ -485,7 +486,7 @@ setMethod("indNames","genlight", function(x,...){
 })
 
 
-setMethod("indNames<-","genlight",function(x,value, ...) {
+setReplaceMethod("indNames","genlight",function(x,value) {
     value <- as.character(value)
     if(length(value) != nInd(x)) stop("Vector length does no match number of individuals")
     slot(x,"ind.names",check=TRUE) <- value
@@ -496,6 +497,15 @@ setMethod("indNames<-","genlight",function(x,value, ...) {
 ## alleles
 setMethod("alleles","genlight", function(x,...){
     return(x@loc.all)
+})
+
+setReplaceMethod("alleles","genlight", function(x, value){
+    value <- as.character(value)
+    if(length(value)!=nLoc(x)) stop("replacement vector must be of length nLoc(x)")
+    temp <- grep("^[[:alpha:]]{1}/[[:alpha:]]{1}$", value)
+    if(any(! 1:nLoc(x) %in% temp)) stop("Miss-formed strings in replacement (must be e.g. 'c/g')")
+    x@loc.all <- value
+    return(x)
 })
 
 
@@ -519,7 +529,7 @@ setMethod("pop","genlight", function(x){
 })
 
 
-setMethod("pop<-","genlight",function(x,value) {
+setReplaceMethod("pop","genlight",function(x,value) {
     if(length(value) != nInd(x)) stop("Vector length does no match number of individuals")
     slot(x,"pop", check=TRUE) <- factor(value)
     return(x)
@@ -628,7 +638,7 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
     ## SNPCOMB <- as.matrix(expand.grid(rep(list(c(0,1)), 8)))
     ## colnames(SNPCOMB) <- NULL
     ## res <- unlist(lapply(as.integer(x), function(i) SNPCOMB[i+1,]))
-    res <- .C("bytesToBinInt", x, length(x), integer(length(x)*8))[[3]]
+    res <- .C("bytesToBinInt", x, length(x), integer(length(x)*8), PACKAGE="adegenet")[[3]]
     return(res)
 } # end .raw2bin
 
@@ -724,9 +734,9 @@ as.list.genlight <- function(x, ...){
 ##
 ##
 ## library(adegenet)
-dat <- c(1,0,0,1,0,NA,1,0,0,0,0,1)
-x <- new("SNPbin",dat)
-as.integer(x)
+## dat <- c(1,0,0,1,0,NA,1,0,0,0,0,1)
+## x <- new("SNPbin",dat)
+## as.integer(x)
 
 
 ## HAPLOID DATA - NO NA
