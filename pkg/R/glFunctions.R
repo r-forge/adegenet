@@ -311,7 +311,7 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE,
 
     if(!is.null(res$loadings)){
         colnames(res$loadings) <- paste("Axis", 1:nf, sep="")
-        rownames(res$loadings) <- locNames(x)
+        rownames(res$loadings) <- paste(locNames(x),alleles(x), sep=".")
     }
 
     res$call <- match.call()
@@ -323,6 +323,92 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE,
 } # glPca
 
 
+
+
+
+
+###############
+## print.glPca
+###############
+print.glPca <- function(x, ...){
+    cat(" === PCA of genlight object ===")
+    cat("\nClass: list of type glPca")
+    cat("\nCall ($call):")
+    print(x$call)
+    cat("\nEigenvalues ($eig):\n", round(head(x$eig,6),3), ifelse(length(x$eig)>6, "...\n", "\n") )
+    cat("\nPrincipal components ($scores):\n matrix with", nrow(x$scores), "rows (individuals) and", ncol(x$scores), "columns (axes)", "\n")
+    if(!is.null(x$loadings)){
+        cat("\nPrincipal axes ($loadings):\n matrix with", nrow(x$loadings), "rows (SNPs) and", ncol(x$loadings), "columns (axes)", "\n")
+    }
+    cat("\n")
+}
+
+
+
+
+
+#################
+## scatter.glPca
+#################
+scatter.glPca <- function(x, xax=1, yax=2, posi="bottomleft", bg="white", ratio=0.3,
+                          label = rownames(x$scores), clabel = 1, xlim = NULL, ylim = NULL,
+                          grid = TRUE, addaxes = TRUE, origin = c(0,0), include.origin = TRUE,
+                          sub = "", csub = 1, possub = "bottomleft", cgrid = 1,
+                          pixmap = NULL, contour = NULL, area = NULL, ...){
+    if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
+
+
+    ## set par
+    opar <- par(mar = par("mar"))
+    par(mar = c(0.1, 0.1, 0.1, 0.1), bg=bg)
+    on.exit(par(opar))
+    axes <- c(xax,yax)
+    ## basic empty plot
+    ## s.label(x$ind.coord[,axes], clab=0, cpoint=0, grid=FALSE, addaxes = FALSE, cgrid = 1, include.origin = FALSE, ...)
+    s.label(x$scores[,axes], label = label, clabel = clabel, xlim = xlim, ylim = ylim, grid = grid, addaxes = addaxes,
+            origin = origin, include.origin = include.origin, sub = sub, csub = csub, possub = possub, cgrid = cgrid,
+            pixmap = pixmap, contour = contour, area = area)
+
+
+    if(ratio>0.001) {
+        add.scatter.eig(x$eig, ncol(x$scores), axes[1], axes[2], posi=posi, ratio=ratio, csub=csub)
+    }
+
+    return(invisible(match.call()))
+} # end scatter.glPca
+
+
+
+
+
+
+#####################
+## loadingplot.glPca
+#####################
+loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfac=FALSE,
+                        lab=rownames(x$loadings), cex.lab=0.7, cex.fac=1, lab.jitter=0,
+                        main="Loading plot", xlab="SNP position", ylab="Contribution", srt=90, adj=c(0,0.5), ... ){
+
+    if(is.null(x$loadings)){
+        warning("This object does not contain loadings. Re-run the analysis, specifying 'loadings=TRUE'.")
+        return(invisible())
+    }
+
+    if(is.null(at)){
+        at <- as.integer(gsub("[.]+.+$", "", rownames(x$loadings)))
+    }
+    if(is.null(threshold)){
+        threshold <- quantile(x$loadings[,axis]^2,0.75)
+    }
+
+    res <- loadingplot.default(x$loadings^2, at=at, threshold=threshold, axis=axis, fac=fac, byfac=byfac,
+                               lab=lab, cex.lab=cex.lab, cex.fac=cex.fac, lab.jitter=lab.jitter,
+                               main=main, xlab=xlab, ylab=ylab, srt=srt, adj=adj, ...)
+
+    axis(1)
+    
+    return(invisible(res))
+} # end loadingplot.glPca
 
 
 ## TESTING ##

@@ -1,9 +1,12 @@
 ##############
 # loadingplot
 ##############
-loadingplot <- function(x, at=NULL, threshold=quantile(x,0.75), axis=1, fac=NULL, byfac=FALSE,
-                        lab=names(x), cex.lab=0.7, cex.fac=1, lab.jitter=0,
-                        main="Loading plot", xlab="Variables", ylab="Loadings",...){
+loadingplot <- function (x, ...) UseMethod("loadingplot")
+
+
+loadingplot.default <- function(x, at=NULL, threshold=quantile(x,0.75), axis=1, fac=NULL, byfac=FALSE,
+                        lab=rownames(x), cex.lab=0.7, cex.fac=1, lab.jitter=0,
+                        main="Loading plot", xlab="Variables", ylab="Loadings", srt=0, adj=NULL, ...){
     ## some checks
     if(is.data.frame(x) || is.matrix(x)){
         temp <- rownames(x)
@@ -61,7 +64,7 @@ loadingplot <- function(x, at=NULL, threshold=quantile(x,0.75), axis=1, fac=NULL
     y.ann <- jitter(y.ann,fac=lab.jitter)
 
     txt.ann <- lab[x > threshold]
-    text(x=x.ann, y=y.ann, label=txt.ann, cex=cex.lab)
+    text(x=x.ann, y=y.ann, label=txt.ann, cex=cex.lab, srt=srt, adj=adj)
 
     ## indicate the threshold
     abline(h=threshold, col="grey")
