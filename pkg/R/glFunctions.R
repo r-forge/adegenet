@@ -387,7 +387,7 @@ scatter.glPca <- function(x, xax=1, yax=2, posi="bottomleft", bg="white", ratio=
 #####################
 loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfac=FALSE,
                         lab=rownames(x$loadings), cex.lab=0.7, cex.fac=1, lab.jitter=0,
-                        main="Loading plot", xlab="SNP position", ylab="Contribution", srt=90, adj=c(0,0.5), ... ){
+                        main="Loading plot", xlab="SNP positions", ylab="Contributions", srt=90, adj=c(0,0.5), ... ){
 
     if(is.null(x$loadings)){
         warning("This object does not contain loadings. Re-run the analysis, specifying 'loadings=TRUE'.")

@@ -14,6 +14,9 @@
 \alias{ploidy,genlight-method}
 \alias{locNames,genlight-method}
 \alias{indNames,genlight-method}
+\alias{alleles,genlight-method}
+\alias{pop,genlight-method}
+\alias{pop<-,genlight-method}
 \alias{as,genlight,matrix-method}
 \alias{coerce,genlight,matrix-method}
 \alias{as.matrix.genlight}
@@ -118,6 +121,14 @@
       the individuals, if provided when the object was contructed.}
     \item{locNames}{\code{signature(x = "genlight")}: returns the names of
       the loci, if provided when the object was contructed.}
+    \item{alleles}{\code{signature(x = "genlight")}: returns the names
+      of the alleles of each SNPs, if provided when the object was
+      contructed.}
+    \item{pop}{\code{signature(x = "genlight")}: returns a factor
+      indicating the population of each individual, if provided when the
+      object was contructed.}
+    \item{pop<-}{\code{signature(x = "genlight")}: sets the population
+    of each individual using a factor of length \code{nInd(x)}.}  
     \item{as.matrix}{\code{signature(x = "genlight")}: converts a
       \code{genlight} object into a matrix of integers, with individuals
       in rows and SNPs in columns. The S4 method 'as' can be used as
