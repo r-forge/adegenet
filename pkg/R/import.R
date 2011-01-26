@@ -719,10 +719,15 @@ import2genind <- function(file,missing=NA,quiet=FALSE, ...){
 #######################
 # Function read.snp
 #######################
-read.snp <- function(file, quiet=FALSE, ...){
+read.snp <- function(file, quiet=FALSE, chunkSize=5,
+                  multicore=require("multicore"), n.cores=NULL, ...){
     ##ext <- .readExt(file)
     ##ext <- toupper(ext)
-    if(!quiet) cat("\n Converting data from a binary SNP data file to a genlight object... \n\n")
+    if(!quiet) cat("\n Reading biallelic SNP data file into a genlight object... \n\n")
+    if(multicore && !require(multicore)) stop("multicore package requested but not installed")
+    if(multicore && is.null(n.cores)){
+        n.cores <- multicore:::detectCores()
+    }
 
     call <- match.call()
 
@@ -768,32 +773,66 @@ read.snp <- function(file, quiet=FALSE, ...){
 
     ## READ GENOTYPE DATA ##
     ## one genotype is read/converted at a time to spare RAM
-    if(!quiet) cat("\n Reading genotypes... \n")
+    if(!quiet) cat("\n Reading",ifelse(is.null(misc.info$population),"",length(misc.info$population)), "genotypes... \n")
+
+    ## res <- list() # this will be a list of SNPbin objects
+
+    ## txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=1)
+
+    ## COUNT <- 0 # used to count the nb of genotypes read
+
+    ## while(length(grep(">", txt))>0){
+    ##     COUNT <- COUNT + 1
+    ##     if(!quiet) {
+    ##         if(COUNT %% 10 == 0){
+    ##             cat(COUNT)
+    ##         } else {
+    ##             cat(".")
+    ##         }
+    ##     }
+
+    ##     indName <- gsub(">","", txt)
+    ##     indName <- gsub("(^[[:space:]]+)|([[:space:]]+$)", "", indName)
+    ##     temp <- strsplit(scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip + 1, nmax=1), "")[[1]]
+    ##     temp <- suppressWarnings(as.integer(temp))
+    ##     res[[length(res)+1]] <- new("SNPbin", temp)
+    ##     names(res)[length(res)] <- indName
+    ##     lines.to.skip <-lines.to.skip + 2
+    ##     txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=1)
+    ## }
 
     res <- list() # this will be a list of SNPbin objects
 
-    txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=1)
+    txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=chunkSize*2)
 
-    COUNT <- 0 # used to count the nb of genotypes read
+    ID.INDIV <- grep(">", txt)
 
-    while(length(grep(">", txt))>0){
+    COUNT <- 0 # used to count the nb reads
+
+    while(length(ID.INDIV)>0){
         COUNT <- COUNT + 1
         if(!quiet) {
-            if(COUNT %% 10 == 0){
-                cat(COUNT)
+            if(COUNT %% 5 == 0){
+                cat(length(res)+length(ID.INDIV))
             } else {
                 cat(".")
             }
         }
 
-        indName <- gsub(">","", txt)
-        indName <- gsub("(^[[:space:]]+)|([[:space:]]+$)", "", indName)
-        temp <- strsplit(scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip + 1, nmax=1), "")[[1]]
-        temp <- suppressWarnings(as.integer(temp))
-        res[[length(res)+1]] <- new("SNPbin", temp)
-        names(res)[length(res)] <- indName
-        lines.to.skip <-lines.to.skip + 2
-        txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=1)
+        ind.lab <- gsub(">","", txt[ID.INDIV])
+        ind.lab <- gsub("(^[[:space:]]+)|([[:space:]]+$)", "", ind.lab)
+        temp <- strsplit(txt[ID.INDIV+1], "")
+        temp <- lapply(temp, function(e) suppressWarnings(as.integer(e)))
+        if(multicore){
+            res <- c(res, mclapply(temp, function(e) new("SNPbin", e),
+                                   mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE) )
+        } else {
+            res <- c(res, lapply(temp, function(e) new("SNPbin", e)) )
+        }
+        names(res)[(length(res)-length(ID.INDIV)+1):length(res)] <- ind.lab
+        lines.to.skip <-lines.to.skip + length(txt)
+        txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=chunkSize*2)
+        ID.INDIV <- grep(">", txt)
     }
 
 
