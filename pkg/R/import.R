@@ -719,7 +719,7 @@ import2genind <- function(file,missing=NA,quiet=FALSE, ...){
 #######################
 # Function read.snp
 #######################
-read.snp <- function(file, quiet=FALSE, chunkSize=5,
+read.snp <- function(file, quiet=FALSE, chunkSize=10,
                   multicore=require("multicore"), n.cores=NULL, ...){
     ##ext <- .readExt(file)
     ##ext <- toupper(ext)
@@ -881,8 +881,6 @@ read.snp <- function(file, quiet=FALSE, chunkSize=5,
     ind.names <- names(res)
     if(!is.null(misc.info$chromosome)){
         other <- list(chromosome = misc.info$chromosome)
-    } else {
-        other <- list()
     }
 
     res <- new("genlight", gen=res, ind.names=ind.names, loc.names=misc.info$position, loc.all=misc.info$allele, ploidy=misc.info$ploidy, pop=misc.info$population, other=other)
