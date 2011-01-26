@@ -448,6 +448,10 @@ setMethod("ploidy","genlight", function(x,...){
 
 
 setReplaceMethod("ploidy","SNPbin",function(x,value) {
+    if(is.null(value)){
+        slot(x, "ploidy", check=TRUE) <- value
+        return(x)
+    }
     value <- as.integer(value)
     if(any(value)<1) stop("Negative or null values provided")
     if(any(is.na(value))) stop("NA values provided")
@@ -457,6 +461,10 @@ setReplaceMethod("ploidy","SNPbin",function(x,value) {
 })
 
 setReplaceMethod("ploidy","genlight",function(x,value) {
+    if(is.null(value)){
+        slot(x, "ploidy", check=TRUE) <- value
+        return(x)
+    }
     value <- as.integer(value)
     if(any(value)<1) stop("Negative or null values provided")
     if(any(is.na(value))) stop("NA values provided")
@@ -473,9 +481,12 @@ setMethod("locNames","genlight", function(x,...){
 
 
 setReplaceMethod("locNames","genlight",function(x,value) {
-    value <- as.character(value)
+    if(is.null(value)){
+        slot(x, "loc.names", check=TRUE) <- value
+        return(x)
+    }
     if(length(value) != nLoc(x)) stop("Vector length does no match number of loci")
-    slot(x,"loc.names",check=TRUE) <- value
+    slot(x,"loc.names",check=TRUE) <- as.character(value)
     return(x)
 })
 
@@ -487,6 +498,10 @@ setMethod("indNames","genlight", function(x,...){
 
 
 setReplaceMethod("indNames","genlight",function(x,value) {
+    if(is.null(value)){
+        slot(x, "ind.names", check=TRUE) <- value
+        return(x)
+    }
     value <- as.character(value)
     if(length(value) != nInd(x)) stop("Vector length does no match number of individuals")
     slot(x,"ind.names",check=TRUE) <- value
@@ -500,11 +515,15 @@ setMethod("alleles","genlight", function(x,...){
 })
 
 setReplaceMethod("alleles","genlight", function(x, value){
+    if(is.null(value)){
+        slot(x, "loc.all", check=TRUE) <- value
+        return(x)
+    }
     value <- as.character(value)
     if(length(value)!=nLoc(x)) stop("replacement vector must be of length nLoc(x)")
     temp <- grep("^[[:alpha:]]{1}/[[:alpha:]]{1}$", value)
     if(any(! 1:nLoc(x) %in% temp)) stop("Miss-formed strings in replacement (must be e.g. 'c/g')")
-    x@loc.all <- value
+    slot(x, "loc.all", check=TRUE) <- value
     return(x)
 })
 
@@ -530,6 +549,10 @@ setMethod("pop","genlight", function(x){
 
 
 setReplaceMethod("pop","genlight",function(x,value) {
+    if(is.null(value)){
+        slot(x, "pop", check=TRUE) <- value
+        return(x)
+    }
     if(length(value) != nInd(x)) stop("Vector length does no match number of individuals")
     slot(x,"pop", check=TRUE) <- factor(value)
     return(x)
@@ -683,6 +706,9 @@ setAs("genlight", "matrix", def=function(from){
     res <- unlist(lapply(from@gen, as.integer))
     res <- matrix(res, ncol=nLoc(from), nrow=nInd(from), byrow=TRUE)
     colnames(res) <- locNames(from)
+    if(!is.null(alleles(from))){
+        colnames(res) <- paste(locNames(from), alleles(from), sep=ifelse(is.null(locNames(from)), "", "."))
+    }
     rownames(res) <- indNames(from)
     return(res)
 })
