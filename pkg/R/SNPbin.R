@@ -148,7 +148,7 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
 
     x <- .Object
     input <- list(...)
-    if(length(input)==1) names(input) <- "gen"
+    if(length(input)==1 && is.null(names(input))) names(input) <- "gen"
 
 
     ## HANDLE INPUT$GEN ##
@@ -309,7 +309,14 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
             }
         }
 
+
     } # end if non-empty @gen
+
+
+    ## HANDLE INPUT$OTHER ##
+    if(!is.null(input$other)){
+        x@other <- input$other
+    }
 
 
     ## RETURN OBJECT ##
