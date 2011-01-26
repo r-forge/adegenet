@@ -281,7 +281,9 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE,
     ## need to decompose X^TDV into a sum of n matrices of dim p*r
     ## but only two such matrices are represented at a time
     if(loadings){
-        vecSd <- sqrt(vecVar)
+        if(scale) {
+            vecSd <- sqrt(vecVar)
+        }
         res$loadings <- matrix(0, nrow=nLoc(x), ncol=nf) # create empty matrix
         ## use: c1 = X^TDV
         ## and X^TV = A_1 + ... + A_n
