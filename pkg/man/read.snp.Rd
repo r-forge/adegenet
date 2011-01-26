@@ -9,24 +9,55 @@
   datasets such as complete genomes with considerably less memory than
   other formats.
 
+  The function reads data by chunks of a few genomes (minimum 1, no
+  maximum) at a time, which allows one to read massive datasets with
+  negligible RAM requirements (albeit at a cost of computational
+  time). The argument \code{chunkSize} indicates the number of genomes
+  read at a time. Increasing this value decreases the computational time
+  required to read data in, while increasing memory requirements.
+
   A description of the .snp format is provided in an example file
   distributed with adegenet (see example below).
 }
 \usage{
-read.snp(file, quiet=FALSE, \dots)
+read.snp(file, quiet=FALSE, chunkSize = 10, multicore = require("multicore"),
+    n.cores = NULL\dots)
 }
 \arguments{
    \item{file}{ a character string giving the path to the file to
     convert, with the extension ".snp".}
   \item{quiet}{ logical stating whether a conversion messages should be
     printed (TRUE,default) or not (FALSE).}
+  \item{chunkSize}{an integer indicating the number of genomes to be
+  read at a time; larger values require more RAM but decrease the time
+  needed to read the data.}
+  \item{multicore}{a logical indicating whether multiple cores -if
+    available- should be used for the computations (TRUE, default), or
+    not (FALSE); requires the package \code{multicore} to be installed
+    (see details).}
+  \item{n.cores}{if \code{multicore} is TRUE, the number of cores to be
+    used in the computations; if NULL, then the maximum number of cores
+    available on the computer is used.}
   \item{\dots}{other arguments to be passed to other functions -
   currently not used.}
 }
 \details{
+  === The .snp format ===
   Details of the .snp format can be found in the example file
   distributed with adegenet (see below), or on the adegenet website
   (type \code{adegenetWeb()} in R).
+
+   === Using multiple cores ===
+  Most recent machines have one or several processors with multiple
+  cores. R processes usually use one single core. The package
+  \code{multicore} allows for parallelizing some computations on
+  multiple cores, which decreases drastically computational time.
+
+  To use this functionality, you need to have the last version of the
+  \code{multicore} package installed. To install it, type:
+  install.packages("multicore",,"http://rforge.net/",type="source")
+
+  DO NOT use the version on CRAN, which is slightly outdated.
 }
 \value{an object of the class \linkS4class{genlight}}
 \seealso{
@@ -43,7 +74,8 @@ system.file("files/exampleSnpDat.snp",package="adegenet")
 file.show(system.file("files/exampleSnpDat.snp",package="adegenet"))
 
 ## read the file
-obj <- read.snp(system.file("files/exampleSnpDat.snp",package="adegenet"))
+obj <-
+read.snp(system.file("files/exampleSnpDat.snp",package="adegenet"), chunk=2)
 obj
 as.matrix(obj)
 ploidy(obj)
