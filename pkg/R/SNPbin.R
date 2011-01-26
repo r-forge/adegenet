@@ -137,9 +137,9 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
 
 
 
-####################
+########################
 ## genlight constructor
-####################
+########################
 setMethod("initialize", "genlight", function(.Object, ..., multicore=require("multicore"), n.cores=NULL) {
     if(multicore && !require(multicore)) stop("multicore package requested but not installed")
     if(multicore && is.null(n.cores)){
@@ -192,7 +192,7 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
 
 
         ## input$gen is a list of integers/numeric ##
-        if(is.list(input$gen) && all(sapply(input$gen, class) %in% c("integer","numeric"))){
+        if(is.list(input$gen) && !is.data.frame(input$gen) && all(sapply(input$gen, class) %in% c("integer","numeric"))){
             ## check length consistency
             lengthvec <- sapply(input$gen, length)
 
