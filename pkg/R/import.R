@@ -841,6 +841,7 @@ read.snp <- function(file, quiet=FALSE, chunkSize=5,
 
     n.loc <- unique(sapply(res, nLoc))
     n.ind <- length(res)
+    other <- list()
 
     if(length(n.loc)>1) {
         print(n.loc)
@@ -848,24 +849,29 @@ read.snp <- function(file, quiet=FALSE, chunkSize=5,
     }
 
     if(!is.null(misc.info$position) && length(misc.info$position)!=n.loc) {
+        other$position <- misc.info$position
         misc.info$position <- NULL
-        warning("vector of positions of the SNPs does not match the number of SNPs - ignoring this information")
+        warning("vector of positions of the SNPs does not match the number of SNPs - storing this information in @other")
     }
     if(!is.null(misc.info$allele) && length(misc.info$allele)!=n.loc) {
+        other$allele <- misc.info$allele
         misc.info$allele <- NULL
-        warning("vector of alleles of the SNPs does not match the number of SNPs - ignoring this information")
+        warning("vector of alleles of the SNPs does not match the number of SNPs - storing this information in @other")
     }
     if(!is.null(misc.info$chromosome) && length(misc.info$chromosome)!=n.loc) {
+        other$chromosome <- misc.info$chromosome
         misc.info$chromosome <- NULL
-        warning("vector of chromosomes of the SNPs does not match the number of SNPs - ignoring this information")
+        warning("vector of chromosomes of the SNPs does not match the number of SNPs - storing this information in @other")
     }
     if(!is.null(misc.info$population) && length(misc.info$population)!=n.ind) {
+        other$population <- misc.info$population
         misc.info$population <- NULL
-        warning("vector of population of the individuals does not match the number of individuals - ignoring this information")
+        warning("vector of population of the individuals does not match the number of individuals - storing this information in @other")
     }
     if(!is.null(misc.info$ploidy) && length(misc.info$ploidy)>1 && length(misc.info$ploidy)!=n.ind) {
-        isc.info$ploidy <- NULL
-        warning("vector of ploidy of the individuals has more than one value but does not match the number of individuals - ignoring this information")
+        other$ploidy <- misc.info$ploidy
+        misc.info$ploidy <- NULL
+        warning("vector of ploidy of the individuals has more than one value but does not match the number of individuals - storing this information in @other")
     }
 
 
