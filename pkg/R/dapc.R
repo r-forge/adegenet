@@ -266,7 +266,7 @@ summary.dapc <- function(object, ...){
 ##############
 ## scatter.dapc
 ##############
-scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), pch=20, posi="bottomleft", bg="grey", ratio=0.3,
+scatter.dapc <- function(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$grp))), pch=20, posi="bottomleft", bg="grey", ratio=0.3,
                          cstar = 1, cellipse = 1.5, axesell = TRUE, label = levels(x$grp), clabel = 1, xlim = NULL, ylim = NULL,
                          grid = TRUE, addaxes = TRUE, origin = c(0,0), include.origin = TRUE, sub = "", csub = 1, possub = "bottomleft", cgrid = 1,
                          pixmap = NULL, contour = NULL, area = NULL, ...){
@@ -277,6 +277,10 @@ scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), pc
     col <- rep(col, length(levels(x$grp)))
     pch <- rep(pch, length(levels(x$grp)))
 
+    ## handle grp
+    if(is.null(grp)){
+        grp <- x$grp
+    }
 
     if(!ONEDIM){
         ## set par
@@ -286,12 +290,12 @@ scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), pc
                 axes <- c(xax,yax)
         ## basic empty plot
         ## s.label(x$ind.coord[,axes], clab=0, cpoint=0, grid=FALSE, addaxes = FALSE, cgrid = 1, include.origin = FALSE, ...)
-        s.class(x$ind.coord[,axes], fac=x$grp, col=col, cpoint=0, cstar = cstar, cellipse = cellipse, axesell = axesell, label = label,
+        s.class(x$ind.coord[,axes], fac=grp, col=col, cpoint=0, cstar = cstar, cellipse = cellipse, axesell = axesell, label = label,
                 clabel = clabel, xlim = xlim, ylim = ylim, grid = grid, addaxes = addaxes, origin = origin, include.origin = include.origin,
                 sub = sub, csub = csub, possub = possub, cgrid = cgrid, pixmap = pixmap, contour = contour, area = area)
 
         ## add points
-        colfac <- pchfac <- x$grp
+        colfac <- pchfac <- grp
         levels(colfac) <- col
         levels(pchfac) <- pch
         colfac <- as.character(colfac)
@@ -300,7 +304,7 @@ scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), pc
         if(is.numeric(pch)) pchfac <- as.numeric(pchfac)
 
         points(x$ind.coord[,xax], x$ind.coord[,yax], col=colfac, pch=pchfac, ...)
-        s.class(x$ind.coord[,axes], fac=x$grp, col=col, cpoint=0, add.plot=TRUE, cstar = cstar, cellipse = cellipse, axesell = axesell, label = label,
+        s.class(x$ind.coord[,axes], fac=grp, col=col, cpoint=0, add.plot=TRUE, cstar = cstar, cellipse = cellipse, axesell = axesell, label = label,
                 clabel = clabel, xlim = xlim, ylim = ylim, grid = grid, addaxes = addaxes, origin = origin, include.origin = include.origin,
                 sub = sub, csub = csub, possub = possub, cgrid = cgrid, pixmap = pixmap, contour = contour, area = area)
 
@@ -315,7 +319,7 @@ scatter.dapc <- function(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), pc
             pcLab <- xax
         }
         ## get densities
-        ldens <- tapply(x$ind.coord[,pcLab], x$grp, density)
+        ldens <- tapply(x$ind.coord[,pcLab], grp, density)
         allx <- unlist(lapply(ldens, function(e) e$x))
         ally <- unlist(lapply(ldens, function(e) e$y))
          par(bg=bg)

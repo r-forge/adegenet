@@ -21,7 +21,7 @@
 }
 \usage{
 read.snp(file, quiet=FALSE, chunkSize = 10, multicore = require("multicore"),
-    n.cores = NULL\dots)
+    n.cores = NULL, \dots)
 }
 \arguments{
    \item{file}{ a character string giving the path to the file to

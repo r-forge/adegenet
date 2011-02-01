@@ -26,16 +26,16 @@
 \usage{
 \method{find.clusters}{data.frame}(x, clust=NULL, n.pca=NULL,
               n.clust=NULL, stat=c("BIC","AIC", "WSS"),
-              choose.n.clust=TRUE,criterion=c("min","diff", "conserv"),
-              max.n.clust=round(nrow(x)/10), n.iter=1e3, n.start=10,
+              choose.n.clust=TRUE,criterion=c("diffNgroup", "min","goesup", "smoothNgoesup", "goodfit"),
+              max.n.clust=round(nrow(x)/10), n.iter=1e5, n.start=10,
               center=TRUE, scale=TRUE, \ldots)
 
 \method{find.clusters}{matrix}(x, \ldots)
 
 \method{find.clusters}{genind}(x, clust=NULL, n.pca=NULL, n.clust=NULL,
               stat=c("BIC","AIC", "WSS"), choose.n.clust=TRUE,
-              criterion=c("min","diff", "conserv"),
-              max.n.clust=round(nrow(x@tab)/10), n.iter=1e3, n.start=10,
+              criterion=c("diffNgroup", "min","goesup", "smoothNgoesup", "goodfit"),
+              max.n.clust=round(nrow(x@tab)/10), n.iter=1e5, n.start=10,
               scale=FALSE, scale.method=c("sigma", "binom"),
               truenames=TRUE, \ldots)
 
@@ -60,14 +60,15 @@
     Criterion. WSS: within-groups sum of squares, that is, residual variance.}
   \item{choose.n.clust}{ a \code{logical} indicating whether the number of
     clusters should be chosen by the user (TRUE, default), or automatically,
-    based on a given criterion (argument \code{criterion}). IT IS HIGHLY
-    RECOMMENDED to choose the number of clusters interactively, as automatic
-    procedures have not been fully evaluated.}
-  \item{criterion}{ a \code{character} string matching "min", "diff", or
-    "conserv", indicating the criterion for automatic selection of the optimal
-    number of clusters. Honestly, you should go for interactive
-    selection of the number of clusters. Do as you wish. No warranty. If
-    you still want to give it a try, see \code{details}.}
+    based on a given criterion (argument \code{criterion}). It is HIGHLY
+    RECOMMENDED to choose the number of clusters INTERACTIVELY, since
+    i) the decrease of the summary statistics (BIC by default) is
+    informative, and ii) no criteria for automatic selection is
+    appropriate to all cases (see details).}
+  \item{criterion}{ a \code{character} string matching "diffNgroup",
+    "min","goesup", "smoothNgoesup", or "conserv", indicating the criterion for automatic
+    selection of the optimal number of clusters. See \code{details} for
+    an explanation of these procedures.}
   \item{max.n.clust}{ an \code{integer} indicating the maximum number of
     clusters to be tried. Values of 'k' will be picked up between 1 and \code{max.n.clust}}
   \item{n.iter}{ an \code{integer} indicating the number of iterations to be used
@@ -103,37 +104,59 @@
   === ON THE SELECTION OF K ===\cr
   (where K is the 'optimal' number of clusters)
 
-  So far, the analysis of data simulated under various population genetics
-  models (see reference) suggested an ad hoc rule for the selection of the
-  optimal number of clusters. First important result is that BIC seems for
-  efficient than AIC and WSS to select the appropriate number of clusters (see
-  example). The rule of thumb consists in increasing K until it no longer leads
-  to an appreciable improvement of fit (i.e., to a decrease of BIC).  In the
-  most simple models (island models), BIC decreases until it reaches the optimal
-  K, and then increases. In these cases, our rule amounts to choosing the lowest
-  K. In other models such as stepping stones, the decrease of BIC often
-  continues after the optimal K, but is much less steep.
+  So far, the analysis of data simulated under various population
+  genetics models (see reference) suggested an ad hoc rule for the
+  selection of the optimal number of clusters. First important result is
+  that BIC seems for efficient than AIC and WSS to select the
+  appropriate number of clusters (see example). The rule of thumb
+  consists in increasing K until it no longer leads to an appreciable
+  improvement of fit (i.e., to a decrease of BIC).  In the most simple
+  models (island models), BIC decreases until it reaches the optimal K,
+  and then increases. In these cases, our rule amounts to choosing the
+  lowest K. In other models such as stepping stones, the decrease of BIC
+  often continues after the optimal K, but is much less steep.
 
-  
-  An alternative approach, that we do not recommend for now, is automatic
-  selection based on a fixed criterion. For this, set \code{choose.n.clust} to
-  FALSE and specify the \code{criterion} you want to use, from the following
-  values:
 
-  - "min": the model with the minimum summary statistics (as specified by
-    \code{stat} argument, BIC by default) is retained. Is likely to work for
-    simple island model, using BIC.
+  An alternative approach is the automatic selection based on a fixed
+  criterion. Note that, in any case, it is highly recommended to look at
+  the graph of the BIC for different numbers of clusters as displayed
+  during the interactive cluster selection.
+  To use automated selection, set \code{choose.n.clust} to FALSE and specify
+  the \code{criterion} you want to use, from the following values:
 
-  - "diff": model selection based on successive improvement of the test
-  statistic. This procedure attempts to increase K until the model improvement
-  (difference in successive BIC, AIC, or WSS) is no longer important. May be
-  more appropriate to models relating to stepping stones.
+  - "diffNgroup": differences between successive values of the summary
+  statistics (by default, BIC) are splitted into two groups using a
+  Ward's clustering method (see \code{?hclust}), to differentiate sharp
+  decrease from mild decreases or increases. The retained K is the one
+  before the first group switch. Appears to work well for
+  island/hierarchical models, and decently for isolation by distance
+  models, albeit with some unstability. Can be impacted by an initial,
+  very sharp decrease of the test statistics. IF UNSURE ABOUT THE
+  CRITERION TO USE, USE THIS ONE.
 
-  - "conserv": another criterion meant to be conservative, in that it seeks a
-  good fit with a minimum number of clusters. Unlike "diff", it does not rely on
-  differences between successive statistics, but rather on absolute fit. It
-  selects the model with the smallest K so that the overall fit is above a given
-  threshold.
+  - "min": the model with the minimum summary statistics (as specified
+  by \code{stat} argument, BIC by default) is retained. Is likely to
+  work for simple island model, using BIC. It is likely to fail in
+  models relating to stepping stones, where the BIC always decreases
+  (albeit by a small amount) as K increases. In general, this approach
+  tends to over-estimate the number of clusters.
+
+  - "goesup": the selected model is the K after which increasing the
+  number of clusters leads to increasing the summary statistics. Suffers
+  from inaccuracy, since i) a steep decrease might follow a small 'bump'
+  of increase of the statistics, and ii) increase might never happen, or
+  happen after negligible decreases. Is likely to work only for
+  clear-cut island models.
+
+  - "smoothNgoesup": a variant of "goesup", in which the summary
+  statistics is first smoothed using a lowess approach. Is meant to be
+  more accurate than "goesup" as it is less prone to stopping to small
+  'bumps' in the decrease of the statistics.
+
+  - "goodfit": another criterion seeking a good fit with a minimum
+  number of clusters. This approach does not rely on differences between
+  successive statistics, but on absolute fit. It selects the model with
+  the smallest K so that the overall fit is above a given threshold.
 }
 \value{
   The class \code{find.clusters} is a list with the following
@@ -146,10 +169,9 @@
   \item{size}{an \code{integer} vector giving the size of the different clusters.}
 }
 \references{
-  Jombart T, Devillard S and Balloux F  (2010) Discriminant analysis of
+  Jombart T, Devillard S and Balloux F (2010) Discriminant analysis of
   principal components: a new method for the analysis of genetically
-  structured populations. BMC Genetics
-  11:94. doi:10.1186/1471-2156-11-94
+  structured populations. BMC Genetics 11:94. doi:10.1186/1471-2156-11-94
 }
 \seealso{
   - \code{\link{dapc}}: implements the DAPC.

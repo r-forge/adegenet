@@ -6,8 +6,9 @@ find.clusters <- function (x, ...) UseMethod("find.clusters")
 ######################
 ## find.clusters.data.frame
 ######################
-find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE, criterion=c("min","diff", "conserv"),
-                                     max.n.clust=round(nrow(x)/10), n.iter=1e3, n.start=10, center=TRUE, scale=TRUE, ...){
+find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE,
+                                     criterion=c("diffNgroup", "min","goesup", "smoothNgoesup", "goodfit"),
+                                     max.n.clust=round(nrow(x)/10), n.iter=1e5, n.start=10, center=TRUE, scale=TRUE, ...){
 
     ## CHECKS ##
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
@@ -66,7 +67,8 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
         WSS <- numeric(0)
 
         for(i in 1:length(nbClust)){
-            temp <- kmeans(XU, centers=nbClust[i], iter.max=min(n.iter, 100), nstart=min(n.start, 1e3))
+            ## temp <- kmeans(XU, centers=nbClust[i], iter.max=min(n.iter, 100), nstart=min(n.start, 1e3))
+            temp <- kmeans(XU, centers=nbClust[i], iter.max=n.iter, nstart=n.start)
             WSS[i] <- sum(temp$withinss)
         }
 
@@ -114,13 +116,24 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
             if(criterion=="min") {
                 n.clust <- which.min(myStat)
             }
-            if(criterion=="diff") {
-                temp <- diff(myStat)
-                n.clust <- which.max( which( (temp-min(temp))<max(temp)/1e4))
+            if(criterion=="goesup") {
+                ## temp <- diff(myStat)
+                ## n.clust <- which.max( which( (temp-min(temp))<max(temp)/1e4))
+                n.clust <- min(which(diff(myStat)>0))
             }
-            if(criterion=="conserv") {
-                temp <- min(myStat) + 0.15*(max(myStat) - min(myStat))
-                n.clust <- min( which(myStat < temp))
+            if(criterion=="goodfit") {
+                temp <- min(myStat) + 0.1*(max(myStat) - min(myStat))
+                n.clust <- min( which(myStat < temp))-1
+            }
+            if(criterion=="diffNgroup") {
+                temp <- cutree(hclust(dist(diff(myStat)), method="ward"), k=2)
+                goodgrp <- which.min(tapply(diff(myStat), temp, mean))
+                n.clust <- max(which(temp==goodgrp))+1
+            }
+            if(criterion=="smoothNgoesup") {
+                temp <- myStat
+                temp[2:(length(myStat)-1)] <- sapply(1:(length(myStat)-2), function(i) mean(myStat[c(i,i+1,i+2)]))
+                n.clust <- min(which(diff(temp)>0))
             }
 
         }
@@ -154,8 +167,9 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
 ###################
 ## find.clusters.genind
 ###################
-find.clusters.genind <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE, criterion=c("min","diff", "conserv"),
-                          max.n.clust=round(nrow(x@tab)/10), n.iter=1e3, n.start=10,
+find.clusters.genind <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE,
+                                 criterion=c("diffNgroup", "min","goesup", "smoothNgoesup", "goodfit"),
+                          max.n.clust=round(nrow(x@tab)/10), n.iter=1e5, n.start=10,
                           scale=FALSE, scale.method=c("sigma", "binom"), truenames=TRUE, ...){
 
     ## CHECKS ##
