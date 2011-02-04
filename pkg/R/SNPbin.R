@@ -679,11 +679,12 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
 #############
 ## .SNPbin2int
 #############
-## convert SNPbin to integers (0/1)
+## convert SNPbin to integers (0/1/2...)
 .SNPbin2int <- function(x){
-    res <- lapply(x@snp, .raw2bin)
-    res <- lapply(res, function(e) e[1:x@n.loc])
-    res <- as.integer(Reduce("+", res))
+    ##res <- lapply(x@snp, .raw2bin)
+    res <- .C("bytesToInt", unlist(x@snp), length(x@snp[[1]]), length(x@snp), integer(x@n.loc*8), PACKAGE="adegenet")[[4]][1:x@n.loc]
+    ##res <- lapply(res, function(e) e[1:x@n.loc])
+    ##res <- as.integer(Reduce("+", res))
     if(length(x@NA.posi)>0){
         res[x@NA.posi] <- NA
     }
