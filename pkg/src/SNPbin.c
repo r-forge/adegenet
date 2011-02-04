@@ -133,6 +133,7 @@ void binIntToBytes(int *vecsnp, int *vecsize, unsigned char *vecres, int *ressiz
 
 
 /* Maps an array of values from 0-255 to sequences of 8 binary values */
+/* Input are unsigned char (hexadecimal), outputs are integers */
 void bytesToBinInt(unsigned char *vecbytes, int *vecsize, int *vecres){
 	int i, j, idres=0, *temp; /* idres: index in vecres*/
 	
@@ -156,6 +157,36 @@ void bytesToBinInt(unsigned char *vecbytes, int *vecsize, int *vecres){
 
 
 
+/* Maps an array of values from 0-255 to integers representing counts of alleles */
+/* This is done by adding arrays of 0-1 for indiv with ploidy > 1*/
+/* Input are unsigned char (hexadecimal), outputs are integers */
+/* veclength is the length of one vector of bytes */
+/* nbvec is the nb of input vectors*/
+/* input 'vecbytes' is actually concatenated, ie of size veclength * nbvec */
+void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres){
+	int i, j, k, idres=0, *temp; /* idres: index in vecres*/
+
+	temp = (int *) calloc(8, sizeof(int));
+
+
+	for(k=0;k<*nbvec;k++){ /* for all input vector */
+		idres = 0;
+		for(i=0;i<*veclength;i++){ /* for one input vector */
+			byteToBinInt(vecbytes[i+ k* *veclength], temp); /* byte -> 8 int (0/1)*/
+			for(j=0;j<=7;j++){ /* fill in the result*/
+				vecres[j+idres] = vecres[j+idres] + temp[j];
+			}
+			idres = idres + 8;
+		}
+	}
+	free(temp);
+} /* end bytesToInt */
+
+
+
+
+
+
 
 
 /* Simple test function */
@@ -173,6 +204,22 @@ void testRaw(unsigned char *a, int *n){
 
 
 
+/* Function to compute all dot products between individuals */
+/* No centring, no scaling */
+/* a: 2-dim array, dim n x p*/
+/* naposi: 2-dim array, dim n x ...*/
+/* nbna: array of nb of NAs for each individual*/
+void dotProd(unsigned char **a, int *n, int *p, int **naposi, int *nbna){
+	/* define variables, allocate memory */
+
+
+	/* free memory */
+	
+}
+
+
+
+
 
 /* TESTING in R */
 
@@ -185,5 +232,10 @@ x <- sample(0:1,800,replace=TRUE)
 toto <- .bin2raw(x)$snp
 all(.C("bytesToBinInt", toto, length(toto), integer(length(toto)*8))[[3]]==x)
 
+## test raw vec -> binary integers
+.C("bytesToBinInt",as.raw(c(12,11)), 2L, integer(16), PACKAGE="adegenet")
+
+## test several raw vec -> int (allele counts, any ploidy)
+.C("bytesToInt",as.raw(c(12,11)), 1L, 2L, integer(8), PACKAGE="adegenet")
 */
 
