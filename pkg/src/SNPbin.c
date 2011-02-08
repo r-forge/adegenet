@@ -11,6 +11,10 @@
   {0,1}^8 |-> {0,...,255}
   x -> x_1 * 2^0 + ... + x_8 * 2^7 = \sum_i x_i * 2^(i-1)
 
+
+  # Function named as 'SNPbin...' or 'GL...' are to be called directly from R.
+  # The structure 'snpbin' is a C representation of the class 'SNPbin'.
+  # Function named as 'snpbin...' are made to be called internally.
 */
 
 
@@ -26,13 +30,56 @@
 
 
 /*
-   ==========================
-   === INTERNAL FUNCTIONS ===
-   ==========================
+   ========================
+   === CLASS DEFINITION ===
+   ========================
+*/
+
+/* 'bytevecnb' arrays of bytes concatenated into a single array */
+/* of dim 'byteveclength' x 'bytevecnb' */
+/* nloc is the number of SNPs - used for recoding to integers */
+/* naposi indicates the positions of NAs */
+/* nanb is the length of naposi */
+
+struct snpbin{
+	unsigned char *bytevec;
+	int *byteveclength, *bytevecnb, *nloc, *nanb, *naposi; /* all but naposi have length 1 */
+};
+
+
+
+
+struct snpbin makesnpbin(unsigned char *bytevec, int *byteveclength, int *bytevecnb, int *nloc, int *nanb, int *naposi) {
+	struct snpbin out;
+
+	out.bytevec = bytevec;
+	out.byteveclength = byteveclength;
+	out.bytevecnb = bytevecnb;
+	out.nloc = nloc;
+	out.nanb = nanb;
+	out.naposi = naposi;
+	return out;
+};
+
+
+
+struct genlightC{
+	struct snpbin *x;
+	int *nind;
+};
+
+
+
+
+
+/*
+   ===========================
+   === AUXILIARY FUNCTIONS ===
+   ===========================
 */
 
 
-/* Maps one value from 0-255 to sequences of 8 binary values */
+/* Maps one byte from 0-255 to sequences of 8 (binary) integers values */
 void byteToBinInt(unsigned char in, int *out){
 	short int rest, i, temp;
 
@@ -56,6 +103,26 @@ void byteToBinInt(unsigned char in, int *out){
 
 
 
+/* Maps an array of values from 0-255 to sequences of 8 binary values */
+/* Input are unsigned char (hexadecimal), outputs are integers */
+void bytesToBinInt(unsigned char *vecbytes, int *vecsize, int *vecres){
+	int i, j, idres=0, *temp; /* idres: index in vecres*/
+
+	temp = (int *) calloc(8, sizeof(int));
+
+	for(i=0;i<*vecsize;i++){
+		byteToBinInt(vecbytes[i], temp);
+		for(j=0;j<=7;j++){
+			vecres[j+idres] = temp[j];
+		}
+		idres = idres + 8;
+	}
+
+	free(temp);
+} /* end binIntToBytes*/
+
+
+
 
 
 
@@ -68,6 +135,36 @@ void byteToBinInt(unsigned char in, int *out){
    === MAIN EXTERNAL FUNCTIONS ===
    ===============================
 */
+
+
+
+/* Maps an array of values from 0-255 to integers representing counts of alleles */
+/* This is done by adding arrays of 0-1 for indiv with ploidy > 1*/
+/* Input are unsigned char (hexadecimal), outputs are integers */
+/* veclength is the length of one vector of bytes */
+/* nbvec is the nb of input vectors*/
+/* input 'vecbytes' is actually concatenated, ie of size veclength * nbvec */
+void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres){
+	int i, j, k, idres=0, *temp; /* idres: index in vecres*/
+
+	temp = (int *) calloc(8, sizeof(int));
+
+
+	for(k=0;k<*nbvec;k++){ /* for all input vector */
+		idres = 0;
+		for(i=0;i<*veclength;i++){ /* for one input vector */
+			byteToBinInt(vecbytes[i+ k* *veclength], temp); /* byte -> 8 int (0/1)*/
+			for(j=0;j<=7;j++){ /* fill in the result*/
+				vecres[j+idres] += temp[j];
+			}
+			idres = idres + 8;
+		}
+	}
+	free(temp);
+} /* end bytesToInt */
+
+
+
 
 
 /* 
@@ -96,12 +193,6 @@ void binIntToBytes(int *vecsnp, int *vecsize, unsigned char *vecres, int *ressiz
 
 
 
-	/* 
-	   =============
-	   MAIN FUNCTION
-	   ============= 
-	*/
-	
 	/* INDICES */
 	/* i: idx of snp */
 	/* j: idx of binBasis (1:8) */
@@ -123,7 +214,7 @@ void binIntToBytes(int *vecsnp, int *vecsize, unsigned char *vecres, int *ressiz
 	/* free memory */
 	freeintvec(binBasis);
 
-} /* end sptips */
+} /* end binIntToBytes */
 
 
 
@@ -132,62 +223,111 @@ void binIntToBytes(int *vecsnp, int *vecsize, unsigned char *vecres, int *ressiz
 
 
 
-/* Maps an array of values from 0-255 to sequences of 8 binary values */
-/* Input are unsigned char (hexadecimal), outputs are integers */
-void bytesToBinInt(unsigned char *vecbytes, int *vecsize, int *vecres){
-	int i, j, idres=0, *temp; /* idres: index in vecres*/
+/*
+   =====================
+   === CLASS METHODS ===
+   =====================
+*/
+
+int nLoc(struct snpbin *x){
+	return *(x->nloc);
+}
+
+
+
+/* transform a snpbin into a vector of integers */
+void snpbin2intvec(struct snpbin *x, int *out){
+	bytesToInt(x->bytevec, x->byteveclength, x->bytevecnb, out);
+}
+
+
+
+
+short int snpbin_isna(struct snpbin *x, int i){
+	int j = 0;
+	if(*(x->nanb) < 1 || i > nLoc(x)) return 0;
+
+	while(j < *(x->nanb)){
+		if( i == (x->naposi)[j]) return 1;
+		j++;
+	}
+
+	return 0;
+}
+
+
+
+
+
+/* Function to compute one dot products between two individuals */
+/* centring and scaling is always used */
+/* but need to pass vectors of 0 and 1*/
+double snpbin_dotprod(struct snpbin *x, struct snpbin *y, double *mean, double*sd){
+	/* define variables, allocate memory */
+	int P = nLoc(x), i, *vecx, *vecy;
+	short int isna;
+	double res = 0.0;
+	vecx = (int *) calloc(P, sizeof(int));
+	vecy = (int *) calloc(P, sizeof(int));
+
+	/* conversion to integers */
+	snpbin2intvec(x, vecx);
+	snpbin2intvec(y, vecy);
+
+	/* compute dot product */
+	for(i=0;i<P;i++){
+		if(snpbin_isna(x,i) == 0 && snpbin_isna(y,i) == 0)
+			res += ((vecx[i]-mean[i])/sd[i]) * ((vecy[i]-mean[i])/sd[i]);
+	}
+
+	/* free memory */
+	free(vecx);
+	free(vecy);
+
+	return res;
+}
+
+
+
+
+/* Function to convert a 'genlight' object (R side ) into an array of 'snpbin' (C side) */
+/* Each component of the genlight is concatenated into a single vector */
+/* and then used to create different 'snpbin' on the C side */
+struct genlightC genlightTogenlightC(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbnaperind, int *naposi, int *nind, int *nloc){
+	/* declare variables and allocate memory */
+	int i, j, idxByteVec=0, idxNAVec=0;
+	struct genlightC out;
+	out.x = (struct snpbin *) calloc(*nind, sizeof(struct snpbin));
+
+	/* create the list of snpbin */
+	for(i=0; i < *nind; i++){
+		out.x[i] = makesnpbin(&gen[idxByteVec], byteveclength, &nbvecperind[i], nloc, &nbnaperind[i], &naposi[idxNAVec]);
+		idxByteVec += *byteveclength * nbvecperind[i]; /* update index in byte array */
+		idxNAVec +=  nbnaperind[i]; /* update index in byte array */
+
+	}
+
+	*out.nind = *nind;
+	return out;
+}
+
+
+
+
+/* Function to compute all dot products between individuals */
+/* centring and scaling is always used */
+/* but need to pass vectors of 0 and 1*/
+void GLdotProd(unsigned char *gen, int *nbvecperind, int *nbnaperind, int *naposi, int *nind, int *nloc, double *res){
 	
-	temp = (int *) calloc(8, sizeof(int));
-
-	for(i=0;i<*vecsize;i++){
-		byteToBinInt(vecbytes[i], temp);
-		for(j=0;j<=7;j++){
-			vecres[j+idres] = temp[j];
-		}
-		idres = idres + 8;
-	}
-
-	free(temp);
-} /* end binIntToBytes*/
+}
 
 
 
-
-
-
-
-
-/* Maps an array of values from 0-255 to integers representing counts of alleles */
-/* This is done by adding arrays of 0-1 for indiv with ploidy > 1*/
-/* Input are unsigned char (hexadecimal), outputs are integers */
-/* veclength is the length of one vector of bytes */
-/* nbvec is the nb of input vectors*/
-/* input 'vecbytes' is actually concatenated, ie of size veclength * nbvec */
-void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres){
-	int i, j, k, idres=0, *temp; /* idres: index in vecres*/
-
-	temp = (int *) calloc(8, sizeof(int));
-
-
-	for(k=0;k<*nbvec;k++){ /* for all input vector */
-		idres = 0;
-		for(i=0;i<*veclength;i++){ /* for one input vector */
-			byteToBinInt(vecbytes[i+ k* *veclength], temp); /* byte -> 8 int (0/1)*/
-			for(j=0;j<=7;j++){ /* fill in the result*/
-				vecres[j+idres] = vecres[j+idres] + temp[j];
-			}
-			idres = idres + 8;
-		}
-	}
-	free(temp);
-} /* end bytesToInt */
-
-
-
-
-
-
-
+/*
+   =========================
+   === TESTING FUNCTIONS ===
+   =========================
+*/
 
 /* Simple test function */
 /* Test: increases for a raw (unsigned char) vector */
@@ -197,26 +337,6 @@ void testRaw(unsigned char *a, int *n){
 		a[i] = (unsigned char)(i);
 	}
 }
-
-
-
-
-
-
-
-/* Function to compute all dot products between individuals */
-/* No centring, no scaling */
-/* a: 2-dim array, dim n x p*/
-/* naposi: 2-dim array, dim n x ...*/
-/* nbna: array of nb of NAs for each individual*/
-void dotProd(unsigned char **a, int *n, int *p, int **naposi, int *nbna){
-	/* define variables, allocate memory */
-
-
-	/* free memory */
-	
-}
-
 
 
 
