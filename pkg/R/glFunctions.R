@@ -175,7 +175,7 @@ glDotProd <- function(x, center=FALSE, scale=FALSE){
     resSize <- lowerTriSize + nInd(x)
 
     ## CALL C FUNCTION ##
-    temp <- .C("GLdotProd", vecbyte, nbVec, length(x@gen[[1]]@snp), nbNa, naPosi, nInd(x), nLoc(x), as.double(mu), as.double(s), double(resSize), PACKAGE="adegenet")[[10]]
+    temp <- .C("GLdotProd", vecbyte, nbVec, length(x@gen[[1]]@snp[[1]]), nbNa, naPosi, nInd(x), nLoc(x), as.double(mu), as.double(s), double(resSize), PACKAGE="adegenet")[[10]]
 
     res <- temp[1:lowerTriSize]
     attr(res,"Size") <- nInd(x)

@@ -238,6 +238,9 @@ int nLoc(struct snpbin *x){
 /* transform a snpbin into a vector of integers */
 void snpbin2intvec(struct snpbin *x, int *out){
 	bytesToInt(x->bytevec, x->byteveclength, x->bytevecnb, out);
+/*reminders: 
+-void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres){
+- snpbin: unsigned char *bytevec; int *byteveclength, *bytevecnb, *nloc, *nanb, *naposi; */
 }
 
 
@@ -246,6 +249,12 @@ void printsnpbin(struct snpbin *x){
 	int i, *temp;
 	temp = (int *) calloc(nLoc(x), sizeof(int));
 	snpbin2intvec(x, temp);
+
+
+	for(i=0;i< *(x->byteveclength);i++){
+		printf("%i ", (int) (x->bytevec)[i]);
+	}
+	printf("   ");
 	for(i=0;i<nLoc(x);i++){
 		printf("%i ", temp[i]);
 	}
@@ -438,6 +447,12 @@ glDotProd(x)
 
 res2 <- as.matrix(x) %*% t(as.matrix(x))
 res2
+
+## DATA > 8 SNPs
+dat <- rbind(rep(c(1,0,1), c(8,10,5)))
+x <- new("genlight",dat)
+glDotProd(x)
+
 
 ## RANDOM DATA
 dat <- matrix(sample(0:1, 5*8, replace=TRUE), nrow=5)
