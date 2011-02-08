@@ -241,6 +241,18 @@ void snpbin2intvec(struct snpbin *x, int *out){
 }
 
 
+/* print a snpbin object - used for debugging */
+void printsnpbin(struct snpbin *x){
+	int i, *temp;
+	temp = (int *) calloc(nLoc(x), sizeof(int));
+	snpbin2intvec(x, temp);
+	for(i=0;i<nLoc(x);i++){
+		printf("%i ", temp[i]);
+	}
+
+	free(temp);
+}
+
 
 
 short int snpbin_isna(struct snpbin *x, int i){
@@ -274,10 +286,25 @@ double snpbin_dotprod(struct snpbin *x, struct snpbin *y, double *mean, double *
 	snpbin2intvec(x, vecx);
 	snpbin2intvec(y, vecy);
 
+	/* printf("\nvector x: \n"); */
+	/* for(i=0;i<P;i++){ */
+	/* 	printf("%i", vecx[i]); */
+	/* } */
+
+	/* printf("\nvector y: \n"); */
+	/* for(i=0;i<P;i++){ */
+	/* 	printf("%i", vecy[i]); */
+	/* } */
+
 	/* compute dot product */
+	int count=0;
 	for(i=0;i<P;i++){
-		if(snpbin_isna(x,i) == 0 && snpbin_isna(y,i) == 0)
-			res += ((vecx[i]-mean[i])/sd[i]) * ((vecy[i]-mean[i])/sd[i]);
+		if(snpbin_isna(x,i) == 0 && snpbin_isna(y,i) == 0){
+			/* res += ((vecx[i]-mean[i])/sd[i]) * ((vecy[i]-mean[i])/sd[i]); */
+			res = res + ((vecx[i]-mean[i])/sd[i]) * ((vecy[i]-mean[i])/sd[i]);
+			/* printf("\ntemp value of increment: %f", ((vecx[i]-mean[i])/sd[i]) * ((vecy[i]-mean[i])/sd[i])); */
+			/* printf("\ntemp value of result: %f", res); */
+		}
 	}
 
 	/* free memory */
@@ -305,6 +332,8 @@ struct genlightC genlightTogenlightC(unsigned char *gen, int *nbvecperind, int *
 		out.x[i] = makesnpbin(&gen[idxByteVec], byteveclength, &nbvecperind[i], nloc, &nbnaperind[i], &naposi[idxNAVec]);
 		idxByteVec += *byteveclength * nbvecperind[i]; /* update index in byte array */
 		idxNAVec +=  nbnaperind[i]; /* update index in byte array */
+		printf("\nimported genotype %i: ", i+1);
+		printsnpbin(&out.x[i]);
 	}
 	
 	/* printf("step 3"); */
@@ -332,6 +361,7 @@ void GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nb
 	/* Lower triangle - without the diagonal */
 	for(i=0; i< (*nind-1); i++){
 		for(j=i+1; j< *nind; j++){
+			printf("\n == pair %i-%i ==\n", i+1,j+1);
 			res[k] = snpbin_dotprod(&dat.x[i], &dat.x[j], mean, sd);
 			++k;
 		}
@@ -339,6 +369,7 @@ void GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nb
 
 	/* add the diagonal to the end of the array */
 	for(i=0; i< *nind; i++){
+		printf("\n == pair %i-%i == \n", i+1,i+1);
 		res[k] = snpbin_dotprod(&dat.x[i], &dat.x[i], mean, sd);
 		++k;
 	}
@@ -389,44 +420,36 @@ library(adegenet)
 library(ade4)
 dat <- rbind("a"=c(1,0,0), "b"=c(1,2,1), "c"=c(1,0,1))
 x <- new("genlight",dat)
-mu <- glMean(x,alleleAsUnit=FALSE)
-s <- sqrt(glVar(x,alleleAsUnit=FALSE))
 
-vecbyte <- unlist(lapply(x@gen, function(e) e$snp))
-nbVec <- sapply(x@gen, function(e) length(e$snp))
-nbNa <- sapply(NA.posi(x), length)
-naposi <- unlist(NA.posi(x))
-resSize <- (nInd(x)*(nInd(x)-1))/2 + nInd(x)
+#### NO LONGER NEEDED ####
+##mu <- glMean(x,alleleAsUnit=FALSE)
+##s <- sqrt(glVar(x,alleleAsUnit=FALSE))
+
+##vecbyte <- unlist(lapply(x@gen, function(e) e$snp))
+##nbVec <- sapply(x@gen, function(e) length(e$snp))
+##nbNa <- sapply(NA.posi(x), length)
+##naposi <- unlist(NA.posi(x))
+##resSize <- (nInd(x)*(nInd(x)-1))/2 + nInd(x)
+
+##temp <- .C("GLdotProd", vecbyte, nbVec, length(x@gen[[1]]@snp), nbNa, naposi, nInd(x), nLoc(x), as.double(rep(0,3)), as.double(rep(1,3)), double(resSize), PACKAGE="adegenet")[[10]]
 
 ## NOT CENTRED, NOT SCALED
-temp <- .C("GLdotProd", vecbyte, nbVec, length(x@gen[[1]]@snp), nbNa, naposi, nInd(x), nLoc(x), as.double(rep(0,3)), as.double(rep(1,3)), double(resSize), PACKAGE="adegenet")[[10]]
-
-res <- temp
-attr(res,"Size") <- nInd(x)
-attr(res,"Diag") <- FALSE
-attr(res,"Upper") <- FALSE
-class(res) <- "dist"
-res <- as.matrix(res)
-diag(res) <- temp[(length(temp)-nInd(x)+1):length(temp)]
-res
+glDotProd(x)
 
 res2 <- as.matrix(x) %*% t(as.matrix(x))
 res2
 
+## RANDOM DATA
+dat <- matrix(sample(0:1, 5*8, replace=TRUE), nrow=5)
+x <- new("genlight",dat)
+glDotProd(x)
 
+as.matrix(x) %*% t(as.matrix(x))
 
 
 ## CENTRED, NOT SCALED
-temp <- .C("GLdotProd", vecbyte, nbVec, length(x@gen[[1]]@snp), nbNa, naposi, nInd(x), nLoc(x), mu, as.double(rep(1,3)), double(resSize), PACKAGE="adegenet")[[10]]
+glDotProd(x, cent=TRUE)
 
-res <- temp
-attr(res,"Size") <- nInd(x)
-attr(res,"Diag") <- FALSE
-attr(res,"Upper") <- FALSE
-class(res) <- "dist"
-res <- as.matrix(res)
-diag(res) <- temp[(length(temp)-nInd(x)+1):length(temp)]
-res
 
 temp <- as.matrix(x) / ploidy(x)
 temp <- scalewt(temp, cent=TRUE, scale=FALSE)
