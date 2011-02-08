@@ -145,6 +145,53 @@ glVar <- function(x, alleleAsUnit=TRUE){
 
 
 
+#############
+## glDotProd
+############
+## computes all pairs of dot products
+## between centred/scaled vectors
+## of SNPs
+glDotProd <- function(x, center=FALSE, scale=FALSE){
+    if(!inherits(x, "genlight")) stop("x is not a genlight object")
+
+    ## GET INPUTS TO C PROCEDURE ##
+    if(center){
+        mu <- glMean(x,alleleAsUnit=FALSE)
+    } else {
+        mu <- rep(0, nLoc(x))
+    }
+
+    if(scale){
+        s <- sqrt(glVar(x,alleleAsUnit=FALSE))
+    } else {
+        s <- rep(1, nLoc(x))
+    }
+
+    vecbyte <- unlist(lapply(x@gen, function(e) e$snp))
+    nbVec <- sapply(x@gen, function(e) length(e$snp))
+    nbNa <- sapply(NA.posi(x), length)
+    naPosi <- unlist(NA.posi(x))
+    lowerTriSize <- (nInd(x)*(nInd(x)-1))/2
+    resSize <- lowerTriSize + nInd(x)
+
+    ## CALL C FUNCTION ##
+    temp <- .C("GLdotProd", vecbyte, nbVec, length(x@gen[[1]]@snp), nbNa, naPosi, nInd(x), nLoc(x), as.double(mu), as.double(s), double(resSize), PACKAGE="adegenet")[[10]]
+
+    res <- temp[1:lowerTriSize]
+    attr(res,"Size") <- nInd(x)
+    attr(res,"Diag") <- FALSE
+    attr(res,"Upper") <- FALSE
+    class(res) <- "dist"
+    res <- as.matrix(res)
+    diag(res) <- temp[(lowerTriSize+1):length(temp)]
+
+    colnames(res) <- rownames(res) <- indNames(x)
+    return(res)
+}
+
+
+
+
 
 
 ########
