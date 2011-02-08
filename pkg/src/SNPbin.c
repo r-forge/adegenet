@@ -262,7 +262,7 @@ short int snpbin_isna(struct snpbin *x, int i){
 /* Function to compute one dot products between two individuals */
 /* centring and scaling is always used */
 /* but need to pass vectors of 0 and 1*/
-double snpbin_dotprod(struct snpbin *x, struct snpbin *y, double *mean, double*sd){
+double snpbin_dotprod(struct snpbin *x, struct snpbin *y, double *mean, double *sd){
 	/* define variables, allocate memory */
 	int P = nLoc(x), i, *vecx, *vecy;
 	short int isna;
@@ -290,7 +290,7 @@ double snpbin_dotprod(struct snpbin *x, struct snpbin *y, double *mean, double*s
 
 
 
-/* Function to convert a 'genlight' object (R side ) into an array of 'snpbin' (C side) */
+/* Function to convert a 'genlight' object (R side) into an array of 'snpbin' (C side) */
 /* Each component of the genlight is concatenated into a single vector */
 /* and then used to create different 'snpbin' on the C side */
 struct genlightC genlightTogenlightC(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbnaperind, int *naposi, int *nind, int *nloc){
@@ -317,9 +317,21 @@ struct genlightC genlightTogenlightC(unsigned char *gen, int *nbvecperind, int *
 /* Function to compute all dot products between individuals */
 /* centring and scaling is always used */
 /* but need to pass vectors of 0 and 1*/
-void GLdotProd(unsigned char *gen, int *nbvecperind, int *nbnaperind, int *naposi, int *nind, int *nloc, double *res){
-	
+void GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbnaperind, int *naposi, int *nind, int *nloc, double *mean, double *sd, double *res){
+	struct genlightC dat;
+	int i, j, k=0;
+
+	dat = genlightTogenlightC(gen, nbvecperind, byteveclength, nbnaperind, naposi, nind, nloc);
+
+	for(i=0; i< (*nind-1); i++){
+		for(j=i+1; j< *nind; j++){
+			res[k] = snpbin_dotprod(&dat.x[i], &dat.x[j], mean, sd);
+			++k;
+		}
+	}
 }
+
+
 
 
 
