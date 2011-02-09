@@ -51,13 +51,20 @@ struct snpbin{
 
 struct snpbin makesnpbin(unsigned char *bytevec, int *byteveclength, int *bytevecnb, int *nloc, int *nanb, int *naposi) {
 	struct snpbin out;
+	int i;
 
 	out.bytevec = bytevec;
 	out.byteveclength = byteveclength;
 	out.bytevecnb = bytevecnb;
 	out.nloc = nloc;
 	out.nanb = nanb;
+	/* need to decrease the indices of NAs by 1, e.g. [1-10]->[0-9] */
 	out.naposi = naposi;
+	if(*nanb > 0){
+		for(i=0;i< *nanb; i++){
+			out.naposi[i] = out.naposi[i] - 1;
+		}
+	}
 	return out;
 };
 
@@ -257,6 +264,11 @@ void printsnpbin(struct snpbin *x){
 	printf("   ");
 	for(i=0;i<nLoc(x);i++){
 		printf("%i ", temp[i]);
+	}
+
+	printf("NA posi: ");
+	for(i=0;i< *(x->nanb);i++){
+		printf("%i ", (x->naposi)[i]);
 	}
 
 	free(temp);
@@ -486,15 +498,18 @@ all(abs(res1-res2)<1e-10)
 
 
 ## TEST WITH NAs
-dat <- lapply(1:50, function(i) sample(c(0,1,NA), 1e4, prob=c(.5, .49, .01), replace=TRUE))
-names(dat) <- paste("indiv", 1:length(dat))
-print(object.size(dat), unit="aut") # size of the original data
+library(adegenet)
+library(ade4)
+
+dat <- list(a=c(1,NA,0,0,2), b=c(1,2,3,4,0), c=c(NA,0,1,NA,2))
 
 x <- new("genlight", dat) # conversion
 x
 
-dat <- matrix(sample(0:1, 5*1000, replace=TRUE), nrow=5)
-x <- new("genlight",dat)
+res1 <- glDotProd(x)
+t(data.frame(dat))
+res1
+
 
 */
 
