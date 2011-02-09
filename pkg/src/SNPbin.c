@@ -22,58 +22,60 @@
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
-#include <R.h>
-#include <R_ext/Utils.h>
-#include "adesub.h"
+#include "snpbin.h"
 
-#define NEARZERO 0.0000000001
+/* #define NEARZERO 0.0000000001 */
+/* #define TRUE 1 */
+/* #define FALSE 0 */
 
+/* typedef short bool; */
 
-/*
-   ========================
-   === CLASS DEFINITION ===
-   ========================
-*/
+/* /\* */
+/*    ========================= */
+/*    === CLASS DEFINITIONS === */
+/*    ========================= */
+/* *\/ */
 
-/* 'bytevecnb' arrays of bytes concatenated into a single array */
-/* of dim 'byteveclength' x 'bytevecnb' */
-/* nloc is the number of SNPs - used for recoding to integers */
-/* naposi indicates the positions of NAs */
-/* nanb is the length of naposi */
+/* /\* 'bytevecnb' arrays of bytes concatenated into a single array *\/ */
+/* /\* of dim 'byteveclength' x 'bytevecnb' *\/ */
+/* /\* nloc is the number of SNPs - used for recoding to integers *\/ */
+/* /\* naposi indicates the positions of NAs *\/ */
+/* /\* nanb is the length of naposi *\/ */
 
-struct snpbin{
-	unsigned char *bytevec;
-	int *byteveclength, *bytevecnb, *nloc, *nanb, *naposi; /* all but naposi have length 1 */
-};
-
-
-
-
-struct snpbin makesnpbin(unsigned char *bytevec, int *byteveclength, int *bytevecnb, int *nloc, int *nanb, int *naposi) {
-	struct snpbin out;
-	int i;
-
-	out.bytevec = bytevec;
-	out.byteveclength = byteveclength;
-	out.bytevecnb = bytevecnb;
-	out.nloc = nloc;
-	out.nanb = nanb;
-	/* need to decrease the indices of NAs by 1, e.g. [1-10]->[0-9] */
-	out.naposi = naposi;
-	if(*nanb > 0){
-		for(i=0;i< *nanb; i++){
-			out.naposi[i] = out.naposi[i] - 1;
-		}
-	}
-	return out;
-};
+/* struct snpbin{ */
+/* 	unsigned char *bytevec; */
+/* 	int *byteveclength, *bytevecnb, *nloc, *nanb, *naposi, *ploidy; /\* all but naposi have length 1 *\/ */
+/* }; */
 
 
 
-struct genlightC{
-	struct snpbin *x;
-	int *nind;
-};
+
+/* struct snpbin makesnpbin(unsigned char *bytevec, int *byteveclength, int *bytevecnb, int *nloc, int *nanb, int *naposi, int *ploidy) { */
+/* 	struct snpbin out; */
+/* 	int i; */
+
+/* 	out.bytevec = bytevec; */
+/* 	out.byteveclength = byteveclength; */
+/* 	out.bytevecnb = bytevecnb; */
+/* 	out.nloc = nloc; */
+/* 	out.nanb = nanb; */
+/* 	/\* need to decrease the indices of NAs by 1, e.g. [1-10]->[0-9] *\/ */
+/* 	out.naposi = naposi; */
+/* 	if(*nanb > 0){ */
+/* 		for(i=0;i< *nanb; i++){ */
+/* 			out.naposi[i] = out.naposi[i] - 1; */
+/* 		} */
+/* 	} */
+/* 	out.ploidy = ploidy; */
+/* 	return out; */
+/* }; */
+
+
+
+/* struct genlightC{ */
+/* 	struct snpbin *x; */
+/* 	int *nind; */
+/* }; */
 
 
 
@@ -241,14 +243,38 @@ int nLoc(struct snpbin *x){
 }
 
 
+int ploidy(struct snpbin *x){
+	return *(x->ploidy);
+}
+
+
+
+
 
 /* transform a snpbin into a vector of integers */
 void snpbin2intvec(struct snpbin *x, int *out){
 	bytesToInt(x->bytevec, x->byteveclength, x->bytevecnb, out);
-/*reminders: 
--void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres){
+/*reminders:
+- void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres){
 - snpbin: unsigned char *bytevec; int *byteveclength, *bytevecnb, *nloc, *nanb, *naposi; */
 }
+
+
+
+/* transform a snpbin into a vector of frequencies (double) */
+void snpbin2freq(struct snpbin *x, double *out){
+	double ploid = (double) ploidy(x);
+	int i;
+ 	bytesToInt(x->bytevec, x->byteveclength, x->bytevecnb, (int *) out);
+	out = (double *) out; /* casting back to double */
+	for(i=0; i< nLoc(x); i++){
+		out[i] = out[i] / ploid;
+	}
+/*reminders:
+- void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres){
+- snpbin: unsigned char *bytevec; int *byteveclength, *bytevecnb, *nloc, *nanb, *naposi; */
+}
+
 
 
 /* print a snpbin object - used for debugging */
@@ -341,7 +367,7 @@ double snpbin_dotprod(struct snpbin *x, struct snpbin *y, double *mean, double *
 /* Function to convert a 'genlight' object (R side) into an array of 'snpbin' (C side) */
 /* Each component of the genlight is concatenated into a single vector */
 /* and then used to create different 'snpbin' on the C side */
-struct genlightC genlightTogenlightC(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbnaperind, int *naposi, int *nind, int *nloc){
+struct genlightC genlightTogenlightC(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbnaperind, int *naposi, int *nind, int *nloc, int *ploidy){
 	/* declare variables and allocate memory */
 	int i, j, idxByteVec=0, idxNAVec=0;
 	struct genlightC out;
@@ -350,7 +376,7 @@ struct genlightC genlightTogenlightC(unsigned char *gen, int *nbvecperind, int *
 	/* create the list of snpbin */
 	/* printf("\n nind: %d\n", *nind); */
 	for(i=0; i < *nind; i++){
-		out.x[i] = makesnpbin(&gen[idxByteVec], byteveclength, &nbvecperind[i], nloc, &nbnaperind[i], &naposi[idxNAVec]);
+		out.x[i] = makesnpbin(&gen[idxByteVec], byteveclength, &nbvecperind[i], nloc, &nbnaperind[i], &naposi[idxNAVec], &ploidy[i]);
 		idxByteVec += *byteveclength * nbvecperind[i]; /* update index in byte array */
 		idxNAVec +=  nbnaperind[i]; /* update index in byte array */
 		/* printf("\nimported genotype %i: ", i+1); */
@@ -366,40 +392,6 @@ struct genlightC genlightTogenlightC(unsigned char *gen, int *nbvecperind, int *
 }
 
 
-
-
-/* Function to compute all dot products between individuals */
-/* centring and scaling is always used */
-/* but need to pass vectors of 0 and 1*/
-void GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbnaperind, int *naposi, int *nind, int *nloc, double *mean, double *sd, double *res){
-	struct genlightC dat;
-	int i, j, k=0;
-
-	/* Check variance vector: do not divide by 0 */
-	for(i=0;i< *nloc;i++){
-		if(sd[i] < NEARZERO){
-			sd[i] = 1;
-		}
-	}
-
-	dat = genlightTogenlightC(gen, nbvecperind, byteveclength, nbnaperind, naposi, nind, nloc);
-
-	/* Lower triangle - without the diagonal */
-	for(i=0; i< (*nind-1); i++){
-		for(j=i+1; j< *nind; j++){
-			/* printf("\n == pair %i-%i ==\n", i+1,j+1); */
-			res[k] = snpbin_dotprod(&dat.x[i], &dat.x[j], mean, sd);
-			++k;
-		}
-	}
-
-	/* add the diagonal to the end of the array */
-	for(i=0; i< *nind; i++){
-		/* printf("\n == pair %i-%i == \n", i+1,i+1); */
-		res[k] = snpbin_dotprod(&dat.x[i], &dat.x[i], mean, sd);
-		++k;
-	}
-}
 
 
 
@@ -439,76 +431,6 @@ all(.C("bytesToBinInt", toto, length(toto), integer(length(toto)*8))[[3]]==x)
 
 ## test several raw vec -> int (allele counts, any ploidy)
 .C("bytesToInt",as.raw(c(12,11)), 1L, 2L, integer(8), PACKAGE="adegenet")
-
-
-## === DOT PRODUCTS === ##
-
-#### NO LONGER NEEDED ####
-
-library(adegenet)
-library(ade4)
-dat <- rbind("a"=c(1,0,0), "b"=c(1,2,1), "c"=c(1,0,1))
-x <- new("genlight",dat)
-
-
-## NOT CENTRED, NOT SCALED
-glDotProd(x)
-
-res2 <- as.matrix(x) %*% t(as.matrix(x))
-res2
-
-## DATA > 8 SNPs
-dat <- rbind(rep(c(1,0,1), c(8,10,5)))
-x <- new("genlight",dat)
-glDotProd(x)
-
-
-## RANDOM DATA
-dat <- matrix(sample(0:1, 5*1000, replace=TRUE), nrow=5)
-x <- new("genlight",dat)
-res1 <- glDotProd(x)
-
-res2 <- as.matrix(x) %*% t(as.matrix(x))
-
-all(res1==res2)
-
-
-## CENTRED, NOT SCALED
-res1 <- glDotProd(x, cent=TRUE)
-
-temp <- as.matrix(x) / ploidy(x)
-temp <- scalewt(temp, cent=TRUE, scale=FALSE)
-res2 <- temp %*% t(temp)
-res2
-
-all(abs(res1-res2)<1e-10)
-
-
-## CENTRED, SCALED
-res1 <- glDotProd(x, cent=TRUE, scale=TRUE)
-
-temp <- as.matrix(x) / ploidy(x)
-temp <- scalewt(temp, cent=TRUE, scale=TRUE)
-res2 <- temp %*% t(temp)
-res2
-
-all(abs(res1-res2)<1e-10)
-
-
-
-
-## TEST WITH NAs
-library(adegenet)
-library(ade4)
-
-dat <- list(a=c(1,NA,0,0,2), b=c(1,2,3,4,0), c=c(NA,0,1,NA,2))
-
-x <- new("genlight", dat) # conversion
-x
-
-res1 <- glDotProd(x)
-t(data.frame(dat))
-res1
 
 
 */
