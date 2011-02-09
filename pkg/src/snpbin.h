@@ -2,13 +2,15 @@
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 
-#define NEARZERO 0.0000000001 */
+#define NEARZERO 0.0000000001
 #define TRUE 1
 #define FALSE 0
 
 typedef short bool;
+
 
 
 /*
@@ -17,32 +19,14 @@ typedef short bool;
    =========================
 */
 
+/* 'bytevecnb' arrays of bytes concatenated into a single array */
+/* of dim 'byteveclength' x 'bytevecnb' */
+/* nloc is the number of SNPs - used for recoding to integers */
+/* naposi indicates the positions of NAs */
+/* nanb is the length of naposi */
 struct snpbin{
 	unsigned char *bytevec;
 	int *byteveclength, *bytevecnb, *nloc, *nanb, *naposi, *ploidy; /* all but naposi have length 1 */
-};
-
-
-
-
-struct snpbin makesnpbin(unsigned char *bytevec, int *byteveclength, int *bytevecnb, int *nloc, int *nanb, int *naposi, int *ploidy) {
-	struct snpbin out;
-	int i;
-
-	out.bytevec = bytevec;
-	out.byteveclength = byteveclength;
-	out.bytevecnb = bytevecnb;
-	out.nloc = nloc;
-	out.nanb = nanb;
-	/* need to decrease the indices of NAs by 1, e.g. [1-10]->[0-9] */
-	out.naposi = naposi;
-	if(*nanb > 0){
-		for(i=0;i< *nanb; i++){
-			out.naposi[i] = out.naposi[i] - 1;
-		}
-	}
-	out.ploidy = ploidy;
-	return out;
 };
 
 
@@ -61,14 +45,9 @@ struct genlightC{
 */
 
 
-/* Maps one byte from 0-255 to sequences of 8 (binary) integers values */
 void byteToBinInt(unsigned char in, int *out);
-
-
-/* Maps an array of values from 0-255 to sequences of 8 binary values */
-/* Input are unsigned char (hexadecimal), outputs are integers */
 void bytesToBinInt(unsigned char *vecbytes, int *vecsize, int *vecres);
-
+struct snpbin makesnpbin(unsigned char *bytevec, int *byteveclength, int *bytevecnb, int *nloc, int *nanb, int *naposi, int *ploidy);
 
 
 

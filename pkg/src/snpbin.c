@@ -22,6 +22,8 @@
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include "adesub.h"
 #include "snpbin.h"
 
 /* #define NEARZERO 0.0000000001 */
@@ -50,28 +52,6 @@
 
 
 
-/* struct snpbin makesnpbin(unsigned char *bytevec, int *byteveclength, int *bytevecnb, int *nloc, int *nanb, int *naposi, int *ploidy) { */
-/* 	struct snpbin out; */
-/* 	int i; */
-
-/* 	out.bytevec = bytevec; */
-/* 	out.byteveclength = byteveclength; */
-/* 	out.bytevecnb = bytevecnb; */
-/* 	out.nloc = nloc; */
-/* 	out.nanb = nanb; */
-/* 	/\* need to decrease the indices of NAs by 1, e.g. [1-10]->[0-9] *\/ */
-/* 	out.naposi = naposi; */
-/* 	if(*nanb > 0){ */
-/* 		for(i=0;i< *nanb; i++){ */
-/* 			out.naposi[i] = out.naposi[i] - 1; */
-/* 		} */
-/* 	} */
-/* 	out.ploidy = ploidy; */
-/* 	return out; */
-/* }; */
-
-
-
 /* struct genlightC{ */
 /* 	struct snpbin *x; */
 /* 	int *nind; */
@@ -86,6 +66,27 @@
    === AUXILIARY FUNCTIONS ===
    ===========================
 */
+
+
+struct snpbin makesnpbin(unsigned char *bytevec, int *byteveclength, int *bytevecnb, int *nloc, int *nanb, int *naposi, int *ploidy) {
+	struct snpbin out;
+	int i;
+
+	out.bytevec = bytevec;
+	out.byteveclength = byteveclength;
+	out.bytevecnb = bytevecnb;
+	out.nloc = nloc;
+	out.nanb = nanb;
+	/* need to decrease the indices of NAs by 1, e.g. [1-10]->[0-9] */
+	out.naposi = naposi;
+	if(*nanb > 0){
+		for(i=0;i< *nanb; i++){
+			out.naposi[i] = out.naposi[i] - 1;
+		}
+	}
+	out.ploidy = ploidy;
+	return out;
+};
 
 
 /* Maps one byte from 0-255 to sequences of 8 (binary) integers values */
