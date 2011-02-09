@@ -178,7 +178,7 @@ glDotProd <- function(x, center=FALSE, scale=FALSE){
     resSize <- lowerTriSize + nInd(x)
 
     ## CALL C FUNCTION ##
-    temp <- .C("GLdotProd", vecbyte, nbVec, length(x@gen[[1]]@snp[[1]]), nbNa, naPosi, nInd(x), nLoc(x), as.double(mu), as.double(s), double(resSize), PACKAGE="adegenet")[[10]]
+    temp <- .C("GLdotProd", vecbyte, nbVec, length(x@gen[[1]]@snp[[1]]), nbNa, naPosi, nInd(x), nLoc(x), ploidy(x), as.double(mu), as.double(s), double(resSize), PACKAGE="adegenet")[[11]]
 
     res <- temp[1:lowerTriSize]
     attr(res,"Size") <- nInd(x)
@@ -204,7 +204,7 @@ glDotProd <- function(x, center=FALSE, scale=FALSE){
 ## PCA for genlight objects
 ##
 glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE,
-                  multicore=require("multicore"), n.cores=NULL){
+                  useC=TRUE, multicore=require("multicore"), n.cores=NULL){
     if(!inherits(x, "genlight")) stop("x is not a genlight object")
     if(multicore && !require(multicore)) stop("multicore package requested but not installed")
     if(multicore && is.null(n.cores)){
