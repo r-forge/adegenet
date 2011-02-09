@@ -20,7 +20,7 @@
 /* Function to compute all dot products between individuals */
 /* centring and scaling is always used */
 /* but need to pass vectors of 0 and 1*/
-void GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbnaperind, int *naposi, int *nind, int *nloc, int *ploidy, double *mean, double *sd, double *res){
+void GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbnaperind, int *naposi, int *nind, int *nloc, int *ploidy, double *mean, double *sd, bool *freq, double *res){
 	struct genlightC dat;
 	int i, j, k=0;
 
@@ -37,7 +37,7 @@ void GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nb
 	for(i=0; i< (*nind-1); i++){
 		for(j=i+1; j< *nind; j++){
 			/* printf("\n == pair %i-%i ==\n", i+1,j+1); */
-			res[k] = snpbin_dotprod(&dat.x[i], &dat.x[j], mean, sd);
+			res[k] = snpbin_dotprod(&dat.x[i], &dat.x[j], mean, sd, freq);
 			++k;
 		}
 	}
@@ -45,7 +45,7 @@ void GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nb
 	/* add the diagonal to the end of the array */
 	for(i=0; i< *nind; i++){
 		/* printf("\n == pair %i-%i == \n", i+1,i+1); */
-		res[k] = snpbin_dotprod(&dat.x[i], &dat.x[i], mean, sd);
+		res[k] = snpbin_dotprod(&dat.x[i], &dat.x[i], mean, sd, freq);
 		++k;
 	}
 }

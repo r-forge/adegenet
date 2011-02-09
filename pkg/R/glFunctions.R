@@ -151,18 +151,18 @@ glVar <- function(x, alleleAsUnit=TRUE){
 ## computes all pairs of dot products
 ## between centred/scaled vectors
 ## of SNPs
-glDotProd <- function(x, center=FALSE, scale=FALSE){
+glDotProd <- function(x, center=FALSE, scale=FALSE, alleleAsUnit=FALSE){
     if(!inherits(x, "genlight")) stop("x is not a genlight object")
 
     ## GET INPUTS TO C PROCEDURE ##
     if(center){
-        mu <- glMean(x,alleleAsUnit=FALSE)
+        mu <- glMean(x,alleleAsUnit=alleleAsUnit)
     } else {
         mu <- rep(0, nLoc(x))
     }
 
     if(scale){
-        s <- sqrt(glVar(x,alleleAsUnit=FALSE))
+        s <- sqrt(glVar(x,alleleAsUnit=alleleAsUnit))
         if(any(s<1e-10)) {
             warning("Null variances have been detected; corresponding alleles won't be standardized.")
         }
@@ -178,7 +178,8 @@ glDotProd <- function(x, center=FALSE, scale=FALSE){
     resSize <- lowerTriSize + nInd(x)
 
     ## CALL C FUNCTION ##
-    temp <- .C("GLdotProd", vecbyte, nbVec, length(x@gen[[1]]@snp[[1]]), nbNa, naPosi, nInd(x), nLoc(x), ploidy(x), as.double(mu), as.double(s), double(resSize), PACKAGE="adegenet")[[11]]
+    temp <- .C("GLdotProd", vecbyte, nbVec, length(x@gen[[1]]@snp[[1]]), nbNa, naPosi, nInd(x), nLoc(x), ploidy(x),
+               as.double(mu), as.double(s), as.integer(!alleleAsUnit), double(resSize), PACKAGE="adegenet")[[12]]
 
     res <- temp[1:lowerTriSize]
     attr(res,"Size") <- nInd(x)

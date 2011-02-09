@@ -78,7 +78,7 @@ void snpbin2intvec(struct snpbin *x, int *out);
 void snpbin2freq(struct snpbin *x, double *out);
 void printsnpbin(struct snpbin *x);
 short int snpbin_isna(struct snpbin *x, int i);
-double snpbin_dotprod(struct snpbin *x, struct snpbin *y, double *mean, double *sd);
+double snpbin_dotprod(struct snpbin *x, struct snpbin *y, double *mean, double *sd, bool *freq);
 struct genlightC genlightTogenlightC(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbnaperind, int *naposi, int *nind, int *nloc, int *ploidy);
 
 

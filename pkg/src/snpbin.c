@@ -322,17 +322,26 @@ short int snpbin_isna(struct snpbin *x, int i){
 /* Function to compute one dot products between two individuals */
 /* centring and scaling is always used */
 /* but need to pass vectors of 0 and 1*/
-double snpbin_dotprod(struct snpbin *x, struct snpbin *y, double *mean, double *sd){
+double snpbin_dotprod(struct snpbin *x, struct snpbin *y, double *mean, double *sd, bool *freq){
 	/* define variables, allocate memory */
-	int P = nLoc(x), i, *vecx, *vecy;
-	short int isna;
+	int P = nLoc(x), i;
+	short isna;
 	double res = 0.0;
-	vecx = (int *) calloc(P, sizeof(int));
-	vecy = (int *) calloc(P, sizeof(int));
+	double *vecx, *vecy;
+	vecx = (double *) calloc(P, sizeof(double));
+	vecy = (double *) calloc(P, sizeof(double));
 
-	/* conversion to integers */
-	snpbin2intvec(x, vecx);
-	snpbin2intvec(y, vecy);
+
+	/* conversion to integers or frequencies*/
+	if(*freq){
+		snpbin2freq(x, vecx);
+		snpbin2freq(y, vecy);
+	} else {
+		snpbin2intvec(x, (int *) vecx);
+		snpbin2intvec(y, (int *) vecy);
+	}
+
+
 
 	/* printf("\nvector x: \n"); */
 	/* for(i=0;i<P;i++){ */
