@@ -163,6 +163,9 @@ glDotProd <- function(x, center=FALSE, scale=FALSE){
 
     if(scale){
         s <- sqrt(glVar(x,alleleAsUnit=FALSE))
+        if(any(s<1e-10)) {
+            warning("Null variances have been detected; corresponding alleles won't be standardized.")
+        }
     } else {
         s <- rep(1, nLoc(x))
     }
