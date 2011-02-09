@@ -26,7 +26,7 @@
 #include <R_ext/Utils.h>
 #include "adesub.h"
 
-
+#define NEARZERO 0.0000000001
 
 
 /*
@@ -310,7 +310,7 @@ double snpbin_dotprod(struct snpbin *x, struct snpbin *y, double *mean, double *
 	for(i=0;i<P;i++){
 		if(snpbin_isna(x,i) == 0 && snpbin_isna(y,i) == 0){
 			/* res += ((vecx[i]-mean[i])/sd[i]) * ((vecy[i]-mean[i])/sd[i]); */
-			res = res + ((vecx[i]-mean[i])/sd[i]) * ((vecy[i]-mean[i])/sd[i]);
+			res += ((vecx[i]-mean[i])/sd[i]) * ((vecy[i]-mean[i])/sd[i]);
 			/* printf("\ntemp value of increment: %f", ((vecx[i]-mean[i])/sd[i]) * ((vecy[i]-mean[i])/sd[i])); */
 			/* printf("\ntemp value of result: %f", res); */
 		}
@@ -341,8 +341,8 @@ struct genlightC genlightTogenlightC(unsigned char *gen, int *nbvecperind, int *
 		out.x[i] = makesnpbin(&gen[idxByteVec], byteveclength, &nbvecperind[i], nloc, &nbnaperind[i], &naposi[idxNAVec]);
 		idxByteVec += *byteveclength * nbvecperind[i]; /* update index in byte array */
 		idxNAVec +=  nbnaperind[i]; /* update index in byte array */
-		printf("\nimported genotype %i: ", i+1);
-		printsnpbin(&out.x[i]);
+		/* printf("\nimported genotype %i: ", i+1); */
+		/* printsnpbin(&out.x[i]); */
 	}
 	
 	/* printf("step 3"); */
@@ -362,15 +362,20 @@ struct genlightC genlightTogenlightC(unsigned char *gen, int *nbvecperind, int *
 void GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbnaperind, int *naposi, int *nind, int *nloc, double *mean, double *sd, double *res){
 	struct genlightC dat;
 	int i, j, k=0;
-	/* printf("\nstep 1\n"); */
+
+	/* Check variance vector: do not divide by 0 */
+	for(i=0;i< *nloc;i++){
+		if(sd[i] < NEARZERO){
+			sd[i] = 1;
+		}
+	}
 
 	dat = genlightTogenlightC(gen, nbvecperind, byteveclength, nbnaperind, naposi, nind, nloc);
 
-	/* printf("\nstep 2\n"); */
 	/* Lower triangle - without the diagonal */
 	for(i=0; i< (*nind-1); i++){
 		for(j=i+1; j< *nind; j++){
-			printf("\n == pair %i-%i ==\n", i+1,j+1);
+			/* printf("\n == pair %i-%i ==\n", i+1,j+1); */
 			res[k] = snpbin_dotprod(&dat.x[i], &dat.x[j], mean, sd);
 			++k;
 		}
@@ -378,7 +383,7 @@ void GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nb
 
 	/* add the diagonal to the end of the array */
 	for(i=0; i< *nind; i++){
-		printf("\n == pair %i-%i == \n", i+1,i+1);
+		/* printf("\n == pair %i-%i == \n", i+1,i+1); */
 		res[k] = snpbin_dotprod(&dat.x[i], &dat.x[i], mean, sd);
 		++k;
 	}
@@ -425,22 +430,14 @@ all(.C("bytesToBinInt", toto, length(toto), integer(length(toto)*8))[[3]]==x)
 
 
 ## === DOT PRODUCTS === ##
+
+#### NO LONGER NEEDED ####
+
 library(adegenet)
 library(ade4)
 dat <- rbind("a"=c(1,0,0), "b"=c(1,2,1), "c"=c(1,0,1))
 x <- new("genlight",dat)
 
-#### NO LONGER NEEDED ####
-##mu <- glMean(x,alleleAsUnit=FALSE)
-##s <- sqrt(glVar(x,alleleAsUnit=FALSE))
-
-##vecbyte <- unlist(lapply(x@gen, function(e) e$snp))
-##nbVec <- sapply(x@gen, function(e) length(e$snp))
-##nbNa <- sapply(NA.posi(x), length)
-##naposi <- unlist(NA.posi(x))
-##resSize <- (nInd(x)*(nInd(x)-1))/2 + nInd(x)
-
-##temp <- .C("GLdotProd", vecbyte, nbVec, length(x@gen[[1]]@snp), nbNa, naposi, nInd(x), nLoc(x), as.double(rep(0,3)), as.double(rep(1,3)), double(resSize), PACKAGE="adegenet")[[10]]
 
 ## NOT CENTRED, NOT SCALED
 glDotProd(x)
@@ -455,28 +452,49 @@ glDotProd(x)
 
 
 ## RANDOM DATA
-dat <- matrix(sample(0:1, 5*8, replace=TRUE), nrow=5)
+dat <- matrix(sample(0:1, 5*1000, replace=TRUE), nrow=5)
 x <- new("genlight",dat)
-glDotProd(x)
+res1 <- glDotProd(x)
 
-as.matrix(x) %*% t(as.matrix(x))
+res2 <- as.matrix(x) %*% t(as.matrix(x))
+
+all(res1==res2)
 
 
 ## CENTRED, NOT SCALED
-glDotProd(x, cent=TRUE)
-
+res1 <- glDotProd(x, cent=TRUE)
 
 temp <- as.matrix(x) / ploidy(x)
 temp <- scalewt(temp, cent=TRUE, scale=FALSE)
 res2 <- temp %*% t(temp)
 res2
 
-
-## centred, scaled
-.C("GLdotProd", vecbyte, nbVec, length(x@gen[[1]]@snp), nbNa, naposi, nInd(x), nLoc(x), as.double(mu), as.double(s), double(nLoc(x)), PACKAGE="adegenet")
+all(abs(res1-res2)<1e-10)
 
 
-.C("GLdotProd", raw(3), integer(1), integer(1), integer(1), integer(1), integer(1), integer(1), double(3), double(3), double(3), PACKAGE="adegenet")
- # GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbnaperind, int *naposi, int *nind, int *nloc, double *mean, double *sd, double *res)
+## CENTRED, SCALED
+res1 <- glDotProd(x, cent=TRUE, scale=TRUE)
+
+temp <- as.matrix(x) / ploidy(x)
+temp <- scalewt(temp, cent=TRUE, scale=TRUE)
+res2 <- temp %*% t(temp)
+res2
+
+all(abs(res1-res2)<1e-10)
+
+
+
+
+## TEST WITH NAs
+dat <- lapply(1:50, function(i) sample(c(0,1,NA), 1e4, prob=c(.5, .49, .01), replace=TRUE))
+names(dat) <- paste("indiv", 1:length(dat))
+print(object.size(dat), unit="aut") # size of the original data
+
+x <- new("genlight", dat) # conversion
+x
+
+dat <- matrix(sample(0:1, 5*1000, replace=TRUE), nrow=5)
+x <- new("genlight",dat)
+
 */
 
