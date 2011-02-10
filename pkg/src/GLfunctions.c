@@ -33,20 +33,40 @@ void GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nb
 
 	dat = genlightTogenlightC(gen, nbvecperind, byteveclength, nbnaperind, naposi, nind, nloc, ploidy);
 
-	/* Lower triangle - without the diagonal */
-	for(i=0; i< (*nind-1); i++){
-		for(j=i+1; j< *nind; j++){
-			/* printf("\n == pair %i-%i ==\n", i+1,j+1); */
-			res[k] = snpbin_dotprod(&dat.x[i], &dat.x[j], mean, sd, freq);
+	if(*freq){
+		/* === working on frequencies === */
+		/* Lower triangle - without the diagonal */
+		for(i=0; i< (*nind-1); i++){
+			for(j=i+1; j< *nind; j++){
+				/* printf("\n == pair %i-%i ==\n", i+1,j+1); */
+				res[k] = snpbin_dotprod_freq(&dat.x[i], &dat.x[j], mean, sd);
+				++k;
+			}
+		}
+
+		/* add the diagonal to the end of the array */
+		for(i=0; i< *nind; i++){
+			/* printf("\n == pair %i-%i == \n", i+1,i+1); */
+			res[k] = snpbin_dotprod_freq(&dat.x[i], &dat.x[i], mean, sd);
 			++k;
 		}
-	}
+	} else {
+		/* === working on frequencies === */
+		/* Lower triangle - without the diagonal */
+		for(i=0; i< (*nind-1); i++){
+			for(j=i+1; j< *nind; j++){
+				/* printf("\n == pair %i-%i ==\n", i+1,j+1); */
+				res[k] = snpbin_dotprod_int(&dat.x[i], &dat.x[j], mean, sd);
+				++k;
+			}
+		}
 
-	/* add the diagonal to the end of the array */
-	for(i=0; i< *nind; i++){
-		/* printf("\n == pair %i-%i == \n", i+1,i+1); */
-		res[k] = snpbin_dotprod(&dat.x[i], &dat.x[i], mean, sd, freq);
-		++k;
+		/* add the diagonal to the end of the array */
+		for(i=0; i< *nind; i++){
+			/* printf("\n == pair %i-%i == \n", i+1,i+1); */
+			res[k] = snpbin_dotprod_int(&dat.x[i], &dat.x[i], mean, sd);
+			++k;
+		}
 	}
 }
 
@@ -59,7 +79,7 @@ void GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nb
 
 /*
 
-## === DOT PRODUCTS === ##
+## === DOT PRODUCTS ALLELE COUNTS === ##
 
 library(adegenet)
 library(ade4)
@@ -67,63 +87,91 @@ dat <- rbind("a"=c(1,0,0), "b"=c(1,2,1), "c"=c(1,0,1))
 x <- new("genlight",dat)
 
 
-## NOT CENTRED, NOT SCALED
-glDotProd(x)
-
-res2 <- as.matrix(x) %*% t(as.matrix(x))
-res2
-
-## DATA > 8 SNPs
-dat <- rbind(rep(c(1,0,1), c(8,10,5)))
-x <- new("genlight",dat)
-glDotProd(x)
-
-
 ## RANDOM DATA
 dat <- matrix(sample(0:1, 5*1000, replace=TRUE), nrow=5)
 x <- new("genlight",dat)
-res1 <- glDotProd(x)
-
+res1 <- glDotProd(x, alle=TRUE)
 res2 <- as.matrix(x) %*% t(as.matrix(x))
-
 all(res1==res2)
 
 
 ## CENTRED, NOT SCALED
-res1 <- glDotProd(x, cent=TRUE)
-
+res1 <- glDotProd(x, cent=TRUE, alle=TRUE)
 temp <- as.matrix(x) / ploidy(x)
 temp <- scalewt(temp, cent=TRUE, scale=FALSE)
 res2 <- temp %*% t(temp)
 res2
-
 all(abs(res1-res2)<1e-10)
 
 
 ## CENTRED, SCALED
-res1 <- glDotProd(x, cent=TRUE, scale=TRUE)
-
+res1 <- glDotProd(x, cent=TRUE, scale=TRUE, alle=TRUE)
 temp <- as.matrix(x) / ploidy(x)
 temp <- scalewt(temp, cent=TRUE, scale=TRUE)
 res2 <- temp %*% t(temp)
 res2
-
 all(abs(res1-res2)<1e-10)
 
 
 ## TEST WITH NAs
 library(adegenet)
 library(ade4)
-
 dat <- list(a=c(1,NA,0,0,2), b=c(1,2,3,4,0), c=c(NA,0,1,NA,2))
-
 x <- new("genlight", dat) # conversion
 x
-
-res1 <- glDotProd(x)
+res1 <- glDotProd(x, alle=TRUE)
 t(data.frame(dat))
 res1
 
+
+
+
+
+
+
+## === DOT PRODUCTS ALLELE FREQUENCIES === ##
+
+library(adegenet)
+library(ade4)
+
+
+## RANDOM DATA
+dat <- rbind(matrix(sample(0:1, 3*1000, replace=TRUE), nrow=3), 
+             matrix(sample(0:2, 2*1000, replace=TRUE), nrow=2))
+x <- new("genlight",dat)
+res1 <- glDotProd(x)
+temp <- as.matrix(x) / ploidy(x)
+res2 <- temp %*% t(temp)
+all(res1==res2)
+
+
+## CENTRED, NOT SCALED
+res1 <- glDotProd(x, cent=TRUE, alle=FALSE)
+temp <- scalewt(temp, cent=TRUE, scale=FALSE)
+res2 <- temp %*% t(temp)
+res2
+all(abs(res1-res2)<1e-10)
+
+
+## CENTRED, SCALED
+res1 <- glDotProd(x, cent=TRUE, scale=TRUE, alle=FALSE)
+temp <- as.matrix(x) / ploidy(x)
+temp <- scalewt(temp, cent=TRUE, scale=TRUE)
+res2 <- temp %*% t(temp)
+res2
+all(abs(res1-res2)<1e-10)
+
+
+## TEST WITH NAs
+library(adegenet)
+library(ade4)
+dat <- list(a=c(1,NA,0,0,2), b=c(1,2,3,4,0), c=c(NA,0,1,NA,2))
+x <- new("genlight", dat) # conversion
+x
+res1 <- glDotProd(x, alle=FALSE)
+temp <- as.matrix(x)/ploidy(x)
+temp
+res1
 
 */
 

@@ -112,6 +112,29 @@ void byteToBinInt(unsigned char in, int *out){
 
 
 
+/* Maps one byte from 0-255 to sequences of 8 (binary) double values */
+void byteToBinDouble(unsigned char in, double *out){
+	short rest, i, temp;
+
+	rest = (int) in;
+
+	/* initialize all values to 0*/
+	for(i=0;i<=7;i++)
+		out[i]=0.0;
+
+	for(i=7;i>=0;i--){
+		temp = pow(2, i);
+		if(rest >= temp) {
+			out[i] = 1.0;
+			rest = rest- temp;
+			if(rest == 0) break;
+		}
+	}
+}
+
+
+
+
 
 /* Maps an array of values from 0-255 to sequences of 8 binary values */
 /* Input are unsigned char (hexadecimal), outputs are integers */
@@ -164,6 +187,29 @@ void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres
 		idres = 0;
 		for(i=0;i<*veclength;i++){ /* for one input vector */
 			byteToBinInt(vecbytes[i+ k* *veclength], temp); /* byte -> 8 int (0/1)*/
+			for(j=0;j<=7;j++){ /* fill in the result*/
+				vecres[j+idres] += temp[j];
+			}
+			idres = idres + 8;
+		}
+	}
+	free(temp);
+} /* end bytesToInt */
+
+
+
+
+
+void bytesToDouble(unsigned char *vecbytes, int *veclength, int *nbvec, double *vecres){
+	int i, j, k, idres=0; /* idres: index in vecres*/
+	double *temp;
+	temp = (double *) calloc(8, sizeof(double));
+
+
+	for(k=0;k<*nbvec;k++){ /* for all input vector */
+		idres = 0;
+		for(i=0;i<*veclength;i++){ /* for one input vector */
+			byteToBinDouble(vecbytes[i+ k* *veclength], temp); /* byte -> 8 double (0/1)*/
 			for(j=0;j<=7;j++){ /* fill in the result*/
 				vecres[j+idres] += temp[j];
 			}
@@ -265,10 +311,10 @@ void snpbin2intvec(struct snpbin *x, int *out){
 /* transform a snpbin into a vector of frequencies (double) */
 void snpbin2freq(struct snpbin *x, double *out){
 	double ploid = (double) ploidy(x);
+	bytesToDouble(x->bytevec, x->byteveclength, x->bytevecnb, out);
 	int i;
- 	bytesToInt(x->bytevec, x->byteveclength, x->bytevecnb, (int *) out);
-	out = (double *) out; /* casting back to double */
-	for(i=0; i< nLoc(x); i++){
+ 	
+	for(i=0; i < nLoc(x); i++){
 		out[i] = out[i] / ploid;
 	}
 /*reminders:
@@ -322,25 +368,18 @@ short int snpbin_isna(struct snpbin *x, int i){
 /* Function to compute one dot products between two individuals */
 /* centring and scaling is always used */
 /* but need to pass vectors of 0 and 1*/
-double snpbin_dotprod(struct snpbin *x, struct snpbin *y, double *mean, double *sd, bool *freq){
+double snpbin_dotprod_int(struct snpbin *x, struct snpbin *y, double *mean, double *sd){
 	/* define variables, allocate memory */
 	int P = nLoc(x), i;
 	short isna;
 	double res = 0.0;
-	double *vecx, *vecy;
-	vecx = (double *) calloc(P, sizeof(double));
-	vecy = (double *) calloc(P, sizeof(double));
-
+	int *vecx, *vecy;
+	vecx = (int *) calloc(P, sizeof(int));
+	vecy = (int *) calloc(P, sizeof(int));
 
 	/* conversion to integers or frequencies*/
-	if(*freq){
-		snpbin2freq(x, vecx);
-		snpbin2freq(y, vecy);
-	} else {
-		snpbin2intvec(x, (int *) vecx);
-		snpbin2intvec(y, (int *) vecy);
-	}
-
+	snpbin2intvec(x, (int *) vecx);
+	snpbin2intvec(y, (int *) vecy);
 
 
 	/* printf("\nvector x: \n"); */
@@ -370,6 +409,55 @@ double snpbin_dotprod(struct snpbin *x, struct snpbin *y, double *mean, double *
 
 	return res;
 }
+
+
+
+
+
+
+double snpbin_dotprod_freq(struct snpbin *x, struct snpbin *y, double *mean, double *sd){
+	/* define variables, allocate memory */
+	int P = nLoc(x), i;
+	short isna;
+	double res = 0.0;
+	double *vecx, *vecy;
+	vecx = (double *) calloc(P, sizeof(double));
+	vecy = (double *) calloc(P, sizeof(double));
+	
+	/* conversion to integers or frequencies*/
+	snpbin2freq(x, vecx);
+	snpbin2freq(y, vecy);
+	
+
+	/* printf("\nvector x: \n"); */
+	/* for(i=0;i<P;i++){ */
+	/* 	printf("%i", vecx[i]); */
+	/* } */
+
+	/* printf("\nvector y: \n"); */
+	/* for(i=0;i<P;i++){ */
+	/* 	printf("%i", vecy[i]); */
+	/* } */
+
+	/* compute dot product */
+	int count=0;
+	for(i=0;i<P;i++){
+		if(snpbin_isna(x,i) == 0 && snpbin_isna(y,i) == 0){
+			/* res += ((vecx[i]-mean[i])/sd[i]) * ((vecy[i]-mean[i])/sd[i]); */
+			res += ((vecx[i]-mean[i])/sd[i]) * ((vecy[i]-mean[i])/sd[i]);
+			/* printf("\ntemp value of increment: %f", ((vecx[i]-mean[i])/sd[i]) * ((vecy[i]-mean[i])/sd[i])); */
+			/* printf("\ntemp value of result: %f", res); */
+		}
+	}
+
+	/* free memory */
+	free(vecx);
+	free(vecy);
+
+	return res;
+}
+
+
 
 
 
