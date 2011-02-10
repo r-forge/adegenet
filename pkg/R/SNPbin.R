@@ -584,12 +584,11 @@ setMethod("[", signature(x="SNPbin", i="ANY"), function(x, i) {
 
 
 
-## lightgen
 setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x, i, j, ...) {
     if (missing(i)) i <- TRUE
     if (missing(j)) j <- TRUE
 
-    ## subset individuals
+    ## SUBSET INDIVIDUALS ##
     x@gen <- x@gen[i]
     x@ind.names <- x@ind.names[i]
     if(!is.null(x@ploidy)) {
@@ -598,13 +597,13 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
         ori.ploidy <- NULL
     }
 
-    ## subset loci
-    x <- as.matrix(x)[, j, drop=FALSE]
-    x <- x[!apply(x, 1, function(e) all(is.na(e))), , drop=FALSE] # remove indiv that are all NAs
-    x <- x[, !apply(x, 2, function(e) all(is.na(e))), drop=FALSE] # remove loci that are all NAs
-
-    x <- new("genlight", gen=x, ploidy=ori.ploidy)
-
+    ## SUBSET LOCI ##
+    if(length(j)==1 && is.logical(j) && j){ # no need to subset SNPs
+        return(x)
+    } else { # need to subset SNPs
+        x <- as.matrix(x)[, j, drop=FALSE]
+        x <- new("genlight", gen=x, ploidy=ori.ploidy)
+    }
     return(x)
 }) # end [] for SNPbin
 
