@@ -56,75 +56,80 @@
                          posi="bottomleft", bg="grey", ratio=0.3, cstar = 1,
                          cellipse = 1.5, axesell = TRUE, label = levels(x$grp),
                          clabel = 1, xlim = NULL, ylim = NULL, grid = TRUE, addaxes =
-                         TRUE, origin = c(0,0), include.origin = TRUE, sub = "", csub
-                         = 1, possub = "bottomleft", cgrid = 1, pixmap = NULL,
-                         contour = NULL, area = NULL, \ldots)
+                         TRUE, origin = c(0,0), include.origin = TRUE,
+                         sub = "", csub = 1, possub = "bottomleft", posleg = "topright",
+                         cleg = 1, cgrid = 1, pixmap = NULL, contour = NULL, area = NULL, \ldots)
 
 assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
 }
 \arguments{
-\item{x}{\code{a data.frame}, \code{matrix}, or \code{\linkS4class{genind}}
-  object. For the \code{data.frame} and \code{matrix} arguments, only
-  quantitative variables should be provided.}
-\item{grp,pop}{a \code{factor} indicating the group membership of individuals}
-\item{n.pca}{an \code{integer} indicating the number of axes retained in the
-  Principal Component Analysis (PCA) step. If \code{NULL}, interactive selection is triggered.}
-\item{n.da}{an \code{integer} indicating the number of axes retained in the
-  Discriminant Analysis step. If \code{NULL}, interactive selection is triggered.}
-\item{center}{a \code{logical} indicating whether variables should be centred to
-mean 0 (TRUE, default) or not (FALSE). Always TRUE for \linkS4class{genind} objects.}
-\item{scale}{a \code{logical} indicating whether variables should be scaled
-  (TRUE) or not (FALSE, default). Scaling consists in dividing variables by their
-  (estimated) standard deviation to account for trivial differences in
-  variances. Further scaling options are available for \linkS4class{genind}
-  objects (see argument \code{scale.method}).}
-\item{var.contrib,all.contrib}{a \code{logical} indicating whether the
-  contribution of original variables (alleles, for \linkS4class{genind} objects)
-  should be provided (TRUE) or not (FALSE, default). Such output can be useful,
-  but can also create huge matrices when there is a lot of variables.}
-\item{pca.select}{a \code{character} indicating the mode of selection of PCA
-  axes, matching either "nbEig" or "percVar". For "nbEig", the user
-  has to specify the number of axes retained (interactively, or via
-  \code{n.pca}). For "percVar", the user has to specify the minimum amount of
-  the total variance to be preserved by the retained axes, expressed as a
-  percentage (interactively, or via \code{perc.pca}).  }
-\item{perc.pca}{a \code{numeric} value between 0 and 100 indicating the
-  minimal percentage of the total variance of the data to be expressed by the
-  retained axes of PCA.}
-\item{\ldots}{further arguments to be passed to other functions. For
-  \code{dapc.matrix}, arguments are to match those of
-  \code{dapc.data.frame}; for \code{scatter}, arguments passed to \code{points}.}
-\item{object}{a \code{dapc} object.}
-\item{scale.method}{a \code{character} specifying the scaling method to be used
-  for allele frequencies, which must match "sigma" (usual estimate of standard
-  deviation) or "binom" (based on binomial distribution). See \code{\link{scaleGen}} for
-  further details.}
-\item{truenames}{a \code{logical} indicating whether true (i.e., user-specified)
-  labels should be used in object outputs (TRUE, default) or not (FALSE).}
-\item{xax,yax}{\code{integers} specifying which principal components of DAPC
-  should be shown in x and y axes. }
-\item{col}{a suitable color to be used for groups. The specified vector
-should match the number of groups, not the number of individuals.}
-\item{posi,bg,ratio}{arguments used to customize the inset in scatterplots
-  of DAPC results. See \code{\link[ade4]{add.scatter}} documentation in the
-  ade4 package for
-  more details.}
-\item{only.grp}{a \code{character} vector indicating which groups should be
-  displayed. Values should match values of \code{x$grp}. If \code{NULL}, all
-  results are displayed}
-\item{subset}{\code{integer} or \code{logical} vector indicating which
-  individuals should be displayed. If \code{NULL}, all
-  results are displayed}
-\item{cex.lab}{a \code{numeric} indicating the size of labels.}
-\item{pch}{a \code{numeric} indicating the type of point to be used to indicate
-  the prior group of individuals (see \code{\link{points}} documentation for
-  more details).}
-\item{dudi}{optionally, a multivariate analysis with the class
-  \code{dudi} (from the ade4 package). If provided, prior PCA will be
-  ignored, and this object will be used as a prior step for variable
-  orthogonalisation.}
-\item{cstar,cellipse,axesell,label,clabel,xlim,ylim,grid,addaxes,origin,include.origin,sub,csub,possub,cgrid,pixmap,contour,area}{arguments
-passed to \code{\link[ade4]{s.class}}; see \code{?s.class} for more informations}
+  \item{x}{\code{a data.frame}, \code{matrix}, or \code{\linkS4class{genind}}
+    object. For the \code{data.frame} and \code{matrix} arguments, only
+    quantitative variables should be provided.}
+  \item{grp,pop}{a \code{factor} indicating the group membership of individuals}
+  \item{n.pca}{an \code{integer} indicating the number of axes retained in the
+    Principal Component Analysis (PCA) step. If \code{NULL}, interactive selection is triggered.}
+  \item{n.da}{an \code{integer} indicating the number of axes retained in the
+    Discriminant Analysis step. If \code{NULL}, interactive selection is triggered.}
+  \item{center}{a \code{logical} indicating whether variables should be centred to
+    mean 0 (TRUE, default) or not (FALSE). Always TRUE for \linkS4class{genind} objects.}
+  \item{scale}{a \code{logical} indicating whether variables should be scaled
+    (TRUE) or not (FALSE, default). Scaling consists in dividing variables by their
+    (estimated) standard deviation to account for trivial differences in
+    variances. Further scaling options are available for \linkS4class{genind}
+    objects (see argument \code{scale.method}).}
+  \item{var.contrib,all.contrib}{a \code{logical} indicating whether the
+    contribution of original variables (alleles, for \linkS4class{genind} objects)
+    should be provided (TRUE) or not (FALSE, default). Such output can be useful,
+    but can also create huge matrices when there is a lot of variables.}
+  \item{pca.select}{a \code{character} indicating the mode of selection of PCA
+    axes, matching either "nbEig" or "percVar". For "nbEig", the user
+    has to specify the number of axes retained (interactively, or via
+    \code{n.pca}). For "percVar", the user has to specify the minimum amount of
+    the total variance to be preserved by the retained axes, expressed as a
+    percentage (interactively, or via \code{perc.pca}).  }
+  \item{perc.pca}{a \code{numeric} value between 0 and 100 indicating the
+    minimal percentage of the total variance of the data to be expressed by the
+    retained axes of PCA.}
+  \item{\ldots}{further arguments to be passed to other functions. For
+    \code{dapc.matrix}, arguments are to match those of
+    \code{dapc.data.frame}; for \code{scatter}, arguments passed to \code{points}.}
+  \item{object}{a \code{dapc} object.}
+  \item{scale.method}{a \code{character} specifying the scaling method to be used
+    for allele frequencies, which must match "sigma" (usual estimate of standard
+    deviation) or "binom" (based on binomial distribution). See \code{\link{scaleGen}} for
+    further details.}
+  \item{truenames}{a \code{logical} indicating whether true (i.e., user-specified)
+    labels should be used in object outputs (TRUE, default) or not (FALSE).}
+  \item{xax,yax}{\code{integers} specifying which principal components of DAPC
+    should be shown in x and y axes. }
+  \item{col}{a suitable color to be used for groups. The specified vector
+    should match the number of groups, not the number of individuals.}
+  \item{posi,bg,ratio}{arguments used to customize the inset in scatterplots
+    of DAPC results. See \code{\link[ade4]{add.scatter}} documentation in the
+    ade4 package for
+    more details.}
+  \item{only.grp}{a \code{character} vector indicating which groups should be
+    displayed. Values should match values of \code{x$grp}. If \code{NULL}, all
+    results are displayed}
+  \item{subset}{\code{integer} or \code{logical} vector indicating which
+    individuals should be displayed. If \code{NULL}, all
+    results are displayed}
+  \item{cex.lab}{a \code{numeric} indicating the size of labels.}
+  \item{pch}{a \code{numeric} indicating the type of point to be used to indicate
+    the prior group of individuals (see \code{\link{points}} documentation for
+    more details).}
+  \item{dudi}{optionally, a multivariate analysis with the class
+    \code{dudi} (from the ade4 package). If provided, prior PCA will be
+    ignored, and this object will be used as a prior step for variable
+    orthogonalisation.}
+  \item{cstar,cellipse,axesell,label,clabel,xlim,ylim,grid,addaxes,origin,include.origin,sub,csub,possub,cgrid,pixmap,contour,area}{arguments
+    passed to \code{\link[ade4]{s.class}}; see \code{?s.class} for more
+    informations}
+  \item{posleg}{a characther string indicating the position of the
+    legend when plotting a single discriminant function. See \code{?legend}.}
+  \item{cleg}{a number indicating the size factor for the legend, passed
+  to the function \code{legend}.}
 }
 \details{
   The Discriminant Analysis of Principal Components (DAPC) is designed

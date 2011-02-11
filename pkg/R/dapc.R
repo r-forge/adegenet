@@ -268,8 +268,8 @@ summary.dapc <- function(object, ...){
 ##############
 scatter.dapc <- function(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$grp))), pch=20, posi="bottomleft", bg="grey", ratio=0.3,
                          cstar = 1, cellipse = 1.5, axesell = TRUE, label = levels(x$grp), clabel = 1, xlim = NULL, ylim = NULL,
-                         grid = TRUE, addaxes = TRUE, origin = c(0,0), include.origin = TRUE, sub = "", csub = 1, possub = "bottomleft", cgrid = 1,
-                         pixmap = NULL, contour = NULL, area = NULL, ...){
+                         grid = TRUE, addaxes = TRUE, origin = c(0,0), include.origin = TRUE, sub = "", csub = 1, possub = "bottomleft",
+                         posleg="topright", cleg=1, cgrid = 1, pixmap = NULL, contour = NULL, area = NULL, ...){
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     ONEDIM <- xax==yax | ncol(x$ind.coord)==1
 
@@ -322,11 +322,14 @@ scatter.dapc <- function(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$
         ldens <- tapply(x$ind.coord[,pcLab], grp, density)
         allx <- unlist(lapply(ldens, function(e) e$x))
         ally <- unlist(lapply(ldens, function(e) e$y))
-         par(bg=bg)
+        par(bg=bg)
         plot(allx, ally, type="n", xlab=paste("Discriminant function", pcLab), ylab="Density")
         for(i in 1:length(ldens)){
-            lines(ldens[[i]]$x,ldens[[i]]$y, col=col[i], lwd=2)
+            lines(ldens[[i]]$x,ldens[[i]]$y, col=col[i], lwd=2) # add lines
+            points(x=x$ind.coord[grp==levels(grp)[i],pcLab], y=rep(0, sum(grp==levels(grp)[i])), pch="|", col=col[i]) # add points for indiv
         }
+        ## add a legend
+        legend(posleg, lty=1, col=col, legend=levels(grp), cex=cleg)
     }
     return(invisible(match.call()))
 } # end scatter.dapc
