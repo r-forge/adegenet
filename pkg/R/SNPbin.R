@@ -601,13 +601,66 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
     if(length(j)==1 && is.logical(j) && j){ # no need to subset SNPs
         return(x)
     } else { # need to subset SNPs
-        x <- as.matrix(x)[, j, drop=FALSE]
+        x <- as.matrix(x)[, j, drop=FALSE] # maybe need to process one row at a time
         x <- new("genlight", gen=x, ploidy=ori.ploidy)
     }
     return(x)
 }) # end [] for SNPbin
 
 
+
+
+
+
+
+######################
+##
+## c, cbind, rbind...
+##
+######################
+
+################
+## cbind SNPbin
+################
+##setMethod("cbind", signature("SNPbin"), function(..., deparse.level = 1) {
+cbind.SNPbin <- function(..., deparse.level = 1){
+    myList <- list(...)
+    if(!all(sapply(myList, class)=="SNPbin")) stop("some objects are not SNPbin objects")
+    if(length(unique(sapply(myList, ploidy))) !=1 ) stop("objects have different ploidy levels")
+    x <- new("SNPbin", unlist(lapply(myList, as.integer)))
+    return(x)
+}
+##})
+
+
+
+##################
+## cbind genlight
+##################
+##setMethod("cbind", signature(x="genlight"), function(..., deparse.level = 1) {
+cbind.genlight <- function(..., deparse.level = 1){
+    myList <- list(...)
+    if(!all(sapply(myList, class)=="genlight")) stop("some objects are not genlight objects")
+    if(length(unique(sapply(myList, nInd))) !=1 ) stop("objects have different numbers of individuals")
+    n.obj <- length(myList)
+    n.ind <- nInd(myList[[1]])
+
+    ## merge one individual at a time ##
+    res <- list()
+    for(i in 1:n.ind){
+        res[[i]] <- Reduce(cbind, lapply(myList, function(e) e@gen[[i]]))
+    }
+
+    res <- new("genlight",temp)
+
+    ## handle loc.names, alleles, etc. ##
+    locNames(res) <- unlist(lapply(myList, locNames))
+    alleles(res) <- unlist(lapply(myList, alleles))
+
+    ## return object ##
+    return(res)
+}
+##})
 
 
 
@@ -751,12 +804,6 @@ as.list.genlight <- function(x, ...){
 }
 
 
-
-
-
-######################
-## c, cbind, rbind...
-######################
 
 
 
