@@ -556,8 +556,8 @@ setMethod("pop","genlight", function(x){
 
 
 setReplaceMethod("pop","genlight",function(x,value) {
-    if(is.null(value)){
-        slot(x, "pop", check=TRUE) <- value
+    if(is.null(value) | length(value)==0){
+        slot(x, "pop", check=TRUE) <- NULL
         return(x)
     }
     if(length(value) != nInd(x)) stop("Vector length does no match number of individuals")
@@ -623,14 +623,22 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
 ## cbind SNPbin
 ################
 ##setMethod("cbind", signature("SNPbin"), function(..., deparse.level = 1) {
-cbind.SNPbin <- function(..., deparse.level = 1){
+cbind.SNPbin <- function(...){
     myList <- list(...)
     if(!all(sapply(myList, class)=="SNPbin")) stop("some objects are not SNPbin objects")
     if(length(unique(sapply(myList, ploidy))) !=1 ) stop("objects have different ploidy levels")
     x <- new("SNPbin", unlist(lapply(myList, as.integer)))
     return(x)
-}
+} # end cbind.SNPbin
 ##})
+
+
+
+c.SNPbin <- function(...){
+    return(cbind(...))
+}
+
+
 
 
 
@@ -638,7 +646,7 @@ cbind.SNPbin <- function(..., deparse.level = 1){
 ## cbind genlight
 ##################
 ##setMethod("cbind", signature(x="genlight"), function(..., deparse.level = 1) {
-cbind.genlight <- function(..., deparse.level = 1){
+cbind.genlight <- function(...){
     myList <- list(...)
     if(!all(sapply(myList, class)=="genlight")) stop("some objects are not genlight objects")
     if(length(unique(sapply(myList, nInd))) !=1 ) stop("objects have different numbers of individuals")
@@ -656,11 +664,39 @@ cbind.genlight <- function(..., deparse.level = 1){
     ## handle loc.names, alleles, etc. ##
     locNames(res) <- unlist(lapply(myList, locNames))
     alleles(res) <- unlist(lapply(myList, alleles))
+    pop(res) <- pop(myList[[1]])
 
     ## return object ##
     return(res)
-}
+} # end cbind.genlight
 ##})
+
+
+
+
+
+
+##################
+## rbind genlight
+##################
+##setMethod("cbind", signature(x="genlight"), function(..., deparse.level = 1) {
+rbind.genlight <- function(...){
+    myList <- list(...)
+    if(!all(sapply(myList, class)=="genlight")) stop("some objects are not genlight objects")
+    if(length(unique(sapply(myList, nLoc))) !=1 ) stop("objects have different numbers of SNPs")
+
+    ## build output
+    res <- new("genlight", Reduce(c, lapply(myList, function(e) e@gen)))
+    locNames(res) <- locNames(myList[[1]])
+    alleles(res) <- alleles(myList[[1]])
+    indNames(res) <- unlist(lapply(myList, indNames))
+    pop(res) <- factor(unlist(lapply(myList, pop)))
+
+    ## return object ##
+    return(res)
+
+} # end rbind.genlight
+
 
 
 
@@ -913,3 +949,4 @@ as.list.genlight <- function(x, ...){
 ## locNames(b) <- 1:6
 ## c <- cbind(a,b)
 ## identical(as.matrix(c),cbind(as.matrix(a), as.matrix(b))) # MUST BE TRUE
+## identical(as.matrix(rbind(a,a)),rbind(as.matrix(a),as.matrix(a)))
