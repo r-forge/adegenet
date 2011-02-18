@@ -651,7 +651,7 @@ cbind.genlight <- function(..., deparse.level = 1){
         res[[i]] <- Reduce(cbind, lapply(myList, function(e) e@gen[[i]]))
     }
 
-    res <- new("genlight",temp)
+    res <- new("genlight",res)
 
     ## handle loc.names, alleles, etc. ##
     locNames(res) <- unlist(lapply(myList, locNames))
@@ -903,3 +903,13 @@ as.list.genlight <- function(x, ...){
 
 ## ## time taken by subsetting (quite long, +- 35sec)
 ## system.time(y <- x[1:10, 1:5e5])
+
+
+
+## c, cbind, rbind:
+## a <- new("genlight", list(c(1,0,1), c(0,0,1,0)) )
+## b <- new("genlight", list(c(1,0,1,1,1,1), c(1,0)) )
+## locNames(a) <- letters[1:4]
+## locNames(b) <- 1:6
+## c <- cbind(a,b)
+## identical(as.matrix(c),cbind(as.matrix(a), as.matrix(b))) # MUST BE TRUE
