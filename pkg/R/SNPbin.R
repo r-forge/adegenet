@@ -660,6 +660,7 @@ cbind.genlight <- function(...){
     res <- new("genlight",res)
 
     ## handle loc.names, alleles, etc. ##
+    indNames(res) <- indNames(myList[[1]])
     locNames(res) <- unlist(lapply(myList, locNames))
     alleles(res) <- unlist(lapply(myList, alleles))
     pop(res) <- pop(myList[[1]])

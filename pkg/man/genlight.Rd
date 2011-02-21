@@ -32,6 +32,8 @@
 \alias{as,genlight,list-method}
 \alias{coerce,genlight,list-method}
 \alias{as.list.genlight}
+\alias{cbind.genlight}
+\alias{rbind.genlight}
 % \alias{,genlight-method}
 % \alias{,genlight-method}
 % \alias{,genlight-method}
@@ -56,7 +58,6 @@
 \section{Objects from the class genlight}{
   \code{genlight} objects can be created by calls to \code{new("genlight",
     ...)}, where '...' can be the following arguments:
-  
   \describe{
     \item{\code{gen}}{input genotypes, where each genotype is coded as a
       vector of numbers of the second allele. If a list, each slot of the
@@ -157,6 +158,12 @@
       \code{genlight} object into a list of genotypes coded as vector of
       integers (numbers of second allele). The S4 method 'as' can be
       used as well (e.g. as(x, "list")).}
+    \item{cbind}{\code{signature(x = "genlight")}: merges several
+      \linkS4class{genlight} objects by column, i.e. regroups data of
+      identical individuals genotyped for different SNPs.}
+    \item{rbind}{\code{signature(x = "genlight")}: merges several
+      \linkS4class{genlight} objects by row, i.e. regroups data of
+      different individuals genotyped for the same SNPs.}
   }
 }
 \author{Thibaut Jombart (\email{t.jombart@imperial.ac.uk})}
@@ -207,5 +214,17 @@ x <- new("genlight", dat) # conversion
 x
 print(object.size(x), unit="au") # size of the genlight object
 object.size(dat)/object.size(x) # conversion efficiency
+
+
+#### cbind, rbind ####
+a <- new("genlight", list(toto=rep(1,10), tata=rep(c(0,1), each=5), titi=c(NA, rep(1,9)) ))
+
+ara <- rbind(a,a)
+ara
+as.matrix(ara)
+
+aca <- cbind(a,a)
+aca
+as.matrix(aca)
 }
 \keyword{classes}
