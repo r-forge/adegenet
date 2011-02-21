@@ -191,7 +191,7 @@ glDotProd <- function(x, center=FALSE, scale=FALSE, alleleAsUnit=FALSE){
 
     colnames(res) <- rownames(res) <- indNames(x)
     return(res)
-}
+} # end glDotProd
 
 
 
@@ -210,12 +210,12 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE, alleleAsU
 
     ## COMPUTE MEANS AND VARIANCES ##
     if(center) {
-        vecMeans <- glMean(x, alleleAsUnit=FALSE)
+        vecMeans <- glMean(x, alleleAsUnit=alleleAsUnit)
         if(any(is.na(vecMeans))) stop("NAs detected in the vector of means")
     }
 
     if(scale){
-        vecVar <- glVar(x, alleleAsUnit=FALSE)
+        vecVar <- glVar(x, alleleAsUnit=alleleAsUnit)
         if(any(is.na(vecVar))) stop("NAs detected in the vector of variances")
     }
 
@@ -307,7 +307,7 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE, alleleAsU
         }
         diag(allProd) <- temp
     } else { # === use C computations ====
-        allProd <- glDotProd(x, center=center, scale=scale, alleleAsUnit=alleleAsUnit)
+        allProd <- glDotProd(x, center=center, scale=scale, alleleAsUnit=alleleAsUnit)/nInd(x)
     }
 
 
@@ -511,35 +511,49 @@ loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfa
 
 
 #### TESTING DOT PRODUCTS ####
-M <- matrix(sample(c(0,1), 100*1e3, replace=TRUE), nrow=100)
-rownames(M) <- paste("ind", 1:100)
-x <- new("genlight",M)
+## M <- matrix(sample(c(0,1), 100*1e3, replace=TRUE), nrow=100)
+## rownames(M) <- paste("ind", 1:100)
+## x <- new("genlight",M)
 
-## not centred, not scaled
-res1 <- glDotProd(x,alleleAsUnit=FALSE, center=FALSE, scale=FALSE)
-res2 <- M %*% t(M)
-all.equal(res1,res2) # must be TRUE
+## ## not centred, not scaled
+## res1 <- glDotProd(x,alleleAsUnit=FALSE, center=FALSE, scale=FALSE)
+## res2 <- M %*% t(M)
+## all.equal(res1,res2) # must be TRUE
 
-##  centred, not scaled
-res1 <- glDotProd(x,alleleAsUnit=FALSE, center=TRUE, scale=FALSE)
-M <- scalewt(M,center=TRUE,scale=FALSE)
-res2 <- M %*% t(M)
-all.equal(res1,res2) # must be TRUE
+## ##  centred, not scaled
+## res1 <- glDotProd(x,alleleAsUnit=FALSE, center=TRUE, scale=FALSE)
+## M <- scalewt(M,center=TRUE,scale=FALSE)
+## res2 <- M %*% t(M)
+## all.equal(res1,res2) # must be TRUE
 
-##  centred, scaled
-res1 <- glDotProd(x,alleleAsUnit=FALSE, center=TRUE, scale=TRUE)
-M <- scalewt(M,center=TRUE,scale=TRUE)
-res2 <- M %*% t(M)
-all.equal(res1,res2) # must be TRUE
+## ##  centred, scaled
+## res1 <- glDotProd(x,alleleAsUnit=FALSE, center=TRUE, scale=TRUE)
+## M <- scalewt(M,center=TRUE,scale=TRUE)
+## res2 <- M %*% t(M)
+## all.equal(res1,res2) # must be TRUE
 
 
 #### TESTING PCA ####
-## M <- matrix(sample(c(0,1), 1e5, replace=TRUE), nrow=100)
-## rownames(M) <- paste("ind", 1:100)
+M <- matrix(sample(c(0,1), 20*1e3, replace=TRUE), nrow=20)
+rownames(M) <- paste("ind", 1:20)
 
-## ## perform glPca
-## x <- new("genlight",M)
-## toto <- glPca(x, nf=4)
+ x <- new("genlight",M)
+res1 <- glPca(x, nf=4)
+res2 <- glPca(x, useC=FALSE, nf=4)
+res3 <- dudi.pca(M, center=TRUE,scale=FALSE, scannf=FALSE,nf=4)
+
+## all must be TRUE
+all.equal(res1$eig,res3$eig)
+all.equal(res2$eig,res3$eig)
+all.equal(res1$eig,res2$eig)
+
+all(abs(res1$scores-res3$li)<1e-8)
+all(abs(res2$scores-res3$li)<1e-8)
+all(abs(res1$scores-res2$scores)<1e-8)
+
+all(abs(res1$loadings-res3$c1)<1e-8)
+all(abs(res2$loadings-res3$c1)<1e-8)
+all(abs(res1$loadings-res2$loadings)<1e-8)
 
 
 ## ## perform ordinary PCA
