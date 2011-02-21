@@ -578,18 +578,44 @@ loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfa
 ## round(t(toto$loadings) %*% toto$loadings,10) # must be diag(1,4)
 
 
-## ## LARGE SCALE TEST ##
+## ## SPEED TESTS ##
 ## ## perform glPca
 ## M <- matrix(sample(c(0,1), 100*1e5, replace=TRUE), nrow=100)
 ## x <- new("genlight",M)
-## system.time(titi <- dudi.pca(M,center=TRUE,scale=FALSE, scannf=FALSE, nf=4))
-## system.time(toto <- glPca(x, ,center=TRUE,scale=FALSE, useC=TRUE, nf=4))
+## system.time(titi <- dudi.pca(M,center=TRUE,scale=FALSE, scannf=FALSE, nf=4)) # 92 sec
+## system.time(toto <- glPca(x, ,center=TRUE,scale=FALSE, useC=TRUE, nf=4)) # 102 sec
+
+## M <- matrix(sample(c(0,1), 200*1e5, replace=TRUE), nrow=200)
+## x <- new("genlight",M)
+## system.time(titi <- dudi.pca(M,center=TRUE,scale=FALSE, scannf=FALSE, nf=4)) #  109 sec
+## system.time(toto <- glPca(x, ,center=TRUE,scale=FALSE, useC=TRUE, nf=4)) #  360 sec
+
+## M <- matrix(sample(c(0,1), 100*5e5, replace=TRUE), nrow=500)
+## x <- new("genlight",M)
+## system.time(titi <- dudi.pca(M,center=TRUE,scale=FALSE, scannf=FALSE, nf=4)) #  MEM LIMIT ISSUE
+## system.time(toto <- glPca(x, ,center=TRUE,scale=FALSE, useC=TRUE, nf=4)) #  sec
+
+## USE R PROFILING ##
+## for glPca
+## M <- matrix(sample(c(0,1), 100*1e5, replace=TRUE), nrow=100)
+## x <- new("genlight",M)
+## Rprof("glPca-prof.log")
+## toto <- glPca(x, ,center=TRUE,scale=FALSE, useC=TRUE, nf=4) # 102 sec
+## Rprof(NULL)
+## res <- summaryRprof("glPca-prof.log")
+## t <- res$by.total$total.time
+## names(t) <- rownames(res$by.total)
+## par(mar=c(7,4,4,2))
+## barplot(t,las=3, cex.names=.7)
 
 
-
-## round(cor(toto$scores),10) # must be diag(1,4)
-## round(t(toto$loadings) %*% toto$loadings,10) # must be diag(1,4)
-
-## ## comparison ade4 / adegenet
-## all(round(abs(titi$c1),8) == round(abs(toto$loadings),8))
-## all(round(abs(titi$li),8) == round(abs(toto$scores),8))
+## ## for dudi.pca
+## M <- matrix(sample(c(0,1), 100*1e5, replace=TRUE), nrow=100)
+## Rprof("dudipca-prof.log")
+## toto <- dudi.pca(M ,center=TRUE,scale=FALSE, scannf=FALSE, nf=4) # 102 sec
+## Rprof(NULL)
+## res <- summaryRprof("dudipca-prof.log")
+## t <- res$by.total$total.time
+## names(t) <- rownames(res$by.total)
+## par(mar=c(7,4,4,2))
+## barplot(t,las=3, cex.names=.7)
