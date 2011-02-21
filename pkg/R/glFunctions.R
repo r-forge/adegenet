@@ -534,26 +534,26 @@ loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfa
 
 
 #### TESTING PCA ####
-M <- matrix(sample(c(0,1), 20*1e3, replace=TRUE), nrow=20)
-rownames(M) <- paste("ind", 1:20)
+## M <- matrix(sample(c(0,1), 20*1e3, replace=TRUE), nrow=20)
+## rownames(M) <- paste("ind", 1:20)
 
- x <- new("genlight",M)
-res1 <- glPca(x, nf=4)
-res2 <- glPca(x, useC=FALSE, nf=4)
-res3 <- dudi.pca(M, center=TRUE,scale=FALSE, scannf=FALSE,nf=4)
+## x <- new("genlight",M)
+## res1 <- glPca(x, nf=4)
+## res2 <- glPca(x, useC=FALSE, nf=4)
+## res3 <- dudi.pca(M, center=TRUE,scale=FALSE, scannf=FALSE,nf=4)
 
-## all must be TRUE
-all.equal(res1$eig,res3$eig)
-all.equal(res2$eig,res3$eig)
-all.equal(res1$eig,res2$eig)
+## ## all must be TRUE
+## all.equal(res1$eig,res3$eig)
+## all.equal(res2$eig,res3$eig)
+## all.equal(res1$eig,res2$eig)
 
-all(abs(res1$scores-res3$li)<1e-8)
-all(abs(res2$scores-res3$li)<1e-8)
-all(abs(res1$scores-res2$scores)<1e-8)
+## all(abs(res1$scores)-abs(res3$li)<1e-8)
+## all(abs(res2$scores)-abs(res3$li)<1e-8)
+## all(abs(res1$scores)-abs(res2$scores)<1e-8)
 
-all(abs(res1$loadings-res3$c1)<1e-8)
-all(abs(res2$loadings-res3$c1)<1e-8)
-all(abs(res1$loadings-res2$loadings)<1e-8)
+## all(abs(res1$loadings)-abs(res3$c1)<1e-8)
+## all(abs(res2$loadings)-abs(res3$c1)<1e-8)
+## all(abs(res1$loadings)-abs(res2$loadings)<1e-8)
 
 
 ## ## perform ordinary PCA
