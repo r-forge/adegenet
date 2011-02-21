@@ -18,6 +18,8 @@
 \alias{NA.posi,SNPbin-method}
 \alias{,SNPbin-method}
 \alias{,SNPbin-method}
+\alias{cbind.SNPbin}
+\alias{c.SNPbin}
 % \alias{,SNPbin-method}
 % \alias{,SNPbin-method}
 % \alias{,SNPbin-method}
@@ -45,13 +47,13 @@
   
   \describe{
     \item{\code{snp}}{a vector of integers or numeric giving numbers of
-    copies of the second alleles for each locus. If only one unnamed
-    argument is provided to 'new', it is considered as this one.}
+      copies of the second alleles for each locus. If only one unnamed
+      argument is provided to 'new', it is considered as this one.}
     \item{\code{ploidy}}{an integer indicating the ploidy of the
-    genotype; if not provided, will be guessed from the data (as the
-    maximum from the 'snp' input vector).}
+      genotype; if not provided, will be guessed from the data (as the
+      maximum from the 'snp' input vector).}
     \item{\code{label}}{an optional character string serving as a label
-    for the genotype.}
+      for the genotype.}
   }
 }
 \section{Slots}{
@@ -64,19 +66,19 @@
     \item{\code{n.loc}:}{an integer indicating the number of SNPs of the
       genotype.}
     \item{\code{NA.posi}:}{a vector of integer giving the position of
-    missing data.}
+      missing data.}
     \item{\code{label}:}{an optional character string serving as a label
       for the genotype..}
     \item{\code{ploidy}:}{an integer indicating the ploidy of the genotype.}
-}
+  }
 }
 \section{Methods}{
   Here is a list of methods available for \code{SNPbin} objects. Most of
-    these methods are accessors, that is, functions which are used to
-    retrieve the content of the object. Specific manpages can exist for
-    accessors with more than one argument. These are indicated by a '*'
-    symbol next to the method's name. This list also contains methods
-    for conversion from \code{SNPbin} to other classes.
+  these methods are accessors, that is, functions which are used to
+  retrieve the content of the object. Specific manpages can exist for
+  accessors with more than one argument. These are indicated by a '*'
+  symbol next to the method's name. This list also contains methods
+  for conversion from \code{SNPbin} to other classes.
   \describe{
     \item{[}{\code{signature(x = "SNPbin")}: usual method to subset
       objects in R. The argument indicates how SNPs are to be
@@ -90,17 +92,21 @@
     \item{nLoc}{\code{signature(x = "SNPbin")}: returns the number of
       SNPs in the object.}
     \item{names}{\code{signature(x = "SNPbin")}: returns the names of
-    the slots of the object.}
+      the slots of the object.}
     \item{ploidy}{\code{signature(x = "SNPbin")}: returns the ploidy of
-    the genotype.}
+      the genotype.}
     \item{as.integer}{\code{signature(x = "SNPbin")}: converts a
-    \code{SNPbin} object to a vector of integers. The S4 method 'as' can
-    be used as well (e.g. as(x, "integer")).}
+      \code{SNPbin} object to a vector of integers. The S4 method 'as' can
+      be used as well (e.g. as(x, "integer")).}
+    \item{cbind}{\code{signature(x = "SNPbin")}: merges genotyping of
+      the same individual at different SNPs (all stored as
+      \linkS4class{SNPbin} objects) into a single \linkS4class{SNPbin}.}
+    \item{c}{\code{signature(x = "SNPbin")}: same as cbind.SNPbin.}
   }
 }
 \author{Thibaut Jombart (\email{t.jombart@imperial.ac.uk})}
 \seealso{
- Related class:\cr
+  Related class:\cr
   -  \code{\linkS4class{genlight}}, for storing multiple binary SNP
   genotypes. \cr
   -  \code{\linkS4class{genind}}, for storing other types of genetic markers. \cr
@@ -139,5 +145,17 @@ identical(as(x, "integer"),as.integer(dat)) # MUST BE TRUE
 print(object.size(dat), unit="auto")
 print(object.size(x), unit="auto")
 object.size(dat)/object.size(x) # EFFICIENCY OF CONVERSION
+
+
+#### c, cbind ####
+a <- new("SNPbin", c(1,1,1,1,1))
+b <- new("SNPbin", c(0,0,0,0,0))
+a
+b
+ab <- c(a,b)
+ab
+identical(c(a,b),cbind(a,b))
+as.integer(ab)
+
 }
 \keyword{classes}
