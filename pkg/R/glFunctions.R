@@ -208,6 +208,22 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE, alleleAsU
                   useC=TRUE, multicore=require("multicore"), n.cores=NULL){
     if(!inherits(x, "genlight")) stop("x is not a genlight object")
 
+    ## COMPUTE MEANS AND VARIANCES ##
+    if(center) {
+        vecMeans <- glMean(x, alleleAsUnit=FALSE)
+        if(any(is.na(vecMeans))) stop("NAs detected in the vector of means")
+    }
+
+    if(scale){
+        vecVar <- glVar(x, alleleAsUnit=FALSE)
+        if(any(is.na(vecVar))) stop("NAs detected in the vector of variances")
+    }
+
+
+    myPloidy <- ploidy(x)
+
+
+    ## == if non-C code is used ==
     if(!useC){
         if(multicore && !require(multicore)) stop("multicore package requested but not installed")
         if(multicore && is.null(n.cores)){
@@ -215,22 +231,8 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE, alleleAsU
         }
 
 
-        ## COMPUTE MEANS AND VARIANCES ##
-        if(center) {
-            vecMeans <- glMean(x, alleleAsUnit=FALSE)
-            if(any(is.na(vecMeans))) stop("NAs detected in the vector of means")
-        }
-
-        if(scale){
-            vecVar <- glVar(x, alleleAsUnit=FALSE)
-            if(any(is.na(vecVar))) stop("NAs detected in the vector of variances")
-        }
-
-
         ## COMPUTE DOT PRODUCTS BETWEEN GENOTYPES ##
         ## to be fast, a particular function is defined for each case of centring/scaling
-
-        myPloidy <- ploidy(x)
 
         ## NO CENTRING / NO SCALING
         if(!center & !scale){
@@ -305,7 +307,7 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE, alleleAsU
         }
         diag(allProd) <- temp
     } else { # === use C computations ====
-        glDotProd(x, center=center, scale=scale, alleleAsUnit=alleleAsUnit)
+        allProd <- glDotProd(x, center=center, scale=scale, alleleAsUnit=alleleAsUnit)
     }
 
 
@@ -366,11 +368,19 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE, alleleAsU
 
     ## FORMAT OUTPUT ##
     colnames(res$scores) <- paste("PC", 1:nf, sep="")
-    rownames(res$scores) <- indNames(x)
+    if(!is.null(indNames(x))){
+        rownames(res$scores) <- indNames(x)
+    } else {
+         rownames(res$scores) <- 1:nInd(x)
+    }
 
     if(!is.null(res$loadings)){
         colnames(res$loadings) <- paste("Axis", 1:nf, sep="")
-        rownames(res$loadings) <- paste(locNames(x),alleles(x), sep=".")
+        if(!is.null(locNames(x)) & !is.null(alleles(x))){
+            rownames(res$loadings) <- paste(locNames(x),alleles(x), sep=".")
+        } else {
+            rownames(res$loadings) <- 1:nLoc(x)
+        }
     }
 
     res$call <- match.call()
@@ -500,6 +510,28 @@ loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfa
 
 
 
+#### TESTING DOT PRODUCTS ####
+M <- matrix(sample(c(0,1), 100*1e3, replace=TRUE), nrow=100)
+rownames(M) <- paste("ind", 1:100)
+x <- new("genlight",M)
+
+## not centred, not scaled
+res1 <- glDotProd(x,alleleAsUnit=FALSE, center=FALSE, scale=FALSE)
+res2 <- M %*% t(M)
+all.equal(res1,res2) # must be TRUE
+
+##  centred, not scaled
+res1 <- glDotProd(x,alleleAsUnit=FALSE, center=TRUE, scale=FALSE)
+M <- scalewt(M,center=TRUE,scale=FALSE)
+res2 <- M %*% t(M)
+all.equal(res1,res2) # must be TRUE
+
+##  centred, scaled
+res1 <- glDotProd(x,alleleAsUnit=FALSE, center=TRUE, scale=TRUE)
+M <- scalewt(M,center=TRUE,scale=TRUE)
+res2 <- M %*% t(M)
+all.equal(res1,res2) # must be TRUE
+
 
 #### TESTING PCA ####
 ## M <- matrix(sample(c(0,1), 1e5, replace=TRUE), nrow=100)
@@ -534,10 +566,10 @@ loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfa
 
 ## ## LARGE SCALE TEST ##
 ## ## perform glPca
-## M <- matrix(sample(c(0,1), 100*1e6, replace=TRUE), nrow=100)
+## M <- matrix(sample(c(0,1), 100*1e5, replace=TRUE), nrow=100)
 ## x <- new("genlight",M)
-## system.time(toto <- glPca(x, nf=4, n.core=6))
 ## system.time(titi <- dudi.pca(M,center=TRUE,scale=FALSE, scannf=FALSE, nf=4))
+## system.time(toto <- glPca(x, ,center=TRUE,scale=FALSE, useC=TRUE, nf=4))
 
 
 
