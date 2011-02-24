@@ -5,27 +5,47 @@
 ## compute col sums
 ## removing NAs
 ##
-glSum <- function(x, alleleAsUnit=TRUE){
+glSum <- function(x, alleleAsUnit=TRUE, useC=FALSE){
     if(!inherits(x, "genlight")) stop("x is not a genlight object")
 
-    ## DEFAULT, VECTOR-WISE PROCEDURE ##
-    ## use ploidy (sum absolute frequencies)
-    if(alleleAsUnit){
-    res <- integer(nLoc(x))
-    for(e in x@gen){
-            temp <- as.integer(e)
-            temp[is.na(temp)] <- 0L
-            res <- res + temp
+    if(useC){
+        ## use ploidy (sum absolute frequencies)
+        if(alleleAsUnit){
+            vecbyte <- unlist(lapply(x@gen, function(e) e$snp))
+            nbVec <- sapply(x@gen, function(e) length(e$snp))
+            nbNa <- sapply(NA.posi(x), length)
+            naPosi <- unlist(NA.posi(x))
+            res <- .C("GLsumInt", vecbyte, nbVec, length(x@gen[[1]]@snp[[1]]), nbNa, naPosi, nInd(x), nLoc(x), ploidy(x),
+                      integer(nLoc(x)), PACKAGE="adegenet")[[9]]
+        } else {
+            ## sum relative frequencies
+            vecbyte <- unlist(lapply(x@gen, function(e) e$snp))
+            nbVec <- sapply(x@gen, function(e) length(e$snp))
+            nbNa <- sapply(NA.posi(x), length)
+            naPosi <- unlist(NA.posi(x))
+            res <- .C("GLsumFreq", vecbyte, nbVec, length(x@gen[[1]]@snp[[1]]), nbNa, naPosi, nInd(x), nLoc(x), ploidy(x),
+                      double(nLoc(x)), PACKAGE="adegenet")[[9]]
         }
     } else {
-        ## sum relative frequencies
-        res <- numeric(nLoc(x))
-        myPloidy <- ploidy(x)
-        for(i in 1:nInd(x)){
-            temp <- as.integer(x@gen[[i]]) / myPloidy[i]
-            temp[is.na(temp)] <- 0
-            res <- res + temp
+        ## use ploidy (sum absolute frequencies)
+        if(alleleAsUnit){
+            res <- integer(nLoc(x))
+            for(e in x@gen){
+                temp <- as.integer(e)
+                temp[is.na(temp)] <- 0L
+                res <- res + temp
+            }
+        } else {
+            ## sum relative frequencies
+            res <- numeric(nLoc(x))
+            myPloidy <- ploidy(x)
+            for(i in 1:nInd(x)){
+                temp <- as.integer(x@gen[[i]]) / myPloidy[i]
+                temp[is.na(temp)] <- 0
+                res <- res + temp
+            }
         }
+
     }
     names(res) <- locNames(x)
     return(res)
@@ -619,3 +639,21 @@ loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfa
 ## names(t) <- rownames(res$by.total)
 ## par(mar=c(7,4,4,2))
 ## barplot(t,las=3, cex.names=.7)
+
+
+## test GLsum:
+## library(adegenet)
+## x <- new("genlight", lapply(1:50, function(i) sample(c(0,1,NA), 1e5, prob=c(.5, .49, .01), replace=TRUE)))
+## res1 <- glSum(x, useC=FALSE)
+## res2 <- glSum(x, useC=TRUE)
+## res3 <- apply(as.matrix(x),2,sum,na.rm=TRUE)
+## all(res1==res3) # must be TRUE
+## all(res2==res3) # must be TRUE
+
+## library(adegenet)
+## x <- new("genlight", lapply(1:50, function(i) sample(c(0,1,2,NA), 1e5, prob=c(.5, .40, .09, .01), replace=TRUE)))
+## res1 <- glSum(x, alleleAsUnit=FALSE, useC=FALSE)
+## res2 <- glSum(x, alleleAsUnit=FALSE, useC=TRUE)
+## res3 <- apply(as.matrix(x)/ploidy(x),2,sum,na.rm=TRUE)
+## all.equal(res1,res3)
+## all.equal(res2,res3)
