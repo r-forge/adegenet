@@ -378,11 +378,15 @@ setMethod ("show", "genlight", function(object){
         cat("\n ", sum(temp), " (", round(sum(temp)/(nInd(object)*nLoc(object)),2)," %) missing data", sep="")
     }
 
-    if(!is.null(other(x))){
-        cat("\n Other: ")
+    if(!is.null(pop(object))){
+        cat("\n @pop: individual membership for", length(levels(pop(object))), "populations\n")
+    }
+
+    if(!is.null(other(object))){
+        cat(" @other: ")
         cat("a list containing ")
-        cat(ifelse(is.null(names(other(x))), paste(length(other(x)),"unnamed elements"),
-                   paste(names(other(x)), collapse= "  ")), "\n")
+        cat(ifelse(is.null(names(other(object))), paste(length(other(object)),"unnamed elements"),
+                   paste(names(other(object)), collapse= "  ")), "\n")
     }
 
     cat("\n")
@@ -609,9 +613,12 @@ setMethod("[", signature(x="SNPbin", i="ANY"), function(x, i) {
 
 
 ## genlight
-setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x, i, j, ..., treatOther=TRUE, drop=FALSE) {
+setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x, i, j, ..., treatOther=TRUE, quiet=TRUE, drop=FALSE) {
     if (missing(i)) i <- TRUE
     if (missing(j)) j <- TRUE
+
+    ori.n <- nInd(x)
+
 
     ## SUBSET INDIVIDUALS ##
     x@gen <- x@gen[i]
@@ -622,34 +629,36 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
         ori.ploidy <- NULL
     }
 
-    ## SUBSET LOCI ##
-    if(length(j)==1 && is.logical(j) && j){ # no need to subset SNPs
-        return(x)
-    } else { # need to subset SNPs
-        x <- as.matrix(x)[, j, drop=FALSE] # maybe need to process one row at a time
-        x <- new("genlight", gen=x, ploidy=ori.ploidy)
-    }
-
     ## HANDLE 'OTHER' SLOT ##
-    nOther <- length(x@other)
-    namesOther <- names(x@other)
+    nOther <- length(other(x))
+    namesOther <- names(other(x))
     counter <- 0
-    if(treatOther){
-        f1 <- function(obj,n=nInd(x)){
+    if(treatOther & !(is.logical(i) && all(i))){
+        f1 <- function(obj,n=ori.n){
             counter <<- counter+1
-            if(!is.null(dim(obj)) && nrow(obj)==n) { # if the element is a matrix-like obj
+            if(!is.null(dim(obj)) && nrow(obj)==ori.n) { # if the element is a matrix-like obj
                 obj <- obj[i,,drop=FALSE]
-            } else if(length(obj) == n) { # if the element is not a matrix but has a length == n
+            } else if(length(obj) == ori.n) { # if the element is not a matrix but has a length == n
                 obj <- obj[i]
                 if(is.factor(obj)) {obj <- factor(obj)}
-            } else {warning(paste("cannot treat the object",namesOther[counter]))}
+            } else {if(!quiet) warning(paste("cannot treat the object",namesOther[counter]))}
 
             return(obj)
         } # end f1
 
-        res@other <- lapply(x@other, f1) # treat all elements
+        other(x) <- lapply(x@other, f1) # treat all elements
 
     } # end treatOther
+
+
+    ## SUBSET LOCI ##
+    if(length(j)==1 && is.logical(j) && j){ # no need to subset SNPs
+        return(x)
+    } else { # need to subset SNPs
+        old.other <- other(x)
+        x <- as.matrix(x)[, j, drop=FALSE] # maybe need to process one row at a time
+        x <- new("genlight", gen=x, ploidy=ori.ploidy, other=old.other)
+    }
 
     return(x)
 }) # end [] for genlight
@@ -742,6 +751,26 @@ rbind.genlight <- function(...){
     return(res)
 
 } # end rbind.genlight
+
+
+
+##########
+## seppop
+##########
+setMethod("seppop", signature(x="genlight"), function(x, pop=NULL, treatOther=TRUE, quiet=TRUE){
+    ## HANDLE POP ARGUMENT ##
+    if(!is.null(pop)) {
+        pop(x) <- pop
+    }
+
+    if(is.null(pop(x))) stop("pop not provided and pop(x) is NULL")
+
+    ## PERFORM SUBSETTING ##
+    kObj <- lapply(levels(pop(x)), function(lev) x[pop(x)==lev, , treatOther=treatOther, quiet=quiet])
+    names(kObj) <- levels(pop(x))
+
+    return(kObj)
+})
 
 
 
@@ -1002,3 +1031,4 @@ as.list.genlight <- function(x, ...){
 
 ## test subsetting with/without @other ##
 ## x <- new("genlight", list(a=1,b=0,c=1), other=list(1:3, letters, data.frame(2:4)))
+## pop(x) <- c("pop1","pop1", "pop2")
