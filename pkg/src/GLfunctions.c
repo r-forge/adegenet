@@ -75,6 +75,39 @@ void GLdotProd(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nb
 
 
 
+
+
+
+void GLsumInt(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbnaperind, int *naposi, int *nind, int *nloc, int *ploidy, int *res){
+	struct genlightC dat;
+	int i, j;
+	int *vecIntTemp;
+	vecIntTemp = (int *) calloc(*nloc, sizeof(int));
+	
+	/* set res to zeros */
+	for(j=0;j< *nloc;j++){
+		res[j] = 0;
+	}
+
+	/* Internal C representation of the genlight object */
+	dat = genlightTogenlightC(gen, nbvecperind, byteveclength, nbnaperind, naposi, nind, nloc, ploidy);
+
+	/* === working on frequencies === */
+	/* Lower triangle - without the diagonal */
+	for(i=0; i < (*nind-1); i++){ /* for all individuals*/
+		/* conversion to integers of current indiv */
+		snpbin2intvec(&(dat.x[i]), vecIntTemp);
+		
+		for(j=0; j < *nloc; j++){ /* for all loci */
+			if(!snpbin_isna(&(dat.x[i]), j)) res[j] += vecIntTemp[j];
+		}
+	}
+}
+
+
+
+
+
 /* TESTING in R */
 
 /*
