@@ -111,8 +111,9 @@
   \describe{
     \item{[}{\code{signature(x = "genlight")}: usual method to subset
       objects in R. Is to be applied as if the object was a matrix where
-      genotypes are rows and SNPs are columns. Indexing can be done via
-      vectors of signed integers or of logicals.}
+      genotypes were rows and SNPs were columns. Indexing can be done via
+      vectors of signed integers or of logicals. See details for extra
+      supported arguments.}
     \item{show}{\code{signature(x = "genlight")}: printing of the
       object.}
     \item{$}{\code{signature(x = "genlight")}: similar to the @ operator;
@@ -165,6 +166,22 @@
       \linkS4class{genlight} objects by row, i.e. regroups data of
       different individuals genotyped for the same SNPs.}
   }
+}
+\details{
+  === On the subsetting using \code{[} ===
+  The function \code{[} accepts the following extra arguments:
+  \describe{
+    \item{treatOther}{a logical stating whether elements of the
+      \code{@other} slot should be treated as well (TRUE), or not
+      (FALSE). If treated, elements of the list are examined for a
+      possible match of length (vectors, lists) or number of rows
+      (matrices, data frames) with the number of individuals. Those who
+      match are subsetted accordingly. Others are left as is, issuing a
+      warning unless the argument \code{quiet} is set to TRUE.}
+    \item{quiet}{a logical indicating whether warnings should be issued
+      when trying to subset components of the \code{@other} slot which
+      do not match the number of individuals (TRUE), or not (FALSE, default). }
+    }
 }
 \author{Thibaut Jombart (\email{t.jombart@imperial.ac.uk})}
 \seealso{
@@ -226,5 +243,22 @@ as.matrix(ara)
 aca <- cbind(a,a)
 aca
 as.matrix(aca)
+
+
+#### subsetting @other ####
+x <- new("genlight", list(a=1,b=0,c=1), other=list(1:3, letters,data.frame(2:4)))
+x
+other(x)
+x[2:3]
+other(x[2:3])
+other(x[2:3, treatOther=FALSE])
+
+
+#### seppop ####
+pop(x) # no population info
+pop(x) <- c("pop1","pop1", "pop2") # set population memberships
+pop(x)
+seppop(x)
+
 }
 \keyword{classes}
