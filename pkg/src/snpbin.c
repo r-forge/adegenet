@@ -377,7 +377,7 @@ double snpbin_dotprod_int(struct snpbin *x, struct snpbin *y, double *mean, doub
 	vecx = (int *) calloc(P, sizeof(int));
 	vecy = (int *) calloc(P, sizeof(int));
 
-	/* conversion to integers or frequencies*/
+	/* conversion to integers */
 	snpbin2intvec(x, (int *) vecx);
 	snpbin2intvec(y, (int *) vecy);
 
