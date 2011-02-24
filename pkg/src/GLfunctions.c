@@ -83,27 +83,56 @@ void GLsumInt(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbn
 	int i, j;
 	int *vecIntTemp;
 	vecIntTemp = (int *) calloc(*nloc, sizeof(int));
-	
+
 	/* set res to zeros */
-	for(j=0;j< *nloc;j++){
-		res[j] = 0;
-	}
+	/* for(j=0;j< *nloc;j++){ */
+	/* 	res[j] = 0; */
+	/* } */
 
 	/* Internal C representation of the genlight object */
 	dat = genlightTogenlightC(gen, nbvecperind, byteveclength, nbnaperind, naposi, nind, nloc, ploidy);
 
 	/* === working on frequencies === */
 	/* Lower triangle - without the diagonal */
-	for(i=0; i < (*nind-1); i++){ /* for all individuals*/
+	for(i=0; i < (*nind); i++){ /* for all individuals*/
 		/* conversion to integers of current indiv */
 		snpbin2intvec(&(dat.x[i]), vecIntTemp);
-		
+
 		for(j=0; j < *nloc; j++){ /* for all loci */
 			if(!snpbin_isna(&(dat.x[i]), j)) res[j] += vecIntTemp[j];
 		}
 	}
 }
 
+
+
+
+
+void GLsumFreq(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbnaperind, int *naposi, int *nind, int *nloc, int *ploidy, double *res){
+	struct genlightC dat;
+	int i, j;
+	double *vecFreqTemp;
+	vecFreqTemp = (double *) calloc(*nloc, sizeof(double));
+
+	/* set res to zeros */
+	/* for(j=0;j< *nloc;j++){ */
+	/* 	res[j] = 0.0; */
+	/* } */
+
+	/* Internal C representation of the genlight object */
+	dat = genlightTogenlightC(gen, nbvecperind, byteveclength, nbnaperind, naposi, nind, nloc, ploidy);
+
+	/* === working on frequencies === */
+	/* Lower triangle - without the diagonal */
+	for(i=0; i < (*nind); i++){ /* for all individuals*/
+		/* conversion to frequencies of current indiv */
+		snpbin2freq(&(dat.x[i]), vecFreqTemp);
+
+		for(j=0; j < *nloc; j++){ /* for all loci */
+			if(!snpbin_isna(&(dat.x[i]), j)) res[j] += vecFreqTemp[j];
+		}
+	}
+}
 
 
 

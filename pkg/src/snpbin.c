@@ -182,7 +182,12 @@ void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres
 
 	temp = (int *) calloc(8, sizeof(int));
 
+	/* set result vector to 0 */
+	for(i=0; i < (*veclength) * 8; i++){
+		vecres[i]=0;
+	}
 
+	/* build output */
 	for(k=0;k<*nbvec;k++){ /* for all input vector */
 		idres = 0;
 		for(i=0;i<*veclength;i++){ /* for one input vector */
@@ -205,6 +210,10 @@ void bytesToDouble(unsigned char *vecbytes, int *veclength, int *nbvec, double *
 	double *temp;
 	temp = (double *) calloc(8, sizeof(double));
 
+	/* set result vector to 0 */
+	for(i=0; i < (*veclength) * 8; i++){
+		vecres[i]=0.0;
+	}
 
 	for(k=0;k<*nbvec;k++){ /* for all input vector */
 		idres = 0;
