@@ -22,7 +22,7 @@
   - \code{glVar}: computes the variance of the number of second allele in each SNP.
 }
 \usage{
-glSum(x, alleleAsUnit = TRUE)
+glSum(x, alleleAsUnit = TRUE, useC = FALSE)
 glNA(x, alleleAsUnit = TRUE)
 glMean(x, alleleAsUnit = TRUE)
 glVar(x, alleleAsUnit = TRUE)
@@ -33,6 +33,10 @@ glVar(x, alleleAsUnit = TRUE)
     considered as units (i.e., a diploid genotype equals two samples, a
     triploid, three, etc.) or whether individuals are considered as
     units of information.}
+  \item{useC}{a logical indicating whether compiled C code should be
+    used (TRUE) or not (FALSE, default). Pure-R code is more efficient
+    for small number of individuals; C-code is expected to be more
+    efficient for thousands of individuals.}
 }
 \details{
   === On the unit of information ===
