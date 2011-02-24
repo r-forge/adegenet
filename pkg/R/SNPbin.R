@@ -149,6 +149,7 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
     x <- .Object
     input <- list(...)
     if(length(input)==1 && is.null(names(input))) names(input) <- "gen"
+    if(length(input)>1 && ! "gen" %in% names(input)) names(input)[1] <- "gen"
 
 
     ## HANDLE INPUT$GEN ##
@@ -362,7 +363,7 @@ setMethod ("show", "SNPbin", function(object){
 ###############
 setMethod ("show", "genlight", function(object){
     cat(" === S4 class genlight ===")
-    cat("\n", nInd(object), "genotypes with", nLoc(object),  "binary SNPs")
+    cat("\n", nInd(object), "genotypes, ", nLoc(object),  "binary SNPs")
     temp <- unique(ploidy(object))
     if(!is.null(temp)){
         if(length(temp)==1){
@@ -376,8 +377,17 @@ setMethod ("show", "genlight", function(object){
     if(length(temp>1)){
         cat("\n ", sum(temp), " (", round(sum(temp)/(nInd(object)*nLoc(object)),2)," %) missing data", sep="")
     }
+
+    if(!is.null(other(x))){
+        cat("\n Other: ")
+        cat("a list containing ")
+        cat(ifelse(is.null(names(other(x))), paste(length(other(x)),"unnamed elements"),
+                   paste(names(other(x)), collapse= "  ")), "\n")
+    }
+
     cat("\n")
 }) # end show method
+
 
 
 
@@ -567,6 +577,21 @@ setReplaceMethod("pop","genlight",function(x,value) {
 
 
 
+## other
+setMethod("other","genlight", function(x,...){
+    if(length(x@other)==0) return(NULL)
+    return(x@other)
+})
+
+
+setReplaceMethod("other","genlight",function(x,value) {
+    if( !is.null(value) && (!is.list(value) | is.data.frame(value)) ) {
+        value <- list(value)
+    }
+    slot(x,"other",check=TRUE) <- value
+    return(x)
+})
+
 
 
 ###############
@@ -583,8 +608,8 @@ setMethod("[", signature(x="SNPbin", i="ANY"), function(x, i) {
 
 
 
-
-setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x, i, j, ...) {
+## genlight
+setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x, i, j, ..., treatOther=TRUE, drop=FALSE) {
     if (missing(i)) i <- TRUE
     if (missing(j)) j <- TRUE
 
@@ -604,8 +629,30 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
         x <- as.matrix(x)[, j, drop=FALSE] # maybe need to process one row at a time
         x <- new("genlight", gen=x, ploidy=ori.ploidy)
     }
+
+    ## HANDLE 'OTHER' SLOT ##
+    nOther <- length(x@other)
+    namesOther <- names(x@other)
+    counter <- 0
+    if(treatOther){
+        f1 <- function(obj,n=nInd(x)){
+            counter <<- counter+1
+            if(!is.null(dim(obj)) && nrow(obj)==n) { # if the element is a matrix-like obj
+                obj <- obj[i,,drop=FALSE]
+            } else if(length(obj) == n) { # if the element is not a matrix but has a length == n
+                obj <- obj[i]
+                if(is.factor(obj)) {obj <- factor(obj)}
+            } else {warning(paste("cannot treat the object",namesOther[counter]))}
+
+            return(obj)
+        } # end f1
+
+        res@other <- lapply(x@other, f1) # treat all elements
+
+    } # end treatOther
+
     return(x)
-}) # end [] for SNPbin
+}) # end [] for genlight
 
 
 
@@ -941,7 +988,7 @@ as.list.genlight <- function(x, ...){
 
 
 
-## c, cbind, rbind:
+## c, cbind, rbind ##
 ## a <- new("genlight", list(c(1,0,1), c(0,0,1,0)) )
 ## b <- new("genlight", list(c(1,0,1,1,1,1), c(1,0)) )
 ## locNames(a) <- letters[1:4]
@@ -949,3 +996,9 @@ as.list.genlight <- function(x, ...){
 ## c <- cbind(a,b)
 ## identical(as.matrix(c),cbind(as.matrix(a), as.matrix(b))) # MUST BE TRUE
 ## identical(as.matrix(rbind(a,a)),rbind(as.matrix(a),as.matrix(a)))
+
+
+
+
+## test subsetting with/without @other ##
+## x <- new("genlight", list(a=1,b=0,c=1), other=list(1:3, letters, data.frame(2:4)))

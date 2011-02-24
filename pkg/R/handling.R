@@ -226,6 +226,26 @@ setMethod("seppop", signature(x="genind"), function(x,pop=NULL,truenames=TRUE,re
 
 
 
+## genlight
+setMethod("seppop", signature(x="genlight"), function(x, pop=NULL, treatOther=TRUE){
+    ## HANDLE POP ARGUMENT ##
+    if(!is.null(pop)) {
+        pop(x) <- pop
+    }
+
+    if(is.null(pop(x))) stop("pop not provided and pop(x) is NULL")
+
+
+    ## PERFORM SUBSETTING ##
+    kObj <- lapply(levels(pop), function(lev) x[pop==lev, , treatOther=treatOther])
+    names(kObj) <- levels(pop)
+
+    return(kObj)
+})
+
+
+
+
 #####################
 # Methods na.replace
 #####################
@@ -705,9 +725,9 @@ setReplaceMethod("alleles","genpop", function(x, value){
 
 
 
-#######
-# ploidy
-#######
+##########
+## ploidy
+##########
 setGeneric("ploidy", function(x,...){
     standardGeneric("ploidy")
 })
@@ -717,7 +737,7 @@ setGeneric("ploidy<-", function(x, value){
 })
 
 setMethod("ploidy","genind", function(x,...){
-    return(nrow(x@ploidy))
+    return(x@ploidy)
 })
 
 
@@ -732,16 +752,61 @@ setReplaceMethod("ploidy","genind",function(x,value) {
 
 
 setMethod("ploidy","genpop", function(x,...){
-    return(nrow(x@ploidy))
+    return(x@ploidy)
 })
 
 
-setReplaceMethod("ploidy","genind",function(x,value) {
+setReplaceMethod("ploidy","genpop",function(x,value) {
     value <- as.integer(value)
     if(any(value)<1) stop("Negative or null values provided")
     if(any(is.na(value))) stop("NA values provided")
     if(length(value)>1) warning("Several ploidy numbers provided; using only the first integer")
     slot(x,"ploidy",check=TRUE) <- value[1]
+    return(x)
+})
+
+
+
+
+
+
+##########
+## other
+#########
+setGeneric("other", function(x,...){
+    standardGeneric("other")
+})
+
+setGeneric("other<-", function(x, value){
+    standardGeneric("other<-")
+})
+
+setMethod("other","genind", function(x,...){
+    if(length(x@other)==0) return(NULL)
+    return(x@other)
+})
+
+
+setReplaceMethod("other","genind",function(x,value) {
+    if( !is.null(value) && (!is.list(value) | is.data.frame(value)) ) {
+        value <- list(value)
+    }
+    slot(x,"other",check=TRUE) <- value
+    return(x)
+})
+
+
+setMethod("other","genpop", function(x,...){
+    if(length(x@other)==0) return(NULL)
+    return(x@other)
+})
+
+
+setReplaceMethod("other","genpop",function(x,value) {
+    if( !is.null(value) && (!is.list(value) | is.data.frame(value)) ) {
+        value <- list(value)
+    }
+    slot(x,"other",check=TRUE) <- value
     return(x)
 })
 
