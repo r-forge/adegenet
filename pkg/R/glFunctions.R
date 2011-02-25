@@ -500,6 +500,8 @@ loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfa
 } # end loadingplot.glPca
 
 
+
+
 ## TESTING ##
 ## x <- new("genlight", list(c(0,0,1,1,0), c(1,1,1,0,0,1), c(2,1,1,1,1,NA)))
 ## as.matrix(x)
