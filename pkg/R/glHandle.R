@@ -80,10 +80,18 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
 ## cbind SNPbin
 ################
 ##setMethod("cbind", signature("SNPbin"), function(..., deparse.level = 1) {
-cbind.SNPbin <- function(...){
+cbind.SNPbin <- function(..., checkPloidy=TRUE){
     myList <- list(...)
     if(!all(sapply(myList, class)=="SNPbin")) stop("some objects are not SNPbin objects")
-    if(length(unique(sapply(myList, ploidy))) !=1 ) stop("objects have different ploidy levels")
+    ## remove empty objects
+    myList <- myList[sapply(myList,nLoc)>0]
+    if(length(myList)==0) {
+        warning("All objects are empty")
+        return(NULL)
+    }
+
+
+    if(checkPloidy && length(unique(sapply(myList, ploidy))) !=1 ) stop("objects have different ploidy levels")
     x <- new("SNPbin", unlist(lapply(myList, as.integer)))
     return(x)
 } # end cbind.SNPbin
@@ -105,14 +113,29 @@ c.SNPbin <- function(...){
 cbind.genlight <- function(...){
     myList <- list(...)
     if(!all(sapply(myList, class)=="genlight")) stop("some objects are not genlight objects")
-    if(length(unique(sapply(myList, nInd))) !=1 ) stop("objects have different numbers of individuals")
+    ## remove empty objects
+    myList <- myList[sapply(myList,nLoc)>0 & sapply(myList,nInd)>0]
+    if(length(myList)==0) {
+        warning("All objects are empty")
+        return(NULL)
+    }
+
+    ## different checks
+    if(length(unique(sapply(myList, nInd))) > 1 ) stop("objects have different numbers of individuals")
     n.obj <- length(myList)
     n.ind <- nInd(myList[[1]])
+    if(n.ind==0){
+        warning("All objects are empty")
+        return(NULL)
+    }
+    temp <- as.matrix(as.data.frame(lapply(myList, ploidy)))
+    if(any(apply(temp,1,function(r) length(unique(r)))>1)) stop("non-consistent ploidy across datasets")
+
 
     ## merge one individual at a time ##
     res <- list()
     for(i in 1:n.ind){
-        res[[i]] <- Reduce(cbind, lapply(myList, function(e) e@gen[[i]]))
+        res[[i]] <- Reduce(function(a,b) {cbind(a,b,checkPloidy=FALSE)}, lapply(myList, function(e) e@gen[[i]]) )
     }
 
     res <- new("genlight",res)
@@ -140,7 +163,15 @@ cbind.genlight <- function(...){
 rbind.genlight <- function(...){
     myList <- list(...)
     if(!all(sapply(myList, class)=="genlight")) stop("some objects are not genlight objects")
+    ## remove empty objects
+    myList <- myList[sapply(myList,nLoc)>0 & sapply(myList,nInd)>0]
+    if(length(myList)==0) {
+        warning("All objects are empty")
+        return(NULL)
+    }
+
     if(length(unique(sapply(myList, nLoc))) !=1 ) stop("objects have different numbers of SNPs")
+
 
     ## build output
     res <- new("genlight", Reduce(c, lapply(myList, function(e) e@gen)))
@@ -182,6 +213,102 @@ setMethod("seppop", signature(x="genlight"), function(x, pop=NULL, treatOther=TR
 
 
 
+
+
+##########
+## glSim
+##########
+glSim <- function(n.ind, n.snp.nonstruc, n.snp.struc=0, grp.size=round(n.ind/2), ploidy=1, alpha=0,
+                  block.size=NULL){
+
+    ## BASIC CHECKS ##
+    if( any(c(n.ind, n.snp.nonstruc+n.snp.struc) <1)) stop("null numbers of individuals and/or SNPs requested")
+    ## alpha parameter
+    if(alpha>0.5){
+        alpha <- 0.5
+        warning("alpha cannot exceed 0.5 - changing the value to 0.5 (total forced asymmetry)")
+    }
+    if(alpha<0){
+        alpha <- 0
+        warning("alpha cannot be lower than 0 - changing the value to 0 (no forced asymmetry)")
+    }
+
+    ## handle block size
+    if(is.null(block.size)){
+        block.size <- n.snp.nonstruc + n.snp.struc
+    }
+
+    ## handle group sizes
+    grpA.size <- grp.size
+    if(grpA.size >= n.ind) stop("grpA.size is >= n.ind")
+    grpB.size <- n.ind - grpA.size
+
+
+    ## AUXIL FUNCTIONS ##
+    ## draw p snp for i indiv and convert into a genlight - no structure
+    f1 <- function(n,p){
+        temp <- sapply(1:p, function(i) rbinom(n, ploidy, runif(1)))
+        if(n==1) {temp <- matrix(temp,nrow=1)}
+        return(new("genlight", temp, ploidy=ploidy))
+    }
+
+    ## draw p snp for i indiv and convert into a genlight - differences between 2 groups
+    if(n.snp.struc > 0){
+        f2 <- function(n,p){
+            probA <- runif(p, min=0, max=0.5-alpha)
+            probB <- 1-probA
+            tempA <- sapply(probA, function(i) rbinom(grpA.size, ploidy, i) )
+            if(grpA.size==1) {tempA <- matrix(tempA,nrow=1)}
+            tempB <- sapply(probB, function(i) rbinom(grpB.size, ploidy, i) )
+            if(grpB.size==1) {tempB <- matrix(tempB,nrow=1)}
+            return(new("genlight", rbind(tempA,tempB), ploidy=ploidy))
+        }
+    }
+
+    ## NON-STRUCTURED DATA ##
+    ## generate data
+    if(n.snp.nonstruc <= block.size){ # no need to use blocks
+        res.ns <- f1(n.ind, n.snp.nonstruc)
+    } else { # proceed by blocks of SNPs
+        res.ns <- f1(n.ind, block.size)
+        snp.to.go <- n.snp.nonstruc - nLoc(res.ns) # number of SNPs left to simulate
+        while(snp.to.go > 0){
+            nb.snp.tmp <- min(snp.to.go, block.size)
+            res.ns <- cbind(res.ns, f1(n.ind, nb.snp.tmp))
+            snp.to.go <- n.snp.nonstruc - nLoc(res.ns) # number of SNPs left to simulate
+        }
+    } # end non-structured data
+
+
+    ## STRUCTURED DATA ##
+    if(n.snp.struc > 0){
+        if(n.snp.struc <= block.size){ # no need to use blocks
+            res.s <- f2(n.ind, n.snp.struc)
+        } else { # proceed by blocks of SNPs
+            res.s <- f2(n.ind, block.size)
+            snp.to.go <- n.snp.struc - nLoc(res.s) # number of SNPs left to simulate
+            while(snp.to.go > 0){
+                nb.snp <- min(snp.to.go, block.size)
+                res.s <- cbind(res.s, f2(n.ind, nb.snp))
+                snp.to.go <- n.snp.struc - nLoc(res.s) # number of SNPs left to simulate
+            }
+
+        }
+    } # end structured data
+
+    ## RETURN RESULTS ##
+    res <- res.ns
+    if(n.snp.struc > 0){
+        res <- cbind(res,res.s)
+    }
+    if(!is.null(grp.size)){
+        pop(res) <- rep(c("A","B"), c(grpA.size, grpB.size))
+    }
+    indNames(res) <- paste("ind", 1:n.ind)
+
+    return(res)
+
+} # end glSim
 
 
 
