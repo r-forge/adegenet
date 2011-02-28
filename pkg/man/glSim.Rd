@@ -1,0 +1,73 @@
+\encoding{UTF-8}
+\name{glSim}
+\alias{glSim}
+\title{Simulation of simple genlight objects}
+\description{
+  The function \code{glSim} simulates simple SNP data with the
+  possibility of contrasted structures between two groups. This can be
+  useful to test methods for defining characteristic alleles. Returned
+  objects are instances of the class \linkS4class{genlight}.
+}
+\usage{
+glSim(n.ind, n.snp.nonstruc, n.snp.struc = 0, grp.size = round(n.ind/2), 
+    ploidy = 1, alpha = 0, block.size = NULL)
+}
+\arguments{
+  \item{n.ind}{an integer indicating the number of individuals to be simulated.}
+  \item{n.snp.nonstruc}{an integer indicating the number of
+    non-structured SNPs to be simulated; for these SNPs, all individuals
+    are drawn from the same binomial distribution.}
+  \item{n.snp.struc}{an integer indicating the number of
+    structured SNPs to be simulated; for these SNPs, different
+    binomial distributions are used for the two simulated groups;
+    frequencies of the derived alleles in groups A and B are built to
+    differ (see details).}
+  \item{grp.size}{an integer indicating the size of the first group of
+    individuals (noted 'A'); by default, both groups have the same
+    size.}
+  \item{ploidy}{an integer indicating the ploidy of the simulated
+    genotypes.}
+  \item{alpha}{asymmetry parameter: a numeric value between 0 and 0.5, used to enforce
+    allelic differences between the groups (see details).}
+  \item{block.size}{an optional integer indicating the number of SNPs to
+    be handled at a time during the simulations. By default, all SNPs are
+    simulated at the same time, but RAM can limit this operation. Using
+    blocks of a few hundred or thousand SNPs decreases RAM requirement at
+    a cost of more computational time.}
+
+}
+\details{
+  === Allele frequencies in contrasted groups ===
+  When \code{n.snp.struc} is greater than 0, some SNPs are simulated in
+  order to differ between groups (noted 'A' and 'B'). Such differences
+  are achieved by using different frequencies of the second allele for A
+  and B, denoted \eqn{p_A} and \eqn{p_B}. For a given SNP, \eqn{p_A} is
+  drawn from a uniform distribution between 0 and (0.5 -
+  alpha). \eqn{p_B} is then computed as 1 - \eqn{p_A}. Therefore,
+  differences between groups are mild for alpha=0, and total for alpha =
+  0.5.
+}
+\value{
+  A \linkS4class{genlight} object.
+}
+
+\seealso{
+  - \code{\link{genlight}}: class of object for storing massive binary
+  SNP data.
+}
+\author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
+\examples{
+## no structure
+x <- glSim(100, 1e3, ploid=2)
+image(t(as.matrix(x)), xlab="SNPs", ylab="Individuals", xaxt="n", yaxt="n")
+
+## 1,000 non structured SNPs, 100 structured SNPs
+x <- glSim(100, 1e3, n.snp.struc=100, ploid=2)
+image(t(as.matrix(x)), xlab="SNPs", ylab="Individuals", xaxt="n", yaxt="n")
+
+## same thing, stronger differences between groups
+x <- glSim(100, 1e3, n.snp.struc=100, ploid=2, alpha=0.4)
+image(t(as.matrix(x)), xlab="SNPs", ylab="Individuals", xaxt="n", yaxt="n")
+
+}
+\keyword{multivariate}
