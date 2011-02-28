@@ -556,7 +556,7 @@ loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfa
 
 
 #### TESTING PCA ####
-## M <- matrix(sample(c(0,1), 20*1e3, replace=TRUE), nrow=20)
+## M <- matrix(sample(c(0,1), 20*1000, replace=TRUE), nrow=20)
 ## rownames(M) <- paste("ind", 1:20)
 
 ## x <- new("genlight",M)
@@ -598,6 +598,9 @@ loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfa
 
 ## round(cor(toto$scores),10) # must be diag(1,4)
 ## round(t(toto$loadings) %*% toto$loadings,10) # must be diag(1,4)
+
+
+
 
 
 ## ## SPEED TESTS ##
