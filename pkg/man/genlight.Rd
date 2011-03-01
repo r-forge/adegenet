@@ -23,6 +23,8 @@
 \alias{pop<-,genlight-method}
 \alias{NA.posi}
 \alias{NA.posi,genlight-method}
+\alias{other,genlight-method}
+\alias{other<-,genlight-method}
 \alias{as,genlight,matrix-method}
 \alias{coerce,genlight,matrix-method}
 \alias{as.matrix.genlight}
@@ -149,7 +151,11 @@
       indicating the population of each individual, if provided when the
       object was contructed.}
     \item{pop<-}{\code{signature(x = "genlight")}: sets the population
-    of each individual using a factor of length \code{nInd(x)}.}  
+      of each individual using a factor of length \code{nInd(x)}.}
+    \item{pop}{\code{signature(x = "genlight")}: returns the content of
+      the slot \code{@other}.}
+    \item{pop<-}{\code{signature(x = "genlight")}: sets the content of
+      the slot \code{@other}.}
     \item{as.matrix}{\code{signature(x = "genlight")}: converts a
       \code{genlight} object into a matrix of integers, with individuals
       in rows and SNPs in columns. The S4 method 'as' can be used as

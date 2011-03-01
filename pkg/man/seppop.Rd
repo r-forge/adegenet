@@ -20,7 +20,7 @@
 \S4method{seppop}{genind}(x,pop=NULL,truenames=TRUE,res.type=c("genind","matrix"),
   drop=FALSE, treatOther=TRUE, quiet=TRUE)
 
-\S4method{seppop}{genind}(x,pop=NULL, treatOther=TRUE, quiet=TRUE)
+\S4method{seppop}{genlight}(x,pop=NULL, treatOther=TRUE, quiet=TRUE)
 }
 \arguments{
   \item{x}{a \linkS4class{genind} object}

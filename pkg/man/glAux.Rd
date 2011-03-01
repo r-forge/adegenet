@@ -4,6 +4,7 @@
 \alias{glNA}
 \alias{glMean}
 \alias{glVar}
+\alias{glDotProd}
 \title{Auxiliary functions for genlight objects}
 \description{
   These functions provide facilities for usual computations using
@@ -20,12 +21,17 @@
   - \code{glMean}: computes the mean number of second allele in each SNP.
 
   - \code{glVar}: computes the variance of the number of second allele in each SNP.
+
+  - \code{glDotProd}: computes dot products between (possibly
+  centred/scaled) vectors of individuals - uses compiled C code - used
+  by glPca.
 }
 \usage{
 glSum(x, alleleAsUnit = TRUE, useC = FALSE)
 glNA(x, alleleAsUnit = TRUE)
 glMean(x, alleleAsUnit = TRUE)
 glVar(x, alleleAsUnit = TRUE)
+glDotProd(x, center = FALSE, scale = FALSE, alleleAsUnit = FALSE)
 }
 \arguments{
   \item{x}{a \linkS4class{genlight} object}
@@ -33,6 +39,10 @@ glVar(x, alleleAsUnit = TRUE)
     considered as units (i.e., a diploid genotype equals two samples, a
     triploid, three, etc.) or whether individuals are considered as
     units of information.}
+  \item{center}{a logical indicating whether SNPs should be centred to
+    mean zero.}
+  \item{scale}{a logical indicating whether SNPs should be scaled to
+    unit variance.}
   \item{useC}{a logical indicating whether compiled C code should be
     used (TRUE) or not (FALSE, default). Pure-R code is more efficient
     for small number of individuals; C-code is expected to be more
@@ -69,6 +79,12 @@ glVar(x, alleleAsUnit = TRUE)
   SNP data.
   
   - \code{\link{dapc}}: Discriminant Analysis of Principal Components.
+
+  - \code{\link{glPca}}: PCA for \linkS4class{genlight} objects.
+
+  - \code{\link{glSim}}: a simple simulator for \linkS4class{genlight} objects.
+
+  - \code{\link{glPlot}}: plotting \linkS4class{genlight} objects.
 
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }

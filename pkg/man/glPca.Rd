@@ -27,7 +27,7 @@
 }
 \usage{
 glPca(x, center = TRUE, scale = FALSE, nf = NULL, loadings = TRUE, 
-    multicore = require("multicore"), n.cores = NULL)
+    alleleAsUnit = FALSE, useC = TRUE, multicore = require("multicore"), n.cores = NULL)
 
 \method{print}{glPca}(x, \dots)
 
@@ -58,9 +58,17 @@ glPca(x, center = TRUE, scale = FALSE, nf = NULL, loadings = TRUE,
     should be computed (TRUE, default), or not (FALSE). Vectors of
     loadings are not always useful, and can take a large amount of
     RAM when millions of SNPs are considered.}
-  \item{multicore}{a logical indicating whether multiple cores -if available- should be
-    used for the computations (TRUE, default), or not (FALSE); requires
-    the package \code{multicore} to be installed (see details).}
+  \item{alleleAsUnit}{a logical indicating whether alleles are
+    considered as units (i.e., a diploid genotype equals two samples, a
+    triploid, three, etc.) or whether individuals are considered as
+    units of information.}
+  \item{useC}{a logical indicating whether compiled C code should be
+    used for faster computations; this option cannot be used alongside
+    multicore option.}
+  \item{multicore}{a logical indicating whether multiple cores -if
+    available- should be used for the computations (TRUE, default), or
+    not (FALSE); requires the package \code{multicore} to be installed
+    (see details); this option cannot be used alongside useCoption.}
   \item{n.cores}{if \code{multicore} is TRUE, the number of cores to be
     used in the computations; if NULL, then the maximum number of cores
     available on the computer is used.}
@@ -109,6 +117,10 @@ glPca(x, center = TRUE, scale = FALSE, nf = NULL, loadings = TRUE,
   install.packages("multicore",,"http://rforge.net/",type="source")
 
   DO NOT use the version on CRAN, which is slightly outdated.
+
+  Lastly, note that using compiled C code (\code{useC=TRUE})is an
+  alternative for speeding up computations, but cannot be used together
+  with the multicore option.
 }
 \value{
   === glPca objects ===\cr
@@ -132,7 +144,11 @@ glPca(x, center = TRUE, scale = FALSE, nf = NULL, loadings = TRUE,
 \seealso{
   - \code{\link{genlight}}: class of object for storing massive binary
   SNP data.
-  
+
+  - \code{\link{glSim}}: a simple simulator for \linkS4class{genlight} objects.
+
+  - \code{\link{glPlot}}: plotting \linkS4class{genlight} objects.
+
   - \code{\link{dapc}}: Discriminant Analysis of Principal Components.
 
 }

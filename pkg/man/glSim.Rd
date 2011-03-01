@@ -54,20 +54,28 @@ glSim(n.ind, n.snp.nonstruc, n.snp.struc = 0, grp.size = round(n.ind/2),
 \seealso{
   - \code{\link{genlight}}: class of object for storing massive binary
   SNP data.
+
+  - \code{\link{glPlot}}: plotting \linkS4class{genlight} objects.
+
+  - \code{\link{glPca}}: PCA for \linkS4class{genlight} objects.
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
 ## no structure
 x <- glSim(100, 1e3, ploid=2)
-image(t(as.matrix(x)), xlab="SNPs", ylab="Individuals", xaxt="n", yaxt="n")
+plot(x)
 
 ## 1,000 non structured SNPs, 100 structured SNPs
 x <- glSim(100, 1e3, n.snp.struc=100, ploid=2)
-image(t(as.matrix(x)), xlab="SNPs", ylab="Individuals", xaxt="n", yaxt="n")
+plot(x)
+
+## 1,000 non structured SNPs, 100 structured SNPs, ploidy=4
+x <- glSim(100, 1e3, n.snp.struc=100, ploid=4)
+plot(x)
 
 ## same thing, stronger differences between groups
 x <- glSim(100, 1e3, n.snp.struc=100, ploid=2, alpha=0.4)
-image(t(as.matrix(x)), xlab="SNPs", ylab="Individuals", xaxt="n", yaxt="n")
+plot(x)
 
 }
 \keyword{multivariate}
