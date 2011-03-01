@@ -1,0 +1,40 @@
+
+###########
+## glPlot
+############
+glPlot <- function(x, col=NULL, legend=TRUE, posi="bottomleft", bg=rgb(1,1,1,.5),...) {
+
+    ## get plotted elements ##
+    X <- t(as.matrix(x))
+    X <- X[,ncol(X):1]
+    ylabpos <- pretty(1:nInd(x),5)
+    if(is.null(col)) {
+        myCol <- colorRampPalette(c("royalblue3", "firebrick1"))(max(X)+1)
+    } else {
+        myCol <- col
+    }
+
+    ## draw the plot ##
+    ## main plot
+    image(x=1:nLoc(x), y=1:nInd(x), z=X, xlab="SNP index", ylab="Individual index", yaxt="n",
+          col=myCol, ...)
+
+    ## add y axis
+    axis(side=2, at=nInd(x)-ylabpos, lab=ylabpos)
+
+    ## add legend
+    if(legend){
+        legend("bottomleft", fill=myCol, legend=0:max(X), horiz=TRUE, bg=bg, title="Number of 2nd allele")
+    }
+
+    return(invisible())
+} # end plot for glPlot
+
+
+
+
+## plot method
+setMethod("plot", signature(x="genlight", y="ANY"), function(x, y=NULL, col=NULL, legend=TRUE,
+                                          posi="bottomleft", bg=rgb(1,1,1,.5),...) {
+    glPlot(x, col=col, legend=legend, posi=posi, bg=bg, ...)
+})
