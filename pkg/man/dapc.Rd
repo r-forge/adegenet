@@ -52,7 +52,7 @@
 
 \method{summary}{dapc}(object, \dots)
 
-\method{scatter}{dapc}(x, xax=1, yax=2, col=rainbow(length(levels(x$grp))), pch=20,
+\method{scatter}{dapc}(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$grp))), pch=20,
                          posi="bottomleft", bg="grey", ratio=0.3, cstar = 1,
                          cellipse = 1.5, axesell = TRUE, label = levels(x$grp),
                          clabel = 1, xlim = NULL, ylim = NULL, grid = TRUE, addaxes =
@@ -66,7 +66,8 @@ assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
   \item{x}{\code{a data.frame}, \code{matrix}, or \code{\linkS4class{genind}}
     object. For the \code{data.frame} and \code{matrix} arguments, only
     quantitative variables should be provided.}
-  \item{grp,pop}{a \code{factor} indicating the group membership of individuals}
+  \item{grp,pop}{a \code{factor} indicating the group membership of
+    individuals; for \code{scatter}, an optional grouping of individuals.}
   \item{n.pca}{an \code{integer} indicating the number of axes retained in the
     Principal Component Analysis (PCA) step. If \code{NULL}, interactive selection is triggered.}
   \item{n.da}{an \code{integer} indicating the number of axes retained in the
