@@ -60,8 +60,8 @@ struct snpbin makesnpbin(unsigned char *bytevec, int *byteveclength, int *byteve
    ===============================
 */
 
-void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres, int reslength);
-void bytesToDouble(unsigned char *vecbytes, int *veclength, int *nbvec, double *vecres, int reslength);
+void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres, int *reslength);
+void bytesToDouble(unsigned char *vecbytes, int *veclength, int *nbvec, double *vecres, int *reslength);
 void binIntToBytes(int *vecsnp, int *vecsize, unsigned char *vecres, int *ressize);
 
 

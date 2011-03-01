@@ -177,13 +177,13 @@ void bytesToBinInt(unsigned char *vecbytes, int *vecsize, int *vecres){
 /* veclength is the length of one vector of bytes */
 /* nbvec is the nb of input vectors*/
 /* input 'vecbytes' is actually concatenated, ie of size veclength * nbvec */
-void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres, int reslength){
+void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres, int *reslength){
 	int i, j, k, idres=0, *temp; /* idres: index in vecres*/
 
 	temp = (int *) calloc(8, sizeof(int));
 
 	/* initialize result vector to 0 */
-	for(i=0; i < reslength; i++){
+	for(i=0; i < *reslength; i++){
 		vecres[i]=0;
 	}
 
@@ -205,13 +205,13 @@ void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres
 
 
 
-void bytesToDouble(unsigned char *vecbytes, int *veclength, int *nbvec, double *vecres, int reslength){
+void bytesToDouble(unsigned char *vecbytes, int *veclength, int *nbvec, double *vecres, int *reslength){
 	int i, j, k, idres=0; /* idres: index in vecres*/
 	double *temp;
 	temp = (double *) calloc(8, sizeof(double));
 
 	/* initialize result vector to 0 */
-	for(i=0; i < reslength; i++){
+	for(i=0; i < *reslength; i++){
 		vecres[i]=0.0;
 	}
 
@@ -309,7 +309,9 @@ int ploidy(struct snpbin *x){
 
 /* transform a snpbin into a vector of integers */
 void snpbin2intvec(struct snpbin *x, int *out){
-	bytesToInt(x->bytevec, x->byteveclength, x->bytevecnb, out, nLoc(x));
+	int *temp;
+	*temp=nLoc(x);
+	bytesToInt(x->bytevec, x->byteveclength, x->bytevecnb, out, temp);
 /*reminders:
 - void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres, int reslength){
 - snpbin: unsigned char *bytevec; int *byteveclength, *bytevecnb, *nloc, *nanb, *naposi; */
@@ -320,7 +322,9 @@ void snpbin2intvec(struct snpbin *x, int *out){
 /* transform a snpbin into a vector of frequencies (double) */
 void snpbin2freq(struct snpbin *x, double *out){
 	double ploid = (double) ploidy(x);
-	bytesToDouble(x->bytevec, x->byteveclength, x->bytevecnb, out, nLoc(x));
+	int *temp;
+	*temp=nLoc(x);
+	bytesToDouble(x->bytevec, x->byteveclength, x->bytevecnb, out, temp);
 	int i;
  	
 	for(i=0; i < nLoc(x); i++){
