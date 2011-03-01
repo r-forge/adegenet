@@ -92,6 +92,7 @@ void GLsumInt(unsigned char *gen, int *nbvecperind, int *byteveclength, int *nbn
 	/* Internal C representation of the genlight object */
 	dat = genlightTogenlightC(gen, nbvecperind, byteveclength, nbnaperind, naposi, nind, nloc, ploidy);
 
+
 	/* === working on frequencies === */
 	/* Lower triangle - without the diagonal */
 	for(i=0; i < (*nind); i++){ /* for all individuals*/

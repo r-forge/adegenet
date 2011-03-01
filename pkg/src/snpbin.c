@@ -310,8 +310,10 @@ int ploidy(struct snpbin *x){
 /* transform a snpbin into a vector of integers */
 void snpbin2intvec(struct snpbin *x, int *out){
 	int *temp;
+	temp= (int *) calloc(1, sizeof(int));
 	*temp=nLoc(x);
 	bytesToInt(x->bytevec, x->byteveclength, x->bytevecnb, out, temp);
+	free(temp);
 /*reminders:
 - void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres, int reslength){
 - snpbin: unsigned char *bytevec; int *byteveclength, *bytevecnb, *nloc, *nanb, *naposi; */
@@ -323,6 +325,7 @@ void snpbin2intvec(struct snpbin *x, int *out){
 void snpbin2freq(struct snpbin *x, double *out){
 	double ploid = (double) ploidy(x);
 	int *temp;
+	temp= (int *) calloc(1, sizeof(int));
 	*temp=nLoc(x);
 	bytesToDouble(x->bytevec, x->byteveclength, x->bytevecnb, out, temp);
 	int i;
@@ -330,6 +333,7 @@ void snpbin2freq(struct snpbin *x, double *out){
 	for(i=0; i < nLoc(x); i++){
 		out[i] = out[i] / ploid;
 	}
+	free(temp);
 /*reminders:
 - void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres, int reslength){
 - snpbin: unsigned char *bytevec; int *byteveclength, *bytevecnb, *nloc, *nanb, *naposi; */
