@@ -177,13 +177,13 @@ void bytesToBinInt(unsigned char *vecbytes, int *vecsize, int *vecres){
 /* veclength is the length of one vector of bytes */
 /* nbvec is the nb of input vectors*/
 /* input 'vecbytes' is actually concatenated, ie of size veclength * nbvec */
-void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres){
+void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres, int reslength){
 	int i, j, k, idres=0, *temp; /* idres: index in vecres*/
 
 	temp = (int *) calloc(8, sizeof(int));
 
-	/* set result vector to 0 */
-	for(i=0; i < (*veclength) * 8; i++){
+	/* initialize result vector to 0 */
+	for(i=0; i < reslength; i++){
 		vecres[i]=0;
 	}
 
@@ -205,13 +205,13 @@ void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres
 
 
 
-void bytesToDouble(unsigned char *vecbytes, int *veclength, int *nbvec, double *vecres){
+void bytesToDouble(unsigned char *vecbytes, int *veclength, int *nbvec, double *vecres, int reslength){
 	int i, j, k, idres=0; /* idres: index in vecres*/
 	double *temp;
 	temp = (double *) calloc(8, sizeof(double));
 
-	/* set result vector to 0 */
-	for(i=0; i < (*veclength) * 8; i++){
+	/* initialize result vector to 0 */
+	for(i=0; i < reslength; i++){
 		vecres[i]=0.0;
 	}
 
@@ -309,9 +309,9 @@ int ploidy(struct snpbin *x){
 
 /* transform a snpbin into a vector of integers */
 void snpbin2intvec(struct snpbin *x, int *out){
-	bytesToInt(x->bytevec, x->byteveclength, x->bytevecnb, out);
+	bytesToInt(x->bytevec, x->byteveclength, x->bytevecnb, out, nLoc(x));
 /*reminders:
-- void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres){
+- void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres, int reslength){
 - snpbin: unsigned char *bytevec; int *byteveclength, *bytevecnb, *nloc, *nanb, *naposi; */
 }
 
@@ -320,14 +320,14 @@ void snpbin2intvec(struct snpbin *x, int *out){
 /* transform a snpbin into a vector of frequencies (double) */
 void snpbin2freq(struct snpbin *x, double *out){
 	double ploid = (double) ploidy(x);
-	bytesToDouble(x->bytevec, x->byteveclength, x->bytevecnb, out);
+	bytesToDouble(x->bytevec, x->byteveclength, x->bytevecnb, out, nLoc(x));
 	int i;
  	
 	for(i=0; i < nLoc(x); i++){
 		out[i] = out[i] / ploid;
 	}
 /*reminders:
-- void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres){
+- void bytesToInt(unsigned char *vecbytes, int *veclength, int *nbvec, int *vecres, int reslength){
 - snpbin: unsigned char *bytevec; int *byteveclength, *bytevecnb, *nloc, *nanb, *naposi; */
 }
 
@@ -521,12 +521,23 @@ void testRaw(unsigned char *a, int *n){
 
 
 
+/* Test: increases for a raw (unsigned char) vector */
+void testSizePointer(int *sizePointer, int *sizeFirstElement, int *nbElements){
+	double *a;
+	a = (double *) calloc(5, sizeof(double));
+	*sizePointer = sizeof(a);
+	*sizeFirstElement = sizeof(a[0]);
+	*nbElements = sizeof(a) / sizeof(a[0]);
+	free(a);
+}
+
 
 /* TESTING in R */
 
 /*
 ## test raw conversion
 .C("testRaw", raw(256), 256L, PACKAGE="adegenet")
+.C("testSizePointer", integer(1), integer(1), integer(1), PACKAGE="adegenet")
 
 ## test raw->int conversion
 x <- sample(0:1,800,replace=TRUE)
@@ -537,7 +548,7 @@ all(.C("bytesToBinInt", toto, length(toto), integer(length(toto)*8))[[3]]==x)
 .C("bytesToBinInt",as.raw(c(12,11)), 2L, integer(16), PACKAGE="adegenet")
 
 ## test several raw vec -> int (allele counts, any ploidy)
-.C("bytesToInt",as.raw(c(12,11)), 1L, 2L, integer(8), PACKAGE="adegenet")
+.C("bytesToInt",as.raw(c(12,11)), 1L, 2L, integer(8), integer(16), PACKAGE="adegenet")
 
 
 */
