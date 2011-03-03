@@ -52,7 +52,7 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
     x <- .Object
     input <- list(...)
     if(length(input)==1) names(input) <- "snp"
-
+    if(length(input)>1 && ! "snp" %in% names(input)) names(input)[1] <- "snp"
 
     ## handle snp data ##
     if(!is.null(input$snp) && length(input$snp)>0){
@@ -170,7 +170,7 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
 
 
         ## input$gen is a matrix or a data.frame
-        if(is.matrix(input$gen) | is.data.frame(input$gen)){
+        if((is.matrix(input$gen) & !inherits(input$gen,"snp.matrix")) | is.data.frame(input$gen)){
             if(is.null(input$ind.names)){
                 input$ind.names <- rownames(input$gen)
             }
@@ -215,6 +215,38 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
                 x@gen <- mclapply(input$gen, function(e) new("SNPbin",e), mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE)
             } else {
                 x@gen <- lapply(input$gen, function(e) new("SNPbin",e))
+            }
+        }
+
+
+        ## input$gen is a snp.matrix object ##
+        if(inherits(input$gen,"snp.matrix")){
+            if(!require(snpMatrix)){
+                cat("\nThe package snp.matrix is needed for this conversion.")
+                cat("\nTo install it, type:")
+                cat("\n  source(\"http://bioconductor.org/biocLite.R\")")
+                cat("\n  biocLite(\"snpMatrix\")\n")
+                x@gen <- NULL
+            } else {
+
+                ## function to convert one indiv
+                f1 <- function(x){
+                    res <- as.integer(x)
+                    res[res==0] <- NA
+                    res <- res-1
+                    return(new("SNPbin", as.integer(res), ploidy=2))
+                }
+
+                ## create SNPbin list
+                if(multicore){
+                    x@gen <- mclapply(1:nrow(input$gen), function(i) f1(input$gen[i,]), mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE)
+                } else {
+                    x@gen <- lapply(1:nrow(input$gen), function(i) f1(input$gen[i,]))
+                }
+
+                ## handle names
+                if(is.null(input$ind.names)) {input$ind.names <- rownames(input$gen)}
+                if(is.null(input$loc.names)) {input$loc.names <- colnames(input$gen)}
             }
         }
     }
@@ -779,6 +811,13 @@ setAs("data.frame", "genlight", def=function(from){
 setAs("list", "genlight", def=function(from){
     return(new("genlight", from))
 })
+
+
+setAs("snp.matrix", "genlight", def=function(from){
+    return(new("genlight", from))
+})
+
+
 
 
 setMethod("as.genlight", "matrix", function(x, ...) as(x, "genlight"))
