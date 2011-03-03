@@ -690,6 +690,11 @@ setReplaceMethod("other","genlight",function(x,value) {
 #############
 ## as methods
 #############
+## KLUDGE - needed for as.matrix.genlight to be dispatched correctly (R-2.12.1)
+setGeneric("as.matrix")
+
+
+## SNPbin/genlight -> other
 setAs("SNPbin", "integer", def=function(from){
     res <- .SNPbin2int(from)
     return(res)
@@ -712,9 +717,6 @@ setAs("genlight", "matrix", def=function(from){
     return(res)
 })
 
-
-## KLUDGE - needed for as.matrix.genlight to be dispatched correctly (R-2.12.1)
-setGeneric("as.matrix")
 
 as.matrix.genlight <- function(x, ...){
     return(as(x, "matrix"))
@@ -744,6 +746,44 @@ as.list.genlight <- function(x, ...){
 
 
 
+
+## other -> SNPbin/genlight
+setGeneric("as.SNPbin", function(x, ...) standardGeneric("as.SNPbin"))
+setGeneric("as.genlight", function(x, ...) standardGeneric("as.genlight"))
+
+setAs("integer", "SNPbin", def=function(from){
+    res <- new("SNPbin", from)
+    return(res)
+})
+
+setAs("numeric", "SNPbin", def=function(from){
+    res <- new("SNPbin", from)
+    return(res)
+})
+
+
+setMethod("as.SNPbin", "integer", function(x, ...) as(x, "SNPbin"))
+setMethod("as.SNPbin", "numeric", function(x, ...) as(x, "SNPbin"))
+
+
+setAs("matrix", "genlight", def=function(from){
+    return(new("genlight", from))
+})
+
+
+setAs("data.frame", "genlight", def=function(from){
+    return(new("genlight", from))
+})
+
+
+setAs("list", "genlight", def=function(from){
+    return(new("genlight", from))
+})
+
+
+setMethod("as.genlight", "matrix", function(x, ...) as(x, "genlight"))
+setMethod("as.genlight", "data.frame", function(x, ...) as(x, "genlight"))
+setMethod("as.genlight", "list", function(x, ...) as(x, "genlight"))
 
 
 
