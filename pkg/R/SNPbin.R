@@ -416,7 +416,7 @@ setMethod ("show", "genlight", function(object){
 
     if(!is.null(other(object))){
         cat(" @other: ")
-        cat("a list containing ")
+        cat("a list containing: ")
         cat(ifelse(is.null(names(other(object))), paste(length(other(object)),"unnamed elements"),
                    paste(names(other(object)), collapse= "  ")), "\n")
     }
