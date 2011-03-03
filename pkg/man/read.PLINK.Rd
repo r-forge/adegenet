@@ -1,36 +1,36 @@
 \encoding{UTF-8}
-\name{read.snp}
-\alias{read.snp}
-\title{ Reading Single Nucleotide Polymorphism data}
+\name{read.PLINK}
+\alias{read.PLINK}
+\title{ Reading PLINK Single Nucleotide Polymorphism data}
 \description{
-  The function \code{read.snp} reads a SNP data file with extension '.snp' and
-  converts it into a \linkS4class{genlight} object. This format is
-  devoted to handle biallelic SNP only, but can accomodate massive
-  datasets such as complete genomes with considerably less memory than
-  other formats.
+  The function \code{read.PLINK} reads a data file exported by the PLINK
+  software with extension '.raw' and converts it into a
+  \linkS4class{genlight} object.
 
-  The function reads data by chunks of a few genomes (minimum 1, no
+  The function reads data by chunks of several genomes (minimum 1, no
   maximum) at a time, which allows one to read massive datasets with
   negligible RAM requirements (albeit at a cost of computational
   time). The argument \code{chunkSize} indicates the number of genomes
   read at a time. Increasing this value decreases the computational time
   required to read data in, while increasing memory requirements.
 
-  A description of the .snp format is provided in an example file
-  distributed with adegenet (see example below).
+  See details for the documentation about how to export data using PLINK
+  to the '.raw' format.
 }
 \usage{
-read.snp(file, quiet=FALSE, chunkSize = 1000, multicore = require("multicore"),
-    n.cores = NULL, \dots)
+read.PLINK(file, quiet=FALSE, chunkSize=1000, ploidy=2,
+           multicore=require("multicore"), n.cores=NULL, \dots)
 }
 \arguments{
-   \item{file}{ a character string giving the path to the file to
-    convert, with the extension ".snp".}
+  \item{file}{ a character string giving the path to the file to
+    convert, with the extension ".PLINK".}
   \item{quiet}{ logical stating whether a conversion messages should be
     printed (TRUE,default) or not (FALSE).}
   \item{chunkSize}{an integer indicating the number of genomes to be
-  read at a time; larger values require more RAM but decrease the time
-  needed to read the data.}
+    read at a time; larger values require more RAM but decrease the time
+    needed to read the data.}
+  \item{ploidy}{an integer indicating the ploidy of the data; defaults to
+    2.}
   \item{multicore}{a logical indicating whether multiple cores -if
     available- should be used for the computations (TRUE, default), or
     not (FALSE); requires the package \code{multicore} to be installed
@@ -39,14 +39,16 @@ read.snp(file, quiet=FALSE, chunkSize = 1000, multicore = require("multicore"),
     used in the computations; if NULL, then the maximum number of cores
     available on the computer is used.}
   \item{\dots}{other arguments to be passed to other functions -
-  currently not used.}
+    currently not used.}
 }
 \details{
-  === The .snp format ===
+  === Exporting data from PLINK ===
   
-  Details of the .snp format can be found in the example file
-  distributed with adegenet (see below), or on the adegenet website
-  (type \code{adegenetWeb()} in R).
+  Data need to be exported from PLINK using the option "--recodeA" (and
+  NOT "--recodeAD"). The PLINK command should therefore look like:
+  \code{plink --file data --recodeA}. For more information on this
+  topic, please look at this webpage:
+  \url{http://pngu.mgh.harvard.edu/~purcell/plink/dataman.shtml}
 
   
   === Using multiple cores ===
@@ -64,25 +66,21 @@ read.snp(file, quiet=FALSE, chunkSize = 1000, multicore = require("multicore"),
 }
 \value{an object of the class \linkS4class{genlight}}
 \seealso{
-\code{\link{import2genind}}, \code{\link{df2genind}}, \code{\link{read.genetix}}
-  \code{\link{read.fstat}}, \code{\link{read.structure}}, \code{\link{read.genepop}}
+  - a description of the class \linkS4class{genlight}.
+
+  - \code{\link{read.snp}}: read from adegenet's dedicated format to
+  - store biallelic SNP data.
+  
+  - other import function in adegenet: \code{\link{import2genind}},
+  \code{\link{df2genind}}, \code{\link{read.genetix}}
+  \code{\link{read.fstat}}, \code{\link{read.structure}},
+  \code{\link{read.genepop}}.
+
+  - another function \code{read.plink} is available in the package
+  \code{snpMatrix}.
 }
 \author{Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
-## show the example file ##
-## this is the path to the file:
-system.file("files/exampleSnpDat.snp",package="adegenet")
 
-## show its content:
-file.show(system.file("files/exampleSnpDat.snp",package="adegenet"))
-
-## read the file
-obj <-
-read.snp(system.file("files/exampleSnpDat.snp",package="adegenet"), chunk=2)
-obj
-as.matrix(obj)
-ploidy(obj)
-alleles(obj)
-locNames(obj)
 }
 \keyword{manip}
