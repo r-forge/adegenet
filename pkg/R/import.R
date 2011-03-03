@@ -873,10 +873,54 @@ read.snp <- function(file, quiet=FALSE, chunkSize=1000,
 
 
 
-#######################
-# Function read.PLINK
-#######################
-read.PLINK <- function(file, quiet=FALSE, chunkSize=1000, ploidy=2,
+####################
+## extract.PLINKmap
+####################
+extract.PLINKmap <- function(file, x=NULL){
+    ## CHECK EXTENSION ##
+    ext <- .readExt(file)
+    ext <- toupper(ext)
+    if(ext != "MAP") warning("wrong map.file extension - '.map' expected")
+
+
+    ## READ FILE ##
+    ## find nb of columns
+    txt <- scan(file,what="character",sep="\n",quiet=TRUE,  nlines=1)
+    nb.col <- length( unlist(strsplit(txt,"[[:blank:]]+")))
+
+    ## read file
+    txt <- scan(file,what="character",sep="\t",quiet=TRUE)
+    txt <- matrix(txt, ncol=4, byrow=TRUE)
+
+
+    ## EXTRACT INFO AND RETURN OBJECT ##
+    ## return a genlight
+    if(!is.null(x)){ 
+        ## match data
+        ord <- match(locNames(x), txt[,2]) # check that it is the 2nd column
+        if(!inherits(x, "genlight")) stop("x is not a genlight object")
+        other(x)$chromosome <- factor(txt[ord,1])
+        other(x)$position <- as.integer(txt[ord,4])
+
+        return(x)
+    }
+
+    ## return a list
+    res <- list(chromosome=factor(txt[ord,1]), position=as.integer(txt[ord,4]))
+
+    return(res)
+} # end extract.PLINKmap
+
+
+
+
+
+
+
+########################
+## Function read.PLINK
+########################
+read.PLINK <- function(file, map.file=NULL, quiet=FALSE, chunkSize=1000, ploidy=2,
                        multicore=require("multicore"), n.cores=NULL, ...){
     ## HANDLE ARGUMENTS ##
     ext <- .readExt(file)
@@ -967,6 +1011,13 @@ read.PLINK <- function(file, quiet=FALSE, chunkSize=1000, ploidy=2,
     misc.info$phenotype[misc.info$phenotype==2] <- "case"
     misc.info$phenotype <- factor(misc.info$phenotype)
     other(res) <- misc.info
+
+
+    ## HANDLE MAP FILE INFO ##
+    if(!is.null(map.file)){
+        res <- extract.PLINKmap(map.file, res)
+    }
+
 
     ## RETURN OUTPUT ##
     if(!quiet) cat("\n...done.\n\n")
