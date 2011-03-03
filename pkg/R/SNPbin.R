@@ -813,9 +813,9 @@ setAs("list", "genlight", def=function(from){
 })
 
 
-setAs("snp.matrix", "genlight", def=function(from){
-    return(new("genlight", from))
-})
+## setAs("snp.matrix", "genlight", def=function(from){
+##     return(new("genlight", from))
+## })
 
 
 
@@ -823,6 +823,7 @@ setAs("snp.matrix", "genlight", def=function(from){
 setMethod("as.genlight", "matrix", function(x, ...) as(x, "genlight"))
 setMethod("as.genlight", "data.frame", function(x, ...) as(x, "genlight"))
 setMethod("as.genlight", "list", function(x, ...) as(x, "genlight"))
+## setMethod("as.genlight", "snp.matrix", function(x, ...) as(x, "genlight"))
 
 
 

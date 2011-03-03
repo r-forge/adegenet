@@ -2,13 +2,16 @@
 \alias{as,genlight,matrix-method}
 \alias{as,genlight,data.frame-method}
 \alias{as,genlight,list-method}
+% \alias{as,genlight,snp.matrix-method}
 \alias{as.genlight}
 \alias{as.genlight,matrix-method}
 \alias{as.genlight,data.frame-method}
 \alias{as.genlight,list-method}
+% \alias{as.genlight,snp.matrix-method}
 \alias{coerce,genlight,matrix-method}
 \alias{coerce,genlight,data.frame-method}
 \alias{coerce,genlight,list-method}
+% \alias{coerce,genlight,snp.matrix-method}
 
 % \alias{,genlight-method}
 % \alias{,genlight-method}

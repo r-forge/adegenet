@@ -1,11 +1,15 @@
 \encoding{UTF-8}
 \name{read.PLINK}
 \alias{read.PLINK}
+\alias{read.plink}
+\alias{extract.PLINKmap}
 \title{ Reading PLINK Single Nucleotide Polymorphism data}
 \description{
   The function \code{read.PLINK} reads a data file exported by the PLINK
   software with extension '.raw' and converts it into a
-  \linkS4class{genlight} object.
+  \linkS4class{genlight} object. Optionally, information about SNPs can
+  be read from a ".map" file, either by specifying the argument
+  \code{map.file} in \code{read.PLINK}, or using \code{extract.PLINKmap}.
 
   The function reads data by chunks of several genomes (minimum 1, no
   maximum) at a time, which allows one to read massive datasets with
@@ -18,12 +22,20 @@
   to the '.raw' format.
 }
 \usage{
-read.PLINK(file, quiet=FALSE, chunkSize=1000, ploidy=2,
+read.PLINK(file, map.file=NULL, quiet=FALSE, chunkSize=1000, ploidy=2,
            multicore=require("multicore"), n.cores=NULL, \dots)
+
+extract.PLINKmap(file, x=NULL)
 }
 \arguments{
-  \item{file}{ a character string giving the path to the file to
-    convert, with the extension ".PLINK".}
+  \item{file}{for \code{read.PLINK} a character string giving the path
+    to the file to convert, with the extension ".raw"; for
+    \code{extract.PLINKmap}, a character string giving the path to a
+    file with extension ".map".}
+  \item{map.file}{an optional character string indicating the path to a
+    ".map" file, which contains information about the SNPs (chromosome,
+    position). If provided, this information is processed by
+    \code{extract.PLINKmap} and stored in the \code{@other} slot.}
   \item{quiet}{ logical stating whether a conversion messages should be
     printed (TRUE,default) or not (FALSE).}
   \item{chunkSize}{an integer indicating the number of genomes to be
@@ -40,6 +52,11 @@ read.PLINK(file, quiet=FALSE, chunkSize=1000, ploidy=2,
     available on the computer is used.}
   \item{\dots}{other arguments to be passed to other functions -
     currently not used.}
+  \item{x}{an optional object of the class \linkS4class{genlight}, in
+    which the information read is stored; if provided, information is
+    matched against the names of the loci in \code{x}, as returned by
+    \code{locNames(x)}; if not provided, a list of two components is
+    returned, containing chromosome and position information.}
 }
 \details{
   === Exporting data from PLINK ===
@@ -64,7 +81,15 @@ read.PLINK(file, quiet=FALSE, chunkSize=1000, ploidy=2,
 
   DO NOT use the version on CRAN, which is slightly outdated.
 }
-\value{an object of the class \linkS4class{genlight}}
+\value{
+  - read.PLINK: an object of the class \linkS4class{genlight}
+
+  - extract.PLINKmap: if a \linkS4class{genlight} is provided as
+  argument \code{x}, this object incorporating the new information about
+  SNPs in the \code{@other} slot (with new components 'chromosome' and
+  'position'); otherwise, a list with two components containing
+  chromosome and position information.
+}
 \seealso{
   - a description of the class \linkS4class{genlight}.
 
