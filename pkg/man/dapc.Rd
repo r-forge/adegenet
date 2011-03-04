@@ -5,6 +5,7 @@
 \alias{dapc.matrix}
 \alias{dapc.genind}
 \alias{dapc.dudi}
+\alias{dapc.genlight}
 \alias{print.dapc}
 \alias{summary.dapc}
 \alias{scatter.dapc}
@@ -12,28 +13,35 @@
 \title{Discriminant Analysis of Principal Components (DAPC)}
 \description{
   These functions implement the Discriminant Analysis of Principal Components
-  (DAPC). See 'details' section for a succint description of the method. DAPC
-  implementation calls upon \code{\link[ade4]{dudi.pca}} from the \code{ade4} package and
-  \code{\link[MASS]{lda}} from the \code{MASS} package.
+  (DAPC). See 'details' section for a succint description of the method. 
 
- \code{dapc} performs the DAPC on a \code{data.frame}, a \code{matrix}, or a
- \code{\linkS4class{genind}} object, and returns an object with class
- \code{dapc}. If data are stored in a \code{data.frame} or a \code{matrix},
- these have to be quantitative data (i.e., \code{numeric} or \code{integers}),
- as opposed to \code{characters} or \code{factors}.
+ \code{dapc} is a generic function performing the DAPC on the following
+ types of objects:
+ - \code{data.frame} (only numeric data)
+ - \code{matrix} (only numeric data)
+ - \code{\linkS4class{genind}} objects (genetic markers)
+ - \code{\linkS4class{genlight}} objects (genome-wide SNPs)
 
- 
- Other functions are:
-  
+ These methods all return an object with class \code{dapc}.
+
+ Functions that can be applied to these objects are (the ".dapc" can be
+ ommitted):
+
   - \code{print.dapc}: prints the content of a \code{dapc} object.
-  
+
   - \code{summary.dapc}: extracts useful information from a  \code{dapc} object.
-  
+
   - \code{scatter.dapc}: produces scatterplots of principal components (or
     'discriminant functions'), with a screeplot of eigenvalues as inset.
-  
+
   - \code{assignplot}: plot showing the probabilities of assignment of
-    individuals to the different clusters.
+  individuals to the different clusters.
+
+
+  DAPC
+  implementation calls upon \code{\link[ade4]{dudi.pca}} from the
+  \code{ade4} package and \code{\link[MASS]{lda}} from the \code{MASS}
+  package.
 }
 \usage{
 \method{dapc}{data.frame}(x, grp, n.pca=NULL, n.da=NULL, center=TRUE,
@@ -45,6 +53,10 @@
 \method{dapc}{genind}(x, pop=NULL, n.pca=NULL, n.da=NULL, scale=FALSE,
      scale.method=c("sigma", "binom"), truenames=TRUE, var.contrib=TRUE,
      pca.select=c("nbEig","percVar"), perc.pca=NULL, \ldots)
+
+\method{dapc}{genlight}(x, pop = NULL, n.pca = NULL, n.da = NULL, scale = FALSE, 
+    var.contrib = TRUE, pca.select = c("nbEig", "percVar"), perc.pca = NULL, 
+    glPca = NULL, \ldots)
 
 \method{dapc}{dudi}(x, grp, \ldots)
 
@@ -94,7 +106,12 @@ assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
     retained axes of PCA.}
   \item{\ldots}{further arguments to be passed to other functions. For
     \code{dapc.matrix}, arguments are to match those of
-    \code{dapc.data.frame}; for \code{scatter}, arguments passed to \code{points}.}
+    \code{dapc.data.frame}; for \code{scatter}, arguments passed to
+    \code{points}; for \code{dapc.genlight}, arguments passed to
+    \code{\link{glPca}}.}
+  \item{glPca}{an optional \code{\link{glPca}} object; if provided,
+    dimension reduction is not performed (saving computational time) but
+    taken directly from this object.}
   \item{object}{a \code{dapc} object.}
   \item{scale.method}{a \code{character} specifying the scaling method to be used
     for allele frequencies, which must match "sigma" (usual estimate of standard
@@ -219,6 +236,28 @@ dapc1 <- dapc(H3N2, var.contrib=FALSE, scale=FALSE, n.pca=150, n.da=5)
 scatter(dapc1, cell=0, pch=18:23, cstar=0)
 
 ## only ellipse, custom labels
-scatter(dapc1, cell=2, pch="", cstar=0, posi="top", lab=paste("year\n",2001:2006), axesel=FALSE, col=terrain.colors(10))
+scatter(dapc1, cell=2, pch="", cstar=0, posi="top",
+lab=paste("year\n",2001:2006), axesel=FALSE, col=terrain.colors(10))
+
+
+
+## example using genlight objects ##
+## simulate data
+x <- glSim(50,4e3-50, 50, ploidy=2)
+x
+plot(x)
+
+## perform DAPC
+dapc1 <- dapc(x, n.pca=10, n.da=1)
+dapc1
+
+## plot results
+scatter(dapc1)
+
+## SNP contributions
+loadingplot(dapc1$var.contr)
+loadingplot(tail(dapc1$var.contr, 100), main="Loading plot - last 100 SNPs")
+
+
 }
 \keyword{multivariate}

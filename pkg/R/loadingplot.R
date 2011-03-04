@@ -11,11 +11,11 @@ loadingplot.default <- function(x, at=NULL, threshold=quantile(x,0.75), axis=1, 
     if(is.data.frame(x) | is.matrix(x)){
         if(is.null(lab)) {lab <- rownames(x)}
         x <- x[,axis]
-        names(x) <- temp
     } else {
         if(is.null(lab)) {lab <- names(x)}
     }
-    lab <- rep(lab, length=length(x))
+
+    names(x) <- lab <- rep(lab, length=length(x))
 
     if(!is.numeric(x)) stop("x is not numeric")
     if(any(is.na(x))) stop("NA entries in x")
