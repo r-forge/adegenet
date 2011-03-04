@@ -9,7 +9,8 @@
   software with extension '.raw' and converts it into a
   \linkS4class{genlight} object. Optionally, information about SNPs can
   be read from a ".map" file, either by specifying the argument
-  \code{map.file} in \code{read.PLINK}, or using \code{extract.PLINKmap}.
+  \code{map.file} in \code{read.PLINK}, or using \code{extract.PLINKmap}
+  to add information to an existing \linkS4class{genlight} object.
 
   The function reads data by chunks of several genomes (minimum 1, no
   maximum) at a time, which allows one to read massive datasets with
@@ -22,7 +23,7 @@
   to the '.raw' format.
 }
 \usage{
-read.PLINK(file, map.file=NULL, quiet=FALSE, chunkSize=1000, ploidy=2,
+read.PLINK(file, map.file=NULL, quiet=FALSE, chunkSize=1000,
            multicore=require("multicore"), n.cores=NULL, \dots)
 
 extract.PLINKmap(file, x=NULL)
@@ -41,9 +42,7 @@ extract.PLINKmap(file, x=NULL)
   \item{chunkSize}{an integer indicating the number of genomes to be
     read at a time; larger values require more RAM but decrease the time
     needed to read the data.}
-  \item{ploidy}{an integer indicating the ploidy of the data; defaults to
-    2.}
-  \item{multicore}{a logical indicating whether multiple cores -if
+   \item{multicore}{a logical indicating whether multiple cores -if
     available- should be used for the computations (TRUE, default), or
     not (FALSE); requires the package \code{multicore} to be installed
     (see details).}

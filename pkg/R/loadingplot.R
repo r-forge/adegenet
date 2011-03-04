@@ -5,14 +5,18 @@ loadingplot <- function (x, ...) UseMethod("loadingplot")
 
 
 loadingplot.default <- function(x, at=NULL, threshold=quantile(x,0.75), axis=1, fac=NULL, byfac=FALSE,
-                        lab=rownames(x), cex.lab=0.7, cex.fac=1, lab.jitter=0,
+                        lab=NULL, cex.lab=0.7, cex.fac=1, lab.jitter=0,
                         main="Loading plot", xlab="Variables", ylab="Loadings", srt=0, adj=NULL, ...){
     ## some checks
-    if(is.data.frame(x) || is.matrix(x)){
-        temp <- rownames(x)
+    if(is.data.frame(x) | is.matrix(x)){
+        if(is.null(lab)) {lab <- rownames(x)}
         x <- x[,axis]
         names(x) <- temp
+    } else {
+        if(is.null(lab)) {lab <- names(x)}
     }
+    lab <- rep(lab, length=length(x))
+
     if(!is.numeric(x)) stop("x is not numeric")
     if(any(is.na(x))) stop("NA entries in x")
     if(any(x<0)) {

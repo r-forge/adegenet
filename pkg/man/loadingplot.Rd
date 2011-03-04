@@ -14,7 +14,7 @@
 loadingplot(x, \dots)
 
 \method{loadingplot}{default}(x, at=NULL, threshold=quantile(x,0.75), axis=1, fac=NULL, byfac=FALSE,
-            lab=rownames(x), cex.lab=0.7, cex.fac=1, lab.jitter=0,
+            lab=NULL, cex.lab=0.7, cex.fac=1, lab.jitter=0,
             main="Loading plot", xlab="Variables", ylab="Loadings", srt = 0, adj = NULL, \dots)
 
 }
@@ -33,7 +33,7 @@ loadingplot(x, \dots)
   \item{byfac}{a logical stating whether loadings should be averaged by
     groups of observations, as defined by \code{fac}.}
   \item{lab}{a character vector giving the labels used to annotate
-    values above the threshold.}
+    values above the threshold; if NULL, names are taken from the object.}
   \item{cex.lab}{a numeric value indicating the size of annotations.}
   \item{cex.fac}{a numeric value indicating the size of annotations for
     groups of observations.}
