@@ -8,7 +8,7 @@ find.clusters <- function (x, ...) UseMethod("find.clusters")
 ######################
 find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE,
                                      criterion=c("diffNgroup", "min","goesup", "smoothNgoesup", "goodfit"),
-                                     max.n.clust=round(nrow(x)/10), n.iter=1e5, n.start=10, center=TRUE, scale=TRUE, ...){
+                                     max.n.clust=round(nrow(x)/10), n.iter=1e5, n.start=10, center=TRUE, scale=TRUE, ..., dudi=NULL){
 
     ## CHECKS ##
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
@@ -40,7 +40,12 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
     ## PERFORM PCA ##
     maxRank <- min(dim(x))
 
-    pcaX <- dudi.pca(x, center = center, scale = scale, scannf = FALSE, nf=maxRank)
+    if(is.null(dudi)){
+        pcaX <- dudi.pca(x, center = center, scale = scale, scannf = FALSE, nf=maxRank)
+    } else {
+        if(!inherits(dudi,"dudi")) stop("dudi provided but is not a dudi object")
+        pcaX <- dudi
+    }
 
     ## select the number of retained PC for PCA
     if(is.null(n.pca)){
