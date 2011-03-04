@@ -998,7 +998,7 @@ read.PLINK <- function(file, map.file=NULL, quiet=FALSE, chunkSize=1000,
     ## BUILD FINAL OBJECT ##
     if(!quiet) cat("\n Building final object... \n")
 
-    res <- new("genlight",res, ploidy=ploidy)
+    res <- new("genlight",res, ploidy=2)
     indNames(res) <- misc.info$IID
     pop(res) <- misc.info$FID
     locNames(res) <- loc.names
