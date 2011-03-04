@@ -190,11 +190,12 @@ dapc.dudi <- function(x, grp, ...){
 dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
                           scale=FALSE,  var.contrib=TRUE,
                           pca.select=c("nbEig","percVar"), perc.pca=NULL, glPca=NULL, ...){
-    ## FIRST CHECKS
+    ## FIRST CHECKS ##
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     if(!require(MASS, quiet=TRUE)) stop("MASS library is required.")
-
     if(!inherits(x, "genlight")) stop("x must be a genlight object.")
+
+    pca.select <- match.arg(pca.select)
 
     if(is.null(pop)) {
         pop.fac <- pop(x)
@@ -209,7 +210,7 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
     ## PERFORM PCA ##
     REDUCEDIM <- is.null(glPca)
 
-    if(REDUCEDIM & is.null(n.pca)){ # if no glPca provided
+    if(REDUCEDIM){ # if no glPca provided
         maxRank <- min(c(nInd(x), nLoc(x)))
         pcaX <- glPca(x, center = TRUE, scale = scale, nf=maxRank, loadings=FALSE, returnDotProd = TRUE, ...)
     }
@@ -221,17 +222,31 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
         }
         pcaX <- glPca
     }
-    cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
+
+    if(is.null(n.pca)){
+        cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
+    }
+
 
     ## select the number of retained PC for PCA
     if(is.null(n.pca) & pca.select=="nbEig"){
-        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
+        if(!REDUCEDIM){
+            myCol <- rep(c("black", "lightgrey"), c(ncol(pcaX$scores),length(pcaX$eig)))
+        } else {
+            myCol <- "black"
+        }
+        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA", col=myCol)
         cat("Choose the number PCs to retain (>=1): ")
         n.pca <- as.integer(readLines(n = 1))
     }
 
     if(is.null(perc.pca) & pca.select=="percVar"){
-        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
+        if(!REDUCEDIM){
+            myCol <- rep(c("black", "lightgrey"), c(ncol(pcaX$scores),length(pcaX$eig)))
+        } else {
+            myCol <- "black"
+        }
+        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA", col=myCol)
         cat("Choose the percentage of variance to retain (0-100): ")
         nperc.pca <- as.numeric(readLines(n = 1))
     }
@@ -243,14 +258,21 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
         if(n.pca<1) n.pca <- 1
     }
 
+    if(!REDUCEDIM){
+        if(n.pca > ncol(pcaX$scores)) {
+            n.pca <- ncol(pcaX$scores)
+        }
+    }
+
 
     ## recompute PCA with loadings if needed
     if(REDUCEDIM){
-        pcaX <- glPca(x, center = center, scale = scale, nf=n.pca, loadings=var.contrib, matDotProd = pca1$dotProd)
+        pcaX <- glPca(x, center = TRUE, scale = scale, nf=n.pca, loadings=var.contrib, matDotProd = pcaX$dotProd)
     }
 
 
     ## keep relevant PCs - stored in XU
+    N <- nInd(x)
     X.rank <- sum(pcaX$eig > 1e-14)
     n.pca <- min(X.rank, n.pca)
     if(n.pca >= N) stop("number of retained PCs of PCA is greater than N")
@@ -264,14 +286,14 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
 
 
     ## PERFORM DA ##
-    ldaX <- lda(XU, grp, tol=1e-30) # tol=1e-30 is a kludge, but a safe (?) one to avoid fancy rescaling by lda.default
+    ldaX <- lda(XU, pop.fac, tol=1e-30) # tol=1e-30 is a kludge, but a safe (?) one to avoid fancy rescaling by lda.default
     if(is.null(n.da)){
-        barplot(ldaX$svd^2, xlab="Linear Discriminants", ylab="F-statistic", main="Discriminant analysis eigenvalues", col=heat.colors(length(levels(grp))) )
+        barplot(ldaX$svd^2, xlab="Linear Discriminants", ylab="F-statistic", main="Discriminant analysis eigenvalues", col=heat.colors(length(levels(pop.fac))) )
         cat("Choose the number discriminant functions to retain (>=1): ")
         n.da <- as.integer(readLines(n = 1))
     }
 
-    n.da <- min(n.da, length(levels(grp))-1, n.pca) # can't be more than K-1 disc. func., or more than n.pca
+    n.da <- min(n.da, length(levels(pop.fac))-1, n.pca) # can't be more than K-1 disc. func., or more than n.pca
     n.da <- round(n.da)
     predX <- predict(ldaX, dimen=n.da)
 
@@ -281,12 +303,12 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
     res$n.pca <- n.pca
     res$n.da <- n.da
     res$tab <- XU
-    res$grp <- grp
+    res$grp <- pop.fac
     res$var <- XU.lambda
     res$eig <- ldaX$svd^2
     res$loadings <- ldaX$scaling[, 1:n.da, drop=FALSE]
     res$ind.coord <-predX$x
-    res$grp.coord <- apply(res$ind.coord, 2, tapply, grp, mean)
+    res$grp.coord <- apply(res$ind.coord, 2, tapply, pop.fac, mean)
     res$prior <- ldaX$prior
     res$posterior <- predX$posterior
     res$assign <- predX$class

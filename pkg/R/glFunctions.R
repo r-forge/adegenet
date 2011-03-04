@@ -354,6 +354,7 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE, alleleAsU
     ## rescale PCs
     res <- list()
     res$eig <- eigRes$values
+    nf <- min(nf, sum(res$eig>1e-10))
     ##res$matprod <- allProd # for debugging
 
     ## use: li = XQU = V\Lambda^(1/2)
