@@ -225,7 +225,8 @@ glDotProd <- function(x, center=FALSE, scale=FALSE, alleleAsUnit=FALSE){
 ## PCA for genlight objects
 ##
 glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE, alleleAsUnit=FALSE,
-                  useC=TRUE, multicore=require("multicore"), n.cores=NULL){
+                  useC=TRUE, multicore=require("multicore"), n.cores=NULL,
+                  returnDotProd=FALSE, matDotProd=NULL){
     if(!inherits(x, "genlight")) stop("x is not a genlight object")
 
     ## COMPUTE MEANS AND VARIANCES ##
@@ -242,94 +243,99 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE, alleleAsU
 
     myPloidy <- ploidy(x)
 
+    ## NEED TO COMPUTE DOT PRODUCTS ##
+    if(is.null(matDotProd)){
 
-    ## == if non-C code is used ==
-    if(!useC){
-        if(multicore && !require(multicore)) stop("multicore package requested but not installed")
-        if(multicore && is.null(n.cores)){
-            n.cores <- multicore:::detectCores()
-        }
-
-
-        ## COMPUTE DOT PRODUCTS BETWEEN GENOTYPES ##
-        ## to be fast, a particular function is defined for each case of centring/scaling
-
-        ## NO CENTRING / NO SCALING
-        if(!center & !scale){
-            dotProd <- function(a,b, ploid.a, ploid.b){ # a and b are two SNPbin objects
-                a <- as.integer(a) / ploid.a
-                a[is.na(a)] <- 0
-                b <- as.integer(b) / ploid.b
-                b[is.na(b)] <- 0
-                return(sum( a*b, na.rm=TRUE))
+        ## == if non-C code is used ==
+        if(!useC){
+            if(multicore && !require(multicore)) stop("multicore package requested but not installed")
+            if(multicore && is.null(n.cores)){
+                n.cores <- multicore:::detectCores()
             }
-        }
 
-        ## CENTRING / NO SCALING
-        if(center & !scale){
-            dotProd <- function(a,b, ploid.a, ploid.b){ # a and b are two SNPbin objects
-                a <- as.integer(a) / ploid.a
-                a[is.na(a)] <- vecMeans[is.na(a)]
-                b <- as.integer(b) / ploid.b
-                b[is.na(b)] <- vecMeans[is.na(b)]
-                return(sum( (a-vecMeans) * (b-vecMeans), na.rm=TRUE) )
+
+            ## COMPUTE DOT PRODUCTS BETWEEN GENOTYPES ##
+            ## to be fast, a particular function is defined for each case of centring/scaling
+
+            ## NO CENTRING / NO SCALING
+            if(!center & !scale){
+                dotProd <- function(a,b, ploid.a, ploid.b){ # a and b are two SNPbin objects
+                    a <- as.integer(a) / ploid.a
+                    a[is.na(a)] <- 0
+                    b <- as.integer(b) / ploid.b
+                    b[is.na(b)] <- 0
+                    return(sum( a*b, na.rm=TRUE))
+                }
             }
-        }
 
-
-        ## NO CENTRING / SCALING (odd option...)
-        if(!center & scale){
-            dotProd <- function(a,b, ploid.a, ploid.b){ # a and b are two SNPbin objects
-                a <- as.integer(a) / ploid.a
-                a[is.na(a)] <- 0
-                b <- as.integer(b) / ploid.b
-                b[is.na(b)] <- 0
-                return(sum( (a*b)/vecVar, na.rm=TRUE))
+            ## CENTRING / NO SCALING
+            if(center & !scale){
+                dotProd <- function(a,b, ploid.a, ploid.b){ # a and b are two SNPbin objects
+                    a <- as.integer(a) / ploid.a
+                    a[is.na(a)] <- vecMeans[is.na(a)]
+                    b <- as.integer(b) / ploid.b
+                    b[is.na(b)] <- vecMeans[is.na(b)]
+                    return(sum( (a-vecMeans) * (b-vecMeans), na.rm=TRUE) )
+                }
             }
-        }
 
 
-        ## CENTRING / SCALING
-        if(center & scale){
-            dotProd <- function(a,b, ploid.a, ploid.b){ # a and b are two SNPbin objects
-                a <- as.integer(a) / ploid.a
-                a[is.na(a)] <- vecMeans[is.na(a)]
-                b <- as.integer(b) / ploid.b
-                a[is.na(a)] <- vecMeans[is.na(a)]
-                return( sum( ((a-vecMeans)*(b-vecMeans))/vecVar, na.rm=TRUE ) )
+            ## NO CENTRING / SCALING (odd option...)
+            if(!center & scale){
+                dotProd <- function(a,b, ploid.a, ploid.b){ # a and b are two SNPbin objects
+                    a <- as.integer(a) / ploid.a
+                    a[is.na(a)] <- 0
+                    b <- as.integer(b) / ploid.b
+                    b[is.na(b)] <- 0
+                    return(sum( (a*b)/vecVar, na.rm=TRUE))
+                }
             }
+
+
+            ## CENTRING / SCALING
+            if(center & scale){
+                dotProd <- function(a,b, ploid.a, ploid.b){ # a and b are two SNPbin objects
+                    a <- as.integer(a) / ploid.a
+                    a[is.na(a)] <- vecMeans[is.na(a)]
+                    b <- as.integer(b) / ploid.b
+                    a[is.na(a)] <- vecMeans[is.na(a)]
+                    return( sum( ((a-vecMeans)*(b-vecMeans))/vecVar, na.rm=TRUE ) )
+                }
+            }
+
+
+            ## COMPUTE ALL POSSIBLE DOT PRODUCTS (XX^T / n) ##
+            allComb <- combn(1:nInd(x), 2)
+            if(multicore){
+                allProd <- unlist(mclapply(1:ncol(allComb), function(i) dotProd(x@gen[[allComb[1,i]]], x@gen[[allComb[2,i]]], myPloidy[allComb[1,i]], myPloidy[allComb[2,i]]),
+                                           mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE))
+            } else {
+                allProd <- unlist(lapply(1:ncol(allComb), function(i) dotProd(x@gen[[allComb[1,i]]], x@gen[[allComb[2,i]]], myPloidy[allComb[1,i]], myPloidy[allComb[2,i]]) ))
+            }
+            allProd <- allProd / nInd(x) # assume uniform weights
+
+            ## shape result as a matrix
+            attr(allProd,"Size") <- nInd(x)
+            attr(allProd,"Diag") <- FALSE
+            attr(allProd,"Upper") <- FALSE
+            class(allProd) <- "dist"
+            allProd <- as.matrix(allProd)
+
+            ## compute the diagonal
+            if(multicore){
+                temp <- unlist(mclapply(1:nInd(x), function(i) dotProd(x@gen[[i]], x@gen[[i]], myPloidy[i], myPloidy[i]),
+                                        mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE))/nInd(x)
+            } else {
+                temp <- unlist(lapply(1:nInd(x), function(i) dotProd(x@gen[[i]], x@gen[[i]], myPloidy[i], myPloidy[i]) ))/nInd(x)
+            }
+            diag(allProd) <- temp
+        } else { # === use C computations ====
+            allProd <- glDotProd(x, center=center, scale=scale, alleleAsUnit=alleleAsUnit)/nInd(x)
         }
-
-
-        ## COMPUTE ALL POSSIBLE DOT PRODUCTS (XX^T / n) ##
-        allComb <- combn(1:nInd(x), 2)
-        if(multicore){
-            allProd <- unlist(mclapply(1:ncol(allComb), function(i) dotProd(x@gen[[allComb[1,i]]], x@gen[[allComb[2,i]]], myPloidy[allComb[1,i]], myPloidy[allComb[2,i]]),
-                                       mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE))
-        } else {
-            allProd <- unlist(lapply(1:ncol(allComb), function(i) dotProd(x@gen[[allComb[1,i]]], x@gen[[allComb[2,i]]], myPloidy[allComb[1,i]], myPloidy[allComb[2,i]]) ))
-        }
-        allProd <- allProd / nInd(x) # assume uniform weights
-
-        ## shape result as a matrix
-        attr(allProd,"Size") <- nInd(x)
-        attr(allProd,"Diag") <- FALSE
-        attr(allProd,"Upper") <- FALSE
-        class(allProd) <- "dist"
-        allProd <- as.matrix(allProd)
-
-        ## compute the diagonal
-        if(multicore){
-            temp <- unlist(mclapply(1:nInd(x), function(i) dotProd(x@gen[[i]], x@gen[[i]], myPloidy[i], myPloidy[i]),
-                                    mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE))/nInd(x)
-        } else {
-            temp <- unlist(lapply(1:nInd(x), function(i) dotProd(x@gen[[i]], x@gen[[i]], myPloidy[i], myPloidy[i]) ))/nInd(x)
-        }
-        diag(allProd) <- temp
-    } else { # === use C computations ====
-        allProd <- glDotProd(x, center=center, scale=scale, alleleAsUnit=alleleAsUnit)/nInd(x)
+    } else { # END NEED TO COMPUTE DOTPROD
+        if(!all(dim(matDotProd)==nInd(x))) stop("matDotProd has wrong dimensions.")
+        allProd <- matDotProd
     }
-
 
     ## PERFORM THE ANALYSIS ##
     ## eigenanalysis
@@ -403,6 +409,11 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE, alleleAsU
         }
     }
 
+    if(returnDotProd){
+        res$dotProd <- allProd
+        rownames(res$dotProd) <- colnames(res$dotProd) <- indNames(x)
+    }
+
     res$call <- match.call()
 
     class(res) <- "glPca"
@@ -429,7 +440,10 @@ print.glPca <- function(x, ...){
     if(!is.null(x$loadings)){
         cat("\nPrincipal axes ($loadings):\n matrix with", nrow(x$loadings), "rows (SNPs) and", ncol(x$loadings), "columns (axes)", "\n")
     }
-    cat("\n")
+    if(!is.null(x$dotProd)){
+        cat("\nDot products between individuals ($dotProd):\n matrix with", nrow(x$dotProd), "rows and", ncol(x$dotProd), "columns", "\n")
+    }
+  cat("\n")
 }
 
 
@@ -498,6 +512,23 @@ loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfa
 
     return(invisible(res))
 } # end loadingplot.glPca
+
+
+
+
+
+###############
+## .glPca2dudi
+###############
+.glPca2dudi <- function(x){
+    if(!inherits(x,"glPca")) stop("x is not a glPca object")
+    old.names <- names(x)
+    new.names <- sub("scores","li", old.names)
+    new.names <- sub("loadings","c1", new.names)
+    names(x) <- new.names
+    class(x) <- c("pca","dudi")
+    return(x)
+} # end glPca2dudi
 
 
 
