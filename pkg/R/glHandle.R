@@ -22,13 +22,26 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
 
 
     ## SUBSET INDIVIDUALS ##
+    ## genotypes
     x@gen <- x@gen[i]
+
+    ## ind names
     x@ind.names <- x@ind.names[i]
+
+    ## ploidy
     if(!is.null(x@ploidy)) {
-        ori.ploidy <- ploidy(x)[i]
+        ori.ploidy <- ploidy(x) <- ploidy(x)[i]
     } else {
         ori.ploidy <- NULL
     }
+
+    ## pop
+    if(!is.null(pop(x))) {
+        ori.pop <- pop(x) <- factor(pop(x)[i])
+    } else {
+        ori.pop <- NULL
+    }
+    
 
     ## HANDLE 'OTHER' SLOT ##
     nOther <- length(other(x))
@@ -58,7 +71,7 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
     } else { # need to subset SNPs
         old.other <- other(x)
         x <- as.matrix(x)[, j, drop=FALSE] # maybe need to process one row at a time
-        x <- new("genlight", gen=x, ploidy=ori.ploidy, other=old.other)
+        x <- new("genlight", gen=x, pop=ori.pop, ploidy=ori.ploidy, other=old.other)
     }
 
     return(x)

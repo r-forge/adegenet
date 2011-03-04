@@ -55,7 +55,7 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
     if(length(input)>1 && ! "snp" %in% names(input)) names(input)[1] <- "snp"
 
     ## handle snp data ##
-    if(!is.null(input$snp) && length(input$snp)>0){
+    if(!is.null(input$snp) && length(input$snp)>0 && !all(is.na(input$snp))){
         ## a vector of raw is provided
         if(is.raw(input$snp)){
             x@snp <-list(input$snp)
@@ -106,6 +106,20 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
             x@ploidy <- input$ploidy
             return(x)
         }
+    }
+
+    ## handle full-NA data
+    if(all(is.na(input$snp))){
+        x@snp <- list()
+        x@n.loc <- length(input$snp)
+        x@snp[[1]] <- .bin2raw(rep(0L, length(input$snp)))$snp
+        x@NA.posi <- 1:length(input$snp)
+        if(!is.null(input$ploidy)){
+            x@ploidy <- input$ploidy
+        } else {
+            x@ploidy <- as.integer(NA)
+        }
+        return(x)
     }
 
 
@@ -411,11 +425,11 @@ setMethod ("show", "genlight", function(object){
     }
 
     if(!is.null(pop(object))){
-        cat("\n @pop: individual membership for", length(levels(pop(object))), "populations\n")
+        cat("\n @pop: individual membership for", length(levels(pop(object))), "populations")
     }
 
     if(!is.null(other(object))){
-        cat(" @other: ")
+        cat("\n @other: ")
         cat("a list containing: ")
         cat(ifelse(is.null(names(other(object))), paste(length(other(object)),"unnamed elements"),
                    paste(names(other(object)), collapse= "  ")), "\n")
@@ -521,6 +535,7 @@ setReplaceMethod("ploidy","genlight",function(x,value) {
     value <- as.integer(value)
     if(any(value)<1) stop("Negative or null values provided")
     if(any(is.na(value))) stop("NA values provided")
+    if(length(value) == 1) value <- rep(value, length=nInd(x))
     if(length(value) != nInd(x)) stop("Length of the provided vector does not match nInd(x)")
     slot(x,"ploidy",check=TRUE) <- value
     return(x)
