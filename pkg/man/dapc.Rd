@@ -37,13 +37,13 @@
 }
 \usage{
 \method{dapc}{data.frame}(x, grp, n.pca=NULL, n.da=NULL, center=TRUE,
-     scale=FALSE,var.contrib=FALSE, pca.select=c("nbEig","percVar"),
+     scale=FALSE,var.contrib=TRUE, pca.select=c("nbEig","percVar"),
     perc.pca=NULL, \ldots, dudi=NULL)
 
 \method{dapc}{matrix}(x, \ldots)
 
 \method{dapc}{genind}(x, pop=NULL, n.pca=NULL, n.da=NULL, scale=FALSE,
-     scale.method=c("sigma", "binom"), truenames=TRUE, all.contrib=FALSE,
+     scale.method=c("sigma", "binom"), truenames=TRUE, var.contrib=TRUE,
      pca.select=c("nbEig","percVar"), perc.pca=NULL, \ldots)
 
 \method{dapc}{dudi}(x, grp, \ldots)
@@ -79,9 +79,9 @@ assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
     (estimated) standard deviation to account for trivial differences in
     variances. Further scaling options are available for \linkS4class{genind}
     objects (see argument \code{scale.method}).}
-  \item{var.contrib,all.contrib}{a \code{logical} indicating whether the
+  \item{var.contrib}{a \code{logical} indicating whether the
     contribution of original variables (alleles, for \linkS4class{genind} objects)
-    should be provided (TRUE) or not (FALSE, default). Such output can be useful,
+    should be provided (TRUE, default) or not (FALSE). Such output can be useful,
     but can also create huge matrices when there is a lot of variables.}
   \item{pca.select}{a \code{character} indicating the mode of selection of PCA
     axes, matching either "nbEig" or "percVar". For "nbEig", the user
@@ -213,7 +213,7 @@ example(H3N2)
 ## showing different scatter options ##
 data(H3N2)
 pop(H3N2) <- factor(H3N2$other$epid)
-dapc1 <- dapc(H3N2, all.contrib=FALSE, scale=FALSE, n.pca=150, n.da=5)
+dapc1 <- dapc(H3N2, var.contrib=FALSE, scale=FALSE, n.pca=150, n.da=5)
 
 ## remove internal segments and ellipses, different pch
 scatter(dapc1, cell=0, pch=18:23, cstar=0)

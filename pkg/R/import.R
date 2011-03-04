@@ -895,7 +895,7 @@ extract.PLINKmap <- function(file, x=NULL){
 
     ## EXTRACT INFO AND RETURN OBJECT ##
     ## return a genlight
-    if(!is.null(x)){ 
+    if(!is.null(x)){
         ## match data
         ord <- match(locNames(x), txt[,2]) # check that it is the 2nd column
         if(!inherits(x, "genlight")) stop("x is not a genlight object")
@@ -920,7 +920,7 @@ extract.PLINKmap <- function(file, x=NULL){
 ########################
 ## Function read.PLINK
 ########################
-read.PLINK <- function(file, map.file=NULL, quiet=FALSE, chunkSize=1000, ploidy=2,
+read.PLINK <- function(file, map.file=NULL, quiet=FALSE, chunkSize=1000,
                        multicore=require("multicore"), n.cores=NULL, ...){
     ## HANDLE ARGUMENTS ##
     ext <- .readExt(file)
@@ -977,10 +977,10 @@ read.PLINK <- function(file, map.file=NULL, quiet=FALSE, chunkSize=1000, ploidy=
         txt <- lapply(txt, function(e) suppressWarnings(as.integer(e[-(1:6)])))
 
         if(multicore){
-            res <- c(res, mclapply(txt, function(e) new("SNPbin", snp=e, ploidy=ploidy),
+            res <- c(res, mclapply(txt, function(e) new("SNPbin", snp=e, ploidy=2),
                                    mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE) )
         } else {
-            res <- c(res, lapply(txt, function(e) new("SNPbin", snp=e, ploidy=ploidy)) )
+            res <- c(res, lapply(txt, function(e) new("SNPbin", snp=e, ploidy=2)) )
         }
 
         lines.to.skip <-lines.to.skip + length(txt)

@@ -7,7 +7,7 @@ dapc <- function (x, ...) UseMethod("dapc")
 ## dapc.data.frame
 #################
 dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
-                            center=TRUE, scale=FALSE, var.contrib=FALSE,
+                            center=TRUE, scale=FALSE, var.contrib=TRUE,
                             pca.select=c("nbEig","percVar"), perc.pca=NULL, ..., dudi=NULL){
 
     ## FIRST CHECKS
@@ -100,7 +100,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
 
     ## optional: get loadings of alleles
     if(var.contrib){
-        res$var.contr <- as.matrix(U) %*% as.matrix(ldaX$scaling)
+        res$var.contr <- as.matrix(U) %*% as.matrix(ldaX$scaling[,1:n.da,drop=FALSE])
         f1 <- function(x){
             temp <- sum(x*x)
             if(temp < 1e-12) return(rep(0, length(x)))
@@ -131,7 +131,7 @@ dapc.matrix <- function(x, ...){
 ## dapc.genind
 #############
 dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
-                        scale=FALSE, scale.method=c("sigma", "binom"), truenames=TRUE, all.contrib=FALSE,
+                        scale=FALSE, scale.method=c("sigma", "binom"), truenames=TRUE, var.contrib=TRUE,
                         pca.select=c("nbEig","percVar"), perc.pca=NULL, ...){
 
     ## FIRST CHECKS
@@ -160,7 +160,7 @@ dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
 
     ## CALL DATA.FRAME METHOD ##
     res <- dapc(X, grp=pop.fac, n.pca=n.pca, n.da=n.da,
-                center=FALSE, scale=FALSE, var.contrib=all.contrib,
+                center=FALSE, scale=FALSE, var.contrib=var.contrib,
                 pca.select=pca.select, perc.pca=perc.pca)
 
     res$call <- match.call()
@@ -213,17 +213,24 @@ print.dapc <- function(x, ...){
 
     ## data.frames
     cat("\n")
-    sumry <- array("", c(5, 4), list(1:5, c("data.frame", "nrow", "ncol", "content")))
+    if(!is.null(x$var.contr)){
+        sumry <- array("", c(6, 4), list(1:6, c("data.frame", "nrow", "ncol", "content")))
+    } else {
+        sumry <- array("", c(5, 4), list(1:5, c("data.frame", "nrow", "ncol", "content")))     
+    }
     sumry[1, ] <- c("$tab", nrow(x$tab), ncol(x$tab), "retained PCs of PCA")
     sumry[2, ] <- c("$loadings", nrow(x$loadings), ncol(x$loadings), "loadings of variables")
     sumry[3, ] <- c("$ind.coord", nrow(x$ind.coord), ncol(x$ind.coord), "coordinates of individuals (principal components)")
     sumry[4, ] <- c("$grp.coord", nrow(x$grp.coord), ncol(x$grp.coord), "coordinates of groups")
     sumry[5, ] <- c("$posterior", nrow(x$posterior), ncol(x$posterior), "posterior membership probabilities")
+    if(!is.null(x$var.contr)){
+            sumry[6, ] <- c("$var.contr", nrow(x$var.contr), ncol(x$var.contr), "contribution of original variables")
+    }
     class(sumry) <- "table"
     print(sumry)
 
     cat("\nother elements: ")
-    if (length(names(x)) > 13)
+    if (length(names(x)) > 14)
         cat(names(x)[14:(length(names(x)))], "\n")
     else cat("NULL\n")
 }
