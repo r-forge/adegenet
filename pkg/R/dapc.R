@@ -3,9 +3,9 @@
 ########
 dapc <- function (x, ...) UseMethod("dapc")
 
-#################
+###################
 ## dapc.data.frame
-#################
+###################
 dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
                             center=TRUE, scale=FALSE, var.contrib=TRUE,
                             pca.select=c("nbEig","percVar"), perc.pca=NULL, ..., dudi=NULL){
@@ -23,9 +23,9 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
 
     ## SOME GENERAL VARIABLES
     N <- nrow(x)
+    REDUCEDIM <- is.null(dudi)
 
-
-    if(is.null(dudi)){ # if no dudi provided
+    if(REDUCEDIM){ # if no dudi provided
         ## PERFORM PCA ##
         maxRank <- min(dim(x))
         pcaX <- dudi.pca(x, center = center, scale = scale, scannf = FALSE, nf=maxRank)
@@ -173,12 +173,88 @@ dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
 
 
 
-##################
-# Function dapc.dudi
-##################
+######################
+## Function dapc.dudi
+######################
 dapc.dudi <- function(x, grp, ...){
     return(dapc.data.frame(x$li, grp, dudi=x, ...))
 }
+
+
+
+
+
+#################
+## dapc.genlight
+#################
+dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
+                          scale=FALSE,  var.contrib=TRUE,
+                          pca.select=c("nbEig","percVar"), perc.pca=NULL, glPca=NULL, ...){
+    ## FIRST CHECKS
+    if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
+    if(!require(MASS, quiet=TRUE)) stop("MASS library is required.")
+
+    if(!inherits(x, "genlight")) stop("x must be a genlight object.")
+
+    if(is.null(pop)) {
+        pop.fac <- pop(x)
+    } else {
+        pop.fac <- pop
+    }
+
+    if(is.null(pop.fac)) stop("x does not include pre-defined populations, and `pop' is not provided")
+
+
+
+    ## PERFORM PCA ##
+    maxRank <- min(c(nInd(x), nLoc(x)))
+
+    if(REDUCEDIM){ # if no dudi provided
+        maxRank <- min(dim(x))
+        pcaX <- glPca(x, center = center, scale = scale, nf=maxRank, loadings=FALSE, ...)
+    } else { # else use the provided dudi
+        pcaX <- glPca
+    }
+    cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
+
+    ## select the number of retained PC for PCA
+    if(is.null(n.pca) & pca.select=="nbEig"){
+        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
+        cat("Choose the number PCs to retain (>=1): ")
+        n.pca <- as.integer(readLines(n = 1))
+    }
+
+    if(is.null(perc.pca) & pca.select=="percVar"){
+        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
+        cat("Choose the percentage of variance to retain (0-100): ")
+        nperc.pca <- as.numeric(readLines(n = 1))
+    }
+
+    ## get n.pca from the % of variance to conserve
+    if(!is.null(perc.pca)){
+        n.pca <- min(which(cumVar >= perc.pca))
+        if(perc.pca > 99.999) n.pca <- length(pcaX$eig)
+        if(n.pca<1) n.pca <- 1
+    }
+
+
+    ## recompute PCA with loadings
+    if(REDUCEDIM){ # if no dudi provided
+        maxRank <- min(dim(x))
+        pcaX <- glPca(x, center = center, scale = scale, nf=n.pca, loadings=TRUE, ...)
+    }
+
+
+
+
+    res$call <- match.call()
+
+    return(res)
+
+} # end dapc.genlight
+
+
+
 
 
 
@@ -216,7 +292,7 @@ print.dapc <- function(x, ...){
     if(!is.null(x$var.contr)){
         sumry <- array("", c(6, 4), list(1:6, c("data.frame", "nrow", "ncol", "content")))
     } else {
-        sumry <- array("", c(5, 4), list(1:5, c("data.frame", "nrow", "ncol", "content")))     
+        sumry <- array("", c(5, 4), list(1:5, c("data.frame", "nrow", "ncol", "content")))
     }
     sumry[1, ] <- c("$tab", nrow(x$tab), ncol(x$tab), "retained PCs of PCA")
     sumry[2, ] <- c("$loadings", nrow(x$loadings), ncol(x$loadings), "loadings of variables")
