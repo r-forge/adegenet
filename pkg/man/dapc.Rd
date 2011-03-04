@@ -16,32 +16,28 @@
   (DAPC). See 'details' section for a succint description of the method. 
 
  \code{dapc} is a generic function performing the DAPC on the following
- types of objects:
- - \code{data.frame} (only numeric data)
- - \code{matrix} (only numeric data)
- - \code{\linkS4class{genind}} objects (genetic markers)
+ types of objects:\cr
+ - \code{data.frame} (only numeric data)\cr
+ - \code{matrix} (only numeric data)\cr
+ - \code{\linkS4class{genind}} objects (genetic markers)\cr
  - \code{\linkS4class{genlight}} objects (genome-wide SNPs)
-
+ 
  These methods all return an object with class \code{dapc}.
 
  Functions that can be applied to these objects are (the ".dapc" can be
  ommitted):
 
-  - \code{print.dapc}: prints the content of a \code{dapc} object.
-
-  - \code{summary.dapc}: extracts useful information from a  \code{dapc} object.
-
+  - \code{print.dapc}: prints the content of a \code{dapc} object.\cr
+  - \code{summary.dapc}: extracts useful information from a  \code{dapc} object.\cr
   - \code{scatter.dapc}: produces scatterplots of principal components (or
-    'discriminant functions'), with a screeplot of eigenvalues as inset.
-
+    'discriminant functions'), with a screeplot of eigenvalues as inset.\cr
   - \code{assignplot}: plot showing the probabilities of assignment of
   individuals to the different clusters.
 
 
-  DAPC
-  implementation calls upon \code{\link[ade4]{dudi.pca}} from the
-  \code{ade4} package and \code{\link[MASS]{lda}} from the \code{MASS}
-  package.
+  DAPC implementation calls upon \code{\link[ade4]{dudi.pca}} from the
+  \code{ade4} package (except for \linkS4class{genlight} objects)
+  and \code{\link[MASS]{lda}} from the \code{MASS} package.
 }
 \usage{
 \method{dapc}{data.frame}(x, grp, n.pca=NULL, n.da=NULL, center=TRUE,
@@ -54,9 +50,9 @@
      scale.method=c("sigma", "binom"), truenames=TRUE, var.contrib=TRUE,
      pca.select=c("nbEig","percVar"), perc.pca=NULL, \ldots)
 
-\method{dapc}{genlight}(x, pop = NULL, n.pca = NULL, n.da = NULL, scale = FALSE, 
-    var.contrib = TRUE, pca.select = c("nbEig", "percVar"), perc.pca = NULL, 
-    glPca = NULL, \ldots)
+\method{dapc}{genlight}(x, pop = NULL, n.pca = NULL, n.da = NULL, scale
+    = FALSE, var.contrib = TRUE, pca.select = c("nbEig", "percVar"),
+    perc.pca = NULL, glPca = NULL, \ldots)
 
 \method{dapc}{dudi}(x, grp, \ldots)
 
@@ -64,13 +60,16 @@
 
 \method{summary}{dapc}(object, \dots)
 
-\method{scatter}{dapc}(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$grp))), pch=20,
-                         posi="bottomleft", bg="grey", ratio=0.3, cstar = 1,
-                         cellipse = 1.5, axesell = TRUE, label = levels(x$grp),
-                         clabel = 1, xlim = NULL, ylim = NULL, grid = TRUE, addaxes =
-                         TRUE, origin = c(0,0), include.origin = TRUE,
-                         sub = "", csub = 1, possub = "bottomleft", posleg = "topright",
-                         cleg = 1, cgrid = 1, pixmap = NULL, contour = NULL, area = NULL, \ldots)
+\method{scatter}{dapc}(x, xax=1, yax=2, grp=NULL,
+                         col=rainbow(length(levels(x$grp))), pch=20,
+                         posi="bottomleft", bg="grey", ratio=0.3, cstar
+                         = 1, cellipse = 1.5, axesell = TRUE, label =
+                         levels(x$grp), clabel = 1, xlim = NULL, ylim =
+                         NULL, grid = TRUE, addaxes = TRUE, origin =
+                         c(0,0), include.origin = TRUE, sub = "", csub =
+                         1, possub = "bottomleft", posleg = "topright",
+                         cleg = 1, cgrid = 1, pixmap = NULL, contour =
+                         NULL, area = NULL, \ldots)
 
 assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
 }
@@ -188,7 +187,7 @@ assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
     variables (alleles in the case of genetic data) to the principal components
     of DAPC.}
 
-
+  
   === other outputs ===\cr
   Other functions have different outputs:\cr
   - \code{summary.dapc} returns a list with 6 components: \code{n.dim} (number
