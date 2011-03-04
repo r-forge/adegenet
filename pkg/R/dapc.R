@@ -69,7 +69,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     names(XU) <- paste("PCA-pc", 1:ncol(XU), sep=".")
 
 
-     ## PERFORM DA ##
+    ## PERFORM DA ##
     ldaX <- lda(XU, grp, tol=1e-30) # tol=1e-30 is a kludge, but a safe (?) one to avoid fancy rescaling by lda.default
     if(is.null(n.da)){
         barplot(ldaX$svd^2, xlab="Linear Discriminants", ylab="F-statistic", main="Discriminant analysis eigenvalues", col=heat.colors(length(levels(grp))) )
@@ -207,12 +207,18 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
 
 
     ## PERFORM PCA ##
-    maxRank <- min(c(nInd(x), nLoc(x)))
+    REDUCEDIM <- is.null(glPca)
 
-    if(REDUCEDIM){ # if no dudi provided
-        maxRank <- min(dim(x))
-        pcaX <- glPca(x, center = center, scale = scale, nf=maxRank, loadings=FALSE, ...)
-    } else { # else use the provided dudi
+    if(REDUCEDIM & is.null(n.pca)){ # if no glPca provided
+        maxRank <- min(c(nInd(x), nLoc(x)))
+        pcaX <- glPca(x, center = TRUE, scale = scale, nf=maxRank, loadings=FALSE, returnDotProd = TRUE, ...)
+    }
+
+    if(!REDUCEDIM){ # else use the provided glPca object
+        if(is.null(glPca$loadings) & var.contrib) {
+            warning("Contribution of variables requested but glPca object provided without loadings.")
+            var.contrib <- FALSE
+        }
         pcaX <- glPca
     }
     cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
@@ -238,19 +244,67 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
     }
 
 
-    ## recompute PCA with loadings
-    if(REDUCEDIM){ # if no dudi provided
-        maxRank <- min(dim(x))
-        pcaX <- glPca(x, center = center, scale = scale, nf=n.pca, loadings=TRUE, ...)
+    ## recompute PCA with loadings if needed
+    if(REDUCEDIM){
+        pcaX <- glPca(x, center = center, scale = scale, nf=n.pca, loadings=var.contrib, matDotProd = pca1$dotProd)
     }
 
 
+    ## keep relevant PCs - stored in XU
+    X.rank <- sum(pcaX$eig > 1e-14)
+    n.pca <- min(X.rank, n.pca)
+    if(n.pca >= N) stop("number of retained PCs of PCA is greater than N")
+    if(n.pca > N/3) warning("number of retained PCs of PCA may be too large (> N /3)\n results may be unstable ")
+
+    U <- pcaX$loadings[, 1:n.pca, drop=FALSE] # principal axes
+    XU <- pcaX$scores[, 1:n.pca, drop=FALSE] # principal components
+    XU.lambda <- sum(pcaX$eig[1:n.pca])/sum(pcaX$eig) # sum of retained eigenvalues
+    names(U) <- paste("PCA-pa", 1:ncol(U), sep=".")
+    names(XU) <- paste("PCA-pc", 1:ncol(XU), sep=".")
 
 
+    ## PERFORM DA ##
+    ldaX <- lda(XU, grp, tol=1e-30) # tol=1e-30 is a kludge, but a safe (?) one to avoid fancy rescaling by lda.default
+    if(is.null(n.da)){
+        barplot(ldaX$svd^2, xlab="Linear Discriminants", ylab="F-statistic", main="Discriminant analysis eigenvalues", col=heat.colors(length(levels(grp))) )
+        cat("Choose the number discriminant functions to retain (>=1): ")
+        n.da <- as.integer(readLines(n = 1))
+    }
+
+    n.da <- min(n.da, length(levels(grp))-1, n.pca) # can't be more than K-1 disc. func., or more than n.pca
+    n.da <- round(n.da)
+    predX <- predict(ldaX, dimen=n.da)
+
+
+    ## BUILD RESULT
+    res <- list()
+    res$n.pca <- n.pca
+    res$n.da <- n.da
+    res$tab <- XU
+    res$grp <- grp
+    res$var <- XU.lambda
+    res$eig <- ldaX$svd^2
+    res$loadings <- ldaX$scaling[, 1:n.da, drop=FALSE]
+    res$ind.coord <-predX$x
+    res$grp.coord <- apply(res$ind.coord, 2, tapply, grp, mean)
+    res$prior <- ldaX$prior
+    res$posterior <- predX$posterior
+    res$assign <- predX$class
     res$call <- match.call()
 
-    return(res)
+    ## optional: get loadings of alleles
+    if(var.contrib){
+        res$var.contr <- as.matrix(U) %*% as.matrix(ldaX$scaling[,1:n.da,drop=FALSE])
+        f1 <- function(x){
+            temp <- sum(x*x)
+            if(temp < 1e-12) return(rep(0, length(x)))
+            return(x*x / temp)
+        }
+        res$var.contr <- apply(res$var.contr, 2, f1)
+    }
 
+    class(res) <- "dapc"
+    return(res)
 } # end dapc.genlight
 
 
