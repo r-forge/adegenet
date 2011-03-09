@@ -27,10 +27,13 @@ setClass("genlight", representation(gen = "list",
                                     ind.names = "charOrNULL",
                                     loc.names = "charOrNULL",
                                     loc.all = "charOrNULL",
+                                    chromosome = "factorOrNULL",
+                                    position = "intOrNULL",
                                     ploidy = "intOrNULL",
                                     pop = "factorOrNULL",
                                     other = "list"),
-         prototype(gen = list(), n.loc = 0L, ind.names = NULL, loc.names = NULL, loc.all = NULL, ploidy=NULL, pop=NULL, other=list()))
+         prototype(gen = list(), n.loc = 0L, ind.names = NULL, loc.names = NULL, loc.all = NULL,
+                   chromosome = NULL, position = NULL, ploidy=NULL, pop=NULL, other=list()))
 
 
 
@@ -127,6 +130,7 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
     if(!is.null(input$n.loc)){
         x@n.loc <- as.integer(input$n.loc)
     } else {
+        warning("number of SNPs (n.loc) not provided to the genlight constructor - using the maximum number given data coding.")
         x@n.loc <- as.integer(length(x@snp)*8)
     }
 
@@ -141,6 +145,7 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
     if(!is.null(input$ploidy)){
         x@ploidy <- as.integer(input$ploidy)
     }
+
 
     return(x)
 }) # end SNPbin constructor
@@ -273,7 +278,13 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
 
             ## check length consistency
             if(length(input$ind.names) != nInd(x)){
-                stop("Inconsistent length for ind.names.")
+                warning("Inconsistent length for ind.names - storing this argument in @other.")
+                if(is.null(input$other)) {
+                    input$other <- list(ind.names.wrong.length=input$ind.names)
+                } else {
+                    input$other$ind.names.wrong.length <- input$ind.names
+                }
+
             } else {
                 ## assign value to the output object
                 x@ind.names <- input$ind.names
@@ -318,8 +329,13 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
             input$loc.names <- as.character(input$loc.names)
 
             ## check length consistency
-            if(length(input$loc.names) != x@n.loc){
-                warning("Inconsistent length for loc.names - ignoring this argument.")
+            if(length(input$loc.names) != x@n.loc){ # if problem, store in @other
+                warning("Inconsistent length for loc.names - storing this argument in @other.")
+                if(is.null(input$other)) {
+                    input$other <- list(loc.names.wrong.length=input$loc.names)
+                } else {
+                    input$other$loc.names.wrong.length <- input$loc.names
+                }
             } else {
                 x@loc.names <- input$loc.names
             }
@@ -332,16 +348,56 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
 
             ## check length consistency
             if(length(input$loc.all) != x@n.loc){
-                warning("Inconsistent length for loc.all - ignoring this argument.")
+                warning("Inconsistent length for loc.all - storing this argument in @other.")
+                if(is.null(input$other)) {
+                    input$other <- list(loc.all.wrong.length=input$loc.all)
+                } else {
+                    input$other$loc.all.wrong.length <- input$loc.all
+                }
             } else {
                 ## check string consistency (format is e.g. "a/t")
                 temp <- grep("^[[:alpha:]]{1}/[[:alpha:]]{1}$", input$loc.all)
-                if(any(! 1:nLoc(x@gen[[1]]) %in% temp)){
+                if(any(! 1:nLoc(x@gen[[1]]) %in% temp)){ # if problem, store in @other
                     ## input$loc.all <- gsub("[[:space:]]","", input$loc.all)
-                    warning("Miss-formed strings in loc.all (must be e.g. 'c/g') - ignoring this argument.")
+                    warning("Miss-formed strings in loc.all (must be e.g. 'c/g') - storing this argument in @other.")
+                    if(is.null(input$other)) {
+                        input$other <- list(loc.all.misformed=input$loc.all)
+                    } else {
+                        input$other$loc.all.misformed <- input$loc.all
+                    }
                 } else {
                     x@loc.all <- input$loc.all
                 }
+            }
+        }
+
+
+        ## HANDLE CHROMOSOME ##
+        if(!is.null(input$chromosome)){
+            if(length(input$chromosome) != x@n.loc) { # if wrong length, store in @other
+                warning("chromosome argument has inconsistent length - storing this argument in @other")
+                if(is.null(input$other)) {
+                    input$other <- list(chromosome.wrong.length=input$chromosome)
+                } else {
+                    input$other$chromosome.wrong.length <- input$chromosome
+                }
+            } else {
+                x@chromosome <- factor(input$chromosome)
+            }
+        }
+
+
+        ## HANDLE POSITION ##
+        if(!is.null(input$position)){
+            if(length(input$position) != x@n.loc) { # if wrong length, store in @other
+                warning("position argument has inconsistent length - storing this argument in @other")
+                if(is.null(input$other)) {
+                    input$other <- list(position.wrong.length=input$position)
+                } else {
+                    input$other$position.wrong.length <- input$position
+                }
+            } else {
+                x@position <- as.integer(input$position)
             }
         }
 
@@ -351,6 +407,11 @@ setMethod("initialize", "genlight", function(.Object, ..., multicore=require("mu
             ## check length consistency
             if(length(input$pop) != nInd(x)){
                 warning("Inconsistent length for pop - ignoring this argument.")
+                if(is.null(input$other)) {
+                    input$other <- list(pop.wrong.length=input$pop)
+                } else {
+                    input$other$pop.wrong.length <- input$pop
+                }
             } else {
                 x@pop <- factor(input$pop)
             }
@@ -426,6 +487,14 @@ setMethod ("show", "genlight", function(object){
 
     if(!is.null(pop(object))){
         cat("\n @pop: individual membership for", length(levels(pop(object))), "populations")
+    }
+
+    if(!is.null(chr(object))){
+        cat("\n @chromosome: chromosome of the SNPs")
+    }
+
+    if(!is.null(position(object))){
+        cat("\n @position: position of the SNPs")
     }
 
     if(!is.null(other(object))){
@@ -561,6 +630,7 @@ setReplaceMethod("locNames","genlight",function(x,value) {
 
 ## indNames
 setMethod("indNames","genlight", function(x,...){
+    if(length(x@ind.names)==0) return(NULL)
     return(x@ind.names)
 })
 
@@ -579,6 +649,7 @@ setReplaceMethod("indNames","genlight",function(x,value) {
 
 ## alleles
 setMethod("alleles","genlight", function(x,...){
+    if(length(x@loc.all)==0) return(NULL)
     return(x@loc.all)
 })
 
@@ -594,6 +665,44 @@ setReplaceMethod("alleles","genlight", function(x, value){
     slot(x, "loc.all", check=TRUE) <- value
     return(x)
 })
+
+
+## chromosome
+setMethod("chromosome","genlight", function(x,...){
+    if(length(x@chromosome)==0) return(NULL)
+    return(x@chromosome)
+})
+
+
+setReplaceMethod("chromosome","genlight",function(x,value) {
+    if(is.null(value)){
+        slot(x, "chromosome", check=TRUE) <- value
+        return(x)
+    }
+    if(length(value) != nLoc(x)) stop("Vector length does no match number of loci")
+    slot(x,"chromosome",check=TRUE) <- factor(value)
+    return(x)
+})
+
+
+
+## position
+setMethod("position","genlight", function(x,...){
+    if(length(x@position)==0) return(NULL)
+    return(x@position)
+})
+
+
+setReplaceMethod("position","genlight",function(x,value) {
+    if(is.null(value)){
+        slot(x, "position", check=TRUE) <- value
+        return(x)
+    }
+    if(length(value) != nLoc(x)) stop("Vector length does no match number of loci")
+    slot(x,"position",check=TRUE) <- as.integer(value)
+    return(x)
+})
+
 
 
 ## NA.posi
