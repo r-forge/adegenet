@@ -668,9 +668,18 @@ setReplaceMethod("alleles","genlight", function(x, value){
 
 
 ## chromosome
+setGeneric("chromosome", function(x, ...) standardGeneric("chromosome"))
+setGeneric("chromosome<-", function(x, value) standardGeneric("chromosome<-"))
+setGeneric("chr", function(x,...) standardGeneric("chr"))
+setGeneric("chr<-", function(x, value) standardGeneric("chr<-"))
+
 setMethod("chromosome","genlight", function(x,...){
     if(length(x@chromosome)==0) return(NULL)
     return(x@chromosome)
+})
+
+setMethod("chr","genlight", function(x,...){
+    return(chromosome(x))
 })
 
 
@@ -684,9 +693,17 @@ setReplaceMethod("chromosome","genlight",function(x,value) {
     return(x)
 })
 
+setReplaceMethod("chr","genlight",function(x,value) {
+    chromosome(x) <- value
+    return(x)
+})
+
 
 
 ## position
+setGeneric("position", function(x, ...) standardGeneric("position"))
+setGeneric("position<-", function(x, value) standardGeneric("position<-"))
+
 setMethod("position","genlight", function(x,...){
     if(length(x@position)==0) return(NULL)
     return(x@position)
