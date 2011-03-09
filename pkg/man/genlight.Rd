@@ -19,6 +19,18 @@
 \alias{indNames<-,genlight-method}
 \alias{alleles,genlight-method}
 \alias{alleles<-,genlight-method}
+\alias{chromosome}
+\alias{chromosome<-}
+\alias{chromosome,genlight-method}
+\alias{chromosome<-,genlight-method}
+\alias{chr}
+\alias{chr<-}
+\alias{chr,genlight-method}
+\alias{chr<-,genlight-method}
+\alias{position}
+\alias{position<-}
+\alias{position,genlight-method}
+\alias{position<-,genlight-method}
 \alias{pop,genlight-method}
 \alias{pop<-,genlight-method}
 \alias{NA.posi}
@@ -78,8 +90,14 @@
     \item{\code{loc.names}}{an optional vector of characters giving the labels
       of the SNPs.}
     \item{\code{loc.all}}{an optional vector of characters indicating
-    the alleles of each SNP; for each SNP, alleles must be coded by two
-    letters separated by '/', e.g. 'a/t' is valid, but 'a  t' or 'a |t' are not.}
+      the alleles of each SNP; for each SNP, alleles must be coded by two
+      letters separated by '/', e.g. 'a/t' is valid, but 'a  t' or 'a |t'
+      are not.}
+    \item{\code{chromosome}}{an optional factor indicating the
+      chromosome to which each SNP belongs.}
+    \item{\code{position}}{an optional vector of integers indicating the
+      position of the SNPs.}
+    \item{\code{other}}{an optional list storing miscellaneous information.}
   }
 }
 \section{Slots}{
@@ -118,28 +136,37 @@
       supported arguments.}
     \item{show}{\code{signature(x = "genlight")}: printing of the
       object.}
+    
     \item{$}{\code{signature(x = "genlight")}: similar to the @ operator;
       used to access the content of slots of the object.}
     \item{$<-}{\code{signature(x = "genlight")}: similar to the @ operator;
       used to replace the content of slots of the object.}
+    
     \item{nInd}{\code{signature(x = "genlight")}: returns the number of
       individuals in the object.}
     \item{nLoc}{\code{signature(x = "genlight")}: returns the number of
       SNPs in the object.}
+    
     \item{names}{\code{signature(x = "genlight")}: returns the names of
       the slots of the object.}
-    \item{ploidy}{\code{signature(x = "genlight")}: returns the ploidy of
-      the genotypes.}
-    \item{NA.posi}{\code{signature(x = "genlight")}: returns the indices
-      of missing values (NAs) as a list with one vector of integer for each individual.}
+    
     \item{indNames}{\code{signature(x = "genlight")}: returns the names of
       the individuals, if provided when the object was contructed.}
     \item{indNames<-}{\code{signature(x = "genlight")}: sets the names of
-      the individuals using a character vector of length \code{nInd(x)}.}
+      the individuals using a character vector of length
+      \code{nInd(x)}.}
+    
     \item{locNames}{\code{signature(x = "genlight")}: returns the names of
       the loci, if provided when the object was contructed.}
     \item{locNames<-}{\code{signature(x = "genlight")}: sets the names of
       the SNPs using a character vector of length \code{nLoc(x)}.}
+    
+    \item{ploidy}{\code{signature(x = "genlight")}: returns the ploidy of
+      the genotypes.}
+    
+    \item{NA.posi}{\code{signature(x = "genlight")}: returns the indices
+      of missing values (NAs) as a list with one vector of integer for each individual.}
+
     \item{alleles}{\code{signature(x = "genlight")}: returns the names
       of the alleles of each SNPs, if provided when the object was
       contructed.}
@@ -147,15 +174,36 @@
       of the alleles of each SNPs using a character vector of length
       \code{nLoc(x)}; for each SNP, two alleles must be provided,
       separated by a "/", e.g. 'a/t', 'c/a', etc.}
+    
+    \item{chromosome}{\code{signature(x = "genlight")}: returns a factor
+      indicating the chromosome of each SNPs, or NULL if the information
+      is missing.}
+    \item{chromosome<-}{\code{signature(x = "genlight")}: sets the
+      chromosome to which SNPs belong using a factor of length
+      \code{nLoc(x)}.}
+    
+    \item{chr}{\code{signature(x = "genlight")}: shortcut for
+      \code{chromosome}.}
+    \item{chr<-}{\code{signature(x = "genlight")}: shortcut for
+      \code{chromosome<-}.}
+    
+    \item{position}{\code{signature(x = "genlight")}: returns an integer
+      vector indicating the position of each SNPs, or NULL if the
+      information is missing.}
+    \item{position<-}{\code{signature(x = "genlight")}: sets the
+      positions of the SNPs using an integer vector of length
+      \code{nLoc(x)}.}
+    
     \item{pop}{\code{signature(x = "genlight")}: returns a factor
       indicating the population of each individual, if provided when the
       object was contructed.}
     \item{pop<-}{\code{signature(x = "genlight")}: sets the population
       of each individual using a factor of length \code{nInd(x)}.}
-    \item{pop}{\code{signature(x = "genlight")}: returns the content of
+    \item{other}{\code{signature(x = "genlight")}: returns the content of
       the slot \code{@other}.}
-    \item{pop<-}{\code{signature(x = "genlight")}: sets the content of
+    \item{other<-}{\code{signature(x = "genlight")}: sets the content of
       the slot \code{@other}.}
+    
     \item{as.matrix}{\code{signature(x = "genlight")}: converts a
       \code{genlight} object into a matrix of integers, with individuals
       in rows and SNPs in columns. The S4 method 'as' can be used as
@@ -165,6 +213,7 @@
       \code{genlight} object into a list of genotypes coded as vector of
       integers (numbers of second allele). The S4 method 'as' can be
       used as well (e.g. as(x, "list")).}
+    
     \item{cbind}{\code{signature(x = "genlight")}: merges several
       \linkS4class{genlight} objects by column, i.e. regroups data of
       identical individuals genotyped for different SNPs.}

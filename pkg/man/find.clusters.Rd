@@ -28,7 +28,7 @@
               n.clust=NULL, stat=c("BIC","AIC", "WSS"),
               choose.n.clust=TRUE,criterion=c("diffNgroup", "min","goesup", "smoothNgoesup", "goodfit"),
               max.n.clust=round(nrow(x)/10), n.iter=1e5, n.start=10,
-              center=TRUE, scale=TRUE, \ldots)
+              center=TRUE, scale=TRUE, \ldots, dudi=NULL)
 
 \method{find.clusters}{matrix}(x, \ldots)
 
@@ -99,6 +99,10 @@
   \item{\ldots}{further arguments to be passed to other functions. For
     \code{find.clusters.matrix}, arguments are to match those of the
     \code{data.frame} method.}
+  \item{dudi}{optionally, a multivariate analysis with the class
+    \code{dudi} (from the ade4 package). If provided, prior PCA will be
+    ignored, and this object will be used as a prior step for variable
+    orthogonalisation.}
 }
 \details{
   === ON THE SELECTION OF K ===\cr

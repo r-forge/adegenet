@@ -104,7 +104,7 @@ extract.PLINKmap(file, x=NULL)
   \code{snpMatrix}.
 }
 \author{Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
-\examples{
+% \examples{
 
-}
+% }
 \keyword{manip}
