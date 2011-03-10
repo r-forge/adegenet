@@ -34,15 +34,21 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     }
     cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
 
+    if(!REDUCEDIM){
+        myCol <- rep(c("black", "lightgrey"), c(ncol(pcaX$li),length(pcaX$eig)))
+    } else {
+        myCol <- "black"
+    }
+
     ## select the number of retained PC for PCA
     if(is.null(n.pca) & pca.select=="nbEig"){
-        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
+        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA", col=myCol)
         cat("Choose the number PCs to retain (>=1): ")
         n.pca <- as.integer(readLines(n = 1))
     }
 
     if(is.null(perc.pca) & pca.select=="percVar"){
-        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
+        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA", col=myCol)
         cat("Choose the percentage of variance to retain (0-100): ")
         nperc.pca <- as.numeric(readLines(n = 1))
     }
@@ -229,23 +235,19 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
 
 
     ## select the number of retained PC for PCA
+    if(!REDUCEDIM){
+        myCol <- rep(c("black", "lightgrey"), c(ncol(pcaX$scores),length(pcaX$eig)))
+    } else {
+        myCol <- "black"
+    }
+    
     if(is.null(n.pca) & pca.select=="nbEig"){
-        if(!REDUCEDIM){
-            myCol <- rep(c("black", "lightgrey"), c(ncol(pcaX$scores),length(pcaX$eig)))
-        } else {
-            myCol <- "black"
-        }
         plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA", col=myCol)
         cat("Choose the number PCs to retain (>=1): ")
         n.pca <- as.integer(readLines(n = 1))
     }
 
     if(is.null(perc.pca) & pca.select=="percVar"){
-        if(!REDUCEDIM){
-            myCol <- rep(c("black", "lightgrey"), c(ncol(pcaX$scores),length(pcaX$eig)))
-        } else {
-            myCol <- "black"
-        }
         plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA", col=myCol)
         cat("Choose the percentage of variance to retain (0-100): ")
         nperc.pca <- as.numeric(readLines(n = 1))
