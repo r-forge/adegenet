@@ -4,16 +4,18 @@
 \alias{find.clusters.data.frame}
 \alias{find.clusters.matrix}
 \alias{find.clusters.genind}
+\alias{find.clusters.genlight}
 \alias{.find.sub.clusters}
 \title{find.cluster: cluster identification using successive K-means}
 \description{
-   These functions implement the clustering procedure used in Discriminant
-  Analysis of Principal Components (DAPC, Jombart et al. submitted). This
-  procedure consists in running successive K-means with an increasing number of
-  clusters (\code{k}), after transforming data using a principal component
-  analysis (PCA). For each model, a statistical measure of goodness of fit (by
-  default, BIC) is computed, which allows to choose the optimal \code{k}. See
-  \code{details} for a description of how to select the optimal \code{k}.
+   These functions implement the clustering procedure used in
+  Discriminant Analysis of Principal Components (DAPC, Jombart et
+  al. 2010). This procedure consists in running successive K-means with
+  an increasing number of clusters (\code{k}), after transforming data
+  using a principal component analysis (PCA). For each model, a
+  statistical measure of goodness of fit (by default, BIC) is computed,
+  which allows to choose the optimal \code{k}. See \code{details} for a
+  description of how to select the optimal \code{k}.
 
   Optionally, hierarchical clustering can be sought by providing a prior
   clustering of individuals (argument \code{clust}). In such case, clusters will
@@ -21,24 +23,42 @@
 
   The K-means procedure used in \code{find.clusters} is \code{\link[stats]{kmeans}} function
   from the \code{stats} package. The PCA function is \code{\link[ade4]{dudi.pca}} from the
-  \code{ade4} package.
+  \code{ade4} package, except for \linkS4class{genlight} objects which
+  use the \code{\link{glPca}} procedure from adegenet.
+
+  \code{find.clusters} is a generic function with methods for the
+ following types of objects:\cr
+ - \code{data.frame} (only numeric data)\cr
+ - \code{matrix} (only numeric data)\cr
+ - \code{\linkS4class{genind}} objects (genetic markers)\cr
+ - \code{\linkS4class{genlight}} objects (genome-wide SNPs)
+ 
 }
 \usage{
 \method{find.clusters}{data.frame}(x, clust=NULL, n.pca=NULL,
               n.clust=NULL, stat=c("BIC","AIC", "WSS"),
-              choose.n.clust=TRUE,criterion=c("diffNgroup", "min","goesup", "smoothNgoesup", "goodfit"),
+              choose.n.clust=TRUE,criterion=c("diffNgroup",
+              "min","goesup", "smoothNgoesup", "goodfit"),
               max.n.clust=round(nrow(x)/10), n.iter=1e5, n.start=10,
-              center=TRUE, scale=TRUE, \ldots, dudi=NULL)
+              center=TRUE, scale=TRUE, pca.select=c("nbEig","percVar"),
+              perc.pca=NULL, \ldots, dudi=NULL)
 
 \method{find.clusters}{matrix}(x, \ldots)
 
 \method{find.clusters}{genind}(x, clust=NULL, n.pca=NULL, n.clust=NULL,
               stat=c("BIC","AIC", "WSS"), choose.n.clust=TRUE,
-              criterion=c("diffNgroup", "min","goesup", "smoothNgoesup", "goodfit"),
-              max.n.clust=round(nrow(x@tab)/10), n.iter=1e5, n.start=10,
-              scale=FALSE, scale.method=c("sigma", "binom"),
+              criterion=c("diffNgroup", "min","goesup", "smoothNgoesup",
+              "goodfit"), max.n.clust=round(nrow(x@tab)/10), n.iter=1e5,
+              n.start=10, scale=FALSE, scale.method=c("sigma", "binom"),
               truenames=TRUE, \ldots)
 
+\method{find.clusters}{genlight}(x, clust=NULL, n.pca=NULL,
+              n.clust=NULL, stat=c("BIC", "AIC",
+              "WSS"),choose.n.clust=TRUE, criterion=c("diffNgroup",
+              "min","goesup","smoothNgoesup", "goodfit"),
+              max.n.clust=round(nInd(x)/10), n.iter=1e5,n.start=10,
+              scale=FALSE, pca.select=c("nbEig","percVar"),
+              perc.pca=NULL,glPca=NULL, \ldots)
 }
 \arguments{
   \item{x}{\code{a data.frame}, \code{matrix}, or \code{\linkS4class{genind}}
@@ -89,6 +109,15 @@
     downweighting informative alleles. Further scaling options are
     available for \linkS4class{genind} objects (see argument
     \code{scale.method}).}
+  \item{pca.select}{a \code{character} indicating the mode of selection of PCA
+    axes, matching either "nbEig" or "percVar". For "nbEig", the user
+    has to specify the number of axes retained (interactively, or via
+    \code{n.pca}). For "percVar", the user has to specify the minimum amount of
+    the total variance to be preserved by the retained axes, expressed as a
+    percentage (interactively, or via \code{perc.pca}).  }
+  \item{perc.pca}{a \code{numeric} value between 0 and 100 indicating the
+    minimal percentage of the total variance of the data to be expressed by the
+    retained axes of PCA.}  
   \item{scale.method}{a \code{character} specifying the scaling method to be used
     for allele frequencies, which must match "sigma" (usual estimate of standard
     deviation) or "binom" (based on binomial distribution). See
@@ -103,6 +132,9 @@
     \code{dudi} (from the ade4 package). If provided, prior PCA will be
     ignored, and this object will be used as a prior step for variable
     orthogonalisation.}
+  \item{glPca}{an optional \code{\link{glPca}} object; if provided,
+    dimension reduction is not performed (saving computational time) but
+    taken directly from this object.}
 }
 \details{
   === ON THE SELECTION OF K ===\cr
@@ -234,6 +266,14 @@ plot(foo.WSS$Kstat, type="o", xlab="number of clusters (K)", ylab="WSS
 (residual variance)", col="red", main="Detection based on WSS")
 points(2, foo.WSS$Kstat[2], pch="x", cex=3)
 mtext(3, tex="'X' indicates the actual number of clusters")
+
+
+## TOY EXAMPLE FOR GENLIGHT OBJECTS ##
+x <- glSim(100,500,500)
+x
+plot(x)
+grp <- find.clusters(x, n.pca=100, choose=FALSE, stat="BIC")
+plot(grp$Kstat, type="o", xlab="number of clusters (K)",ylab="BIC",main="find.clusters on a genlight object\n(two groups)")
 
 }
 \keyword{multivariate}
