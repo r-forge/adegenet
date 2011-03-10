@@ -34,13 +34,14 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
 
     ## SOME GENERAL VARIABLES ##
     N <- nrow(x)
+    REDUCEDIM <- is.null(dudi)
     min.n.clust <- 2
     max.n.clust <- max(max.n.clust, 2)
 
     ## PERFORM PCA ##
     maxRank <- min(dim(x))
 
-    if(is.null(dudi)){
+    if(REDUCEDIM){
         pcaX <- dudi.pca(x, center = center, scale = scale, scannf = FALSE, nf=maxRank)
     } else {
         if(!inherits(dudi,"dudi")) stop("dudi provided but is not a dudi object")
@@ -49,8 +50,13 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
 
     ## select the number of retained PC for PCA
     if(is.null(n.pca)){
+        if(!REDUCEDIM){
+            myCol <- rep(c("black", "lightgrey"), c(ncol(pcaX$li),length(pcaX$eig)))
+        } else {
+            myCol <- "black"
+        }
         cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
-        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA")
+        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA", col=myCol)
         cat("Choose the number PCs to retain (>=1): ")
         n.pca <- NA
         while(is.na(n.pca)){
