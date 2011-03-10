@@ -12,8 +12,9 @@
 \alias{assignplot}
 \title{Discriminant Analysis of Principal Components (DAPC)}
 \description{
-  These functions implement the Discriminant Analysis of Principal Components
-  (DAPC). See 'details' section for a succint description of the method. 
+  These functions implement the Discriminant Analysis of Principal
+  Components (DAPC, Jombart et al. 2010). See 'details' section for a
+  succint description of the method.
 
  \code{dapc} is a generic function performing the DAPC on the following
  types of objects:\cr
@@ -42,7 +43,7 @@
 \usage{
 \method{dapc}{data.frame}(x, grp, n.pca=NULL, n.da=NULL, center=TRUE,
      scale=FALSE,var.contrib=TRUE, pca.select=c("nbEig","percVar"),
-    perc.pca=NULL, \ldots, dudi=NULL)
+     perc.pca=NULL, \ldots, dudi=NULL)
 
 \method{dapc}{matrix}(x, \ldots)
 
@@ -61,15 +62,13 @@
 \method{summary}{dapc}(object, \dots)
 
 \method{scatter}{dapc}(x, xax=1, yax=2, grp=NULL,
-                         col=rainbow(length(levels(x$grp))), pch=20,
-                         posi="bottomleft", bg="grey", ratio=0.3, cstar
-                         = 1, cellipse = 1.5, axesell = TRUE, label =
-                         levels(x$grp), clabel = 1, xlim = NULL, ylim =
-                         NULL, grid = TRUE, addaxes = TRUE, origin =
-                         c(0,0), include.origin = TRUE, sub = "", csub =
-                         1, possub = "bottomleft", posleg = "topright",
-                         cleg = 1, cgrid = 1, pixmap = NULL, contour =
-                         NULL, area = NULL, \ldots)
+        col=rainbow(length(levels(x$grp))), pch=20, posi="bottomleft",
+        bg="grey", ratio=0.3, cstar = 1, cellipse = 1.5, axesell = TRUE,
+        label = levels(x$grp), clabel = 1, xlim = NULL, ylim = NULL, grid
+        = TRUE, addaxes = TRUE, origin = c(0,0), include.origin = TRUE,
+        sub = "", csub = 1, possub = "bottomleft", posleg = "topright",
+        cleg = 1, cgrid = 1, pixmap = NULL, contour = NULL, area = NULL,
+        \ldots)
 
 assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
 }

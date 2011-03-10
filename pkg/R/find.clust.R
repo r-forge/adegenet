@@ -3,12 +3,13 @@
 #############
 find.clusters <- function (x, ...) UseMethod("find.clusters")
 
-######################
+############################
 ## find.clusters.data.frame
-######################
+############################
 find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE,
                                      criterion=c("diffNgroup", "min","goesup", "smoothNgoesup", "goodfit"),
-                                     max.n.clust=round(nrow(x)/10), n.iter=1e5, n.start=10, center=TRUE, scale=TRUE, ..., dudi=NULL){
+                                     max.n.clust=round(nrow(x)/10), n.iter=1e5, n.start=10, center=TRUE, scale=TRUE,
+                                     pca.select=c("nbEig","percVar"), perc.pca=NULL,..., dudi=NULL){
 
     ## CHECKS ##
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
@@ -16,7 +17,10 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
     if(!require(stats)) stop("package stats is required")
 
     stat <- match.arg(stat)
+    pca.select <- match.arg(pca.select)
     criterion <- match.arg(criterion)
+    min.n.clust <- 2
+    max.n.clust <- max(max.n.clust, 2)
 
     ## KEEP TRACK OF SOME ORIGINAL PARAMETERS
     ## n.pca.ori <- n.pca
@@ -26,43 +30,51 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
     ## ESCAPE IF SUB-CLUST ARE SEEKED ##
     if(!is.null(clust)){
         res <- .find.sub.clusters(x=x, clust=clust, n.pca=n.pca, n.clust=n.clust, stat=stat, max.n.clust=max.n.clust, n.iter=n.iter, n.start=n.start,
-                         choose.n.clust=choose.n.clust, criterion=criterion, center=center, scale=scale)
+                                  choose.n.clust=choose.n.clust, criterion=criterion, center=center, scale=scale)
         return(res)
     }
     ## END SUB-CLUST
 
 
-    ## SOME GENERAL VARIABLES ##
+    ## PERFORM PCA ##
     N <- nrow(x)
     REDUCEDIM <- is.null(dudi)
-    min.n.clust <- 2
-    max.n.clust <- max(max.n.clust, 2)
 
-    ## PERFORM PCA ##
-    maxRank <- min(dim(x))
-
-    if(REDUCEDIM){
+    if(REDUCEDIM){ # if no dudi provided
+        ## PERFORM PCA ##
+        maxRank <- min(dim(x))
         pcaX <- dudi.pca(x, center = center, scale = scale, scannf = FALSE, nf=maxRank)
-    } else {
-        if(!inherits(dudi,"dudi")) stop("dudi provided but is not a dudi object")
+    } else { # else use the provided dudi
         pcaX <- dudi
+    }
+    cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
+
+    if(!REDUCEDIM){
+        myCol <- rep(c("black", "lightgrey"), c(ncol(pcaX$li),length(pcaX$eig)))
+    } else {
+        myCol <- "black"
     }
 
     ## select the number of retained PC for PCA
-    if(is.null(n.pca)){
-        if(!REDUCEDIM){
-            myCol <- rep(c("black", "lightgrey"), c(ncol(pcaX$li),length(pcaX$eig)))
-        } else {
-            myCol <- "black"
-        }
-        cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
+    if(is.null(n.pca) & pca.select=="nbEig"){
         plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA", col=myCol)
         cat("Choose the number PCs to retain (>=1): ")
-        n.pca <- NA
-        while(is.na(n.pca)){
-            n.pca <- as.integer(readLines(n = 1))
-        }
+        n.pca <- as.integer(readLines(n = 1))
     }
+
+    if(is.null(perc.pca) & pca.select=="percVar"){
+        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA", col=myCol)
+        cat("Choose the percentage of variance to retain (0-100): ")
+        nperc.pca <- as.numeric(readLines(n = 1))
+    }
+
+    ## get n.pca from the % of variance to conserve
+    if(!is.null(perc.pca)){
+        n.pca <- min(which(cumVar >= perc.pca))
+        if(perc.pca > 99.999) n.pca <- length(pcaX$eig)
+        if(n.pca<1) n.pca <- 1
+    }
+
 
      ## keep relevant PCs - stored in XU
     X.rank <- length(pcaX$eig)
@@ -175,9 +187,9 @@ find.clusters.data.frame <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, st
 
 
 
-###################
+########################
 ## find.clusters.genind
-###################
+########################
 find.clusters.genind <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE,
                                  criterion=c("diffNgroup", "min","goesup", "smoothNgoesup", "goodfit"),
                           max.n.clust=round(nrow(x@tab)/10), n.iter=1e5, n.start=10,
@@ -203,7 +215,7 @@ find.clusters.genind <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, stat=c
 
     ## CALL DATA.FRAME METHOD
     res <- find.clusters(X, clust=clust, n.pca=n.pca, n.clust=n.clust, stat=stat, max.n.clust=max.n.clust, n.iter=n.iter, n.start=n.start,
-                         choose.n.clust=choose.n.clust, criterion=criterion, center=FALSE, scale=FALSE)
+                         choose.n.clust=choose.n.clust, criterion=criterion, center=FALSE, scale=FALSE,...)
     return(res)
 } # end find.clusters.genind
 
@@ -217,6 +229,95 @@ find.clusters.genind <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, stat=c
 find.clusters.matrix <- function(x, ...){
     return(find.clusters(as.data.frame(x), ...))
 }
+
+
+
+
+
+
+
+
+##########################
+## find.clusters.genlight
+##########################
+find.clusters.genlight <- function(x, clust=NULL, n.pca=NULL, n.clust=NULL, stat=c("BIC", "AIC", "WSS"), choose.n.clust=TRUE,
+                                   criterion=c("diffNgroup", "min","goesup", "smoothNgoesup", "goodfit"),
+                                   max.n.clust=round(nInd(x)/10), n.iter=1e5, n.start=10,
+                                   scale=FALSE, pca.select=c("nbEig","percVar"), perc.pca=NULL, glPca=NULL, ...){
+
+    ## CHECKS ##
+    if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
+    if(!require(MASS, quiet=TRUE)) stop("MASS library is required.")
+    if(!require(stats)) stop("package stats is required")
+    if(!inherits(x, "genlight")) stop("x is not a genlight object.")
+    stat <- match.arg(stat)
+    pca.select <- match.arg(pca.select)
+
+
+    ## SOME GENERAL VARIABLES ##
+    N <- nInd(x)
+    min.n.clust <- 2
+
+
+    ## PERFORM PCA ##
+    REDUCEDIM <- is.null(glPca)
+
+    if(REDUCEDIM){ # if no glPca provided
+        maxRank <- min(c(nInd(x), nLoc(x)))
+        pcaX <- glPca(x, center = TRUE, scale = scale, nf=maxRank, loadings=FALSE, returnDotProd = FALSE, ...)
+    } else {
+        pcaX <- glPca
+    }
+
+    if(is.null(n.pca)){
+        cumVar <- 100 * cumsum(pcaX$eig)/sum(pcaX$eig)
+    }
+
+
+    ## select the number of retained PC for PCA
+    if(!REDUCEDIM){
+        myCol <- rep(c("black", "lightgrey"), c(ncol(pcaX$scores),length(pcaX$eig)))
+    } else {
+        myCol <- "black"
+    }
+
+    if(is.null(n.pca) & pca.select=="nbEig"){
+        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA", col=myCol)
+        cat("Choose the number PCs to retain (>=1): ")
+        n.pca <- as.integer(readLines(n = 1))
+    }
+
+    if(is.null(perc.pca) & pca.select=="percVar"){
+        plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA", col=myCol)
+        cat("Choose the percentage of variance to retain (0-100): ")
+        nperc.pca <- as.numeric(readLines(n = 1))
+    }
+
+    ## get n.pca from the % of variance to conserve
+    if(!is.null(perc.pca)){
+        n.pca <- min(which(cumVar >= perc.pca))
+        if(perc.pca > 99.999) n.pca <- length(pcaX$eig)
+        if(n.pca<1) n.pca <- 1
+    }
+
+    if(!REDUCEDIM){
+        if(n.pca > ncol(pcaX$scores)) {
+            n.pca <- ncol(pcaX$scores)
+        }
+    }
+
+
+    ## convert PCA
+    pcaX <- .glPca2dudi(pcaX)
+
+
+    ## CALL DATA.FRAME METHOD
+    res <- find.clusters(pcaX$li, clust=clust, n.pca=n.pca, n.clust=n.clust, stat=stat, max.n.clust=max.n.clust, n.iter=n.iter, n.start=n.start,
+                         choose.n.clust=choose.n.clust, criterion=criterion, center=FALSE, scale=FALSE, dudi=pcaX)
+    return(res)
+} # end find.clusters.genlight
+
+
 
 
 
