@@ -233,8 +233,16 @@ setMethod("seppop", signature(x="genlight"), function(x, pop=NULL, treatOther=TR
 
 
 
-
-
+##########
+## seploc
+##########
+setMethod("seploc", signature(x="genlight"), function(x, n.block, blockSize=NULL, random=FALSE){
+    ## HANDLE ARGUMENTS ##
+    ## blocksize
+    if(is.null(blockSize)){
+        
+    }
+})
 
 
 ###################
