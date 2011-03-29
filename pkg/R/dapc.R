@@ -547,10 +547,20 @@ scatter.dapc <- function(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$
 ############
 ## assignplot
 ############
-assignplot <- function(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3){
+assignplot <- function(x, only.grp=NULL, subset=NULL, new.pred=NULL, cex.lab=.75, pch=3){
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     if(!inherits(x, "dapc")) stop("x is not a dapc object")
 
+    ## handle data from predict.dapc ##
+    if(!is.null(new.pred)){
+        n.new <- length(new.pred$assign)
+        x$grp <- c(as.character(x$grp), rep("unknown", n.new))
+        x$assign <- c(as.character(x$assign), as.character(new.pred$assign))
+        x$posterior <- rbind(x$posterior, new.pred$posterior)
+    }
+
+
+    ## treat other arguments ##
     if(!is.null(only.grp)){
         only.grp <- as.character(only.grp)
         ori.grp <- as.character(x$grp)
@@ -838,17 +848,21 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
 ######## TESTS IN R #######
 
 ## TEST PREDICT.DAPC ##
-data(sim2pop)
-dat <- sim2pop[70:130]
-temp <- seppop(sim2pop)
-hyb <- hybridize(temp[[1]], temp[[2]], n=20)
-newdat <- repool(dat,hyb)
-
-dapc1 <- dapc(newdat[1:61],n.pca=10,n.da=1)
-scatter(dapc1)
-
-hyb.pred <- predict(dapc1, newdat[62:81])
-points(hyb.pred$ind.scores, rep(.1,5))
+## data(sim2pop)
+## temp <- seppop(sim2pop)
+## temp <- lapply(temp, function(e) hybridize(e,e,n=30)) # force equal pop sizes
+## hyb <- hybridize(temp[[1]], temp[[2]], n=30)
+## newdat <- repool(temp[[1]], temp[[2]], hyb)
+## pop(newdat) <- rep(c("pop A", "popB", "hyb AB"), c(30,30,30))
 
 
+## ##dapc1 <- dapc(newdat[1:61],n.pca=10,n.da=1)
+## dapc1 <- dapc(newdat[1:60],n.pca=2,n.da=1)
+## scatter(dapc1)
+## hyb.pred <- predict(dapc1, newdat[61:90])
 
+## scatter(dapc1)
+## points(hyb.pred$ind.scores, rep(.1, 30))
+
+## assignplot(dapc1, new.pred=hyb.pred)
+## title("30 indiv popA, 30 indiv pop B, 30 hybrids")
