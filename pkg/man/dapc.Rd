@@ -42,17 +42,17 @@
 }
 \usage{
 \method{dapc}{data.frame}(x, grp, n.pca=NULL, n.da=NULL, center=TRUE,
-     scale=FALSE,var.contrib=TRUE, pca.select=c("nbEig","percVar"),
+     scale=FALSE,var.contrib=TRUE, pca.info=TRUE, pca.select=c("nbEig","percVar"),
      perc.pca=NULL, \ldots, dudi=NULL)
 
 \method{dapc}{matrix}(x, \ldots)
 
 \method{dapc}{genind}(x, pop=NULL, n.pca=NULL, n.da=NULL, scale=FALSE,
      scale.method=c("sigma", "binom"), truenames=TRUE, var.contrib=TRUE,
-     pca.select=c("nbEig","percVar"), perc.pca=NULL, \ldots)
+     pca.info=TRUE, pca.select=c("nbEig","percVar"), perc.pca=NULL, \ldots)
 
 \method{dapc}{genlight}(x, pop = NULL, n.pca = NULL, n.da = NULL, scale
-    = FALSE, var.contrib = TRUE, pca.select = c("nbEig", "percVar"),
+    = FALSE, var.contrib = TRUE, pca.info=TRUE, pca.select = c("nbEig", "percVar"),
     perc.pca = NULL, glPca = NULL, \ldots)
 
 \method{dapc}{dudi}(x, grp, \ldots)
@@ -93,6 +93,10 @@ assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
     contribution of original variables (alleles, for \linkS4class{genind} objects)
     should be provided (TRUE, default) or not (FALSE). Such output can be useful,
     but can also create huge matrices when there is a lot of variables.}
+  \item{pca.info}{a \code{logical} indicating whether information about
+    the prior PCA should be stored (TRUE, default) or not (FALSE). This
+    information is required to predict group membership of new
+    individuals using \code{predict}, but makes the object slightly bigger.}
   \item{pca.select}{a \code{character} indicating the mode of selection of PCA
     axes, matching either "nbEig" or "percVar". For "nbEig", the user
     has to specify the number of axes retained (interactively, or via
