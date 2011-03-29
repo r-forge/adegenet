@@ -10,10 +10,13 @@
 \alias{summary.dapc}
 \alias{scatter.dapc}
 \alias{assignplot}
+\alias{predict.dapc}
 \title{Discriminant Analysis of Principal Components (DAPC)}
 \description{
   These functions implement the Discriminant Analysis of Principal
-  Components (DAPC, Jombart et al. 2010). See 'details' section for a
+  Components (DAPC, Jombart et al. 2010). This method descibes the
+  diversity between pre-defined groups. When groups are unknown, use
+  \code{find.clusters} to infer genetic clusters. See 'details' section for a
   succint description of the method.
 
  \code{dapc} is a generic function performing the DAPC on the following
@@ -34,11 +37,14 @@
     'discriminant functions'), with a screeplot of eigenvalues as inset.\cr
   - \code{assignplot}: plot showing the probabilities of assignment of
   individuals to the different clusters.
+  - \code{predict.dapc}: predicts group memberships based on DAPC results.
 
 
   DAPC implementation calls upon \code{\link[ade4]{dudi.pca}} from the
   \code{ade4} package (except for \linkS4class{genlight} objects)
-  and \code{\link[MASS]{lda}} from the \code{MASS} package.
+  and \code{\link[MASS]{lda}} from the \code{MASS} package. The
+  \code{predict} procedure uses \code{\link[MASS]{predict.lda}} from the
+  \code{MASS} package.
 }
 \usage{
 \method{dapc}{data.frame}(x, grp, n.pca=NULL, n.da=NULL, center=TRUE,
@@ -71,6 +77,9 @@
         \ldots)
 
 assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
+
+\method{predict}{dapc}(object, newdata, prior = object$prior, dimen,
+         method = c("plug-in", "predictive", "debiased"), ...)
 }
 \arguments{
   \item{x}{\code{a data.frame}, \code{matrix}, or \code{\linkS4class{genind}}
@@ -149,7 +158,14 @@ assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
   \item{posleg}{a characther string indicating the position of the
     legend when plotting a single discriminant function. See \code{?legend}.}
   \item{cleg}{a number indicating the size factor for the legend, passed
-  to the function \code{legend}.}
+    to the function \code{legend}.}
+  \item{newdata}{an optional dataset of individuals whose membership is
+    seeked; can be a data.frame, a matrix, a \linkS4class{genind} or a
+    \linkS4class{genlight} object, but object class must match the
+    original ('training') data. In particular, variables must be exactly
+    the same as in the original data. For  \linkS4class{genind}
+    objects, see \code{\link{repool}} to ensure matching of alleles.}
+  \item{prior,dimen,method}{see \code{?predict.lda}.}
 }
 \details{
   The Discriminant Analysis of Principal Components (DAPC) is designed
@@ -260,6 +276,45 @@ scatter(dapc1)
 loadingplot(dapc1$var.contr)
 loadingplot(tail(dapc1$var.contr, 100), main="Loading plot - last 100 SNPs")
 
+
+
+
+## USE "PREDICT" TO PREDICT GROUPS OF NEW INDIVIDUALS ##
+## load data
+data(sim2pop)
+
+## we make a dataset of:
+## 30 individuals from pop A
+## 30 individuals from pop B
+## 30 hybrids
+
+## separate populations and make F1
+temp <- seppop(sim2pop)
+temp <- lapply(temp, function(e) hybridize(e,e,n=30)) # force equal popsizes
+
+## make hybrids
+hyb <- hybridize(temp[[1]], temp[[2]], n=30)
+
+## repool data - needed to ensure allele matching
+newdat <- repool(temp[[1]], temp[[2]], hyb)
+pop(newdat) <- rep(c("pop A", "popB", "hyb AB"), c(30,30,30))
+
+## perform the DAPC on the first 2 pop (60 first indiv)
+dapc1 <- dapc(newdat[1:60],n.pca=5,n.da=1)
+
+## plot results
+scatter(dapc1)
+
+## make prediction for the 30 hybrids
+hyb.pred <- predict(dapc1, newdat[61:90])
+hyb.pred
+
+## plot the inferred coordinates (circles are hybrids)
+points(hyb.pred$ind.scores, rep(.1, 30))
+
+## look at assignment using assignplot
+assignplot(dapc1, new.pred=hyb.pred)
+title("30 indiv popA, 30 indiv pop B, 30 hybrids")
 
 }
 \keyword{multivariate}
