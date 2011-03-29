@@ -77,6 +77,10 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
 
     ## PERFORM DA ##
     ldaX <- lda(XU, grp, tol=1e-30) # tol=1e-30 is a kludge, but a safe (?) one to avoid fancy rescaling by lda.default
+    lda.dim <- sum(ldaX$svd^2 > 1e-10)
+    ldaX$svd <- ldaX$svd[1:lda.dim]
+    ldaX$scaling <- ldaX$scaling[,1:lda.dim,drop=FALSE]
+
     if(is.null(n.da)){
         barplot(ldaX$svd^2, xlab="Linear Discriminants", ylab="F-statistic", main="Discriminant analysis eigenvalues", col=heat.colors(length(levels(grp))) )
         cat("Choose the number discriminant functions to retain (>=1): ")
@@ -298,13 +302,17 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
 
     ## PERFORM DA ##
     ldaX <- lda(XU, pop.fac, tol=1e-30) # tol=1e-30 is a kludge, but a safe (?) one to avoid fancy rescaling by lda.default
+    lda.dim <- sum(ldaX$svd^2 > 1e-10)
+    ldaX$svd <- ldaX$svd[1:lda.dim]
+    ldaX$scaling <- ldaX$scaling[,1:lda.dim,drop=FALSE]
+
     if(is.null(n.da)){
         barplot(ldaX$svd^2, xlab="Linear Discriminants", ylab="F-statistic", main="Discriminant analysis eigenvalues", col=heat.colors(length(levels(pop.fac))) )
         cat("Choose the number discriminant functions to retain (>=1): ")
         n.da <- as.integer(readLines(n = 1))
     }
 
-    n.da <- min(n.da, length(levels(pop.fac))-1, n.pca) # can't be more than K-1 disc. func., or more than n.pca
+    n.da <- min(n.da, length(levels(pop.fac))-1, n.pca, sum(ldaX$svd>1e-10)) # can't be more than K-1 disc. func., or more than n.pca
     n.da <- round(n.da)
     predX <- predict(ldaX, dimen=n.da)
 
@@ -330,8 +338,8 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
     ## optional: store loadings of variables
     if(pca.info){
         res$pca.loadings <- as.matrix(U)
-        res$pca.cent <- glMean(toto,alleleAsUnit=FALSE)
-        res$pca.norm <- sqrt(glVar(toto,alleleAsUnit=FALSE))
+        res$pca.cent <- glMean(x,alleleAsUnit=FALSE)
+        res$pca.norm <- sqrt(glVar(x,alleleAsUnit=FALSE))
     }
 
     ## optional: get loadings of variables
@@ -379,7 +387,7 @@ print.dapc <- function(x, ...){
     if(!is.null(x$pca.loadings)){
         TABDIM <- TABDIM + 2
     }
-    sumry <- array("", c(TABDIM, 3), list(1:4, c("vector", "length", "content")))
+    sumry <- array("", c(TABDIM, 3), list(1:TABDIM, c("vector", "length", "content")))
     sumry[1, ] <- c('$eig', length(x$eig),  'eigenvalues')
     sumry[2, ] <- c('$grp', length(x$grp), 'prior group assignment')
     sumry[3, ] <- c('$prior', length(x$prior), 'prior group probabilities')
@@ -401,7 +409,7 @@ print.dapc <- function(x, ...){
         TABDIM <- TABDIM + 1
     }
 
-    sumry <- array("", c(TABDIM, 4), list(1:5, c("data.frame", "nrow", "ncol", "content")))
+    sumry <- array("", c(TABDIM, 4), list(1:TABDIM, c("data.frame", "nrow", "ncol", "content")))
 
     sumry[1, ] <- c("$tab", nrow(x$tab), ncol(x$tab), "retained PCs of PCA")
     sumry[2, ] <- c("$means", nrow(x$means), ncol(x$means), "group means")
@@ -753,7 +761,8 @@ as.lda.dapc <- function(x){
 ##############
 predict.dapc <- function(object, newdata, prior = object$prior, dimen,
                          method = c("plug-in", "predictive", "debiased"), ...){
-    if(!inherits(x,"dapc")) stop("x is not a dapc object")
+
+    if(!inherits(object,"dapc")) stop("x is not a dapc object")
 
     x <- as.lda(object)
 
@@ -772,6 +781,8 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
 
         ## project as supplementary individuals
         XU <- newdata %*% object$pca.loadings
+    } else {
+        XU <- object$tab
     }
 
 
@@ -781,7 +792,7 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
     }
 
     ## CALL PREDICT.LDA ##
-    res <- predict(x, newdata, prior, dimen, method, ...)
+    res <- predict(x, XU, prior, dimen, method, ...)
 
     return(res)
 
