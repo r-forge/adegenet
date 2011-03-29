@@ -7,7 +7,7 @@ dapc <- function (x, ...) UseMethod("dapc")
 ## dapc.data.frame
 ###################
 dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
-                            center=TRUE, scale=FALSE, pca.loadings=TRUE, var.contrib=TRUE,
+                            center=TRUE, scale=FALSE, var.contrib=TRUE, pca.info=TRUE,
                             pca.select=c("nbEig","percVar"), perc.pca=NULL, ..., dudi=NULL){
 
     ## FIRST CHECKS
@@ -107,7 +107,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
 
 
     ## optional: store loadings of variables
-    if(pca.loadings){
+    if(pca.info){
         res$pca.loadings <- as.matrix(U)
         res$pca.cent <- pcaX$cent
         res$pca.norm <- pcaX$norm
@@ -146,7 +146,7 @@ dapc.matrix <- function(x, ...){
 ## dapc.genind
 #############
 dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
-                        scale=FALSE, scale.method=c("sigma", "binom"), truenames=TRUE, pca.loadings=TRUE, var.contrib=TRUE,
+                        scale=FALSE, scale.method=c("sigma", "binom"), truenames=TRUE, var.contrib=TRUE, pca.info=TRUE,
                         pca.select=c("nbEig","percVar"), perc.pca=NULL, ...){
 
     ## FIRST CHECKS
@@ -203,7 +203,7 @@ dapc.dudi <- function(x, grp, ...){
 ## dapc.genlight
 #################
 dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
-                          scale=FALSE,  pca.loadings=TRUE, var.contrib=TRUE,
+                          scale=FALSE,  var.contrib=TRUE, pca.info=TRUE
                           pca.select=c("nbEig","percVar"), perc.pca=NULL, glPca=NULL, ...){
     ## FIRST CHECKS ##
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
@@ -328,7 +328,7 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
 
 
     ## optional: store loadings of variables
-    if(pca.loadings){
+    if(pca.info){
         res$pca.loadings <- as.matrix(U)
         res$pca.cent <- glMean(toto,alleleAsUnit=FALSE)
         res$pca.norm <- sqrt(glVar(toto,alleleAsUnit=FALSE))
