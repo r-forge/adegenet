@@ -7,7 +7,7 @@ dapc <- function (x, ...) UseMethod("dapc")
 ## dapc.data.frame
 ###################
 dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
-                            center=TRUE, scale=FALSE, var.contrib=TRUE,
+                            center=TRUE, scale=FALSE, pca.loadings=TRUE, var.contrib=TRUE,
                             pca.select=c("nbEig","percVar"), perc.pca=NULL, ..., dudi=NULL){
 
     ## FIRST CHECKS
@@ -97,6 +97,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     res$var <- XU.lambda
     res$eig <- ldaX$svd^2
     res$loadings <- ldaX$scaling[, 1:n.da, drop=FALSE]
+    res$means <- ldaX$means
     res$ind.coord <-predX$x
     res$grp.coord <- apply(res$ind.coord, 2, tapply, grp, mean)
     res$prior <- ldaX$prior
@@ -104,7 +105,15 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     res$assign <- predX$class
     res$call <- match.call()
 
-    ## optional: get loadings of alleles
+
+    ## optional: store loadings of variables
+    if(pca.loadings){
+        res$pca.loadings <- as.matrix(U)
+        res$pca.cent <- pcaX$cent
+        res$pca.norm <- pcaX$norm
+    }
+
+    ## optional: get loadings of variables
     if(var.contrib){
         res$var.contr <- as.matrix(U) %*% as.matrix(ldaX$scaling[,1:n.da,drop=FALSE])
         f1 <- function(x){
@@ -137,7 +146,7 @@ dapc.matrix <- function(x, ...){
 ## dapc.genind
 #############
 dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
-                        scale=FALSE, scale.method=c("sigma", "binom"), truenames=TRUE, var.contrib=TRUE,
+                        scale=FALSE, scale.method=c("sigma", "binom"), truenames=TRUE, pca.loadings=TRUE, var.contrib=TRUE,
                         pca.select=c("nbEig","percVar"), perc.pca=NULL, ...){
 
     ## FIRST CHECKS
@@ -194,7 +203,7 @@ dapc.dudi <- function(x, grp, ...){
 ## dapc.genlight
 #################
 dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
-                          scale=FALSE,  var.contrib=TRUE,
+                          scale=FALSE,  pca.loadings=TRUE, var.contrib=TRUE,
                           pca.select=c("nbEig","percVar"), perc.pca=NULL, glPca=NULL, ...){
     ## FIRST CHECKS ##
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
@@ -240,7 +249,7 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
     } else {
         myCol <- "black"
     }
-    
+
     if(is.null(n.pca) & pca.select=="nbEig"){
         plot(cumVar, xlab="Number of retained PCs", ylab="Cumulative variance (%)", main="Variance explained by PCA", col=myCol)
         cat("Choose the number PCs to retain (>=1): ")
@@ -309,6 +318,7 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
     res$var <- XU.lambda
     res$eig <- ldaX$svd^2
     res$loadings <- ldaX$scaling[, 1:n.da, drop=FALSE]
+    res$means <- ldaX$means
     res$ind.coord <-predX$x
     res$grp.coord <- apply(res$ind.coord, 2, tapply, pop.fac, mean)
     res$prior <- ldaX$prior
@@ -316,7 +326,15 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
     res$assign <- predX$class
     res$call <- match.call()
 
-    ## optional: get loadings of alleles
+
+    ## optional: store loadings of variables
+    if(pca.loadings){
+        res$pca.loadings <- as.matrix(U)
+        res$pca.cent <- glMean(toto,alleleAsUnit=FALSE)
+        res$pca.norm <- sqrt(glVar(toto,alleleAsUnit=FALSE))
+    }
+
+    ## optional: get loadings of variables
     if(var.contrib){
         res$var.contr <- as.matrix(U) %*% as.matrix(ldaX$scaling[,1:n.da,drop=FALSE])
         f1 <- function(x){
@@ -357,37 +375,55 @@ print.dapc <- function(x, ...){
         cat(" ...\n\n")
 
     ## vectors
-    sumry <- array("", c(4, 3), list(1:4, c("vector", "length", "content")))
+    TABDIM <- 4
+    if(!is.null(x$pca.loadings)){
+        TABDIM <- TABDIM + 2
+    }
+    sumry <- array("", c(TABDIM, 3), list(1:4, c("vector", "length", "content")))
     sumry[1, ] <- c('$eig', length(x$eig),  'eigenvalues')
     sumry[2, ] <- c('$grp', length(x$grp), 'prior group assignment')
     sumry[3, ] <- c('$prior', length(x$prior), 'prior group probabilities')
     sumry[4, ] <- c('$assign', length(x$assign), 'posterior group assignment')
+    if(!is.null(x$pca.loadings)){
+        sumry[5, ] <- c('$pca.cent', length(x$pca.cent), 'centring vector of PCA')
+        sumry[6, ] <- c('$pca.norm', length(x$pca.norm), 'scaling vector of PCA')
+    }
     class(sumry) <- "table"
     print(sumry)
 
     ## data.frames
     cat("\n")
-    if(!is.null(x$var.contr)){
-        sumry <- array("", c(6, 4), list(1:6, c("data.frame", "nrow", "ncol", "content")))
-    } else {
-        sumry <- array("", c(5, 4), list(1:5, c("data.frame", "nrow", "ncol", "content")))
+    TABDIM <- 6
+    if(!is.null(x$pca.loadings)){
+        TABDIM <- TABDIM + 1
     }
-    sumry[1, ] <- c("$tab", nrow(x$tab), ncol(x$tab), "retained PCs of PCA")
-    sumry[2, ] <- c("$loadings", nrow(x$loadings), ncol(x$loadings), "loadings of variables")
-    sumry[3, ] <- c("$ind.coord", nrow(x$ind.coord), ncol(x$ind.coord), "coordinates of individuals (principal components)")
-    sumry[4, ] <- c("$grp.coord", nrow(x$grp.coord), ncol(x$grp.coord), "coordinates of groups")
-    sumry[5, ] <- c("$posterior", nrow(x$posterior), ncol(x$posterior), "posterior membership probabilities")
     if(!is.null(x$var.contr)){
-            sumry[6, ] <- c("$var.contr", nrow(x$var.contr), ncol(x$var.contr), "contribution of original variables")
+        TABDIM <- TABDIM + 1
+    }
+
+    sumry <- array("", c(TABDIM, 4), list(1:5, c("data.frame", "nrow", "ncol", "content")))
+
+    sumry[1, ] <- c("$tab", nrow(x$tab), ncol(x$tab), "retained PCs of PCA")
+    sumry[2, ] <- c("$means", nrow(x$means), ncol(x$means), "group means")
+    sumry[3, ] <- c("$loadings", nrow(x$loadings), ncol(x$loadings), "loadings of variables")
+    sumry[4, ] <- c("$ind.coord", nrow(x$ind.coord), ncol(x$ind.coord), "coordinates of individuals (principal components)")
+    sumry[5, ] <- c("$grp.coord", nrow(x$grp.coord), ncol(x$grp.coord), "coordinates of groups")
+    sumry[6, ] <- c("$posterior", nrow(x$posterior), ncol(x$posterior), "posterior membership probabilities")
+    if(!is.null(x$pca.loadings)){
+        sumry[7, ] <- c("$pca.loadings", nrow(x$pca.loadings), ncol(x$pca.loadings), "PCA loadings of original variables")
+    }
+    if(!is.null(x$var.contr)){
+        sumry[TABDIM, ] <- c("$var.contr", nrow(x$var.contr), ncol(x$var.contr), "contribution of original variables")
     }
     class(sumry) <- "table"
     print(sumry)
 
-    cat("\nother elements: ")
-    if (length(names(x)) > 14)
-        cat(names(x)[14:(length(names(x)))], "\n")
-    else cat("NULL\n")
-}
+    ## cat("\nother elements: ")
+    ## if (length(names(x)) > 15)
+    ##     cat(names(x)[15:(length(names(x)))], "\n")
+    ## else cat("NULL\n")
+    cat("\n")
+} # end print.dapc
 
 
 
@@ -676,6 +712,81 @@ optim.a.score <- function(x, n.pca=1:ncol(x$tab), smart=TRUE, n=10, plot=TRUE,
 
     return(res)
 } # end optim.a.score
+
+
+
+
+
+
+#############
+## as.lda.dapc
+#############
+as.lda <- function(...){
+    UseMethod("as.lda")
+}
+
+as.lda.dapc <- function(x){
+    if(!inherits(x,"dapc")) stop("x is not a dapc object")
+    res <- list()
+
+    res$N <- nrow(res$ind.coord)
+    res$call <- match.call()
+    res$counts <- as.integer(table(x$grp))
+    res$lev <- names(res$counts) <- levels(x$grp)
+    res$means <- x$means
+    res$prior <- x$prior
+    res$scaling <- x$loadings
+    res$svd <- sqrt(x$eig)
+
+    class(res) <- "lda"
+
+    return(res)
+} # end as.lda.dapc
+
+
+
+
+
+
+##############
+## predict.dapc
+##############
+predict.dapc <- function(object, newdata, prior = object$prior, dimen,
+                         method = c("plug-in", "predictive", "debiased"), ...){
+    if(!inherits(x,"dapc")) stop("x is not a dapc object")
+
+    x <- as.lda(object)
+
+
+    ## HANDLE NEW DATA ##
+    if(!missing(newdata)){
+        ## make a few checks
+        if(is.null(object$pca.loadings)) stop("DAPC object does not contain loadings of original variables. \nPlease re-run DAPC using 'pca.loadings=TRUE'.")
+        newdata <- as.matrix(newdata) # to force conversion, notably from genlight objects
+        if(ncol(newdata) != nrow(object$pca.loadings)) stop("Number of variables in newdata does not match original data.")
+
+        ## centre/scale data
+        for(i in 1:nrow(newdata)){ # this is faster for large, flat matrices)
+            newdata[i,] <- (newdata[i,] - object$pca.cent) / object$pca.norm
+        }
+
+        ## project as supplementary individuals
+        XU <- newdata %*% object$pca.loadings
+    }
+
+
+    ## HANDLE DIMEN ##
+    if(!missing(dimen)){
+        if(dimen > object$n.da) stop(paste("Too many dimensions requested. \nOnly", object$n.da, "discriminant functions were saved in DAPC."))
+    }
+
+    ## CALL PREDICT.LDA ##
+    res <- predict(x, newdata, prior, dimen, method, ...)
+
+    return(res)
+
+} # end predict.dapc
+
 
 
 
