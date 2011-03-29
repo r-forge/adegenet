@@ -780,10 +780,13 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
         }
 
         ## project as supplementary individuals
-        XU <- newdata %*% object$pca.loadings
+        XU <- newdata %*% as.matrix(object$pca.loadings)
     } else {
         XU <- object$tab
     }
+
+    ## FORCE IDENTICAL VARIABLE NAMES ##
+    colnames(XU) <- colnames(object$tab)
 
 
     ## HANDLE DIMEN ##
@@ -792,7 +795,14 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
     }
 
     ## CALL PREDICT.LDA ##
-    res <- predict(x, XU, prior, dimen, method, ...)
+    temp <- predict(x, XU, prior, dimen, method, ...)
+
+
+    ## FORMAT OUTPUT ##
+    res <- list()
+    res$assign <- temp$class
+    res$posterior <- temp$posterior
+    res$ind.scores <- temp$x
 
     return(res)
 
@@ -821,3 +831,24 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
 ## ##randtest.dapc <- function(x, nperm = 999, ...){
 
 ## ##} # end randtest.dapc
+
+
+
+
+######## TESTS IN R #######
+
+## TEST PREDICT.DAPC ##
+data(sim2pop)
+dat <- sim2pop[70:130]
+temp <- seppop(sim2pop)
+hyb <- hybridize(temp[[1]], temp[[2]], n=20)
+newdat <- repool(dat,hyb)
+
+dapc1 <- dapc(newdat[1:61],n.pca=10,n.da=1)
+scatter(dapc1)
+
+hyb.pred <- predict(dapc1, newdat[62:81])
+points(hyb.pred$ind.scores, rep(.1,5))
+
+
+
