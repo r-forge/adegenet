@@ -203,7 +203,7 @@ dapc.dudi <- function(x, grp, ...){
 ## dapc.genlight
 #################
 dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
-                          scale=FALSE,  var.contrib=TRUE, pca.info=TRUE
+                          scale=FALSE,  var.contrib=TRUE, pca.info=TRUE,
                           pca.select=c("nbEig","percVar"), perc.pca=NULL, glPca=NULL, ...){
     ## FIRST CHECKS ##
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
