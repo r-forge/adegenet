@@ -115,9 +115,12 @@
       SNPs.}
     \item{\code{loc.all}:}{a vector of characters indicating the alleles
       of each SNP.}
+    \item{\code{chromosome}:}{an optional factor indicating the
+  chromosome to which each SNP belongs.}
+    \item{\code{position}:}{an optional vector of integers indicating the
+      position of the SNPs.}
     \item{\code{ploidy}:}{a vector of integers indicating the ploidy of each individual.}
-    \item{\code{pop}:}{a factor indicating the population of each
-      individual.}
+    \item{\code{pop}:}{a factor indicating the population of each individual.}
     \item{\code{other}:}{a list containing other miscellaneous information.}
   }
 }

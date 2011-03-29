@@ -6,6 +6,7 @@
 \alias{seploc,ANY-method}
 \alias{seploc,genind-method}
 \alias{seploc,genpop-method}
+\alias{seploc,genlight-method}
 \title{ Separate data per locus}
 \description{
   The function \code{seploc} splits an object (\linkS4class{genind} or

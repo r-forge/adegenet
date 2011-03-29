@@ -11,6 +11,8 @@
 \alias{scatter.dapc}
 \alias{assignplot}
 \alias{predict.dapc}
+\alias{as.lda}
+\alias{as.lda.dapc}
 \title{Discriminant Analysis of Principal Components (DAPC)}
 \description{
   These functions implement the Discriminant Analysis of Principal
@@ -45,6 +47,11 @@
   and \code{\link[MASS]{lda}} from the \code{MASS} package. The
   \code{predict} procedure uses \code{\link[MASS]{predict.lda}} from the
   \code{MASS} package.
+
+  \code{as.lda} is a generic with a method for \code{dapc} object which
+  converts these objects into outputs similar to that of
+  \code{lda.default}.
+  
 }
 \usage{
 \method{dapc}{data.frame}(x, grp, n.pca=NULL, n.da=NULL, center=TRUE,
@@ -76,7 +83,7 @@
         cleg = 1, cgrid = 1, pixmap = NULL, contour = NULL, area = NULL,
         \ldots)
 
-assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
+assignplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, cex.lab=.75, pch=3)
 
 \method{predict}{dapc}(object, newdata, prior = object$prior, dimen,
          method = c("plug-in", "predictive", "debiased"), ...)
@@ -148,6 +155,10 @@ assignplot(x, only.grp=NULL, subset=NULL, cex.lab=.75, pch=3)
   \item{pch}{a \code{numeric} indicating the type of point to be used to indicate
     the prior group of individuals (see \code{\link{points}} documentation for
     more details).}
+  \item{new.pred}{an optional list, as returned by the \code{predict}
+    method for \code{dapc} objects; if provided, the individuals
+    with unknown groups are added at the bottom of the plot. To
+    visualize these individuals only, specify \code{only.grp="unknown"}.}
   \item{dudi}{optionally, a multivariate analysis with the class
     \code{dudi} (from the ade4 package). If provided, prior PCA will be
     ignored, and this object will be used as a prior step for variable
