@@ -743,7 +743,7 @@ as.lda <- function(...){
     UseMethod("as.lda")
 }
 
-as.lda.dapc <- function(x){
+as.lda.dapc <- function(x, ...){
     if(!inherits(x,"dapc")) stop("x is not a dapc object")
     res <- list()
 
