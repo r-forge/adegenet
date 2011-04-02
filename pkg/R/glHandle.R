@@ -226,7 +226,7 @@ setMethod("seppop", signature(x="genlight"), function(x, pop=NULL, treatOther=TR
     names(kObj) <- levels(pop(x))
 
     return(kObj)
-})
+}) # end seppop
 
 
 
@@ -236,12 +236,42 @@ setMethod("seppop", signature(x="genlight"), function(x, pop=NULL, treatOther=TR
 ##########
 ## seploc
 ##########
-setMethod("seploc", signature(x="genlight"), function(x, n.block, blockSize=NULL, random=FALSE){
-    ## HANDLE ARGUMENTS ##
-    ## blocksize
-    if(is.null(blockSize)){
-        
+setMethod("seploc", signature(x="genlight"), function(x, n.block=NULL, block.size=NULL, random=FALSE){
+    ## CHECKS ##
+    if(is.null(n.block) & is.null(block.size)) stop("n.block and block.size are both missing.")
+    if(!is.null(n.block) & !is.null(block.size)) stop("n.block and block.size are both provided.")
+
+
+    ## GET BLOCK SIZE VECTOR ##
+    P <- nLoc(x)
+
+    ## n.block is given
+    if(!is.null(n.block)){
+        vec.blocksize <- rep(P %/% n.block, n.block)
+        if(P %% n.block >0){
+            vec.blocksize[1:(P %% n.block)] <- vec.blocksize[1:(P %% n.block)] + 1
+        }
+
     }
+
+     ## n.block is given
+    if(!is.null(block.size)){
+        vec.blocksize <- rep(block.size, P %/% n.block)
+        if(P %% block.size >0){
+             vec.blocksize <- c( vec.blocksize, P %% block.size)
+        }
+    }
+
+
+    ## split data by blocks ##
+    fac.block <- factor(rep(1:length(vec.blocksize), vec.blocksize))
+    if(random){
+        fac.block <- sample(fac.block)
+    }
+
+    res <- lapply(levels(fac.block), function(lev) x[,fac.block==lev])
+
+    return(res)
 })
 
 
