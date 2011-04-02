@@ -236,10 +236,15 @@ setMethod("seppop", signature(x="genlight"), function(x, pop=NULL, treatOther=TR
 ##########
 ## seploc
 ##########
-setMethod("seploc", signature(x="genlight"), function(x, n.block=NULL, block.size=NULL, random=FALSE){
+setMethod("seploc", signature(x="genlight"), function(x, n.block=NULL, block.size=NULL, random=FALSE,
+                               multicore=FALSE, n.cores=NULL){
     ## CHECKS ##
     if(is.null(n.block) & is.null(block.size)) stop("n.block and block.size are both missing.")
     if(!is.null(n.block) & !is.null(block.size)) stop("n.block and block.size are both provided.")
+    if(multicore && !require(multicore)) stop("multicore package requested but not installed")
+    if(multicore && is.null(n.cores)){
+        n.cores <- multicore:::detectCores()
+    }
 
 
     ## GET BLOCK SIZE VECTOR ##
@@ -254,9 +259,9 @@ setMethod("seploc", signature(x="genlight"), function(x, n.block=NULL, block.siz
 
     }
 
-     ## n.block is given
+    ## block.size is given
     if(!is.null(block.size)){
-        vec.blocksize <- rep(block.size, P %/% n.block)
+        vec.blocksize <- rep(block.size, P %/% block.size)
         if(P %% block.size >0){
              vec.blocksize <- c( vec.blocksize, P %% block.size)
         }
@@ -269,10 +274,22 @@ setMethod("seploc", signature(x="genlight"), function(x, n.block=NULL, block.siz
         fac.block <- sample(fac.block)
     }
 
+    if(multicore){
+        res <- mclapply(levels(fac.block), function(lev) x[,fac.block==lev],
+                        mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE)
+    }
+
     res <- lapply(levels(fac.block), function(lev) x[,fac.block==lev])
 
+    ## return result ##
+    names(res) <- paste("block", 1:length(res),sep=".")
+
     return(res)
-})
+}) # end seploc
+
+
+
+
 
 
 ###################
