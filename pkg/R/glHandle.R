@@ -132,6 +132,7 @@ c.SNPbin <- function(...){
 ##setMethod("cbind", signature(x="genlight"), function(..., deparse.level = 1) {
 cbind.genlight <- function(...){
     myList <- list(...)
+    if(length(myList)==1 && is.list(myList[[1]])) myList <- myList[[1]]
     if(!all(sapply(myList, class)=="genlight")) stop("some objects are not genlight objects")
     ## remove empty objects
     myList <- myList[sapply(myList,nLoc)>0 & sapply(myList,nInd)>0]
