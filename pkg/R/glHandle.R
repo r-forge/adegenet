@@ -238,7 +238,7 @@ setMethod("seppop", signature(x="genlight"), function(x, pop=NULL, treatOther=TR
 ## seploc
 ##########
 setMethod("seploc", signature(x="genlight"), function(x, n.block=NULL, block.size=NULL, random=FALSE,
-                               multicore=FALSE, n.cores=NULL){
+                               multicore=require(multicore), n.cores=NULL){
     ## CHECKS ##
     if(is.null(n.block) & is.null(block.size)) stop("n.block and block.size are both missing.")
     if(!is.null(n.block) & !is.null(block.size)) stop("n.block and block.size are both provided.")
@@ -276,11 +276,11 @@ setMethod("seploc", signature(x="genlight"), function(x, n.block=NULL, block.siz
     }
 
     if(multicore){
-        res <- mclapply(levels(fac.block), function(lev) x[,fac.block==lev],
+        res <- mclapply(levels(fac.block), function(lev) x[,sample(which(fac.block==lev))],
                         mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE)
+    } else {
+        res <- lapply(levels(fac.block), function(lev) x[,sample(which(fac.block==lev))])
     }
-
-    res <- lapply(levels(fac.block), function(lev) x[,fac.block==lev])
 
     ## return result ##
     names(res) <- paste("block", 1:length(res),sep=".")
