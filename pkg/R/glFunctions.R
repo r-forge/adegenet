@@ -382,7 +382,7 @@ glPca <- function(x, center=TRUE, scale=FALSE, nf=NULL, loadings=TRUE, alleleAsU
             }
             diag(allProd) <- temp
         } else { # === use C computations ====
-            allProd <- glDotProd(x, center=center, scale=scale, alleleAsUnit=alleleAsUnit)/nInd(x)
+            allProd <- glDotProd(x, center=center, scale=scale, alleleAsUnit=alleleAsUnit, multicore=multicore, n.cores=n.cores)/nInd(x)
         }
     } else { # END NEED TO COMPUTE DOTPROD
         if(!all(dim(matDotProd)==nInd(x))) stop("matDotProd has wrong dimensions.")
@@ -749,6 +749,28 @@ loadingplot.glPca <- function(x, at=NULL, threshold=NULL, axis=1, fac=NULL, byfa
 
 
 ## TEST PARALLELE C COMPUTATIONS IN GLDOTPROD
-## toto <- glDotProd(x,multi=TRUE)
-## titi <- glDotProd(x,multi=FALSE)
+## system.time(toto <- glDotProd(x,multi=TRUE)) # 58 sec: cool!
+## system.time(titi <- glDotProd(x,multi=FALSE)) # 245 sec
 ## all.equal(toto,titi)
+
+
+## TEST PARALLELE C COMPUTATIONS IN GLPCA ##
+## first dataset
+## x <- new("genlight", lapply(1:50, function(i) sample(c(0,1,2,NA), 1e5, prob=c(.5, .40, .09, .01), replace=TRUE)))
+## system.time(pca1 <- glPca(x, multi=FALSE, useC=FALSE, nf=1)) # no C, no multicore: 43 sec
+## system.time(pca2 <- glPca(x, multi=FALSE, useC=TRUE, nf=1)) # just C: 248 sec
+## system.time(pca3 <- glPca(x, multi=TRUE, useC=FALSE, nf=1, n.core=7)) # just multicore: 16 sec
+## system.time(pca4 <- glPca(x, multi=TRUE, useC=TRUE, nf=1, n.core=7)) # C and multicore: 65 sec
+## all.equal(pca1$scores^2, pca2$scores^2) # must be TRUE
+## all.equal(pca1$scores^2, pca3$scores^2) # must be TRUE
+## all.equal(pca1$scores^2, pca4$scores^2) # must be TRUE
+
+## second dataset
+## x <- new("genlight", lapply(1:500, function(i) sample(c(0,1,2,NA), 1e4, prob=c(.5, .40, .09, .01), replace=TRUE)))
+## system.time(pca1 <- glPca(x, multi=FALSE, useC=FALSE, nf=1)) # no C, no multicore: 418 sec
+## system.time(pca2 <- glPca(x, multi=FALSE, useC=TRUE, nf=1)) # just C:  496 sec
+## system.time(pca3 <- glPca(x, multi=TRUE, useC=FALSE, nf=1, n.core=7)) # just multicore: 589 sec
+## system.time(pca4 <- glPca(x, multi=TRUE, useC=TRUE, nf=1, n.core=7)) # C and multicore: 315 sec
+## all.equal(pca1$scores^2, pca2$scores^2) # must be TRUE
+## all.equal(pca1$scores^2, pca3$scores^2) # must be TRUE
+## all.equal(pca1$scores^2, pca4$scores^2) # must be TRUE
