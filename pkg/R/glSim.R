@@ -3,7 +3,7 @@
 ## glSim
 ##########
 glSim <- function(n.ind, n.snp.nonstruc, n.snp.struc=0, grp.size=round(n.ind/2), ploidy=1, alpha=0,
-                  block.size=NULL){
+                  block.size=NULL, LD=FALSE){
 
     ## BASIC CHECKS ##
     if( any(c(n.ind, n.snp.nonstruc+n.snp.struc) <1)) stop("null numbers of individuals and/or SNPs requested")
@@ -29,25 +29,49 @@ glSim <- function(n.ind, n.snp.nonstruc, n.snp.struc=0, grp.size=round(n.ind/2),
 
 
     ## AUXIL FUNCTIONS ##
-    ## draw p snp for i indiv and convert into a genlight - no structure
-    f1 <- function(n,p){
-        temp <- sapply(1:p, function(i) rbinom(n, ploidy, runif(1)))
-        if(n==1) {temp <- matrix(temp,nrow=1)}
-        return(new("genlight", temp, ploidy=ploidy))
-    }
+    if(LD) { # LD - use mvrnorm
+        if(!require(MASS)) stop("MASS package is missing.")
+        QUANT <- qnorm(seq(0,1, le=ploidy+2), 0,1) # quantiles needed for continuous->discrete
 
-    ## draw p snp for i indiv and convert into a genlight - differences between 2 groups
-    if(n.snp.struc > 0){
-        f2 <- function(n,p){
-            probA <- runif(p, min=0, max=0.5-alpha)
-            probB <- 1-probA
-            tempA <- sapply(probA, function(i) rbinom(grpA.size, ploidy, i) )
-            if(grpA.size==1) {tempA <- matrix(tempA,nrow=1)}
-            tempB <- sapply(probB, function(i) rbinom(grpB.size, ploidy, i) )
-            if(grpB.size==1) {tempB <- matrix(tempB,nrow=1)}
-            return(new("genlight", rbind(tempA,tempB), ploidy=ploidy))
+        f1 <- function(n,p){
+            Sig <- matrix(runif(p^2), p, p)
+            Sig <- t(Sig) %*% Sig/2 # get the covariance matrix
+            temp <- mvrnorm(n, rep(0,p), Sig) # continuous data
+            temp <- matrix(as.integer(cut(temp, breaks=QUANT))-1, nrow=n, ncol=p)
+            return(new("genlight", temp, ploidy=ploidy))
+        }
+
+        if(n.snp.struc > 0){
+            if(alpha>1e-10) warning("assymetry parameter alpha ignored when LD used")
+            f2 <- function(n,p){
+                temp <-rbind(f1(grpA.size,p), f1(grpB.size,p))
+                ploidy(temp) <- ploidy
+                return(temp)
+            }
+        }
+    } else { # no LD - use rbinom
+        ## draw p snp for i indiv and convert into a genlight - no structure
+        f1 <- function(n,p){
+            temp <- sapply(1:p, function(i) rbinom(n, ploidy, runif(1)))
+            if(n==1) {temp <- matrix(temp,nrow=1)}
+            return(new("genlight", temp, ploidy=ploidy))
+        }
+
+        ## draw p snp for i indiv and convert into a genlight - differences between 2 groups
+        if(n.snp.struc > 0){
+            f2 <- function(n,p){
+                probA <- runif(p, min=0, max=0.5-alpha)
+                probB <- 1-probA
+                tempA <- sapply(probA, function(i) rbinom(grpA.size, ploidy, i) )
+                if(grpA.size==1) {tempA <- matrix(tempA,nrow=1)}
+                tempB <- sapply(probB, function(i) rbinom(grpB.size, ploidy, i) )
+                if(grpB.size==1) {tempB <- matrix(tempB,nrow=1)}
+                return(new("genlight", rbind(tempA,tempB), ploidy=ploidy))
+            }
         }
     }
+
+
 
     ## NON-STRUCTURED DATA ##
     ## generate data
