@@ -20,7 +20,7 @@ glPlot <- function(x, col=NULL, legend=TRUE, posi="bottomleft", bg=rgb(1,1,1,.5)
           col=myCol, ...)
 
     ## add y axis
-    axis(side=2, at=nInd(x)-ylabpos, lab=ylabpos)
+    axis(side=2, at=nInd(x)-ylabpos+1, lab=ylabpos)
 
     ## add legend
     if(legend){
