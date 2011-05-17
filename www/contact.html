@@ -41,7 +41,7 @@ before sending a post<br>
   <div style="text-align: left;"><!--<TABLE bgcolor="#FFFFFF"><tr><td>-->
   <a href="http://www.google.fr"><img
  src="http://www.google.com/logos/Logo_40wht.gif" alt="Google"
- align="middle" border="0"></a><br>
+ border="0" align="middle"></a><br>
   </div>
   <div style="text-align: left;"><input name="q" size="31"
  maxlength="255" value="Enter keywords here" type="text"><!--<INPUT TYPE=hidden name="domains" value="adegenet.r-forge.r-project.org" />--><input
@@ -65,7 +65,8 @@ the
 analysis
 of
 genetic
-markers in R, use the <a target="_top"
+markers
+in R, use the <a target="_top"
  href="https://stat.ethz.ch/mailman/listinfo/r-sig-genetics">R-sig-genetics</a>
 mailing list.<br>
 <br>
@@ -122,12 +123,16 @@ achieved by typing:<br>
 <br>
 <br>
 </span><span style="color: rgb(0, 153, 0);"># 4: Loading adegenet fails
-with this error: </span><font><font size="2"><br>
+with this error (R &gt;= 2.13.0): </span><font><font size="2"><br>
 <span style="color: rgb(0, 102, 0);">Error in as.environment(pos) : no
 item called "newtable" on the search list</span></font></font><br>
-Same problem as #2; you need to install adegenet with dependencies:<br>
-<span style="font-family: monospace;">install.packages("adegenet",
-dep=TRUE)</span><br style="font-family: monospace;">
+This is because the package 'graph', on which adegenet depends, has
+been removed from CRAN. You need to install graph from bioconductor
+first, and then install adegenet:<br>
+<pre>source("http://bioconductor.org/biocLite.R")<br>biocLite("graph")<span
+ style="font-family: monospace;"><br>install.packages("adegenet", dep=TRUE)</span><br></pre>
+<span style="color: rgb(0, 153, 0);"></span><br
+ style="font-family: monospace;">
 <br style="font-family: monospace;">
 <br>
 <br>
