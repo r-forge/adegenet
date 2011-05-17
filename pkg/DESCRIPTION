@@ -3,7 +3,7 @@ Version: 1.3-0
 Date: 2010/11/05
 Title: adegenet: a R package for the multivariate analysis of genetic markers.
 Author:  Thibaut Jombart <t.jombart@imperial.ac.uk>
-  with contributions of: Ismail Ahmed, Peter Solymos, Francois Balloux
+  with contributions of: Ismail Ahmed, Peter Solymos
   and contributed datasets from: Katayoun Moazami-Goudarzi, Denis Laloe,
   Dominique Pontier, Daniel Maillard, Francois Balloux
 Maintainer: Thibaut Jombart <t.jombart@imperial.ac.uk>
