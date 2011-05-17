@@ -126,8 +126,9 @@ achieved by typing:<br>
 with this error (R &gt;= 2.13.0): </span><font><font size="2"><br>
 <span style="color: rgb(0, 102, 0);">Error in as.environment(pos) : no
 item called "newtable" on the search list</span></font></font><br>
-This is because the package 'graph', on which adegenet depends, has
-been removed from CRAN. You need to install graph from bioconductor
+This is because the package '<span style="font-style: italic;">graph</span>',
+on which <span style="font-style: italic;">adegenet</span> depends,
+has been removed from CRAN. You need to install graph from bioconductor
 first, and then install adegenet:<br>
 <pre>source("http://bioconductor.org/biocLite.R")<br>biocLite("graph")<span
  style="font-family: monospace;"><br>install.packages("adegenet", dep=TRUE)</span><br></pre>
