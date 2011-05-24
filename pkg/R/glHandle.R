@@ -112,7 +112,12 @@ cbind.SNPbin <- function(..., checkPloidy=TRUE){
 
 
     if(checkPloidy && length(unique(sapply(myList, ploidy))) !=1 ) stop("objects have different ploidy levels")
-    x <- new("SNPbin", unlist(lapply(myList, as.integer)))
+    if(checkPloidy) {
+        ori.ploidy <- ploidy(myList[[1]])
+    } else {
+        ori.ploidy <- NULL
+    }
+    x <- new("SNPbin", unlist(lapply(myList, as.integer)), ploidy=ori.ploidy)
     return(x)
 } # end cbind.SNPbin
 ##})
@@ -151,6 +156,7 @@ cbind.genlight <- function(...){
     }
     temp <- as.matrix(as.data.frame(lapply(myList, ploidy)))
     if(any(apply(temp,1,function(r) length(unique(r)))>1)) stop("non-consistent ploidy across datasets")
+    ori.ploidy <- ploidy(myList[[1]])
 
 
     ## merge one individual at a time ##
@@ -166,6 +172,7 @@ cbind.genlight <- function(...){
     locNames(res) <- unlist(lapply(myList, locNames))
     alleles(res) <- unlist(lapply(myList, alleles))
     pop(res) <- pop(myList[[1]])
+    ploidy(res) <- ori.ploidy
 
     ## return object ##
     return(res)
