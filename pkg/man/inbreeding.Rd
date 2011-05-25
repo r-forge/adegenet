@@ -37,8 +37,8 @@ inbreeding(x, pop=NULL, truenames=TRUE, res.type=c("mean","byloc"), plot=TRUE, \
   \code{\link{inbreeding.ml}}: a maximum-likelihood estimation of
   inbreeding.
   
-  \code{\link{Hs}}, \code{\link[hierfstat]{varcomp.glob}},
-  \code{\link{gstat.randtest}}
+  \code{\link{Hs}}%, \code{\link[hierfstat]{varcomp.glob}},
+%  \code{\link{gstat.randtest}}
 }
 \references{
   Brown AR, Hosken DJ, Balloux F, et al. 2009 Genetic variation,
