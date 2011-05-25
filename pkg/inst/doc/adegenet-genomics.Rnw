@@ -1,0 +1,144 @@
+\documentclass{article}
+% \VignettePackage{adegenet-genomics}
+% \VignetteIndexEntry{An introduction to Discriminant Analysis of Principal Components (DAPC)}
+
+\usepackage{graphicx}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\usepackage{array}
+\usepackage{color}
+
+\usepackage[utf8]{inputenc} % for UTF-8/single quotes from sQuote()
+\newcommand{\code}[1]{{{\tt #1}}}
+\title{Analysing genomic data using adegenet}
+\author{Thibaut Jombart and Isma\"il Ahmed}
+\date{\today}
+
+
+
+
+\sloppy
+\hyphenpenalty 10000
+
+
+\begin{document}
+
+
+
+\definecolor{Soutput}{rgb}{0,0,0.56}
+\definecolor{Sinput}{rgb}{0.56,0,0}
+\DefineVerbatimEnvironment{Sinput}{Verbatim}
+{formatcom={\color{Sinput}},fontsize=\footnotesize, baselinestretch=0.75}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}
+{formatcom={\color{Soutput}},fontsize=\footnotesize, baselinestretch=0.75}
+
+\color{black}
+
+\maketitle
+\tableofcontents
+
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+\section{Introduction}
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+
+
+
+
+
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+\section{Classes of objects}
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%
+\subsection{\code{SNPbin}: storage of single genomes}
+%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%
+\subsection{\code{genlight}: storage of multiple genomes}
+%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Accessors}
+%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+\section{Describing clusters using \code{dapc}}
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Rationale}
+%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%
+\subsection{In practice}
+%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+\section{Customizing graphics}
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%
+\subsection{DAPC scatterplots}
+%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Group memberships}
+%%%%%%%%%%%%%%%%
+
+
+
+
+
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+\section{Using supplementary individuals}
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Rationale}
+%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Predicting group membership}
+%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Representing supplementary individuals}
+%%%%%%%%%%%%%%%%
+
+
+\end{document}
