@@ -38,8 +38,8 @@ pairwise.fst(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRUE)
 }
 \value{
   A vector, a matrix, or a dist object containing F statistics.}
-\seealso{\code{\link{Hs}}, \code{\link[hierfstat]{varcomp.glob}},
-  \code{\link{gstat.randtest}}
+\seealso{\code{\link{Hs}}%, \code{\link[hierfstat]{varcomp.glob}},
+ % \code{\link{gstat.randtest}}
 }
 \references{
   Nei, M. (1973) Analysis of gene diversity in subdivided

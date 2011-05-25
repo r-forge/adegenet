@@ -31,7 +31,8 @@ glSum(x, alleleAsUnit = TRUE, useC = FALSE)
 glNA(x, alleleAsUnit = TRUE)
 glMean(x, alleleAsUnit = TRUE)
 glVar(x, alleleAsUnit = TRUE)
-glDotProd(x, center = FALSE, scale = FALSE, alleleAsUnit = FALSE)
+glDotProd(x, center = FALSE, scale = FALSE, alleleAsUnit = FALSE,
+                multicore = require("multicore"), n.cores = NULL)
 }
 \arguments{
   \item{x}{a \linkS4class{genlight} object}
@@ -44,9 +45,14 @@ glDotProd(x, center = FALSE, scale = FALSE, alleleAsUnit = FALSE)
   \item{scale}{a logical indicating whether SNPs should be scaled to
     unit variance.}
   \item{useC}{a logical indicating whether compiled C code should be
-    used (TRUE) or not (FALSE, default). Pure-R code is more efficient
-    for small number of individuals; C-code is expected to be more
-    efficient for thousands of individuals.}
+    used (TRUE) or not (FALSE, default).}
+  \item{multicore}{a logical indicating whether multiple cores -if
+    available- should be used for the computations (TRUE, default), or
+    not (FALSE); requires the package \code{multicore} to be installed
+    (see details); this option cannot be used alongside useCoption.}
+  \item{n.cores}{if \code{multicore} is TRUE, the number of cores to
+    be used in the computations; if NULL, then the maximum number of
+    cores available on the computer is used.}
 }
 \details{
   === On the unit of information ===
