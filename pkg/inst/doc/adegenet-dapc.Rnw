@@ -35,6 +35,8 @@
 \begin{document}
 
 
+\SweaveOpts{prefix.string = figs/, echo=TRUE, eval=TRUE, fig = FALSE, eps = FALSE, pdf = TRUE}
+
 
 \definecolor{Soutput}{rgb}{0,0,0.56}
 \definecolor{Sinput}{rgb}{0.56,0,0}
@@ -161,6 +163,9 @@ x
 \texttt{x} is a dataset of 600 individuals simulated under an 6 island model for 30 microsatellite markers.
 We use \code{find.clusters} to identify clusters, although true clusters are, in this case, known.
 We specify that we want to evaluate up to $k=40$ groups (\texttt{max.n.clust=40}):
+<<eval=TRUE,echo=FALSE>>=
+load("Robjects/grp.RData")
+@
 <<eval=FALSE>>=
 grp <- find.clusters(x, max.n.clust=40)
 @
@@ -185,6 +190,27 @@ In this case, the elbow in the curve also matches the smallest BIC, and clearly 
 should be retained. In practice, the choice is often trickier to make.
 \\
 
+The output of \texttt{find.clusters} is a list:
+<<>>=
+names(grp)
+head(grp$Kstat, 8)
+grp$stat
+head(grp$grp, 10)
+grp$size
+@
+
+The components are respectively the chosen summary statistics (here, BIC) for different values of
+$k$ (slot \texttt{Kstat}), the selected number of clusters and the associated BIC (slot
+\texttt{stat}), the group memberships (slot \texttt{grp}) and the group sizes (slot \texttt{size}).
+Here, since we knew the actual groups, we can check how well they have been retrieved by the procedure.
+Actual groups are accessed using \texttt{pop}:
+<<fig=TRUE>>=
+table(pop(x), grp$grp)
+table.value(table(pop(x), grp$grp), col.lab=paste("inf", 1:6), row.lab=paste("ori", 1:6))
+@
+Rows correspond to actual groups ("ori''), while columns correspond to inferred groups ("inf'').
+Here, we can see that original groups have nearly been perfectly identified by the method.
+
 
 %%%%%%%%%%%%%%%%
 \subsection{How many clusters are there really in the data?}
@@ -203,13 +229,18 @@ summarise and understand the data. There is no longer a "true $k$", but some val
 better, more efficient summaries of the data than others.
 For instance, in the following case:
 \begin{center}
-  \includegraphics[width=.7\textwidth]{figs/findclust-bic.pdf}
+  \includegraphics[width=.7\textwidth]{figs/findclust-noclearcut.pdf}
 \end{center}
 
 \noindent , the concept of "true $k$" is fairly hypothetical. This does not mean that clutering
 algorithms should necessarily be discarded, but surely the reality is more complex than a few
 clear-cut, isolated populations. What the BIC decrease says is that 10-20 clusters would provide useful
 summaries of the data. The actual number retained is merely a question of personnal taste.
+
+
+
+
+
 
 
 
@@ -221,20 +252,91 @@ summaries of the data. The actual number retained is merely a question of person
 %%%%%%%%%%%%%%%%
 
 
-
 %%%%%%%%%%%%%%%%
 \subsection{Rationale}
 %%%%%%%%%%%%%%%%
+DAPC aims to provide an efficient description of genetic clusters using a few synthetic variables.
+These are constructed as linear combinations of the original variables (alleles) which have the
+largest between-group variance and the smallest within-group variance. Coefficients of the alleles
+used in the linear combination are called \textit{loadings}, while the synthetic variables are
+themselves referred to as \textit{discriminant functions}.
+
+Moreover, being based on the Discriminant Analysis, DAPC also provides membership probabilities of
+each individual to the different groups based on the retained discriminant functions. While these
+are different from the admixture coefficients of software like STRUCTURE, they can be still be
+interpreted as proximities of individuals to the different clusters. Membership
+probabilities also provide indications of how clear-cut genetic clusters are. Loose clusters will
+result in fairly flat distributions of membership probabilities of individuals across clusters,
+possibly sign of admixture in the case of island models.
+
+Lastly, using the allele loadings, it is possible to represent new individuals (which have not participated to the analysis)
+onto the factorial planes, and derive membership probabilities as welll. Such individuals are
+referred to as \textit{supplementary individuals}.
+
 
 
 %%%%%%%%%%%%%%%%
 \subsection{In practice}
 %%%%%%%%%%%%%%%%
 
+DAPC is implemented by the function \texttt{dapc}, which first transforms the data using PCA, and
+then performs a Discriminant Analysis on the retained principal components. Like
+\texttt{find.clusters}, \texttt{dapc} is a generic function with methods for texttt{data.frame}, and objects with
+the class \texttt{genind} (usual genetic markers) and \texttt{genlight} (genome wide SNP data).
 
+We run the analysis on the previous toy dataset, using the inferred groups stored in \texttt{grp\$grp}:
 
+<<echo=FALSE>>=
+load("Robjects/dapc1.RData")
+@
+<<eval=FALSE>>=
+dapc1 <- dapc(x, grp$grp)
+@
 
+The method displays the same graph of cumulated variance for the PCA step. However, unlike
+$k$-means, DAPC can benefit from not using too many PCs. Indeed, retaining too many components with
+respect to the number of individuals can lead to over-fitting and unstability in the membership
+probabilities returned by the method (see section below about the stability of DAPC results).
 
+\begin{center}
+  \includegraphics[width=.7\textwidth]{figs/findclust-pca.pdf}
+\end{center}
+
+\noindent The bottomline is therefore retaining a few PCs without sacrificing too much information.
+Here, we can see that little information is gained by adding PCs after the first 40. We therefore
+retain 40 PCs.
+
+Then, the method displays a barplot of eigenvalues for the discriminant analysis, asking for a
+number of discriminant functions to retain (unless argument \texttt{n.da} is provided).
+\begin{center}
+  \includegraphics[width=.7\textwidth]{figs/eigen-dapc.pdf}
+\end{center}
+
+For small number of clusters, all eigenvalues can be retained since all discriminant functions can
+be examined without difficulty. Whenever more (say, tens of) clusters are analysed,
+it is likely that the first few dimensions will carry more information than the others, and only
+those can then be retained and interpreted.
+\\
+
+The object \texttt{dapc1} contains a lot of information:
+<<>>=
+dapc1
+@
+
+For details about this content, please read the documentation (\texttt{?dapc}).
+Essentially, the slots \texttt{ind.coord} and \texttt{grp.coord} contain the coordinates of the
+individuals and of the groups used in scatterplots.
+Contributions of the alleles to each discriminant function are stored in the slot \texttt{var.contr}.
+Eigenvalues, corresponding to the ratio of the variance between groups over the variance within
+group for each discriminant function, are stored in \texttt{eig}.
+Basic scatterplots can be obtained using the function \texttt{scatterplot}:
+<<fig=TRUE>>=
+scatter(dapc1)
+@
+
+\noindent The obtained graph represents the individuals as dots and the groups as inertia
+ellipses. Eigenvalues of the analysis are displayed in inset. These graphs are fairly easy to
+customize, as shown below.
 
 
 
@@ -248,6 +350,41 @@ summaries of the data. The actual number retained is merely a question of person
 %%%%%%%%%%%%%%%%
 \subsection{DAPC scatterplots}
 %%%%%%%%%%%%%%%%
+
+DAPC scatterplots are the main result of DAPC. It is therefore essential to ensure that information
+is displayed efficiently, and if possible to produce pretty figures.
+Possibility are almost unlimited, and here we just illustrate a few possibilities offered by
+\texttt{scatter}. Note that \texttt{scatter} is a generic function, with a dedicated method for
+objects produced by \texttt{dapc}. Documentation of this function can be accessed by typing \texttt{?scatter.dapc}.
+
+We illustrate some graphical possibilities trying to improve the display of the analysis presented
+in the previous section.
+While the default background (grey) allows to visualize rainbow colors (the default palette for the
+groups) more easily, it is not so pretty and is probably better removed for publication purpose.
+We also move the inset to a more appropriate place where it does not cover individuals, and use
+different symbols for the groups.
+
+<<fig=TRUE>>=
+scatter(dapc1, posi="bottomright", grid=FALSE, bg="white", pch=17:22)
+@
+
+\noindent This is still not satisfying: we need to define other colors more visible over a white
+background, and we can remove the segments linking the points to their ellipses:
+<<fig=TRUE>>=
+myCol <- c("darkblue","purple","green","orange","red","blue")
+scatter(dapc1, posi="bottomright", grid=FALSE, bg="white", pch=17:22, cstar=0, axesel=FALSE, lwd=2, col=myCol)
+@
+
+\noindent Another possibility is remove the labels within the ellipses and add a legend to the
+plot. We also use the same symbol for all individuals, but use bigger dots and transparent colours
+to have a better feel for the density of individuals on the factorial plane.
+We also add a customized barplot of eigenvalues in inset:
+<<fig=TRUE>>=
+scatter(dapc1, ratio=0, grid=FALSE, bg="white", pch=20,  cell=0, cstar=0, lwd=2, col=transp(myCol), cex=3, clab=0)
+par(xpd=TRUE)
+legend("topright", pch=20, cex=1, col=transp(myCol), legend=paste("Cluster", 1:6), pt.cex=3)
+add.scatter.eig(dapc1$eig, 5,1,2, posi="bottomright", inset=.03, csub=1)
+@
 
 
 
@@ -270,7 +407,10 @@ summaries of the data. The actual number retained is merely a question of person
 %%%%%%%%%%%%%%%%
 \subsection{Why DAPC results could vary?}
 %%%%%%%%%%%%%%%%
-
+ Indeed, retaining too many PCs with respect
+to the number of individuals can lead to over-fitting the discriminant functions: these become so
+"flexible" that they could discriminate almost perfectly any cluster. While scatterplots are usually
+essentially unaltered by this process, membership probabilities can become drastically inflated.
 
 
 %%%%%%%%%%%%%%%%
