@@ -472,6 +472,7 @@ summary.dapc <- function(object, ...){
 ## scatter.dapc
 ##############
 scatter.dapc <- function(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$grp))), pch=20, posi="bottomleft", bg="grey", ratio=0.3,
+                         mstree=FALSE, lwd=1, lty=1, segcol="black",
                          cstar = 1, cellipse = 1.5, axesell = TRUE, label = levels(x$grp), clabel = 1, xlim = NULL, ylim = NULL,
                          grid = TRUE, addaxes = TRUE, origin = c(0,0), include.origin = TRUE, sub = "", csub = 1, possub = "bottomleft",
                          posleg="topright", cleg=1, cgrid = 1, pixmap = NULL, contour = NULL, area = NULL, ...){
@@ -512,6 +513,18 @@ scatter.dapc <- function(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$
         s.class(x$ind.coord[,axes], fac=grp, col=col, cpoint=0, add.plot=TRUE, cstar = cstar, cellipse = cellipse, axesell = axesell, label = label,
                 clabel = clabel, xlim = xlim, ylim = ylim, grid = grid, addaxes = addaxes, origin = origin, include.origin = include.origin,
                 sub = sub, csub = csub, possub = possub, cgrid = cgrid, pixmap = pixmap, contour = contour, area = area)
+
+        ## add minimum spanning tree if needed
+        if(mstree && require(ade4)){
+            meanposi <- apply(dapc1$tab,2, tapply, dapc1$grp, mean)
+            D <- dist(meanposi)^2
+            tre <- mstree(D)
+            x0 <- dapc1$grp.coord[tre[,1], axes[1]]
+            y0 <- dapc1$grp.coord[tre[,1], axes[2]]
+            x1 <- dapc1$grp.coord[tre[,2], axes[1]]
+            y1 <- dapc1$grp.coord[tre[,2], axes[2]]
+            segments(x0, y0, x1, y1, lwd=lwd, lty=lty, col=segcol)
+        }
 
         if(ratio>0.001) {
             add.scatter.eig(x$eig, ncol(x$loadings), axes[1], axes[2], posi=posi, ratio=ratio, csub=csub)
