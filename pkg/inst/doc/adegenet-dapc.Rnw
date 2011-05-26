@@ -36,19 +36,59 @@
 \maketitle
 
 \begin{abstract}
-  This vignette provides a tutorial for using the Discriminant Analysis of Principal Components
-  (DAPC \cite{tjart19})
+  This vignette provides a tutorial for applying the Discriminant Analysis of Principal Components
+  (DAPC \cite{tjart19}) using the \textit{adegenet} package \cite{tjart05} for the R software
+  \cite{np145}. This methods aims to identify and describe genetic clusters, although it can in fact
+  be applied to any quantitative data. We illustrate how to use \code{find.clusters} to identify
+  clusters, and \code{dapc} to describe the relationships between these clusters. More advanced
+  topics are then introduced, such as the stability of DAPC results and supplementary individuals.
 \end{abstract}
 
 
 \newpage
 \tableofcontents
 
+
+
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
 \section{Introduction}
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Rationale}
+%%%%%%%%%%%%%%%%
+
+Investigating genetic diversity using multivariate approaches relies on finding synthetic variables
+built as linear combinations of alleles (i.e. $a_1 \mbox{allele}_1 + a_2 \mbox{allele}_2 + ... $)
+and which reflect as well as possible the genetic variation between the studied individuals.
+However, most of the time we are not only interested in the diversity amongst individuals, but
+also and possibly more in the diversity between groups of individuals.
+Typically, one will be analysing individual data to identify populations, or more largely genetic
+clusters, and then describe these clusters.
+
+A problem occuring in traditional methods is focussing on the entire variation.
+Genetic data can be described using a standard multivariate ANOVA model:
+$$
+\mbox{total variance} = \mbox{(variance between groups)} + \mbox{(variance within groups)}
+$$
+or more simply, denoting $\m{X}$ the data matrix:
+$$
+VAR(\m{X}) = B(\m{X}) + W(\m{X})
+$$
+
+That is, usual approaches such as Principal Component Analysis (PCA) or Principal Coordinate
+Analysis (PCoA / MDS) focus on $VAR(\m{X})$. That is, they only describe the global diversity,
+possibly overlooking differences between groups. On the contrary, DAPC optimizes $B(\m{X})$ while
+minimizing $W(\m{X})$: it seeks synthetic variables, the \textit{discriminant functions}, which show
+differences between groups as best as possible while minimizing variation within clusters.
+
+
+
+
+
 
 
 
@@ -63,11 +103,37 @@
 %%%%%%%%%%%%%%%%
 \subsection{Rationale}
 %%%%%%%%%%%%%%%%
+DAPC in itself requires prior groups to be defined. However, groups are often unknown or uncertain,
+and there is a need for identifying genetic clusters before describing them. This can be achieved by
+using $k$-means, a clustering algorithm which finds $k$ groups maximizing the variation between
+groups, $B(\m{X})$. To identify the optimal number of clusters, $k$-means is run sequentially with
+increasing values of $k$, and different clustering solutions are compared using Bayesian Information
+Criterion (BIC). Ideally, the optimal clustering solution should correspond to the lowest BIC. In
+practice, the 'best' BIC is often indicated by an elbow in the curve of BIC values as a function of
+$k$.
+
+While $k$-means could be performed on the raw data, we prefer running the algorithm after
+transforming the data using PCA. This transformation has the major advantage of reducing the
+number of variables so as to speed up the clustering algorithm. Note this does not imply a loss of
+information and different results from the raw data, since one can retain all the principal
+components (PCs) and therefore all the variation in the original data. However, in practice, a reduced
+number of PCs is often sufficient to identify the existing clusters, while allowing the clusters to
+be obtained essentially instantaneously.
 
 
 %%%%%%%%%%%%%%%%
 \subsection{In practice}
 %%%%%%%%%%%%%%%%
+
+Identification of the clusters is achieved by \code{find.clusters}. This function first transforms
+the data using PCA, asking the users to specify the number of retained PCs interactively unless the
+argument \code{n.pca} is provided. Then, it runs $k$-means algorithm (function \code{kmeans} from
+the \textit{stats} package) with increasing values of $k$, unless the argument  \code{n.clust} is
+provided. See \code{?find.clusters} for other arguments.
+
+\code{find.clusters} is a generic function with methods for \texttt{data.frame}, and objects with
+the class \texttt{genind} (usual genetic markers) and \texttt{genlight} (genome wide SNP data).
+
 
 
 
@@ -115,6 +181,28 @@
 
 %%%%%%%%%%%%%%%%
 \subsection{Group memberships}
+%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+\section{Ensuring stability of DAPC results}
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Why DAPC results could vary?}
+%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Using the $a$-score}
 %%%%%%%%%%%%%%%%
 
 
