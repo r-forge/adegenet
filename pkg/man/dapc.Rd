@@ -76,7 +76,8 @@
 
 \method{scatter}{dapc}(x, xax=1, yax=2, grp=NULL,
         col=rainbow(length(levels(x$grp))), pch=20, posi="bottomleft",
-        bg="grey", ratio=0.3, cstar = 1, cellipse = 1.5, axesell = TRUE,
+        bg="grey", ratio=0.3, mstree=TRUE, lwd=1, lty=1, segcol="black",
+        cstar = 1, cellipse = 1.5, axesell = TRUE,
         label = levels(x$grp), clabel = 1, xlim = NULL, ylim = NULL, grid
         = TRUE, addaxes = TRUE, origin = c(0,0), include.origin = TRUE,
         sub = "", csub = 1, possub = "bottomleft", posleg = "topright",
@@ -145,6 +146,13 @@ assignplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, cex.lab=.75, pch=3)
     of DAPC results. See \code{\link[ade4]{add.scatter}} documentation in the
     ade4 package for
     more details.}
+  \item{mstree}{a logical indicating whether a minimum spanning tree
+    based on the squared distances between groups should be
+    displayed (TRUE), or not (FALSE, default).}
+  \item{lwd,lty}{numeric values indicating the line width and type for
+    the minimum spanning tree, if \code{mstree=TRUE}.}
+  \item{segcol}{the color to be used to display the minimum spanning
+         tree, if \code{mstree=TRUE}.}
   \item{only.grp}{a \code{character} vector indicating which groups should be
     displayed. Values should match values of \code{x$grp}. If \code{NULL}, all
     results are displayed}
@@ -261,8 +269,8 @@ data(H3N2)
 pop(H3N2) <- factor(H3N2$other$epid)
 dapc1 <- dapc(H3N2, var.contrib=FALSE, scale=FALSE, n.pca=150, n.da=5)
 
-## remove internal segments and ellipses, different pch
-scatter(dapc1, cell=0, pch=18:23, cstar=0)
+## remove internal segments and ellipses, different pch, add MStree
+scatter(dapc1, cell=0, pch=18:23, cstar=0, mstree=TRUE, lwd=2, lty=2)
 
 ## only ellipse, custom labels
 scatter(dapc1, cell=2, pch="", cstar=0, posi="top",
