@@ -8,6 +8,18 @@
 \usepackage{color}
 
 \usepackage[utf8]{inputenc} % for UTF-8/single quotes from sQuote()
+
+
+% for bold symbols in mathmode
+\usepackage{bm}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\m}[1]{\mathbf{#1}}
+
+
+
 \newcommand{\code}[1]{{{\tt #1}}}
 \title{An introduction to Discriminant Analysis of Principal Components (DAPC)}
 \author{Thibaut Jombart}
@@ -49,7 +61,7 @@
 \tableofcontents
 
 
-
+\newpage
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
 \section{Introduction}
@@ -133,11 +145,71 @@ provided. See \code{?find.clusters} for other arguments.
 
 \code{find.clusters} is a generic function with methods for \texttt{data.frame}, and objects with
 the class \texttt{genind} (usual genetic markers) and \texttt{genlight} (genome wide SNP data).
+Here, we illustrate its use using a toy dataset simulated in \cite{tjart19}, \texttt{dapcIllus}:
+<<>>=
+library(adegenet)
+data(dapcIllus)
+class(dapcIllus)
+names(dapcIllus)
+@
+
+\texttt{dapcIllus} is a list containing four datasets; we shall only use the first one:
+<<>>=
+x <- dapcIllus$a
+x
+@
+\texttt{x} is a dataset of 600 individuals simulated under an 6 island model for 30 microsatellite markers.
+We use \code{find.clusters} to identify clusters, although true clusters are, in this case, known.
+We specify that we want to evaluate up to $k=40$ groups (\texttt{max.n.clust=40}):
+<<eval=FALSE>>=
+grp <- find.clusters(x, max.n.clust=40)
+@
+
+\begin{center}
+  \includegraphics[width=.7\textwidth]{figs/findclust-pca.pdf}
+\end{center}
+
+\noindent
+The function displays a graph of cumulated variance explained by the eigenvalues of the PCA.
+Apart from computational time, there is no reason for keeping a small number of components; here, we
+keep all the information, specifying to retain 200 PCs (there are actually less PCs ---around 110---, so all of them
+are kept).
+
+Then, the function displays a graph of BIC values for increasing values of $k$:
+\begin{center}
+  \includegraphics[width=.7\textwidth]{figs/findclust-bic.pdf}
+\end{center}
+
+\noindent This graph shows a clear decrease of BIC until $k=6$ clusters, after which BIC increases.
+In this case, the elbow in the curve also matches the smallest BIC, and clearly indicates 6 clusters
+should be retained. In practice, the choice is often trickier to make.
+\\
 
 
+%%%%%%%%%%%%%%%%
+\subsection{How many clusters are there really in the data?}
+%%%%%%%%%%%%%%%%
 
+Although the most frequently asked when trying to find clusters in genetic data, this question is
+equally often meaningless. Clustering algorithms help making a caricature of a complex reality,
+which is most of the time far from following known population genetics models. Therefore, we are
+rarely looking for actual panmictic populations from which the individuals have been drawn. Genetic
+clusters can be biologically meaningful structures and reflect interesting biological processes, but
+they are still models.
 
+A slightly different but probably more relevant question would be: "How many clusters are useful to
+describe the data?''. A fundamental point in this question is that clusters are merely tools used to
+summarise and understand the data. There is no longer a "true $k$", but some values of $k$ are
+better, more efficient summaries of the data than others.
+For instance, in the following case:
+\begin{center}
+  \includegraphics[width=.7\textwidth]{figs/findclust-bic.pdf}
+\end{center}
 
+\noindent , the concept of "true $k$" is fairly hypothetical. This does not mean that clutering
+algorithms should necessarily be discarded, but surely the reality is more complex than a few
+clear-cut, isolated populations. What the BIC decrease says is that 10-20 clusters would provide useful
+summaries of the data. The actual number retained is merely a question of personnal taste.
 
 
 
