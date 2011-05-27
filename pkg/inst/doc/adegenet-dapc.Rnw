@@ -421,6 +421,31 @@ scatter(dapc1,1,1, col=myCol, bg="white")
 \subsection{Interpreting variable contributions}
 %%%%%%%%%%%%%%%%
 
+In DAPC, the variable actually analyzed are principal components of a PCA.
+Loadings of these variables are generally uninformative.
+However, we also compute contributions of the alleles, which can be interpreted and sometimes very informative.
+In general, there are many alleles and their contribution is best plotted for a single discriminant
+function at a time.
+
+Variable contributions are stored in the \texttt{var.contr} slot of a \texttt{dapc} object.
+They can be plotted using \texttt{loadingplot}.
+We illustrate this using the seasonal influenza dataset \texttt{H3N2}:
+<<>>=
+data(H3N2)
+H3N2
+dapc.flu <- dapc(H3N2, pop=H3N2$other$epid, n.pca=30,n.da=10)
+@
+
+The first discriminant function shows the temporal evolution of the influenza virus, while the
+second one shows the originality of 2006 strains.
+<<fig=TRUE>>=
+scatter(dapc.flu, col=transp(myPal(6)), ratio=0, cell=0, cex=2, bg="white",cstar=0)
+@
+
+We can assess which alleles most highlight the originality of 2006 using \texttt{loadingplot}:
+<<fig=TRUE>>=
+temp <- loadingplot(dapc.flu$var.contr, thres=.5)
+@
 
 
 
@@ -621,12 +646,12 @@ having no more than 0.5 probability of membership to any group:
 <<fig=TRUE>>=
 temp <- which(apply(dapc3$posterior,1, function(e) all(e<0.5)))
 temp
-lab <- pop(microbov)[temp]
+lab <- pop(microbov)
 par(mar=c(8,4,5,1), xpd=TRUE)
-compoplot(dapc3, subset=temp, cleg=.6, posi=list(x=0,y=1.2))
+compoplot(dapc3, subset=temp, cleg=.6, posi=list(x=0,y=1.2),lab=lab)
 @
 
-\noindent Admixture seems strongest between a few breeds (Blonde d'Aquitaine, Bretonne Pie-Noire,
+\noindent Admixture appears to be the strongest between a few breeds (Blonde d'Aquitaine, Bretonne Pie-Noire,
 Limousine and Gascone). Some features are fairly surprising; for instance, the last individual is
 fairly distant from its cluster, but almost 50\% chances to be assigned to two other breeds.
 
@@ -641,21 +666,72 @@ fairly distant from its cluster, but almost 50\% chances to be assigned to two o
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
 
-
-
 %%%%%%%%%%%%%%%%
 \subsection{Rationale}
 %%%%%%%%%%%%%%%%
 
+Statistically speaking, supplementary individuals are observations which did not participate to the
+analysis, but which we would like to predict using our model of the data.
+In the context of DAPC, we may know groups for most individuals, but some individuals could be of
+unknown or uncertain group. In this case, we need to exclude individuals from the analysis, and then
+project them as supplementary individuals on the discriminant functions.
+The only requirement for this operation is that supplementary individuals have been typed as the
+same loci as the rest of the dataset.
+
+Technically, using supplementary individuals consist in transforming the new data using the centring
+and scaling of the contributing individuals, and then using the same discriminant coefficients as
+for the contributing individuals to predict the position of the new individuals onto the
+discriminant functions.
+
 
 %%%%%%%%%%%%%%%%
-\subsection{Predicting group membership}
+\subsection{In practice}
 %%%%%%%%%%%%%%%%
+We will illustrate the practice of supplementary individuals using the cattle breeds data previously
+analyzed (\texttt{microbov} dataset).
+We first split the dataset into two parts: one used for the analysis, and one used as supplementary individuals:
+<<>>=
+data(microbov)
+kept.id <- unlist(tapply(1:nInd(microbov), pop(microbov), function(e) sample(e, 30,replace=FALSE)))
+x <- microbov[kept.id]
+x.sup <- microbov[-kept.id]
+nInd(x)
+nInd(x.sup)
+@
+\texttt{x} is a \texttt{genind} containing the data to be analyzed; \texttt{x.sup} contains the
+supplementary individuals.
 
 
-%%%%%%%%%%%%%%%%
-\subsection{Representing supplementary individuals}
-%%%%%%%%%%%%%%%%
+We perform the DAPC of \texttt{x}, and use \texttt{predict} to predict results for the
+supplementary individuals:
+<<>>=
+dapc4 <- dapc(x,n.pca=20,n.da=15)
+pred.sup <- predict.dapc(dapc4, newdata=x.sup)
+names(pred.sup)
+head(pred.sup$assign)
+pred.sup$ind.scores[1:5,1:3]
+round(pred.sup$posterior[1:5, 1:5],3)
+@
 
+\noindent The list \texttt{pred.sup} contains all the predictions about the new data based on the
+analysis stored in \texttt{dapc4}. The slot \texttt{assign} contains the assignment of new individuals
+to groups; \texttt{ind.scores} contains the coordinates of the new individuals on the discriminant
+functions; \texttt{posterior} contains the posterior membership probabilities.
+We can visualize the information by different ways.
+First, we can represent the new individuals using a scatterplot, and see :
+<<fig=TRUE>>=
+col <- rainbow(length(levels(pop(x))))
+col.points <- transp(col[as.integer(pop(x))],.1)
+scatter(dapc4, col=col, bg="white", ratio=0, grid=FALSE, pch="", cstar=0, axesel=FALSE, clab=0, lwd=3, xlim=c(-10,10))
+par(xpd=TRUE)
+points(dapc4$ind.coord[,1], dapc4$ind.coord[,2], pch=20, col=col.points, cex=5)
+col.sup <- col[as.integer(pop(x.sup))]
+points(pred.sup$ind.scores[,1], pred.sup$ind.scores[,2], pch=15, col=transp(col.sup,.7), cex=2)
+legend("bottomright", fill=col, leg=levels(pop(x)), ncol=2, cex=.7, bg=transp("white"))
+add.scatter.eig(dapc4$eig,15,1,2, posi="topright", inset=.02)
+@
+
+\noindent Light dots and ellipses correspond to the original analysis, while more solid squares indicate
+supplementary individuals.
 
 \end{document}
