@@ -10,6 +10,7 @@
 \alias{summary.dapc}
 \alias{scatter.dapc}
 \alias{assignplot}
+\alias{compoplot}
 \alias{predict.dapc}
 \alias{as.lda}
 \alias{as.lda.dapc}
@@ -38,7 +39,9 @@
   - \code{scatter.dapc}: produces scatterplots of principal components (or
     'discriminant functions'), with a screeplot of eigenvalues as inset.\cr
   - \code{assignplot}: plot showing the probabilities of assignment of
-  individuals to the different clusters.
+  individuals to the different clusters.\cr
+ - \code{compoplot}: barplot showing the probabilities of assignment of
+  individuals to the different clusters.\cr
   - \code{predict.dapc}: predicts group memberships based on DAPC results.
 
 
@@ -76,7 +79,7 @@
 
 \method{scatter}{dapc}(x, xax=1, yax=2, grp=NULL,
         col=rainbow(length(levels(x$grp))), pch=20, posi="bottomleft",
-        bg="grey", ratio=0.3, mstree=TRUE, lwd=1, lty=1, segcol="black",
+        bg="grey", ratio=0.3, mstree=FALSE, lwd=1, lty=1, segcol="black",
         cstar = 1, cellipse = 1.5, axesell = TRUE,
         label = levels(x$grp), clabel = 1, xlim = NULL, ylim = NULL, grid
         = TRUE, addaxes = TRUE, origin = c(0,0), include.origin = TRUE,
@@ -84,7 +87,11 @@
         cleg = 1, cgrid = 1, pixmap = NULL, contour = NULL, area = NULL,
         \ldots)
 
-assignplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, cex.lab=.75, pch=3)
+assignplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, cex.lab=.75,pch=3)
+
+compoplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, col=NULL, lab=NULL,
+                      legend=TRUE, leg.txt=NULL, ncol=4,
+                      posi=NULL, cleg=.8, bg=transp("white"), ...)
 
 \method{predict}{dapc}(object, newdata, prior = object$prior, dimen,
          method = c("plug-in", "predictive", "debiased"), ...)
@@ -126,8 +133,9 @@ assignplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, cex.lab=.75, pch=3)
   \item{\ldots}{further arguments to be passed to other functions. For
     \code{dapc.matrix}, arguments are to match those of
     \code{dapc.data.frame}; for \code{scatter}, arguments passed to
-    \code{points}; for \code{dapc.genlight}, arguments passed to
-    \code{\link{glPca}}.}
+    \code{points}; for \code{compoplot}, arguments passed to
+    \code{barplot}; for \code{dapc.genlight}, arguments passed to
+    \code{\link{glPca}}}
   \item{glPca}{an optional \code{\link{glPca}} object; if provided,
     dimension reduction is not performed (saving computational time) but
     taken directly from this object.}
@@ -144,15 +152,18 @@ assignplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, cex.lab=.75, pch=3)
     should match the number of groups, not the number of individuals.}
   \item{posi,bg,ratio}{arguments used to customize the inset in scatterplots
     of DAPC results. See \code{\link[ade4]{add.scatter}} documentation in the
-    ade4 package for
-    more details.}
+    ade4 package for more details. For \code{compoplot}, \code{posi}
+    indicates the position of the legend, provided as character or as a
+    list with x and y positions (see \code{?legend}); if not provided,
+    the legend is placed in the bottomg margin of the plot; \code{bg}
+         indicates the backgrond of the legend.}
   \item{mstree}{a logical indicating whether a minimum spanning tree
     based on the squared distances between groups should be
     displayed (TRUE), or not (FALSE, default).}
   \item{lwd,lty}{numeric values indicating the line width and type for
     the minimum spanning tree, if \code{mstree=TRUE}.}
   \item{segcol}{the color to be used to display the minimum spanning
-         tree, if \code{mstree=TRUE}.}
+    tree, if \code{mstree=TRUE}.}
   \item{only.grp}{a \code{character} vector indicating which groups should be
     displayed. Values should match values of \code{x$grp}. If \code{NULL}, all
     results are displayed}
@@ -166,7 +177,18 @@ assignplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, cex.lab=.75, pch=3)
   \item{new.pred}{an optional list, as returned by the \code{predict}
     method for \code{dapc} objects; if provided, the individuals
     with unknown groups are added at the bottom of the plot. To
-    visualize these individuals only, specify \code{only.grp="unknown"}.}
+    visualize these individuals only, specify
+    \code{only.grp="unknown"}.}
+  \item{lab}{a vector of characters (recycled if necessary) of labels
+    for the individuals; if left to NULL, the row names of \code{x$tab}
+    are used.}
+  \item{legend}{a logical indicating whether a legend should be added to
+    the plot (TRUE, default) or not (FALSE).}
+  \item{leg.txt}{a character vector indicating the text to be used in
+    the legend; if not provided, group names stored in \code{x$grp} are
+    used.}
+  \item{ncol}{an integer indicating the number of columns of the legend,
+    defaulting to 4.}
   \item{dudi}{optionally, a multivariate analysis with the class
     \code{dudi} (from the ade4 package). If provided, prior PCA will be
     ignored, and this object will be used as a prior step for variable
@@ -335,5 +357,14 @@ points(hyb.pred$ind.scores, rep(.1, 30))
 assignplot(dapc1, new.pred=hyb.pred)
 title("30 indiv popA, 30 indiv pop B, 30 hybrids")
 
+## image using compoplot
+compoplot(dapc1, new.pred=hyb.pred, ncol=2)
+title("30 indiv popA, 30 indiv pop B, 30 hybrids")
+
+
+## show compoplot on microbov data ##
+data(microbov)
+dapc1 <- dapc(microbov, n.pca=20, n.da=15)
+compoplot(dapc1, lab="")
 }
 \keyword{multivariate}

@@ -340,15 +340,9 @@ customize, as shown below.
 
 
 
-%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%
-\section{Customizing graphics}
-%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%
-
 
 %%%%%%%%%%%%%%%%
-\subsection{DAPC scatterplots}
+\subsection{Customizing DAPC scatterplots}
 %%%%%%%%%%%%%%%%
 
 DAPC scatterplots are the main result of DAPC. It is therefore essential to ensure that information
@@ -386,12 +380,118 @@ legend("topright", pch=20, cex=1, col=transp(myCol), legend=paste("Cluster", 1:6
 add.scatter.eig(dapc1$eig, 5,1,2, posi="bottomright", inset=.03, csub=1)
 @
 
+We can also add a minimum spanning tree based on the (squared) distances between populations onto
+the DAPC scatterplot. This allows one to bear in mind the proximities between populations, which can
+be misinterpreted when looking at discriminant functions of lesser rank.
+We also add the centre of each group with crosses.
+Lastly, we remove the DAPC eigenvalues, not very useful in this case, and replace them by a graph of
+PCA eigenvalues retained in dimension-reduction step (retained eigenvalues in black).
+<<>>=
+pca.eig <- dudi.pca(scaleGen(x, scale=FALSE), scannf=FALSE,nf=1)$eig
+temp <- 100*cumsum(pca.eig)/sum(pca.eig)
+@
+<<fig=TRUE>>=
+scatter(dapc1, ratio=0, grid=FALSE, bg="white", pch=20,  cell=0, cstar=0, lwd=2, col=transp(myCol), cex=3, clab=0, mstree=TRUE)
+par(xpd=TRUE)
+legend("topright", pch=20, cex=1, col=transp(myCol), legend=paste("Cluster", 1:6), pt.cex=3)
+points(dapc1$grp.coord[,1], dapc1$grp.coord[,2], pch=4, cex=3, lwd=8, col="black")
+points(dapc1$grp.coord[,1], dapc1$grp.coord[,2], pch=4, cex=3, lwd=2, col=myCol)
+
+myInset <- function(){
+    plot(temp, col=rep(c("black","lightgrey"), c(dapc1$n.pca,1000)), ylim=c(0,100),
+         xlab="PCA axis", ylab="Cumulated variance (%)", cex=1, pch=20, type="h", lwd=2)
+}
+
+add.scatter(myInset(), posi="bottomright", inset=c(-0.03,-0.01), ratio=.28, bg=transp("white"))
+@
+
+
+Lastly, note that \texttt{scatter} can also represent a single discriminant function, which is
+especially useful when only one of these has been retained (e.g. in the case $k=2$).
+This is achieved by plotting the densities of individuals on a given discriminant function with
+different colors for different groups:
+<<fig=TRUE>>=
+scatter(dapc1,1,1, col=myCol, bg="white")
+@
+
+
 
 
 %%%%%%%%%%%%%%%%
-\subsection{Group memberships}
+\subsection{Interpreting variable contributions}
 %%%%%%%%%%%%%%%%
 
+
+
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Interpreting group memberships}
+%%%%%%%%%%%%%%%%
+Besides scatterplots of discriminant functions, group memberships of DAPC can be exploited.
+Note that caution should be taken when interpreting group memberships of a DAPC based on many PCs,
+which can be unstable (see section below).
+Despite possible bias due to overfitting, group memberships can be used as indicators of how
+clear-cut genetic clusters are.
+Note that this is most useful for groups defined by an external criteria, i.e. defined biologically, as opposed to identified by $k$-means.
+It is less useful for groups identified using \texttt{find.clusters}, since we expect $k$-means to
+provide optimal groups for DAPC, and therefore both classifications to be mostly consistent.
+\\
+
+Membership probabilities are based on the retained discriminant functions.
+They are stored in \texttt{dapc} objects as the slot \texttt{posterior}:
+<<>>=
+class(dapc1$posterior)
+dim(dapc1$posterior)
+round(head(dapc1$posterior),3)
+@
+Each row corresponds to an individual, each column to a group.
+This information can be summarized using \texttt{summary} on the \texttt{dapc} object:
+<<>>=
+summary(dapc1)
+@
+The slot \texttt{assign.per.pop} indicates the proportions of successful reassignment (based on
+discriminant functions) of individuals to their original clusters. Large values indicate clear-cut
+clusters, while low values suggest admixed groups.
+\\
+
+This information can also be visualized using \texttt{assignplot} (see \texttt{?assignplot} for display
+options); here, we chose to represent only the first 50 individuals to make the figure readable:
+<<fig=TRUE>>=
+assignplot(dapc1, subset=1:50)
+@
+
+\noindent
+This figure is the simple graphical translation of the table above. Heat colors represent probabilities
+(red=1, white=0); blue crosses represent the prior cluster provided to DAPC.
+Here, we observe for most individuals that DAPC classification is consistent with the original
+clusters (blue crosses are on red rectangles), except one discrepancie for individual 21, classified
+in group 1 while DAPC would assign it to group 3.
+
+Such figure is particularly useful when prior biological groups are used, as one may infer admixed
+or misclassified individuals.
+\\
+
+Note that this information can also be plotted in a STRUCTURE-like (!) way using \texttt{compoplot}
+(see \code{?compoplot} for customizing the plot).
+We can plot information of all individuals to have a global picture of the clusters composition.
+<<fig=TRUE>>=
+compoplot(dapc1, posi="bottomright", leg.txt=paste("Cluster", 1:6), lab="", ncol=1, xlab="individuals")
+@
+
+But we can have a closer look to a subset of individuals as easily; for instance, for the first 50 individuals:
+<<fig=TRUE>>=
+compoplot(dapc1, subset=1:50, posi="bottomright", leg.txt=paste("Cluster", 1:6), lab="", ncol=2, xlab="individuals")
+@
+
+Obviously, we can use the power of R to lead our investigation further. For instance, which are the
+most 'admixed' individuals?
+Say admixed individuals are those having no more than 90\% of probability of membership in a single cluster:
+<<fig=TRUE>>=
+temp <- which(apply(dapc1$posterior,1, function(e) all(e<0.9)))
+temp
+compoplot(dapc1, subset=temp, posi="bottomright", leg.txt=paste("Cluster", 1:6), lab="", ncol=2)
+@
 
 
 
@@ -405,17 +505,131 @@ add.scatter.eig(dapc1$eig, 5,1,2, posi="bottomright", inset=.03, csub=1)
 
 
 %%%%%%%%%%%%%%%%
-\subsection{Why DAPC results could vary?}
+\subsection{When and why group memberships can be unreliable}
 %%%%%%%%%%%%%%%%
- Indeed, retaining too many PCs with respect
-to the number of individuals can lead to over-fitting the discriminant functions: these become so
-"flexible" that they could discriminate almost perfectly any cluster. While scatterplots are usually
-essentially unaltered by this process, membership probabilities can become drastically inflated.
+
+In DAPC, discriminant functions are linear combinations of variables (principal components of PCA) which
+optimize the separation of individuals into pre-defined groups. Based on the retained discriminant
+functions, it is possible to derive group membership probabilities, which can be interpreted in
+order to assess how clear-cut or admixed the clusters are.
+Unfortunately, retaining too many PCs with respect to the number of individuals can lead to over-fitting the discriminant functions.
+In such case, discriminant function become so "flexible" that they could discriminate almost perfectly any cluster.
+While the main scatterplots are usually unaltered by this process, membership probabilities can become drastically inflated.
+\\
+
+
+This point can be illustrated using the \texttt{microbov} dataset (704 cattles of 15 breeds typed
+for 30 microsatellite markers).
+We first examine the  \% of successful reassignment (i.e., quality of discrimination) for different numbers of retained PCs.
+First, retaining 3 PCs during the dimension-reduction step, and all discriminant functions:
+<<>>=
+data(microbov)
+microbov
+temp <- summary(dapc(microbov, n.da=100, n.pca=3))$assign.per.pop*100
+@
+<<fig=TRUE>>=
+par(mar=c(4.5,7.5,1,1))
+barplot(temp, xlab="% of reassignment to actual breed", horiz=TRUE, las=1)
+@
+
+\noindent
+We can see that some breeds are well discriminated (e.g. Zebu, Lagunaire,  > 90\%) while others are
+entirely overlooked by the analysis (e.g. Bretone Pie Noire, Limousin, <10\%).
+This is because too much genetic information is lost when retaining only 3 PCs.
+We repeat the analysis, this time keeping 300 PCs:
+<<>>=
+temp <- summary(dapc(microbov, n.da=100, n.pca=300))$assign.per.pop*100
+@
+<<fig=TRUE>>=
+par(mar=c(4.5,7.5,1,1))
+barplot(temp, xlab="% of reassignment to actual breed", horiz=TRUE, las=1)
+@
+
+\noindent We now obtain almost 100\% of discrimination for all groups.
+Is this result satisfying? Actually not.
+The number retained PCs is so large that discriminant functions could model any structure and
+virtually any set of clusters would be well discriminated.
+This can be illustrated by running the analysis using randomized groups:
+<<>>=
+x <- microbov
+pop(x) <- sample(pop(x))
+temp <- summary(dapc(x, n.da=100, n.pca=300))$assign.per.pop*100
+@
+<<fig=TRUE>>=
+par(mar=c(4.5,7.5,1,1))
+barplot(temp, xlab="% of reassignment to actual breed", horiz=TRUE, las=1)
+@
+
+\noindent
+Groups have been randomised, and yet we still get very good discrimination.
+There is therefore a trade-off between finding a space with a good power of discrimination using
+DAPC, and retaining too many dimensions and cause over-fitting.
+
+
 
 
 %%%%%%%%%%%%%%%%
 \subsection{Using the $a$-score}
 %%%%%%%%%%%%%%%%
+The trade-off between power of discrimination and over-fitting can be measured by the $a$-score, which is simply the difference between the \% of
+successful reassignment of the analysis (observed discrimination) and values obtained using random
+groups (random discrimination).
+It can be seen as the \% of successful reassignment corrected for the number of retained PCs.
+It is implemented by \texttt{a.score}, which relies on repeating the DAPC analysis using randomized
+groups, and computing $a$-scores for each group, and well as the average $a$-score:
+<<>>=
+dapc2 <- dapc(microbov, n.da=100, n.pca=10)
+temp <- a.score(dapc2)
+names(temp)
+temp$tab[1:5,1:5]
+temp$pop.score
+temp$mean
+@
+
+The number of retained PCs can be chosen so as to optimize the $a$-score; this is achived by \texttt{optim.a.score}:
+<<>>=
+dapc2 <- dapc(microbov, n.da=100, n.pca=50)
+@
+<<eval=FALSE>>=
+temp <- optim.a.score(dapc2)
+@
+\begin{center}
+  \includegraphics[width=.7\textwidth]{figs/ascore.pdf}
+\end{center}
+
+
+\noindent Since evaluating solutions for 1, 2, ... 100 retained PCs, as a first approximation the
+method evaluates a few numbers of retained PCs in this range, and uses spline interpolation to
+approximate the optimal number of PCs to retain. Then, one can evaluate all solutions within a
+restrained range using the argument \texttt{n.pca}.
+For the \texttt{microbov} dataset, we should probably retained between 10 and 30 PCs during the
+dimension-reduction step.
+\\
+
+We perform the analysis with 20 PCs retained, and then map the membership probabilities as before:
+<<>>=
+dapc3 <- dapc(microbov, n.da=100, n.pca=20)
+myCol <- rainbow(15)
+@
+<<fig=TRUE>>=
+par(mar=c(5.1,4.1,1.1,1.1), xpd=TRUE)
+compoplot(dapc3, lab="", posi=list(x=12,y=-.01), cleg=.7)
+@
+
+And as before, we can investigate further admixed individuals, which we arbitrarily define as those
+having no more than 0.5 probability of membership to any group:
+<<fig=TRUE>>=
+temp <- which(apply(dapc3$posterior,1, function(e) all(e<0.5)))
+temp
+lab <- pop(microbov)[temp]
+par(mar=c(8,4,5,1), xpd=TRUE)
+compoplot(dapc3, subset=temp, cleg=.6, posi=list(x=0,y=1.2))
+@
+
+\noindent Admixture seems strongest between a few breeds (Blonde d'Aquitaine, Bretonne Pie-Noire,
+Limousine and Gascone). Some features are fairly surprising; for instance, the last individual is
+fairly distant from its cluster, but almost 50\% chances to be assigned to two other breeds.
+
 
 
 
