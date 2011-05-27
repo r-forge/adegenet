@@ -617,6 +617,84 @@ assignplot <- function(x, only.grp=NULL, subset=NULL, new.pred=NULL, cex.lab=.75
 
 
 
+############
+## compoplot
+############
+compoplot <- function(x, only.grp=NULL, subset=NULL, new.pred=NULL, col=NULL, lab=NULL,
+                      legend=TRUE, leg.txt=NULL, ncol=4, posi=NULL, cleg=.8, bg=transp("white"), ...){
+    if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
+    if(!inherits(x, "dapc")) stop("x is not a dapc object")
+
+
+    ## HANDLE ARGUMENTS ##
+    ngrp <- length(levels(x$grp))
+
+    ## col
+    if(is.null(col)){
+        col <- rainbow(ngrp)
+    }
+
+    ## lab
+    if(is.null(lab)){
+        lab <- rownames(x$tab)
+    } else {
+        ## recycle labels
+       lab <- rep(lab, le=nrow(x$tab))
+    }
+
+    ## posi
+    if(is.null(posi)){
+        posi <- list(x=0, y=-.01)
+    }
+
+    ## leg.txt
+    if(is.null(leg.txt)){
+        leg.txt <- levels(x$grp)
+    }
+
+    ## HANDLE DATA FROM PREDICT.DAPC ##
+    if(!is.null(new.pred)){
+        n.new <- length(new.pred$assign)
+        x$grp <- c(as.character(x$grp), rep("unknown", n.new))
+        x$assign <- c(as.character(x$assign), as.character(new.pred$assign))
+        x$posterior <- rbind(x$posterior, new.pred$posterior)
+        lab <- c(lab, rownames(new.pred$posterior))
+    }
+
+
+    ## TREAT OTHER ARGUMENTS ##
+    if(!is.null(only.grp)){
+        only.grp <- as.character(only.grp)
+        ori.grp <- as.character(x$grp)
+        x$grp <- x$grp[only.grp==ori.grp]
+        x$assign <- x$assign[only.grp==ori.grp]
+        x$posterior <- x$posterior[only.grp==ori.grp, , drop=FALSE]
+        lab <- lab[only.grp==ori.grp]
+    } else if(!is.null(subset)){
+        x$grp <- x$grp[subset]
+        x$assign <- x$assign[subset]
+        x$posterior <- x$posterior[subset, , drop=FALSE]
+        lab <- lab[subset]
+    }
+
+
+    ## MAKE THE PLOT ##
+    Z <- t(x$posterior)
+    barplot(Z, border=NA, col=col, ylab="membership probability", names=lab, las=3, ...)
+
+    if(legend){
+        oxpd <- par("xpd")
+        par(xpd=TRUE)
+        legend(posi, fill=col, leg=leg.txt, cex=cleg, ncol=ncol, bg=bg)
+        on.exit(par(xpd=oxpd))
+    }
+
+    return(invisible(match.call()))
+} # end compoplot
+
+
+
+
 
 ###############
 ## a.score
