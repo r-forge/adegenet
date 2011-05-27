@@ -878,6 +878,7 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
         ## centre/scale data
         for(i in 1:nrow(newdata)){ # this is faster for large, flat matrices)
             newdata[i,] <- (newdata[i,] - object$pca.cent) / object$pca.norm
+            newdata[i, is.na(newdata[i, ])] <- 0 # replace NAs
         }
 
         ## project as supplementary individuals
