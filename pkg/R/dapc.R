@@ -69,6 +69,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
     n.pca <- round(n.pca)
 
     U <- pcaX$c1[, 1:n.pca, drop=FALSE] # principal axes
+    rownames(U) <- colnames(x) # force to restore names
     XU <- pcaX$li[, 1:n.pca, drop=FALSE] # principal components
     XU.lambda <- sum(pcaX$eig[1:n.pca])/sum(pcaX$eig) # sum of retained eigenvalues
     names(U) <- paste("PCA-pa", 1:ncol(U), sep=".")
@@ -183,6 +184,13 @@ dapc.genind <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
                 pca.select=pca.select, perc.pca=perc.pca)
 
     res$call <- match.call()
+
+    ## restore centring/scaling
+    res$pca.cent <- attr(X, "scaled:center")
+
+    if(scale) {
+        res$pca.norm <- attr(X, "scaled:scale")
+    }
 
     return(res)
 } # end dapc.genind
@@ -864,6 +872,7 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
                          method = c("plug-in", "predictive", "debiased"), ...){
 
     if(!inherits(object,"dapc")) stop("x is not a dapc object")
+    method <- match.arg(method)
 
     x <- as.lda(object)
 
@@ -878,8 +887,8 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
         ## centre/scale data
         for(i in 1:nrow(newdata)){ # this is faster for large, flat matrices)
             newdata[i,] <- (newdata[i,] - object$pca.cent) / object$pca.norm
-            newdata[i, is.na(newdata[i, ])] <- 0 # replace NAs
         }
+        newdata[is.na(newdata)] <- 0
 
         ## project as supplementary individuals
         XU <- newdata %*% as.matrix(object$pca.loadings)
