@@ -439,12 +439,13 @@ dapc.flu <- dapc(H3N2, pop=H3N2$other$epid, n.pca=30,n.da=10)
 The first discriminant function shows the temporal evolution of the influenza virus, while the
 second one shows the originality of 2006 strains.
 <<fig=TRUE>>=
+myPal <- colorRampPalette(c("blue","gold","red"))
 scatter(dapc.flu, col=transp(myPal(6)), ratio=0, cell=0, cex=2, bg="white",cstar=0)
 @
 
 We can assess which alleles most highlight the originality of 2006 using \texttt{loadingplot}:
 <<fig=TRUE>>=
-temp <- loadingplot(dapc.flu$var.contr, thres=.5)
+temp <- loadingplot(dapc.flu$var.contr, thres=.05)
 @
 
 
