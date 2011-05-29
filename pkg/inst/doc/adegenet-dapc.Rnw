@@ -21,7 +21,7 @@
 
 
 \newcommand{\code}[1]{{{\tt #1}}}
-\title{An introduction to Discriminant Analysis of Principal Components (DAPC)}
+\title{A tutorial for Discriminant Analysis of Principal Components (DAPC) using \textit{adegenet} \Sexpr{packageDescription("adegenet", fields = "Version")}}
 \author{Thibaut Jombart}
 \date{\today}
 
@@ -35,7 +35,7 @@
 \begin{document}
 
 
-\SweaveOpts{prefix.string = figs/, echo=TRUE, eval=TRUE, fig = FALSE, eps = FALSE, pdf = TRUE}
+\SweaveOpts{prefix.string = figs/dapc, echo=TRUE, eval=TRUE, fig = FALSE, eps = FALSE, pdf = TRUE}
 
 
 \definecolor{Soutput}{rgb}{0,0,0.56}
@@ -55,7 +55,8 @@
   \cite{np145}. This methods aims to identify and describe genetic clusters, although it can in fact
   be applied to any quantitative data. We illustrate how to use \code{find.clusters} to identify
   clusters, and \code{dapc} to describe the relationships between these clusters. More advanced
-  topics are then introduced, such as the stability of DAPC results and supplementary individuals.
+  topics are then introduced, such as advanced graphics, assessing the stability of DAPC results and
+  using supplementary individuals.
 \end{abstract}
 
 
@@ -76,15 +77,16 @@
 %%%%%%%%%%%%%%%%
 
 Investigating genetic diversity using multivariate approaches relies on finding synthetic variables
-built as linear combinations of alleles (i.e. $a_1 \mbox{allele}_1 + a_2 \mbox{allele}_2 + ... $)
-and which reflect as well as possible the genetic variation between the studied individuals.
+built as linear combinations of alleles (i.e. $\mbox{new-variable} = a_1 \mbox{allele}_1 + a_2 \mbox{allele}_2 + ... $
+where $a_1$, $a_2$ etc. are real coefficients)
+and which reflect as well as possible the genetic variation amongst the studied individuals.
 However, most of the time we are not only interested in the diversity amongst individuals, but
 also and possibly more in the diversity between groups of individuals.
 Typically, one will be analysing individual data to identify populations, or more largely genetic
 clusters, and then describe these clusters.
 
-A problem occuring in traditional methods is focussing on the entire variation.
-Genetic data can be described using a standard multivariate ANOVA model:
+A problem occuring in traditional methods is they usually focus on the entire genetic variation.
+Genetic variability can be decomposed using a standard multivariate ANOVA model as:
 $$
 \mbox{total variance} = \mbox{(variance between groups)} + \mbox{(variance within groups)}
 $$
@@ -93,7 +95,7 @@ $$
 VAR(\m{X}) = B(\m{X}) + W(\m{X})
 $$
 
-That is, usual approaches such as Principal Component Analysis (PCA) or Principal Coordinate
+Usual approaches such as Principal Component Analysis (PCA) or Principal Coordinates
 Analysis (PCoA / MDS) focus on $VAR(\m{X})$. That is, they only describe the global diversity,
 possibly overlooking differences between groups. On the contrary, DAPC optimizes $B(\m{X})$ while
 minimizing $W(\m{X})$: it seeks synthetic variables, the \textit{discriminant functions}, which show
@@ -118,8 +120,8 @@ differences between groups as best as possible while minimizing variation within
 \subsection{Rationale}
 %%%%%%%%%%%%%%%%
 DAPC in itself requires prior groups to be defined. However, groups are often unknown or uncertain,
-and there is a need for identifying genetic clusters before describing them. This can be achieved by
-using $k$-means, a clustering algorithm which finds $k$ groups maximizing the variation between
+and there is a need for identifying genetic clusters before describing them. This can be achieved
+using $k$-means, a clustering algorithm which finds a given (say, $k$) of groups maximizing the variation between
 groups, $B(\m{X})$. To identify the optimal number of clusters, $k$-means is run sequentially with
 increasing values of $k$, and different clustering solutions are compared using Bayesian Information
 Criterion (BIC). Ideally, the optimal clustering solution should correspond to the lowest BIC. In
@@ -128,11 +130,10 @@ $k$.
 
 While $k$-means could be performed on the raw data, we prefer running the algorithm after
 transforming the data using PCA. This transformation has the major advantage of reducing the
-number of variables so as to speed up the clustering algorithm. Note this does not imply a loss of
-information and different results from the raw data, since one can retain all the principal
-components (PCs) and therefore all the variation in the original data. However, in practice, a reduced
-number of PCs is often sufficient to identify the existing clusters, while allowing the clusters to
-be obtained essentially instantaneously.
+number of variables so as to speed up the clustering algorithm. Note this does not imply a necessary
+loss of information since all the principal components (PCs) can be retained, and therefore all the variation in the original data.
+However in practice, a reduced number of PCs is often sufficient to identify the existing clusters,
+while making the analysis essentially instantaneous.
 
 
 %%%%%%%%%%%%%%%%
@@ -140,13 +141,14 @@ be obtained essentially instantaneously.
 %%%%%%%%%%%%%%%%
 
 Identification of the clusters is achieved by \code{find.clusters}. This function first transforms
-the data using PCA, asking the users to specify the number of retained PCs interactively unless the
+the data using PCA, asking the user to specify the number of retained PCs interactively unless the
 argument \code{n.pca} is provided. Then, it runs $k$-means algorithm (function \code{kmeans} from
 the \textit{stats} package) with increasing values of $k$, unless the argument  \code{n.clust} is
-provided. See \code{?find.clusters} for other arguments.
+provided, and computes associated summary statistics (by default, BIC).
+See \code{?find.clusters} for other arguments.
 
-\code{find.clusters} is a generic function with methods for \texttt{data.frame}, and objects with
-the class \texttt{genind} (usual genetic markers) and \texttt{genlight} (genome wide SNP data).
+\code{find.clusters} is a generic function with methods for \texttt{data.frame}, objects with
+the class \texttt{genind} (usual genetic markers) and \texttt{genlight} (genome-wide SNP data).
 Here, we illustrate its use using a toy dataset simulated in \cite{tjart19}, \texttt{dapcIllus}:
 <<>>=
 library(adegenet)
@@ -160,8 +162,9 @@ names(dapcIllus)
 x <- dapcIllus$a
 x
 @
-\texttt{x} is a dataset of 600 individuals simulated under an 6 island model for 30 microsatellite markers.
-We use \code{find.clusters} to identify clusters, although true clusters are, in this case, known.
+\texttt{x} is a dataset of 600 individuals simulated under an island model (6 islands) for 30 microsatellite markers.
+We use \code{find.clusters} to identify clusters, although true clusters are, in this case, known
+(and accessible using \texttt{pop(x)}).
 We specify that we want to evaluate up to $k=40$ groups (\texttt{max.n.clust=40}):
 <<eval=TRUE,echo=FALSE>>=
 load("Robjects/grp.RData")
@@ -187,7 +190,7 @@ Then, the function displays a graph of BIC values for increasing values of $k$:
 
 \noindent This graph shows a clear decrease of BIC until $k=6$ clusters, after which BIC increases.
 In this case, the elbow in the curve also matches the smallest BIC, and clearly indicates 6 clusters
-should be retained. In practice, the choice is often trickier to make.
+should be retained. In practice, the choice is often trickier to make for empirical dataset.
 \\
 
 The output of \texttt{find.clusters} is a list:
@@ -202,12 +205,14 @@ grp$size
 The components are respectively the chosen summary statistics (here, BIC) for different values of
 $k$ (slot \texttt{Kstat}), the selected number of clusters and the associated BIC (slot
 \texttt{stat}), the group memberships (slot \texttt{grp}) and the group sizes (slot \texttt{size}).
-Here, since we knew the actual groups, we can check how well they have been retrieved by the procedure.
+Here, since we know the actual groups, we can check how well they have been retrieved by the procedure.
 Actual groups are accessed using \texttt{pop}:
 <<fig=TRUE>>=
 table(pop(x), grp$grp)
 table.value(table(pop(x), grp$grp), col.lab=paste("inf", 1:6), row.lab=paste("ori", 1:6))
 @
+
+\noindent
 Rows correspond to actual groups ("ori''), while columns correspond to inferred groups ("inf'').
 Here, we can see that original groups have nearly been perfectly identified by the method.
 
@@ -262,12 +267,12 @@ used in the linear combination are called \textit{loadings}, while the synthetic
 themselves referred to as \textit{discriminant functions}.
 
 Moreover, being based on the Discriminant Analysis, DAPC also provides membership probabilities of
-each individual to the different groups based on the retained discriminant functions. While these
-are different from the admixture coefficients of software like STRUCTURE, they can be still be
+each individual for the different groups based on the retained discriminant functions. While these
+are different from the admixture coefficients of software like STRUCTURE, they can still be
 interpreted as proximities of individuals to the different clusters. Membership
 probabilities also provide indications of how clear-cut genetic clusters are. Loose clusters will
 result in fairly flat distributions of membership probabilities of individuals across clusters,
-possibly sign of admixture in the case of island models.
+pointing to possible admixture.
 
 Lastly, using the allele loadings, it is possible to represent new individuals (which have not participated to the analysis)
 onto the factorial planes, and derive membership probabilities as welll. Such individuals are
@@ -281,7 +286,7 @@ referred to as \textit{supplementary individuals}.
 
 DAPC is implemented by the function \texttt{dapc}, which first transforms the data using PCA, and
 then performs a Discriminant Analysis on the retained principal components. Like
-\texttt{find.clusters}, \texttt{dapc} is a generic function with methods for texttt{data.frame}, and objects with
+\texttt{find.clusters}, \texttt{dapc} is a generic function with methods for \texttt{data.frame}, and objects with
 the class \texttt{genind} (usual genetic markers) and \texttt{genlight} (genome wide SNP data).
 
 We run the analysis on the previous toy dataset, using the inferred groups stored in \texttt{grp\$grp}:
@@ -293,10 +298,10 @@ load("Robjects/dapc1.RData")
 dapc1 <- dapc(x, grp$grp)
 @
 
-The method displays the same graph of cumulated variance for the PCA step. However, unlike
+The method displays the same graph of cumulated variance as in \texttt{find.cluster}. However, unlike
 $k$-means, DAPC can benefit from not using too many PCs. Indeed, retaining too many components with
 respect to the number of individuals can lead to over-fitting and unstability in the membership
-probabilities returned by the method (see section below about the stability of DAPC results).
+probabilities returned by the method (see section below about the stability of membership probabilities).
 
 \begin{center}
   \includegraphics[width=.7\textwidth]{figs/findclust-pca.pdf}
@@ -380,10 +385,11 @@ legend("topright", pch=20, cex=1, col=transp(myCol), legend=paste("Cluster", 1:6
 add.scatter.eig(dapc1$eig, 5,1,2, posi="bottomright", inset=.03, csub=1)
 @
 
-We can also add a minimum spanning tree based on the (squared) distances between populations onto
-the DAPC scatterplot. This allows one to bear in mind the proximities between populations, which can
-be misinterpreted when looking at discriminant functions of lesser rank.
-We also add the centre of each group with crosses.
+We can also add a minimum spanning tree based on the (squared) distances between populations in the
+entire space.
+This allows one to bear in mind the actual proximities between populations inside the entire space, which are not always
+well represented in susbsets of discriminant functions of lesser rank.
+We also indicate the centre of each group with crosses.
 Lastly, we remove the DAPC eigenvalues, not very useful in this case, and replace them by a graph of
 PCA eigenvalues retained in dimension-reduction step (retained eigenvalues in black).
 <<>>=
@@ -422,14 +428,16 @@ scatter(dapc1,1,1, col=myCol, bg="white")
 %%%%%%%%%%%%%%%%
 
 In DAPC, the variable actually analyzed are principal components of a PCA.
-Loadings of these variables are generally uninformative.
-However, we also compute contributions of the alleles, which can be interpreted and sometimes very informative.
+Loadings of these variables are generally uninformative, since PCs themself do not all have
+straightforward interpretations.
+However, we can also compute contributions of the alleles, which can turn out to be very informative.
 In general, there are many alleles and their contribution is best plotted for a single discriminant
 function at a time.
 
 Variable contributions are stored in the \texttt{var.contr} slot of a \texttt{dapc} object.
 They can be plotted using \texttt{loadingplot}.
-We illustrate this using the seasonal influenza dataset \texttt{H3N2}:
+We illustrate this using the seasonal influenza dataset \texttt{H3N2}, which contains 1903 isolates
+genotyped for 125 SNPs of hemagglutinin segment (see \texttt{?H3N2}):
 <<>>=
 data(H3N2)
 H3N2
@@ -551,7 +559,7 @@ compoplot(dapc1, subset=temp, posi="bottomright", leg.txt=paste("Cluster", 1:6),
 
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
-\section{Ensuring stability of DAPC results}
+\section{On the stability of group membership probabilities}
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
 
@@ -777,5 +785,23 @@ table.value(table(pred.sup$assign, pop(x.sup)), col.lab=levels(pop(x.sup)))
 correspond to inferred clusters.
 Overall, groups are fairly well retrieved, but we can notice that individuals of Blonde d'Aquitaine
 breed are poorly identified compared to other breeds.
+
+\begin{thebibliography}{9}
+
+\bibitem{tjart19}
+  Jombart T, Devillard S and Balloux, F (2010).
+  Discriminant analysis of principal components: a new method for the analysis of genetically structured populations.
+  \textit{BMC Genetics} 11: 94.
+
+\bibitem{tjart05}
+  Jombart, T. (2008) adegenet: a R package for the multivariate
+  analysis of genetic markers. \textit{Bioinformatics} 24: 1403-1405.
+
+\bibitem{np145}
+  R Development Core Team (2011). R: A language and environment for
+  statistical computing. R Foundation for Statistical Computing,
+  Vienna, Austria. ISBN 3-900051-07-0.
+
+\end{thebibliography}
 
 \end{document}
