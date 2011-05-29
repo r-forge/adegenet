@@ -376,7 +376,7 @@ We also add a customized barplot of eigenvalues in inset:
 <<fig=TRUE>>=
 scatter(dapc1, ratio=0, grid=FALSE, bg="white", pch=20,  cell=0, cstar=0, lwd=2, col=transp(myCol), cex=3, clab=0)
 par(xpd=TRUE)
-legend("topright", pch=20, cex=1, col=transp(myCol), legend=paste("Cluster", 1:6), pt.cex=3)
+legend("topright", pch=20, cex=1, col=transp(myCol), legend=paste("Cluster", 1:6), pt.cex=3, bg=transp("white"))
 add.scatter.eig(dapc1$eig, 5,1,2, posi="bottomright", inset=.03, csub=1)
 @
 
@@ -393,7 +393,7 @@ temp <- 100*cumsum(pca.eig)/sum(pca.eig)
 <<fig=TRUE>>=
 scatter(dapc1, ratio=0, grid=FALSE, bg="white", pch=20,  cell=0, cstar=0, lwd=2, col=transp(myCol), cex=3, clab=0, mstree=TRUE)
 par(xpd=TRUE)
-legend("topright", pch=20, cex=1, col=transp(myCol), legend=paste("Cluster", 1:6), pt.cex=3)
+legend("topright", pch=20, cex=1, col=transp(myCol), legend=paste("Cluster", 1:6), pt.cex=3, bg=transp("white"))
 points(dapc1$grp.coord[,1], dapc1$grp.coord[,2], pch=4, cex=3, lwd=8, col="black")
 points(dapc1$grp.coord[,1], dapc1$grp.coord[,2], pch=4, cex=3, lwd=2, col=myCol)
 
@@ -433,7 +433,8 @@ We illustrate this using the seasonal influenza dataset \texttt{H3N2}:
 <<>>=
 data(H3N2)
 H3N2
-dapc.flu <- dapc(H3N2, pop=H3N2$other$epid, n.pca=30,n.da=10)
+pop(H3N2) <- H3N2$other$epid
+dapc.flu <- dapc(H3N2, n.pca=30,n.da=10)
 @
 
 The first discriminant function shows the temporal evolution of the influenza virus, while the
@@ -445,8 +446,33 @@ scatter(dapc.flu, col=transp(myPal(6)), ratio=0, cell=0, cex=2, bg="white",cstar
 
 We can assess which alleles most highlight the originality of 2006 using \texttt{loadingplot}:
 <<fig=TRUE>>=
-temp <- loadingplot(dapc.flu$var.contr, thres=.05)
+set.seed(4)
+contrib <- loadingplot(dapc.flu$var.contr, axis=2, thres=.07, lab.jitter=1)
 @
+
+\noindent \texttt{temp} is a list invisibly returned by \texttt{loadingplot} which contains the most
+contributing alleles.
+In this case, SNPs \texttt{906} and \texttt{399} reflect most the temporal evolution of the virus.
+We can look into their frequencies over 2002-2006:
+<<echo=TRUE,fig=TRUE>>=
+temp <- seploc(H3N2)
+snp906 <- truenames(temp[["906"]])$tab
+snp399 <- truenames(temp[["399"]])$tab
+freq906 <- apply(snp906, 2, function(e) tapply(e, pop(H3N2), mean, na.rm=TRUE))
+freq399 <- apply(snp399, 2, function(e) tapply(e, pop(H3N2), mean, na.rm=TRUE))
+freq906
+freq399
+par(mfrow=c(1,2), mar=c(5.1,4.1,4.1,.1),las=3)
+matplot(freq906, pch=c("a","c"), type="b",xlab="year",ylab="allele frequency", xaxt="n", cex=1.5, main="SNP # 906")
+axis(side=1, at=1:6, lab=2001:2006)
+matplot(freq399, pch=c("c","t"), type="b", xlab="year",ylab="allele frequency", xaxt="n", cex=1.5, main="SNP # 399")
+axis(side=1, at=1:6, lab=2001:2006)
+@
+
+In both cases, a new allele appeared in 2005 at a very low frequency, and reached high or even dominant frequencies a
+year later.
+Irrespective of the mecanism underlying these changes (drift or selection), this illustrate that in
+seasonal influenza, specific nucleotides can undergo drastic changes within only a couple of years.
 
 
 
@@ -693,6 +719,7 @@ analyzed (\texttt{microbov} dataset).
 We first split the dataset into two parts: one used for the analysis, and one used as supplementary individuals:
 <<>>=
 data(microbov)
+set.seed(2)
 kept.id <- unlist(tapply(1:nInd(microbov), pop(microbov), function(e) sample(e, 30,replace=FALSE)))
 x <- microbov[kept.id]
 x.sup <- microbov[-kept.id]
@@ -722,7 +749,7 @@ We can visualize the information by different ways.
 First, we can represent the new individuals using a scatterplot, and see :
 <<fig=TRUE>>=
 col <- rainbow(length(levels(pop(x))))
-col.points <- transp(col[as.integer(pop(x))],.1)
+col.points <- transp(col[as.integer(pop(x))],.2)
 scatter(dapc4, col=col, bg="white", ratio=0, grid=FALSE, pch="", cstar=0, axesel=FALSE, clab=0, lwd=3, xlim=c(-10,10))
 par(xpd=TRUE)
 points(dapc4$ind.coord[,1], dapc4$ind.coord[,2], pch=20, col=col.points, cex=5)
@@ -734,5 +761,21 @@ add.scatter.eig(dapc4$eig,15,1,2, posi="topright", inset=.02)
 
 \noindent Light dots and ellipses correspond to the original analysis, while more solid squares indicate
 supplementary individuals.
+Results are fairly satisfying:
+<<>>=
+mean(as.character(pred.sup$assign)==as.character(pop(x.sup)))
+@
+Around \Sexpr{round(100*mean(as.character(pred.sup$assign)==as.character(pop(x.sup))))} of
+individuals have been assigned to their actual cluster.
+For more details about which breed was assigned to which cluster, we can display the contingency
+table of the actual cluster vs the inferred one:
+<<fig=TRUE>>=
+table.value(table(pred.sup$assign, pop(x.sup)), col.lab=levels(pop(x.sup)))
+@
+
+\noindent Columns correspond to actual clusters of the supplementary individuals, while rows
+correspond to inferred clusters.
+Overall, groups are fairly well retrieved, but we can notice that individuals of Blonde d'Aquitaine
+breed are poorly identified compared to other breeds.
 
 \end{document}
