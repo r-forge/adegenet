@@ -516,13 +516,13 @@ scatter.dapc <- function(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$
 
         ## add minimum spanning tree if needed
         if(mstree && require(ade4)){
-            meanposi <- apply(dapc1$tab,2, tapply, dapc1$grp, mean)
+            meanposi <- apply(x$tab,2, tapply, x$grp, mean)
             D <- dist(meanposi)^2
             tre <- mstree(D)
-            x0 <- dapc1$grp.coord[tre[,1], axes[1]]
-            y0 <- dapc1$grp.coord[tre[,1], axes[2]]
-            x1 <- dapc1$grp.coord[tre[,2], axes[1]]
-            y1 <- dapc1$grp.coord[tre[,2], axes[2]]
+            x0 <- x$grp.coord[tre[,1], axes[1]]
+            y0 <- x$grp.coord[tre[,1], axes[2]]
+            x1 <- x$grp.coord[tre[,2], axes[1]]
+            y1 <- x$grp.coord[tre[,2], axes[2]]
             segments(x0, y0, x1, y1, lwd=lwd, lty=lty, col=segcol)
         }
 
