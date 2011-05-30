@@ -236,13 +236,11 @@ dapc1 <- dapc(x, n.pca=10, n.da=1)
 dapc1
 
 ## plot results
-scatter(dapc1)
+scatter(dapc1, scree.da=FALSE)
 
 ## SNP contributions
 loadingplot(dapc1$var.contr)
 loadingplot(tail(dapc1$var.contr, 100), main="Loading plot - last 100 SNPs")
-
-
 
 
 ## USE "PREDICT" TO PREDICT GROUPS OF NEW INDIVIDUALS ##
