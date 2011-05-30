@@ -364,25 +364,22 @@ We also move the inset to a more appropriate place where it does not cover indiv
 different symbols for the groups.
 
 <<fig=TRUE>>=
-scatter(dapc1, posi="bottomright", grid=FALSE, bg="white", pch=17:22)
+scatter(dapc1, posi.da="bottomright", bg="white", pch=17:22)
 @
 
-\noindent This is still not satisfying: we need to define other colors more visible over a white
+\noindent This is still not entirely satisfying: we need to define other colors more visible over a white
 background, and we can remove the segments linking the points to their ellipses:
 <<fig=TRUE>>=
 myCol <- c("darkblue","purple","green","orange","red","blue")
-scatter(dapc1, posi="bottomright", grid=FALSE, bg="white", pch=17:22, cstar=0, axesel=FALSE, lwd=2, col=myCol)
+scatter(dapc1, posi.da="bottomright",  bg="white", pch=17:22, cstar=0, col=myCol, scree.pca=TRUE, posi.pca="bottomleft")
 @
 
 \noindent Another possibility is remove the labels within the ellipses and add a legend to the
 plot. We also use the same symbol for all individuals, but use bigger dots and transparent colours
 to have a better feel for the density of individuals on the factorial plane.
-We also add a customized barplot of eigenvalues in inset:
 <<fig=TRUE>>=
-scatter(dapc1, ratio=0, grid=FALSE, bg="white", pch=20,  cell=0, cstar=0, lwd=2, col=transp(myCol), cex=3, clab=0)
-par(xpd=TRUE)
-legend("topright", pch=20, cex=1, col=transp(myCol), legend=paste("Cluster", 1:6), pt.cex=3, bg=transp("white"))
-add.scatter.eig(dapc1$eig, 5,1,2, posi="bottomright", inset=.03, csub=1)
+scatter(dapc1, scree.da=FALSE, bg="white", pch=20,  cell=0, cstar=0, col=transp(myCol),
+        cex=3,clab=0, leg=TRUE, txt.leg=paste("Cluster",1:6))
 @
 
 We can also add a minimum spanning tree based on the (squared) distances between populations in the
@@ -390,20 +387,21 @@ entire space.
 This allows one to bear in mind the actual proximities between populations inside the entire space, which are not always
 well represented in susbsets of discriminant functions of lesser rank.
 We also indicate the centre of each group with crosses.
-Lastly, we remove the DAPC eigenvalues, not very useful in this case, and replace them by a graph of
-PCA eigenvalues retained in dimension-reduction step (retained eigenvalues in black).
-<<>>=
-pca.eig <- dudi.pca(scaleGen(x, scale=FALSE), scannf=FALSE,nf=1)$eig
-temp <- 100*cumsum(pca.eig)/sum(pca.eig)
-@
+Lastly, we remove the DAPC eigenvalues, not very useful in this case, and replace them manually by a graph of
+PCA eigenvalues retained in dimension-reduction step (retained eigenvalues in black, similar to
+using \texttt{scree.pca=TRUE}).
 <<fig=TRUE>>=
-scatter(dapc1, ratio=0, grid=FALSE, bg="white", pch=20,  cell=0, cstar=0, lwd=2, col=transp(myCol), cex=3, clab=0, mstree=TRUE)
+scatter(dapc1, ratio.pca=0.3, bg="white", pch=20,  cell=0, cstar=0, col=transp(myCol),
+        cex=3, clab=0, mstree=TRUE, scree.da=FALSE,
+        posi.pca="bottomright", leg=TRUE, txt.leg=paste("Cluster",1:6))
+
 par(xpd=TRUE)
-legend("topright", pch=20, cex=1, col=transp(myCol), legend=paste("Cluster", 1:6), pt.cex=3, bg=transp("white"))
 points(dapc1$grp.coord[,1], dapc1$grp.coord[,2], pch=4, cex=3, lwd=8, col="black")
 points(dapc1$grp.coord[,1], dapc1$grp.coord[,2], pch=4, cex=3, lwd=2, col=myCol)
 
 myInset <- function(){
+    temp <- dapc1$pca.eig
+    temp <- 100* cumsum(temp)/sum(temp)
     plot(temp, col=rep(c("black","lightgrey"), c(dapc1$n.pca,1000)), ylim=c(0,100),
          xlab="PCA axis", ylab="Cumulated variance (%)", cex=1, pch=20, type="h", lwd=2)
 }
@@ -417,7 +415,7 @@ especially useful when only one of these has been retained (e.g. in the case $k=
 This is achieved by plotting the densities of individuals on a given discriminant function with
 different colors for different groups:
 <<fig=TRUE>>=
-scatter(dapc1,1,1, col=myCol, bg="white")
+scatter(dapc1,1,1, col=myCol, bg="white", scree.da=FALSE, legend=TRUE, solid=.4)
 @
 
 
@@ -449,7 +447,7 @@ The first discriminant function shows the temporal evolution of the influenza vi
 second one shows the originality of 2006 strains.
 <<fig=TRUE>>=
 myPal <- colorRampPalette(c("blue","gold","red"))
-scatter(dapc.flu, col=transp(myPal(6)), ratio=0, cell=0, cex=2, bg="white",cstar=0)
+scatter(dapc.flu, col=transp(myPal(6)), scree.da=FALSE, cell=0, cex=2, bg="white",cstar=0)
 @
 
 We can assess which alleles most highlight the originality of 2006 using \texttt{loadingplot}:
@@ -754,16 +752,15 @@ analysis stored in \texttt{dapc4}. The slot \texttt{assign} contains the assignm
 to groups; \texttt{ind.scores} contains the coordinates of the new individuals on the discriminant
 functions; \texttt{posterior} contains the posterior membership probabilities.
 We can visualize the information by different ways.
-First, we can represent the new individuals using a scatterplot, and see :
+First, we can represent the new individuals using a scatterplot:
 <<fig=TRUE>>=
 col <- rainbow(length(levels(pop(x))))
 col.points <- transp(col[as.integer(pop(x))],.2)
-scatter(dapc4, col=col, bg="white", ratio=0, grid=FALSE, pch="", cstar=0, axesel=FALSE, clab=0, lwd=3, xlim=c(-10,10))
+scatter(dapc4, col=col, bg="white", scree.da=0, grid=FALSE, pch="", cstar=0, clab=0, xlim=c(-10,10), legend=TRUE)
 par(xpd=TRUE)
 points(dapc4$ind.coord[,1], dapc4$ind.coord[,2], pch=20, col=col.points, cex=5)
 col.sup <- col[as.integer(pop(x.sup))]
 points(pred.sup$ind.scores[,1], pred.sup$ind.scores[,2], pch=15, col=transp(col.sup,.7), cex=2)
-legend("bottomright", fill=col, leg=levels(pop(x)), ncol=2, cex=.7, bg=transp("white"))
 add.scatter.eig(dapc4$eig,15,1,2, posi="topright", inset=.02)
 @
 

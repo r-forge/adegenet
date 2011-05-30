@@ -54,7 +54,8 @@ barplot(dapc1$eig, main="H3N2 - DAPC eigenvalues")
 
 
 ## SCATTERPLOT (axes 1-2)
-scatter(dapc1, ratio=.2)
+scatter(dapc1, posi.da="topleft", cstar=FALSE, cex=2, pch=17:22,
+solid=.5, bg="white")
 
 }
 \keyword{datasets}
