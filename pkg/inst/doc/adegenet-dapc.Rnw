@@ -72,10 +72,6 @@
 %%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%%%%
-\subsection{Rationale}
-%%%%%%%%%%%%%%%%
-
 Investigating genetic diversity using multivariate approaches relies on finding synthetic variables
 built as linear combinations of alleles (i.e. $\mbox{new-variable} = a_1 \mbox{allele}_1 + a_2 \mbox{allele}_2 + ... $
 where $a_1$, $a_2$ etc. are real coefficients)
