@@ -15,7 +15,8 @@
   using a principal component analysis (PCA). For each model, a
   statistical measure of goodness of fit (by default, BIC) is computed,
   which allows to choose the optimal \code{k}. See \code{details} for a
-  description of how to select the optimal \code{k}.
+  description of how to select the optimal \code{k} and
+  \code{vignette("adegenet-dapc")} for a tutorial.
 
   Optionally, hierarchical clustering can be sought by providing a prior
   clustering of individuals (argument \code{clust}). In such case, clusters will
@@ -211,6 +212,8 @@
 }
 \seealso{
   - \code{\link{dapc}}: implements the DAPC.
+
+  - \code{\link{scatter.dapc}}: graphics for DAPC.
 
   - \code{\link{dapcIllus}}: dataset illustrating the DAPC and \code{find.clusters}.
 

@@ -8,9 +8,6 @@
 \alias{dapc.genlight}
 \alias{print.dapc}
 \alias{summary.dapc}
-\alias{scatter.dapc}
-\alias{assignplot}
-\alias{compoplot}
 \alias{predict.dapc}
 \alias{as.lda}
 \alias{as.lda.dapc}
@@ -19,8 +16,11 @@
   These functions implement the Discriminant Analysis of Principal
   Components (DAPC, Jombart et al. 2010). This method descibes the
   diversity between pre-defined groups. When groups are unknown, use
-  \code{find.clusters} to infer genetic clusters. See 'details' section for a
-  succint description of the method.
+  \code{find.clusters} to infer genetic clusters. See 'details' section
+  for a succint description of the method, and
+  \code{vignette("adegenet-dapc")} for a tutorial. Graphical methods for
+  DAPC are documented in \code{\link{scatter.dapc}} (see
+  \code{?scatter.dapc}).
 
  \code{dapc} is a generic function performing the DAPC on the following
  types of objects:\cr
@@ -36,12 +36,6 @@
 
   - \code{print.dapc}: prints the content of a \code{dapc} object.\cr
   - \code{summary.dapc}: extracts useful information from a  \code{dapc} object.\cr
-  - \code{scatter.dapc}: produces scatterplots of principal components (or
-    'discriminant functions'), with a screeplot of eigenvalues as inset.\cr
-  - \code{assignplot}: plot showing the probabilities of assignment of
-  individuals to the different clusters.\cr
- - \code{compoplot}: barplot showing the probabilities of assignment of
-  individuals to the different clusters.\cr
   - \code{predict.dapc}: predicts group memberships based on DAPC results.
 
 
@@ -76,22 +70,6 @@
 \method{print}{dapc}(x, \dots)
 
 \method{summary}{dapc}(object, \dots)
-
-\method{scatter}{dapc}(x, xax=1, yax=2, grp=NULL,
-        col=rainbow(length(levels(x$grp))), pch=20, posi="bottomleft",
-        bg="grey", ratio=0.3, mstree=FALSE, lwd=1, lty=1, segcol="black",
-        cstar = 1, cellipse = 1.5, axesell = TRUE,
-        label = levels(x$grp), clabel = 1, xlim = NULL, ylim = NULL, grid
-        = TRUE, addaxes = TRUE, origin = c(0,0), include.origin = TRUE,
-        sub = "", csub = 1, possub = "bottomleft", posleg = "topright",
-        cleg = 1, cgrid = 1, pixmap = NULL, contour = NULL, area = NULL,
-        \ldots)
-
-assignplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, cex.lab=.75,pch=3)
-
-compoplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, col=NULL, lab=NULL,
-                      legend=TRUE, leg.txt=NULL, ncol=4,
-                      posi=NULL, cleg=.8, bg=transp("white"), ...)
 
 \method{predict}{dapc}(object, newdata, prior = object$prior, dimen,
          method = c("plug-in", "predictive", "debiased"), ...)
@@ -132,10 +110,8 @@ compoplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, col=NULL, lab=NULL,
     retained axes of PCA.}
   \item{\ldots}{further arguments to be passed to other functions. For
     \code{dapc.matrix}, arguments are to match those of
-    \code{dapc.data.frame}; for \code{scatter}, arguments passed to
-    \code{points}; for \code{compoplot}, arguments passed to
-    \code{barplot}; for \code{dapc.genlight}, arguments passed to
-    \code{\link{glPca}}}
+    \code{dapc.data.frame}; for \code{dapc.genlight}, arguments passed
+    to \code{\link{glPca}}}
   \item{glPca}{an optional \code{\link{glPca}} object; if provided,
     dimension reduction is not performed (saving computational time) but
     taken directly from this object.}
@@ -146,60 +122,10 @@ compoplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, col=NULL, lab=NULL,
     further details.}
   \item{truenames}{a \code{logical} indicating whether true (i.e., user-specified)
     labels should be used in object outputs (TRUE, default) or not (FALSE).}
-  \item{xax,yax}{\code{integers} specifying which principal components of DAPC
-    should be shown in x and y axes. }
-  \item{col}{a suitable color to be used for groups. The specified vector
-    should match the number of groups, not the number of individuals.}
-  \item{posi,bg,ratio}{arguments used to customize the inset in scatterplots
-    of DAPC results. See \code{\link[ade4]{add.scatter}} documentation in the
-    ade4 package for more details. For \code{compoplot}, \code{posi}
-    indicates the position of the legend, provided as character or as a
-    list with x and y positions (see \code{?legend}); if not provided,
-    the legend is placed in the bottomg margin of the plot; \code{bg}
-         indicates the backgrond of the legend.}
-  \item{mstree}{a logical indicating whether a minimum spanning tree
-    based on the squared distances between groups should be
-    displayed (TRUE), or not (FALSE, default).}
-  \item{lwd,lty}{numeric values indicating the line width and type for
-    the minimum spanning tree, if \code{mstree=TRUE}.}
-  \item{segcol}{the color to be used to display the minimum spanning
-    tree, if \code{mstree=TRUE}.}
-  \item{only.grp}{a \code{character} vector indicating which groups should be
-    displayed. Values should match values of \code{x$grp}. If \code{NULL}, all
-    results are displayed}
-  \item{subset}{\code{integer} or \code{logical} vector indicating which
-    individuals should be displayed. If \code{NULL}, all
-    results are displayed}
-  \item{cex.lab}{a \code{numeric} indicating the size of labels.}
-  \item{pch}{a \code{numeric} indicating the type of point to be used to indicate
-    the prior group of individuals (see \code{\link{points}} documentation for
-    more details).}
-  \item{new.pred}{an optional list, as returned by the \code{predict}
-    method for \code{dapc} objects; if provided, the individuals
-    with unknown groups are added at the bottom of the plot. To
-    visualize these individuals only, specify
-    \code{only.grp="unknown"}.}
-  \item{lab}{a vector of characters (recycled if necessary) of labels
-    for the individuals; if left to NULL, the row names of \code{x$tab}
-    are used.}
-  \item{legend}{a logical indicating whether a legend should be added to
-    the plot (TRUE, default) or not (FALSE).}
-  \item{leg.txt}{a character vector indicating the text to be used in
-    the legend; if not provided, group names stored in \code{x$grp} are
-    used.}
-  \item{ncol}{an integer indicating the number of columns of the legend,
-    defaulting to 4.}
   \item{dudi}{optionally, a multivariate analysis with the class
     \code{dudi} (from the ade4 package). If provided, prior PCA will be
     ignored, and this object will be used as a prior step for variable
     orthogonalisation.}
-  \item{cstar,cellipse,axesell,label,clabel,xlim,ylim,grid,addaxes,origin,include.origin,sub,csub,possub,cgrid,pixmap,contour,area}{arguments
-    passed to \code{\link[ade4]{s.class}}; see \code{?s.class} for more
-    informations}
-  \item{posleg}{a characther string indicating the position of the
-    legend when plotting a single discriminant function. See \code{?legend}.}
-  \item{cleg}{a number indicating the size factor for the legend, passed
-    to the function \code{legend}.}
   \item{newdata}{an optional dataset of individuals whose membership is
     seeked; can be a data.frame, a matrix, a \linkS4class{genind} or a
     \linkS4class{genlight} object, but object class must match the
@@ -256,8 +182,6 @@ compoplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, col=NULL, lab=NULL,
   \code{assign.per.pop} (proportion of correct assignment per group),
   \code{prior.grp.size} (prior group sizes), and \code{post.grp.size} (posterior
   group sizes).
-
-  - \code{scatter.dapc, assignplot} return the matched call.\cr
 }
 \references{
   Jombart T, Devillard S and Balloux F  (2010) Discriminant analysis of
@@ -265,6 +189,9 @@ compoplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, col=NULL, lab=NULL,
   structured populations. BMC Genetics11:94. doi:10.1186/1471-2156-11-94
 }
 \seealso{
+  - \code{\link{scatter.dapc}}, \code{\link{assignplot}},
+  \code{\link{compoplot}}: graphics for DAPC.
+
   - \code{\link{find.clusters}}: to identify clusters without prior.
 
   - \code{\link{dapcIllus}}: a set of simulated data illustrating the DAPC
@@ -279,14 +206,12 @@ compoplot(x, only.grp=NULL, subset=NULL, new.pred=NULL, col=NULL, lab=NULL,
 ##
 
 example(dapcIllus)
-
-
-\dontrun{
 example(eHGDP)
 example(H3N2)
-}
+
 
 ## showing different scatter options ##
+## !! more in ?scatter.dapc !! ##
 data(H3N2)
 pop(H3N2) <- factor(H3N2$other$epid)
 dapc1 <- dapc(H3N2, var.contrib=FALSE, scale=FALSE, n.pca=150, n.da=5)
@@ -295,7 +220,7 @@ dapc1 <- dapc(H3N2, var.contrib=FALSE, scale=FALSE, n.pca=150, n.da=5)
 scatter(dapc1, cell=0, pch=18:23, cstar=0, mstree=TRUE, lwd=2, lty=2)
 
 ## only ellipse, custom labels
-scatter(dapc1, cell=2, pch="", cstar=0, posi="top",
+scatter(dapc1, cell=2, pch="", cstar=0, posi.da="top",
 lab=paste("year\n",2001:2006), axesel=FALSE, col=terrain.colors(10))
 
 

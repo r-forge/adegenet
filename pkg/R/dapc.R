@@ -116,6 +116,7 @@ dapc.data.frame <- function(x, grp, n.pca=NULL, n.da=NULL,
         res$pca.loadings <- as.matrix(U)
         res$pca.cent <- pcaX$cent
         res$pca.norm <- pcaX$norm
+        res$pca.eig <- pcaX$eig
     }
 
     ## optional: get loadings of variables
@@ -348,6 +349,7 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
         res$pca.loadings <- as.matrix(U)
         res$pca.cent <- glMean(x,alleleAsUnit=FALSE)
         res$pca.norm <- sqrt(glVar(x,alleleAsUnit=FALSE))
+        res$pca.eig <- pcaX$eig
     }
 
     ## optional: get loadings of variables
@@ -393,7 +395,7 @@ print.dapc <- function(x, ...){
     ## vectors
     TABDIM <- 4
     if(!is.null(x$pca.loadings)){
-        TABDIM <- TABDIM + 2
+        TABDIM <- TABDIM + 3
     }
     sumry <- array("", c(TABDIM, 3), list(1:TABDIM, c("vector", "length", "content")))
     sumry[1, ] <- c('$eig', length(x$eig),  'eigenvalues')
@@ -403,6 +405,7 @@ print.dapc <- function(x, ...){
     if(!is.null(x$pca.loadings)){
         sumry[5, ] <- c('$pca.cent', length(x$pca.cent), 'centring vector of PCA')
         sumry[6, ] <- c('$pca.norm', length(x$pca.norm), 'scaling vector of PCA')
+        sumry[7, ] <- c('$pca.eig', length(x$pca.eig), 'eigenvalues of PCA')
     }
     class(sumry) <- "table"
     print(sumry)
@@ -479,17 +482,22 @@ summary.dapc <- function(object, ...){
 ##############
 ## scatter.dapc
 ##############
-scatter.dapc <- function(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$grp))), pch=20, posi="bottomleft", bg="grey", ratio=0.3,
-                         mstree=FALSE, lwd=1, lty=1, segcol="black",
-                         cstar = 1, cellipse = 1.5, axesell = TRUE, label = levels(x$grp), clabel = 1, xlim = NULL, ylim = NULL,
-                         grid = TRUE, addaxes = TRUE, origin = c(0,0), include.origin = TRUE, sub = "", csub = 1, possub = "bottomleft",
-                         posleg="topright", cleg=1, cgrid = 1, pixmap = NULL, contour = NULL, area = NULL, ...){
+scatter.dapc <- function(x, xax=1, yax=2, grp=x$grp, col=rainbow(length(levels(grp))), pch=20, bg="lightgrey", solid=.7,
+                         scree.da=TRUE, scree.pca=FALSE, posi.da="bottomright", posi.pca="bottomleft", bg.inset="white",
+                         ratio.da=.25, ratio.pca=.25, inset.da=0.02, inset.pca=0.02, inset.solid=.5,
+                         onedim.filled=TRUE, mstree=FALSE, lwd=1, lty=1, segcol="black",
+                         legend=FALSE, posi.leg="topright", cleg=1, txt.leg=levels(grp),
+                         cstar = 1, cellipse = 1.5, axesell = FALSE, label = levels(grp), clabel = 1, xlim = NULL, ylim = NULL,
+                         grid = FALSE, addaxes = TRUE, origin = c(0,0), include.origin = TRUE, sub = "", csub = 1, possub = "bottomleft",
+                         cgrid = 1, pixmap = NULL, contour = NULL, area = NULL, ...){
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     ONEDIM <- xax==yax | ncol(x$ind.coord)==1
 
     ## recycle color and pch
-    col <- rep(col, length(levels(x$grp)))
-    pch <- rep(pch, length(levels(x$grp)))
+    col <- rep(col, length(levels(grp)))
+    pch <- rep(pch, length(levels(grp)))
+    col <- transp(col, solid)
+    bg.inset <- transp(bg.inset, inset.solid)
 
     ## handle grp
     if(is.null(grp)){
@@ -501,7 +509,7 @@ scatter.dapc <- function(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$
         opar <- par(mar = par("mar"))
         par(mar = c(0.1, 0.1, 0.1, 0.1), bg=bg)
         on.exit(par(opar))
-                axes <- c(xax,yax)
+        axes <- c(xax,yax)
         ## basic empty plot
         ## s.label(x$ind.coord[,axes], clab=0, cpoint=0, grid=FALSE, addaxes = FALSE, cgrid = 1, include.origin = FALSE, ...)
         s.class(x$ind.coord[,axes], fac=grp, col=col, cpoint=0, cstar = cstar, cellipse = cellipse, axesell = axesell, label = label,
@@ -524,7 +532,7 @@ scatter.dapc <- function(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$
 
         ## add minimum spanning tree if needed
         if(mstree && require(ade4)){
-            meanposi <- apply(x$tab,2, tapply, x$grp, mean)
+            meanposi <- apply(x$tab,2, tapply, grp, mean)
             D <- dist(meanposi)^2
             tre <- mstree(D)
             x0 <- x$grp.coord[tre[,1], axes[1]]
@@ -534,10 +542,8 @@ scatter.dapc <- function(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$
             segments(x0, y0, x1, y1, lwd=lwd, lty=lty, col=segcol)
         }
 
-        if(ratio>0.001) {
-            add.scatter.eig(x$eig, ncol(x$loadings), axes[1], axes[2], posi=posi, ratio=ratio, csub=csub)
-        }
     } else {
+
         ## get plotted axis
         if(ncol(x$ind.coord)==1) {
             pcLab <- 1
@@ -551,12 +557,52 @@ scatter.dapc <- function(x, xax=1, yax=2, grp=NULL, col=rainbow(length(levels(x$
         par(bg=bg)
         plot(allx, ally, type="n", xlab=paste("Discriminant function", pcLab), ylab="Density")
         for(i in 1:length(ldens)){
-            lines(ldens[[i]]$x,ldens[[i]]$y, col=col[i], lwd=2) # add lines
+            if(!onedim.filled) {
+                lines(ldens[[i]]$x,ldens[[i]]$y, col=col[i], lwd=2) # add lines
+            } else {
+                polygon(c(ldens[[i]]$x,rev(ldens[[i]]$x)),c(ldens[[i]]$y,rep(0,length(ldens[[i]]$x))), col=col[i], lwd=2, border=col[i]) # add lines
+            }
             points(x=x$ind.coord[grp==levels(grp)[i],pcLab], y=rep(0, sum(grp==levels(grp)[i])), pch="|", col=col[i]) # add points for indiv
         }
-        ## add a legend
-        legend(posleg, lty=1, col=col, legend=levels(grp), cex=cleg)
     }
+
+    ## ADD INSETS ##
+    ## group legend
+    if(legend){
+        ## add a legend
+        legend(posi.leg, fill=col, legend=txt.leg, cex=cleg, bg=bg.inset)
+    }
+
+    ## eigenvalues discriminant analysis
+    if(scree.da && ratio.da>.01) {
+        inset <- function(){
+            myCol <- rep("white", length(x$eig))
+            myCol[1:x$n.da] <- "grey"
+            myCol[c(xax, yax)] <- "black"
+            myCol <- transp(myCol, inset.solid)
+            barplot(x$eig, col=myCol, xaxt="n", yaxt="n", ylim=c(0, x$eig[1]*1.1))
+            mtext(side=3, "DA eigenvalues", line=-1.2, adj=.8)
+            box()
+        }
+
+        add.scatter(inset(), posi=posi.da, ratio=ratio.da, bg=bg.inset, inset=inset.da)
+        ##add.scatter.eig(x$eig, ncol(x$loadings), axes[1], axes[2], posi=posi, ratio=ratio, csub=csub) # does not allow for bg
+    }
+
+    ## eigenvalues PCA
+    if(scree.pca && !is.null(x$pca.eig) && ratio.pca>.01) {
+        inset <- function(){
+            temp <- 100* cumsum(x$pca.eig) / sum(x$pca.eig)
+            myCol <- rep(c("black","grey"), c(x$n.pca, length(x$pca.eig)))
+            myCol <- transp(myCol, inset.solid)
+            plot(temp, col=myCol, ylim=c(0,115),
+                 type="h", xaxt="n", yaxt="n", xlab="", ylab="", lwd=2)
+            mtext(side=3, "PCA eigenvalues", line=-1.2, adj=.1)
+        }
+        add.scatter(inset(), posi=posi.pca, ratio=ratio.pca, bg=bg.inset, inset=inset.pca)
+    }
+
+
     return(invisible(match.call()))
 } # end scatter.dapc
 
@@ -629,7 +675,7 @@ assignplot <- function(x, only.grp=NULL, subset=NULL, new.pred=NULL, cex.lab=.75
 ## compoplot
 ############
 compoplot <- function(x, only.grp=NULL, subset=NULL, new.pred=NULL, col=NULL, lab=NULL,
-                      legend=TRUE, leg.txt=NULL, ncol=4, posi=NULL, cleg=.8, bg=transp("white"), ...){
+                      legend=TRUE, txt.leg=NULL, ncol=4, posi=NULL, cleg=.8, bg=transp("white"), ...){
     if(!require(ade4, quiet=TRUE)) stop("ade4 library is required.")
     if(!inherits(x, "dapc")) stop("x is not a dapc object")
 
@@ -655,9 +701,9 @@ compoplot <- function(x, only.grp=NULL, subset=NULL, new.pred=NULL, col=NULL, la
         posi <- list(x=0, y=-.01)
     }
 
-    ## leg.txt
-    if(is.null(leg.txt)){
-        leg.txt <- levels(x$grp)
+    ## txt.leg
+    if(is.null(txt.leg)){
+        txt.leg <- levels(x$grp)
     }
 
     ## HANDLE DATA FROM PREDICT.DAPC ##
@@ -693,7 +739,7 @@ compoplot <- function(x, only.grp=NULL, subset=NULL, new.pred=NULL, col=NULL, la
     if(legend){
         oxpd <- par("xpd")
         par(xpd=TRUE)
-        legend(posi, fill=col, leg=leg.txt, cex=cleg, ncol=ncol, bg=bg)
+        legend(posi, fill=col, leg=txt.leg, cex=cleg, ncol=ncol, bg=bg)
         on.exit(par(xpd=oxpd))
     }
 
