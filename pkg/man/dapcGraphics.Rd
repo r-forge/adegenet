@@ -11,7 +11,7 @@
   accessible using \code{vignette("adegenet-dapc")}.
 
   These functions all require an object of class \code{dapc}
-  (the ".dapc" can be ommitted when calling the functions):
+  (the ".dapc" can be ommitted when calling the functions):\cr
   - \code{scatter.dapc}: produces scatterplots of principal components (or
     'discriminant functions'), with a screeplot of eigenvalues as inset.\cr
   - \code{assignplot}: plot showing the probabilities of assignment of
