@@ -286,10 +286,19 @@ setMethod("seploc", signature(x="genlight"), function(x, n.block=NULL, block.siz
     }
 
     if(multicore){
-        res <- mclapply(levels(fac.block), function(lev) x[,sample(which(fac.block==lev))],
+        if(random){
+            res <- mclapply(levels(fac.block), function(lev) x[,sample(which(fac.block==lev))],
                         mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE)
+        } else {
+            res <- mclapply(levels(fac.block), function(lev) x[,which(fac.block==lev)],
+                        mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE)
+        }
     } else {
-        res <- lapply(levels(fac.block), function(lev) x[,sample(which(fac.block==lev))])
+         if(random){
+             res <- lapply(levels(fac.block), function(lev) x[,sample(which(fac.block==lev))])
+         } else {
+             res <- lapply(levels(fac.block), function(lev) x[,which(fac.block==lev)])
+         }
     }
 
     ## return result ##

@@ -231,6 +231,7 @@
 }
 \details{
   === On the subsetting using \code{[} ===
+  
   The function \code{[} accepts the following extra arguments:
   \describe{
     \item{treatOther}{a logical stating whether elements of the
