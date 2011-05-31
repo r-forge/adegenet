@@ -166,6 +166,10 @@
     
     \item{ploidy}{\code{signature(x = "genlight")}: returns the ploidy of
       the genotypes.}
+    \item{ploidy<-}{\code{signature(x = "genlight")}: sets the ploidy of
+      the individuals using a vector of integers of size \code{nInd(x)};
+      if a single value is provided, the same ploidy is assumed for all
+      individuals.}
     
     \item{NA.posi}{\code{signature(x = "genlight")}: returns the indices
       of missing values (NAs) as a list with one vector of integer for each individual.}

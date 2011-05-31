@@ -9,7 +9,7 @@
 
 \usepackage[utf8]{inputenc} % for UTF-8/single quotes from sQuote()
 \newcommand{\code}[1]{{{\tt #1}}}
-\title{Analysing genomic-wide SNP data using adegenet}
+\title{Analysing genomic-wide SNP data using  \textit{adegenet} \Sexpr{packageDescription("adegenet", fields = "Version")}}
 \author{Thibaut Jombart}
 \date{\today}
 
@@ -39,7 +39,8 @@
 
 \begin{abstract}
   Genome-wide SNP data can quickly be challenging to analyse using standard
-  computer. \textit{adegenet} implements representation of these data with unprecedented efficiency
+  computer. The package \textit{adegenet} \cite{tjart05} for the R software \cite{np145}
+  implements representation of these data with unprecedented efficiency
   using the classes \texttt{SNPbin} and \texttt{genlight}, which can require up to 60 times less RAM than usual
   representation using allele frequencies.
   This vignette introduces these classes and illustrates how these objects can be handled and
@@ -107,13 +108,13 @@ getClassDef("SNPbin")
 @
 
 The slots respectively contain:
-\begin{description}
+\begin{itemize}
   \item \texttt{snp}: SNP data with specific internal coding.
   \item \texttt{n.loc}: the number of SNPs stored in the object.
   \item \texttt{NA.posi}: position of the missing data (NAs).
   \item \texttt{label}: an optional label for the individual.
   \item \texttt{ploidy}: the ploidy level of the genome.
-\end{description}
+\end{itemize}
 
 New objects are created using \texttt{new}, with these slots as arguments.
 If no argument is provided, an empty object is created:
@@ -165,15 +166,15 @@ identical(as.integer(x),dat)
 @
 The advantage of this storage is therefore being extremely compact, and allowing to analyse big
 datasets using standard computers.
-Obviously, usual computations demand data to be at one moment coded as numeric values (as opposed to bits).
-However in most cases, we can proceed by only converting one or two genomes back to numeric values
-at a time, therefore keeping RAM requirements low, albeit at a possible increase in computational time.
-This however is minimized by two ways: i) conversion routines are optimized for speed using C code
-ii) smaller objects are handled, therefore decreasing the possibly high computational time taken by memory allocation.
+%% Obviously, usual computations demand data to be at one moment coded as numeric values (as opposed to bits).
+%% However in most cases, we can proceed by only converting one or two genomes back to numeric values
+%% at a time, therefore keeping RAM requirements low, albeit at a possible increase in computational time.
+%% This however is minimized by two ways: i) conversion routines are optimized for speed using C code
+%% ii) smaller objects are handled, therefore decreasing the possibly high computational time taken by memory allocation.
 \\
 
-While \texttt{SNPbin} objects are the very mean by which we store data efficiently, in practice one
-wishes to analyze several genomes at a time.
+While \texttt{SNPbin} objects are the very mean by which we store data efficiently, in practice
+we need to analyze several genomes at a time.
 This is made possible by the class \texttt{genlight}, which relies on \texttt{SNPbin} but allows for
 storing data from several genomes at a time.
 
@@ -190,8 +191,8 @@ The slots of instances of this class are described by:
 getClassDef("genlight")
 @
 As it can be seen, these objects allow for storing more information in addition to vectors of SNP frequencies.
-More precisely, their content is:
-\begin{description}
+More precisely, their content is (see \texttt{?genlight} for more details):
+\begin{itemize}
   \item \texttt{gen}: SNP data for different individuals, each stored as a \texttt{SNPbin}; loci
     have to be identical across all individuals.
   \item \texttt{n.loc}: the number of SNPs stored in the object.
@@ -204,9 +205,9 @@ More precisely, their content is:
   \item \texttt{pop}: (optional) a factor grouping individuals into 'populations'.
   \item \texttt{other}: (optional) a list containing any supplementary information to be stored with
     the data.
-\end{description}
+\end{itemize}
 
-\noindent Like \texttt{SNbin} object, \texttt{genlight} object are created using the constructor \texttt{new},
+\noindent Like \texttt{SNPbin} object, \texttt{genlight} object are created using the constructor \texttt{new},
 providing content for the slots above as arguments.
 When none is provided, an empty object is created:
 <<>>=
@@ -214,10 +215,68 @@ new("genlight")
 @
 The most important information to provide is obviously the genotypes (argument \texttt{gen}); these
 can be provided as:
-\begin{description}
-\item
-\end{description}
+\begin{itemize}
+\item a \texttt{list} of integer vectors representing the number of second allele at each locus.
+\item a \texttt{matrix} / \texttt{data.frame} of integers, with individuals in rows and SNPs in columns.
+\item a list of \texttt{SNPbin} objects.
+\end{itemize}
 
+Ploidy has to be consistent across loci for a given individual, but individuals do not have to have
+the same ploidy, so that it is possible to have hapoid,
+diploid, and tetraploid individuals in the same dataset; for instance:
+<<>>=
+x <- new("genlight", list(indiv1=c(1,1,0,1,1,0), indiv2=c(2,1,1,0,0,0), toto=c(2,2,0,0,4,4)))
+x
+ploidy(x)
+@
+
+As for \texttt{SNPbin}, \texttt{genlight} objects can be converted back to integers vectors, stored
+as matrices or lists:
+<<>>=
+as.list(x)
+as.matrix(x)
+@
+
+\noindent In practice, \texttt{genlight} objects can be handled as if they were matrices of integers
+as the one above returned by \texttt{as.matrix}.
+However, they offer the advantage of efficient storage of the information; for instance, we can
+simulate 50 individuals typed for 1,00,000 SNPs each (including occasional NAs):
+<<>>=
+dat <- lapply(1:50, function(i) sample(c(0,1,NA), 1e6, prob=c(.5, .499, .001), replace=TRUE))
+names(dat) <- paste("indiv", 1:length(dat))
+print(object.size(dat),unit="auto")
+
+x <- new("genlight", dat)
+print(object.size(x),unit="auto")
+
+object.size(dat)/object.size(x)
+@
+here again, the storage if the data is much more efficient in \texttt{genlight} than using integers: converted data occupy
+\Sexpr{round(object.size(dat)/object.size(x))} times less memory than the original data.
+\\
+
+The advantage of this storage is therefore being extremely compact, and allowing to analyse very large
+datasets using standard computers.
+Obviously, usual computations demand data to be at one moment coded as numeric values (as opposed to bits).
+However, most usual computations can be achieved by only converting one or two genomes back to numeric values
+at a time, therefore keeping RAM requirements low, albeit at a possible cost of increased computational time.
+This however is minimized by three ways:
+\begin{enumerate}
+\item conversion routines are optimized for speed using C code.
+\item using parallel computation where multicore architectures are available.
+\item handling smaller objects, thereby decreasing the possibly high computational time taken by memory allocation.
+\end{enumerate}
+
+While this makes implementing methods more complicated.
+In practice, routines are implemented so as to minimize
+the amount of data converted back to integers, use C code where possible, and use multiple cores
+if the package \textit{multicore} is installed an multiple cores are available.
+Fortunately, these underlying technical issues are oblivious to the user, and one merely needs to
+know how to manipulate \texttt{genlight} objects using a few key functions to be able to analyze data.
+
+<<echo=FALSE>>=
+rm(dat)
+@
 
 
 
@@ -231,6 +290,56 @@ can be provided as:
 
 %%%%%%%%%%%%%%%%
 \subsection{Using accessors}
+%%%%%%%%%%%%%%%%
+
+In the following, we demonstrate how to manipulate and analyse \texttt{genlight} objects.
+The phylosophy underlying formal (S4) classes in general, and \texttt{genlight} objects in
+particular, is that internal representation of the information can be complex as long as accessing
+this information is simple.
+This is made possible by decoupling storage and accession: the user is not meant to access the
+content of the object directly, but has to use \texttt{accessors} to retrieve or modify information.
+\\
+
+Available accessors are documented in \code{?genlight}.
+Most of them are identical to accessors for \texttt{genind} and \texttt{genpop} objects, such as:
+\begin{itemize}
+  \item \texttt{nInd}: returns the number of individuals in the object.
+  \item \texttt{nLoc}: returns the number of loci (SNPs).
+  \item \texttt{indNames}$^*$: returns/sets labels for individuals.
+  \item \texttt{locNames}$^*$: returns/sets labels for loci (SNPs).
+  \item \texttt{alleles}$^*$: returns/sets alleles.
+  \item \texttt{ploidy}$^*$: returns/sets ploidy of the individuals.
+  \item \texttt{pop}$^*$: returns/sets a factor grouping individuals.
+  \item \texttt{other}$^*$: returns/sets misc information stored as a list.
+\end{itemize}
+where $^*$ indicates that a replacement method is available using \texttt{<-'}; for instance:
+<<>>=
+dat <- lapply(1:3, function(i) sample(0:2, 10, replace=TRUE))
+dat
+x <- new("genlight", dat)
+x
+indNames(x)
+indNames(x) <- paste("individual", 1:3)
+indNames(x)
+locNames(x)
+locNames(x) <- paste("SNP",1:nLoc(x),sep=".")
+as.matrix(x)
+@
+
+\noindent
+In addition, some specific accessors are available for \texttt{genlight} objects:
+\begin{itemize}
+  \item \texttt{NA.posi}: returns the position of missing values in each individual.
+  \item \texttt{chromosome}$^*$: returns/sets the chromosome of each SNP.
+  \item \texttt{chr}$^*$: same as \texttt{chromosome} --- used as a shortcut.
+  \item \texttt{position}$^*$: returns/sets the position of each SNP.
+\end{itemize}
+
+
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Subsetting the data}
 %%%%%%%%%%%%%%%%
 
 
@@ -257,6 +366,19 @@ can be provided as:
 
 
 
+
+\begin{thebibliography}{9}
+
+\bibitem{tjart05}
+  Jombart, T. (2008) adegenet: a R package for the multivariate
+  analysis of genetic markers. \textit{Bioinformatics} 24: 1403-1405.
+
+\bibitem{np145}
+  R Development Core Team (2011). R: A language and environment for
+  statistical computing. R Foundation for Statistical Computing,
+  Vienna, Austria. ISBN 3-900051-07-0.
+
+\end{thebibliography}
 
 
 \end{document}

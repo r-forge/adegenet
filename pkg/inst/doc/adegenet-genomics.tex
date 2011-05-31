@@ -1,6 +1,6 @@
 \documentclass{article}
 % \VignettePackage{adegenet-genomics}
-% \VignetteIndexEntry{Analysing genomic data using adegenet}
+% \VignetteIndexEntry{Analysing genome-wide SNP data using adegenet}
 
 \usepackage{graphicx}
 \usepackage[colorlinks=true,urlcolor=blue]{hyperref}
@@ -9,8 +9,8 @@
 
 \usepackage[utf8]{inputenc} % for UTF-8/single quotes from sQuote()
 \newcommand{\code}[1]{{{\tt #1}}}
-\title{Analysing genomic data using adegenet}
-\author{Thibaut Jombart and Isma\"il Ahmed}
+\title{Analysing genomic-wide SNP data using adegenet}
+\author{Thibaut Jombart}
 \date{\today}
 
 
@@ -37,10 +37,24 @@
 \color{black}
 
 \maketitle
+
+\begin{abstract}
+  Genome-wide SNP data can quickly be challenging to analyse using standard
+  computer. \textit{adegenet} implements representation of these data with unprecedented efficiency
+  using the classes \texttt{SNPbin} and \texttt{genlight}, which can require up to 60 times less RAM than usual
+  representation using allele frequencies.
+  This vignette introduces these classes and illustrates how these objects can be handled and
+  analyzed in R.
+  It also introduces more advanced features of an API in C language which may be useful to develop
+  new method based on these objects.
+\end{abstract}
+
+\newpage
+
 \tableofcontents
 
 
-
+\newpage
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
 \section{Introduction}
@@ -48,14 +62,19 @@
 %%%%%%%%%%%%%%%%
 Modern sequencing technologies now make complete genomes more widely accessible.
 The subsequent amounts of genetic data pose challenges in terms of storing and handling the data,
-making former tools developed for classical genetic markers such as microsatellite impracticable on
+making former tools developed for classical genetic markers such as microsatellite impracticable using
 standard computers.
 Adegenet has developed new object classes dedicated to handling genome-wide polymorphism (SNPs) with
 minimum rapid access memory (RAM) requirements.
+\\
 
 Two new formal classes have been implemented: \texttt{SNPbin}, used to store genome-wide SNPs for
 one individual, and \texttt{genlight}, which stored the same information for multiple individuals.
-In this vignette, we present these classes and show how they can be used for genetic data analysis.
+Information represented this way is binary: only biallelic SNPs can be stored and analyzed using these classes.
+However, these objects are otherwise very flexible, and can incorporate different levels of ploidy
+across individuals within a single dataset.
+In this vignette, we present these object classes and show how their content can be further handled and
+content analyzed.
 
 
 
@@ -70,12 +89,327 @@ In this vignette, we present these classes and show how they can be used for gen
 %%%%%%%%%%%%%%%%
 \subsection{\code{SNPbin}: storage of single genomes}
 %%%%%%%%%%%%%%%%
+The class \texttt{SNPbin} is the core representation of biallelic SNPs which allows to represent
+data with unprecedented efficiency.
+The essential idea is to code binary SNPs not as integers, but as bits. This operation is tricky in
+R as there is no handling of bits, only bytes -- series of 8 bits. However, the class
+\texttt{SNPbin} handles this transparently using sub-rountines in C language.
+Considerable efforts have been made so that the user does not have to dig into the complex internal
+structure of the objects, and can handle \texttt{SNPbin} objects as easily as possible.
+\\
+
+Like \texttt{genind} and \texttt{genpop} objects, \texttt{SNPbin} is a formal "S4" class. The
+structure of these objects is detailed in the dedicated manpage (\texttt{?SNPbin}). As all S4
+objects, instances of the class \texttt{SNPbin} are composed of slots accessible using the
+\texttt{@} operator. This content is generic (it is the same for all instances of the class), and returned by:
+\begin{Schunk}
+\begin{Sinput}
+> library(adegenet)
+> getClassDef("SNPbin")
+\end{Sinput}
+\begin{Soutput}
+Class "SNPbin" [package "adegenet"]
+
+Slots:
+                                                             
+Name:         snp      n.loc    NA.posi      label     ploidy
+Class:       list    integer    integer charOrNULL    integer
+\end{Soutput}
+\end{Schunk}
+
+The slots respectively contain:
+\begin{description}
+  \item \texttt{snp}: SNP data with specific internal coding.
+  \item \texttt{n.loc}: the number of SNPs stored in the object.
+  \item \texttt{NA.posi}: position of the missing data (NAs).
+  \item \texttt{label}: an optional label for the individual.
+  \item \texttt{ploidy}: the ploidy level of the genome.
+\end{description}
+
+New objects are created using \texttt{new}, with these slots as arguments.
+If no argument is provided, an empty object is created:
+\begin{Schunk}
+\begin{Sinput}
+> new("SNPbin")
+\end{Sinput}
+\begin{Soutput}
+ === S4 class SNPbin ===
+ 0 SNPs coded as bits
+ Ploidy: NA
+ 2 (Inf %) missing data
+\end{Soutput}
+\end{Schunk}
+In practice, only the \texttt{snp} information and possibly the ploidy has to be provided; various
+formats are accepted for the \texttt{snp} component, but the simplest is a vector of integers (or
+numeric) indicating the number of second allele at each locus.
+The argument \texttt{snp}, if provided alone, does not have to be named:
+\begin{Schunk}
+\begin{Sinput}
+> x <- new("SNPbin", c(0, 1, 1, 2, 0, 0, 1))
+> x
+\end{Sinput}
+\begin{Soutput}
+ === S4 class SNPbin ===
+ 7 SNPs coded as bits
+ Ploidy: 2
+ 0 (0 %) missing data
+\end{Soutput}
+\end{Schunk}
+
+If not provided, the ploidy is detected from the data and determined as the largest number in the
+input vector. Obviously, in many cases this will not be adequate, but ploidy can always be rectified
+afterwards; for instance:
+\begin{Schunk}
+\begin{Sinput}
+> x
+\end{Sinput}
+\begin{Soutput}
+ === S4 class SNPbin ===
+ 7 SNPs coded as bits
+ Ploidy: 2
+ 0 (0 %) missing data
+\end{Soutput}
+\begin{Sinput}
+> ploidy(x) <- 3
+> x
+\end{Sinput}
+\begin{Soutput}
+ === S4 class SNPbin ===
+ 7 SNPs coded as bits
+ Ploidy: 3
+ 0 (0 %) missing data
+\end{Soutput}
+\end{Schunk}
+
+\noindent The internal coding of the objects is cryptic, and not meant to be accessed directly:
+\begin{Schunk}
+\begin{Sinput}
+> x@snp
+\end{Sinput}
+\begin{Soutput}
+[[1]]
+[1] 08
+
+[[2]]
+[1] 4e
+\end{Soutput}
+\end{Schunk}
+Fortunately, data are easily converted back into integers:
+\begin{Schunk}
+\begin{Sinput}
+> as.integer(x)
+\end{Sinput}
+\begin{Soutput}
+[1] 0 1 1 2 0 0 1
+\end{Soutput}
+\end{Schunk}
+
+~\\
+
+The main interest of this representation is its efficiency in terms of storage.
+For instance:
+\begin{Schunk}
+\begin{Sinput}
+> dat <- sample(0:1, 1e+06, replace = TRUE)
+> print(object.size(dat), unit = "auto")
+\end{Sinput}
+\begin{Soutput}
+3.8 Mb
+\end{Soutput}
+\begin{Sinput}
+> x <- new("SNPbin", dat)
+> print(object.size(x), unit = "auto")
+\end{Sinput}
+\begin{Soutput}
+122.8 Kb
+\end{Soutput}
+\end{Schunk}
+here, we converted a million SNPs into a \texttt{SNPbin} object, which turns out to be
+32 smaller than the original data.
+However, the information in \texttt{dat} and \texttt{x} is strictly identical:
+\begin{Schunk}
+\begin{Sinput}
+> identical(as.integer(x), dat)
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\end{Schunk}
+The advantage of this storage is therefore being extremely compact, and allowing to analyse big
+datasets using standard computers.
+%% Obviously, usual computations demand data to be at one moment coded as numeric values (as opposed to bits).
+%% However in most cases, we can proceed by only converting one or two genomes back to numeric values
+%% at a time, therefore keeping RAM requirements low, albeit at a possible increase in computational time.
+%% This however is minimized by two ways: i) conversion routines are optimized for speed using C code
+%% ii) smaller objects are handled, therefore decreasing the possibly high computational time taken by memory allocation.
+\\
+
+While \texttt{SNPbin} objects are the very mean by which we store data efficiently, in practice
+we need to analyze several genomes at a time.
+This is made possible by the class \texttt{genlight}, which relies on \texttt{SNPbin} but allows for
+storing data from several genomes at a time.
+
+
 
 
 %%%%%%%%%%%%%%%%
 \subsection{\code{genlight}: storage of multiple genomes}
 %%%%%%%%%%%%%%%%
 
+Like \texttt{SNPbin}, \texttt{genlight} is a formal S4 class.
+The slots of instances of this class are described by:
+\begin{Schunk}
+\begin{Sinput}
+> getClassDef("genlight")
+\end{Sinput}
+\begin{Soutput}
+Class "genlight" [package "adegenet"]
+
+Slots:
+                                                                       
+Name:           gen        n.loc    ind.names    loc.names      loc.all
+Class:         list      integer   charOrNULL   charOrNULL   charOrNULL
+                                                                       
+Name:    chromosome     position       ploidy          pop        other
+Class: factorOrNULL    intOrNULL    intOrNULL factorOrNULL         list
+\end{Soutput}
+\end{Schunk}
+As it can be seen, these objects allow for storing more information in addition to vectors of SNP frequencies.
+More precisely, their content is (see \texttt{?genlight} for more details):
+\begin{description}
+  \item \texttt{gen}: SNP data for different individuals, each stored as a \texttt{SNPbin}; loci
+    have to be identical across all individuals.
+  \item \texttt{n.loc}: the number of SNPs stored in the object.
+  \item \texttt{ind.names}: (optional) labels for the individuals.
+  \item \texttt{loc.names}: (optional) labels for the loci.
+  \item \texttt{loc.all}: (optional) alleles of the loci separated by '/' (e.g. 'a/t', 'g/c', etc.).
+  \item \texttt{chromosome}: (optional) a factor indicating the chromosome to which the SNPs belong.
+  \item \texttt{position}: (optional) the position of each SNPs in their chromosome.
+  \item \texttt{ploidy}: (optional) the ploidy of each individual.
+  \item \texttt{pop}: (optional) a factor grouping individuals into 'populations'.
+  \item \texttt{other}: (optional) a list containing any supplementary information to be stored with
+    the data.
+\end{description}
+
+\noindent Like \texttt{SNbin} object, \texttt{genlight} object are created using the constructor \texttt{new},
+providing content for the slots above as arguments.
+When none is provided, an empty object is created:
+\begin{Schunk}
+\begin{Sinput}
+> new("genlight")
+\end{Sinput}
+\begin{Soutput}
+ === S4 class genlight ===
+ 0 genotypes,  0 binary SNPs
+\end{Soutput}
+\end{Schunk}
+The most important information to provide is obviously the genotypes (argument \texttt{gen}); these
+can be provided as:
+\begin{description}
+\item a \texttt{list} of integer vectors representing the number of second allele at each locus.
+\item a \texttt{matrix} / \texttt{data.frame} of integers, with individuals in rows and SNPs in columns.
+\item a list of \texttt{SNPbin} objects.
+\end{description}
+
+Ploidy has to be consistent across loci for a given individual, but individuals do not have to have
+the same ploidy, so that it is possible to have hapoid,
+diploid, and tetraploid individuals in the same dataset; for instance:
+\begin{Schunk}
+\begin{Sinput}
+> x <- new("genlight", list(indiv1 = c(1, 1, 0, 1, 1, 0), indiv2 = c(2, 
++     1, 1, 0, 0, 0), toto = c(2, 2, 0, 0, 4, 4)))
+> x
+\end{Sinput}
+\begin{Soutput}
+ === S4 class genlight ===
+ 3 genotypes,  6 binary SNPs
+ Ploidy statistics (min/median/max): 1 / 2 / 4
+ 0 (0 %) missing data
+\end{Soutput}
+\begin{Sinput}
+> ploidy(x)
+\end{Sinput}
+\begin{Soutput}
+indiv1 indiv2   toto 
+     1      2      4 
+\end{Soutput}
+\end{Schunk}
+
+As for \texttt{SNPbin}, \texttt{genlight} objects can be converted back to integers vectors, stored
+as matrices or lists:
+\begin{Schunk}
+\begin{Sinput}
+> as.list(x)
+\end{Sinput}
+\begin{Soutput}
+$indiv1
+[1] 1 1 0 1 1 0
+
+$indiv2
+[1] 2 1 1 0 0 0
+
+$toto
+[1] 2 2 0 0 4 4
+\end{Soutput}
+\begin{Sinput}
+> as.matrix(x)
+\end{Sinput}
+\begin{Soutput}
+       [,1] [,2] [,3] [,4] [,5] [,6]
+indiv1    1    1    0    1    1    0
+indiv2    2    1    1    0    0    0
+toto      2    2    0    0    4    4
+\end{Soutput}
+\end{Schunk}
+
+\noindent In practice, \texttt{genlight} objects can be handled as if they were matrices of integers
+as the one above returned by \texttt{as.matrix}.
+However, they offer the advantage of efficient storage of the information; for instance, we can
+simulate 50 individuals typed for 1,00,000 SNPs each (including occasional NAs):
+\begin{Schunk}
+\begin{Sinput}
+> dat <- lapply(1:50, function(i) sample(c(0, 1, NA), 1e+06, prob = c(0.5, 
++     0.499, 0.001), replace = TRUE))
+> names(dat) <- paste("indiv", 1:length(dat))
+> print(object.size(dat), unit = "auto")
+\end{Sinput}
+\begin{Soutput}
+381.5 Mb
+\end{Soutput}
+\begin{Sinput}
+> x <- new("genlight", dat)
+> print(object.size(x), unit = "auto")
+\end{Sinput}
+\begin{Soutput}
+6.2 Mb
+\end{Soutput}
+\begin{Sinput}
+> object.size(dat)/object.size(x)
+\end{Sinput}
+\begin{Soutput}
+61.6340315378476 bytes
+\end{Soutput}
+\end{Schunk}
+here again, the storage if the data is much more efficient in \texttt{genlight} than using integers: converted data occupy
+62 times less memory than the original data.
+\\
+
+The advantage of this storage is therefore being extremely compact, and allowing to analyse very large
+datasets using standard computers.
+Obviously, usual computations demand data to be at one moment coded as numeric values (as opposed to bits).
+However, most usual computations can be achieved by only converting one or two genomes back to numeric values
+at a time, therefore keeping RAM requirements low, albeit at a possible cost of increased computational time.
+This however is minimized by three ways:
+\begin{enumerate}
+\item conversion routines are optimized for speed using C code.
+\item using parallel computation where multicore architectures are available.
+\item handling smaller objects, thereby decreasing the possibly high computational time taken by memory allocation.
+\end{enumerate}
+
+While this makes implementing methods more complicated, considerable efforts have been devoted to
+making these issues oblivious to the user. In practice, routines are implemented so as to minimize
+the amount of data converted back to integers, use C code where possible, and use multiple cores
+if the package \textit{multicore} is installed an multiple cores are available.
 
 
 
@@ -85,6 +419,9 @@ In this vignette, we present these classes and show how they can be used for gen
 \section{In practice}
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
+
+
+
 
 %%%%%%%%%%%%%%%%
 \subsection{Using accessors}
