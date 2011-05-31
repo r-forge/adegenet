@@ -72,15 +72,16 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
         old.other <- other(x)
         old.ind.names <- indNames(x)
 
-        ## handle loc.names, chromosome and position
+        ## handle ind.names, loc.names, chromosome, position, and alleles
         new.loc.names <- locNames(x)[j]
         new.chr <- chr(x)[j]
         new.position <- position(x)[j]
+        new.alleles <- alleles(x)[j]
         new.gen <- lapply(x@gen, function(e) e[j])
         ##x <- as.matrix(x)[, j, drop=FALSE] # maybe need to process one row at a time
         x <- new("genlight", gen=new.gen, pop=ori.pop, ploidy=ori.ploidy,
                  ind.names=old.ind.names, loc.names=new.loc.names,
-                 chromosome=new.chr, position=new.position, other=old.other)
+                 chromosome=new.chr, position=new.position, alleles=new.alleles, other=old.other)
     }
 
     return(x)
