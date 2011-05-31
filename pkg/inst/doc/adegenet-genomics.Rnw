@@ -336,6 +336,20 @@ In addition, some specific accessors are available for \texttt{genlight} objects
 \end{itemize}
 
 
+Accessors are meant to be clever about replacement, meaning that they try hard to prevent
+replacement with inconsistent values. For instance, if we try to set information about the
+chromosomes of the SNPs, the provided factor has to match the number of loci:
+<<>>=
+x
+temp <- try(chr(x) <- rep("chr-1", 7), silent=TRUE)
+temp
+chr(x) <- rep("chr-1", 10)
+x
+chr(x)
+@
+
+
+
 
 
 %%%%%%%%%%%%%%%%
