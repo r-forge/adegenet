@@ -106,6 +106,76 @@ library(adegenet)
 getClassDef("SNPbin")
 @
 
+The slots respectively contain:
+\begin{description}
+  \item \texttt{snp}: SNP data with specific internal coding.
+  \item \texttt{n.loc}: the number of SNPs stored in the object.
+  \item \texttt{NA.posi}: position of the missing data (NAs).
+  \item \texttt{label}: an optional label for the individual.
+  \item \texttt{ploidy}: the ploidy level of the genome.
+\end{description}
+
+New objects are created using \texttt{new}, with these slots as arguments.
+If no argument is provided, an empty object is created:
+<<>>=
+new("SNPbin")
+@
+In practice, only the \texttt{snp} information and possibly the ploidy has to be provided; various
+formats are accepted for the \texttt{snp} component, but the simplest is a vector of integers (or
+numeric) indicating the number of second allele at each locus.
+The argument \texttt{snp}, if provided alone, does not have to be named:
+<<>>=
+x <- new("SNPbin", c(0,1,1,2,0,0,1))
+x
+@
+
+If not provided, the ploidy is detected from the data and determined as the largest number in the
+input vector. Obviously, in many cases this will not be adequate, but ploidy can always be rectified
+afterwards; for instance:
+<<>>=
+x
+ploidy(x) <- 3
+x
+@
+
+\noindent The internal coding of the objects is cryptic, and not meant to be accessed directly:
+<<>>=
+x@snp
+@
+Fortunately, data are easily converted back into integers:
+<<>>=
+as.integer(x)
+@
+
+~\\
+
+The main interest of this representation is its efficiency in terms of storage.
+For instance:
+<<>>=
+dat <- sample(0:1, 1e6, replace=TRUE)
+print(object.size(dat),unit="auto")
+x <- new("SNPbin", dat)
+print(object.size(x),unit="auto")
+@
+here, we converted a million SNPs into a \texttt{SNPbin} object, which turns out to be
+\Sexpr{round(object.size(dat)/object.size(x))} smaller than the original data.
+However, the information in \texttt{dat} and \texttt{x} is strictly identical:
+<<>>=
+identical(as.integer(x),dat)
+@
+The advantage of this storage is therefore being extremely compact, and allowing to analyse big
+datasets using standard computers.
+Obviously, usual computations demand data to be at one moment coded as numeric values (as opposed to bits).
+However in most cases, we can proceed by only converting one or two genomes back to numeric values
+at a time, therefore keeping RAM requirements low, albeit at a possible increase in computational time.
+This however is minimized by two ways: i) conversion routines are optimized for speed using C code
+ii) smaller objects are handled, therefore decreasing the possibly high computational time taken by memory allocation.
+\\
+
+While \texttt{SNPbin} objects are the very mean by which we store data efficiently, in practice one
+wishes to analyze several genomes at a time.
+This is made possible by the class \texttt{genlight}, which relies on \texttt{SNPbin} but allows for
+storing data from several genomes at a time.
 
 
 
@@ -113,6 +183,41 @@ getClassDef("SNPbin")
 %%%%%%%%%%%%%%%%
 \subsection{\code{genlight}: storage of multiple genomes}
 %%%%%%%%%%%%%%%%
+
+Like \texttt{SNPbin}, \texttt{genlight} is a formal S4 class.
+The slots of instances of this class are described by:
+<<>>=
+getClassDef("genlight")
+@
+As it can be seen, these objects allow for storing more information in addition to vectors of SNP frequencies.
+More precisely, their content is:
+\begin{description}
+  \item \texttt{gen}: SNP data for different individuals, each stored as a \texttt{SNPbin}; loci
+    have to be identical across all individuals.
+  \item \texttt{n.loc}: the number of SNPs stored in the object.
+  \item \texttt{ind.names}: (optional) labels for the individuals.
+  \item \texttt{loc.names}: (optional) labels for the loci.
+  \item \texttt{loc.all}: (optional) alleles of the loci separated by '/' (e.g. 'a/t', 'g/c', etc.).
+  \item \texttt{chromosome}: (optional) a factor indicating the chromosome to which the SNPs belong.
+  \item \texttt{position}: (optional) the position of each SNPs in their chromosome.
+  \item \texttt{ploidy}: (optional) the ploidy of each individual.
+  \item \texttt{pop}: (optional) a factor grouping individuals into 'populations'.
+  \item \texttt{other}: (optional) a list containing any supplementary information to be stored with
+    the data.
+\end{description}
+
+\noindent Like \texttt{SNbin} object, \texttt{genlight} object are created using the constructor \texttt{new},
+providing content for the slots above as arguments.
+When none is provided, an empty object is created:
+<<>>=
+new("genlight")
+@
+The most important information to provide is obviously the genotypes (argument \texttt{gen}); these
+can be provided as:
+\begin{description}
+\item
+\end{description}
+
 
 
 
