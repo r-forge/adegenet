@@ -284,7 +284,7 @@ rm(dat)
 
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
-\section{In practice}
+\section{Data handling using \texttt{genlight} objects}
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
 
@@ -305,14 +305,14 @@ Most of them are identical to accessors for \texttt{genind} and \texttt{genpop} 
 \begin{itemize}
   \item \texttt{nInd}: returns the number of individuals in the object.
   \item \texttt{nLoc}: returns the number of loci (SNPs).
-  \item \texttt{indNames}$^*$: returns/sets labels for individuals.
-  \item \texttt{locNames}$^*$: returns/sets labels for loci (SNPs).
-  \item \texttt{alleles}$^*$: returns/sets alleles.
-  \item \texttt{ploidy}$^*$: returns/sets ploidy of the individuals.
-  \item \texttt{pop}$^*$: returns/sets a factor grouping individuals.
-  \item \texttt{other}$^*$: returns/sets misc information stored as a list.
+  \item \texttt{indNames}$^{\dagger}$: returns/sets labels for individuals.
+  \item \texttt{locNames}$^{\dagger}$: returns/sets labels for loci (SNPs).
+  \item \texttt{alleles}$^{\dagger}$: returns/sets alleles.
+  \item \texttt{ploidy}$^{\dagger}$: returns/sets ploidy of the individuals.
+  \item \texttt{pop}$^{\dagger}$: returns/sets a factor grouping individuals.
+  \item \texttt{other}$^{\dagger}$: returns/sets misc information stored as a list.
 \end{itemize}
-where $^*$ indicates that a replacement method is available using \texttt{<-'}; for instance:
+where $^{\dagger}$ indicates that a replacement method is available using \texttt{<-'}; for instance:
 <<>>=
 dat <- lapply(1:3, function(i) sample(0:2, 10, replace=TRUE))
 dat
@@ -330,24 +330,28 @@ as.matrix(x)
 In addition, some specific accessors are available for \texttt{genlight} objects:
 \begin{itemize}
   \item \texttt{NA.posi}: returns the position of missing values in each individual.
-  \item \texttt{chromosome}$^*$: returns/sets the chromosome of each SNP.
-  \item \texttt{chr}$^*$: same as \texttt{chromosome} --- used as a shortcut.
-  \item \texttt{position}$^*$: returns/sets the position of each SNP.
+  \item \texttt{chromosome}$^{\dagger}$: returns/sets the chromosome of each SNP.
+  \item \texttt{chr}$^{\dagger}$: same as \texttt{chromosome} --- used as a shortcut.
+  \item \texttt{position}$^{\dagger}$: returns/sets the position of each SNP.
 \end{itemize}
 
 
 Accessors are meant to be clever about replacement, meaning that they try hard to prevent
-replacement with inconsistent values. For instance, if we try to set information about the
-chromosomes of the SNPs, the provided factor has to match the number of loci:
+replacement with inconsistent values. For instance, in object \texttt{x}:
 <<>>=
 x
-temp <- try(chr(x) <- rep("chr-1", 7), silent=TRUE)
-temp
+@
+if we try to set information about the chromosomes of the SNPs, the instruction:
+<<eval=FALSE>>=
+chr(x) <- rep("chr-1", 7)
+@
+will generate an error because the provided factor does not match the number of loci (10), while:
+<<>>=
 chr(x) <- rep("chr-1", 10)
 x
 chr(x)
 @
-
+is a valid replacement.
 
 
 
@@ -355,6 +359,37 @@ chr(x)
 %%%%%%%%%%%%%%%%
 \subsection{Subsetting the data}
 %%%%%%%%%%%%%%%%
+\texttt{genlight} objects are meant to be handled as if they were matrices of allele numbers, as
+returned by \texttt{as.matrix}.
+Therefore, subsetting can be achieved using $[$ \texttt{idx.row , idx.col} $]$ where \texttt{idx.row}
+and \texttt{idx.col} are indices for rows (individuals) and columns (SNPs).
+For instance, using the previous toy dataset, we try a few classical subsetting for matrices:
+<<>>=
+x
+as.matrix(x)
+as.matrix(x[c(1,3),])
+as.matrix(x[, c(TRUE,FALSE)])
+as.matrix(x[1:2, c(1,1,1,2,2,2,3,3,3)])
+@
+
+
+Moreover, one can split data into blocks of SNPs using \texttt{seploc}.
+This can be achieved by specifying either a number of blocks (argument \texttt{n.block}) or the size
+of the blocks (argument \texttt{block.size}). The function also allows for randomizing the
+distribution of the SNPs in the blocks (argument \texttt{random=TRUE}), which is especially useful
+to replace computations that cannot be achieved on the whole dataset with parallelized computations performed on random blocks.
+For instance:
+<<>>=
+x
+as.matrix(x)
+seploc(x, n.block=2)
+lapply(seploc(x, n.block=2),as.matrix)
+@
+splits the data into two blocks of contiguous SNPs, while:
+<<>>=
+lapply(seploc(x, n.block=2, random=TRUE),as.matrix)
+@
+generates blocks of randomly selected SNPs.
 
 
 
@@ -364,6 +399,36 @@ chr(x)
 
 
 
+% % % % % % % % % % % % %
+\subsubsection{The \texttt{.snp} format}
+% % % % % % % % % % % % %
+
+% % % % % % % % % % % % %
+\subsubsection{Importing data from PLINK}
+% % % % % % % % % % % % %
+
+Genome-wide SNP data are most often stored as text files with particular formats, with format of the
+software PLINK being the most popular.
+Data with PLINK format can be read into \texttt{genlight} objects using \texttt{read.PLINK}.
+This function requires the data to be saved in PLINK using the `-recodeA` option (see details
+section in \texttt{?read.PLINK}).
+
+\texttt{read.PLINK} has the advantage of being able to read the data by chunks of a few individuals
+(up to a single one at a time), which minimizes the amount of memory needed to read information
+before its conversion to \texttt{genlight}; however, using more chunks also means more computational
+time, since the procedure has to re-read the same file several time.
+
+% % % % % % % % % % % % %
+\subsubsection{Conversions within R}
+% % % % % % % % % % % % %
+
+
+
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+\section{Data analysis using \texttt{genlight} objects}
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%
 \subsection{Principal Component Analysis (PCA)}
