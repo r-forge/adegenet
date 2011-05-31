@@ -112,7 +112,7 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
     }
 
     ## handle full-NA data
-    if(all(is.na(input$snp))){
+    if(!is.null(input$snp) && all(is.na(input$snp))){
         x@snp <- list()
         x@n.loc <- length(input$snp)
         x@snp[[1]] <- .bin2raw(rep(0L, length(input$snp)))$snp
@@ -130,8 +130,12 @@ setMethod("initialize", "SNPbin", function(.Object, ...) {
     if(!is.null(input$n.loc)){
         x@n.loc <- as.integer(input$n.loc)
     } else {
-        warning("number of SNPs (n.loc) not provided to the genlight constructor - using the maximum number given data coding.")
-        x@n.loc <- as.integer(length(x@snp)*8)
+        if(!is.null(input$snp)){
+            warning("number of SNPs (n.loc) not provided to the genlight constructor - using the maximum number given data coding.")
+            x@n.loc <- as.integer(length(x@snp)*8)
+        } else {
+            x@n.loc <- 0L
+        }
     }
 
 
