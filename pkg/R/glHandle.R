@@ -70,6 +70,7 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
         return(x)
     } else { # need to subset SNPs
         old.other <- other(x)
+        old.ind.names <- indNames(x)
 
         ## handle loc.names, chromosome and position
         new.loc.names <- locNames(x)[j]
@@ -77,7 +78,8 @@ setMethod("[", signature(x="genlight", i="ANY", j="ANY", drop="ANY"), function(x
         new.position <- position(x)[j]
         new.gen <- lapply(x@gen, function(e) e[j])
         ##x <- as.matrix(x)[, j, drop=FALSE] # maybe need to process one row at a time
-        x <- new("genlight", gen=new.gen, pop=ori.pop, ploidy=ori.ploidy, loc.names=new.loc.names,
+        x <- new("genlight", gen=new.gen, pop=ori.pop, ploidy=ori.ploidy,
+                 ind.names=old.ind.names, loc.names=new.loc.names,
                  chromosome=new.chr, position=new.position, other=old.other)
     }
 

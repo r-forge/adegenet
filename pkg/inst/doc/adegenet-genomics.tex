@@ -9,7 +9,7 @@
 
 \usepackage[utf8]{inputenc} % for UTF-8/single quotes from sQuote()
 \newcommand{\code}[1]{{{\tt #1}}}
-\title{Analysing genomic-wide SNP data using adegenet}
+\title{Analysing genomic-wide SNP data using  \textit{adegenet} 1.3-0}
 \author{Thibaut Jombart}
 \date{\today}
 
@@ -40,7 +40,8 @@
 
 \begin{abstract}
   Genome-wide SNP data can quickly be challenging to analyse using standard
-  computer. \textit{adegenet} implements representation of these data with unprecedented efficiency
+  computer. The package \textit{adegenet} \cite{tjart05} for the R software \cite{np145}
+  implements representation of these data with unprecedented efficiency
   using the classes \texttt{SNPbin} and \texttt{genlight}, which can require up to 60 times less RAM than usual
   representation using allele frequencies.
   This vignette introduces these classes and illustrates how these objects can be handled and
@@ -118,13 +119,13 @@ Class:       list    integer    integer charOrNULL    integer
 \end{Schunk}
 
 The slots respectively contain:
-\begin{description}
+\begin{itemize}
   \item \texttt{snp}: SNP data with specific internal coding.
   \item \texttt{n.loc}: the number of SNPs stored in the object.
   \item \texttt{NA.posi}: position of the missing data (NAs).
   \item \texttt{label}: an optional label for the individual.
   \item \texttt{ploidy}: the ploidy level of the genome.
-\end{description}
+\end{itemize}
 
 New objects are created using \texttt{new}, with these slots as arguments.
 If no argument is provided, an empty object is created:
@@ -276,7 +277,7 @@ Class: factorOrNULL    intOrNULL    intOrNULL factorOrNULL         list
 \end{Schunk}
 As it can be seen, these objects allow for storing more information in addition to vectors of SNP frequencies.
 More precisely, their content is (see \texttt{?genlight} for more details):
-\begin{description}
+\begin{itemize}
   \item \texttt{gen}: SNP data for different individuals, each stored as a \texttt{SNPbin}; loci
     have to be identical across all individuals.
   \item \texttt{n.loc}: the number of SNPs stored in the object.
@@ -289,9 +290,9 @@ More precisely, their content is (see \texttt{?genlight} for more details):
   \item \texttt{pop}: (optional) a factor grouping individuals into 'populations'.
   \item \texttt{other}: (optional) a list containing any supplementary information to be stored with
     the data.
-\end{description}
+\end{itemize}
 
-\noindent Like \texttt{SNbin} object, \texttt{genlight} object are created using the constructor \texttt{new},
+\noindent Like \texttt{SNPbin} object, \texttt{genlight} object are created using the constructor \texttt{new},
 providing content for the slots above as arguments.
 When none is provided, an empty object is created:
 \begin{Schunk}
@@ -305,11 +306,11 @@ When none is provided, an empty object is created:
 \end{Schunk}
 The most important information to provide is obviously the genotypes (argument \texttt{gen}); these
 can be provided as:
-\begin{description}
+\begin{itemize}
 \item a \texttt{list} of integer vectors representing the number of second allele at each locus.
 \item a \texttt{matrix} / \texttt{data.frame} of integers, with individuals in rows and SNPs in columns.
 \item a list of \texttt{SNPbin} objects.
-\end{description}
+\end{itemize}
 
 Ploidy has to be consistent across loci for a given individual, but individuals do not have to have
 the same ploidy, so that it is possible to have hapoid,
@@ -387,7 +388,7 @@ simulate 50 individuals typed for 1,00,000 SNPs each (including occasional NAs):
 > object.size(dat)/object.size(x)
 \end{Sinput}
 \begin{Soutput}
-61.6340315378476 bytes
+61.6432258100309 bytes
 \end{Soutput}
 \end{Schunk}
 here again, the storage if the data is much more efficient in \texttt{genlight} than using integers: converted data occupy
@@ -406,10 +407,14 @@ This however is minimized by three ways:
 \item handling smaller objects, thereby decreasing the possibly high computational time taken by memory allocation.
 \end{enumerate}
 
-While this makes implementing methods more complicated, considerable efforts have been devoted to
-making these issues oblivious to the user. In practice, routines are implemented so as to minimize
+While this makes implementing methods more complicated.
+In practice, routines are implemented so as to minimize
 the amount of data converted back to integers, use C code where possible, and use multiple cores
 if the package \textit{multicore} is installed an multiple cores are available.
+Fortunately, these underlying technical issues are oblivious to the user, and one merely needs to
+know how to manipulate \texttt{genlight} objects using a few key functions to be able to analyze data.
+
+
 
 
 
@@ -420,11 +425,145 @@ if the package \textit{multicore} is installed an multiple cores are available.
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%
+\subsection{Using accessors}
+%%%%%%%%%%%%%%%%
+
+In the following, we demonstrate how to manipulate and analyse \texttt{genlight} objects.
+The phylosophy underlying formal (S4) classes in general, and \texttt{genlight} objects in
+particular, is that internal representation of the information can be complex as long as accessing
+this information is simple.
+This is made possible by decoupling storage and accession: the user is not meant to access the
+content of the object directly, but has to use \texttt{accessors} to retrieve or modify information.
+\\
+
+Available accessors are documented in \code{?genlight}.
+Most of them are identical to accessors for \texttt{genind} and \texttt{genpop} objects, such as:
+\begin{itemize}
+  \item \texttt{nInd}: returns the number of individuals in the object.
+  \item \texttt{nLoc}: returns the number of loci (SNPs).
+  \item \texttt{indNames}$^*$: returns/sets labels for individuals.
+  \item \texttt{locNames}$^*$: returns/sets labels for loci (SNPs).
+  \item \texttt{alleles}$^*$: returns/sets alleles.
+  \item \texttt{ploidy}$^*$: returns/sets ploidy of the individuals.
+  \item \texttt{pop}$^*$: returns/sets a factor grouping individuals.
+  \item \texttt{other}$^*$: returns/sets misc information stored as a list.
+\end{itemize}
+where $^*$ indicates that a replacement method is available using \texttt{<-'}; for instance:
+\begin{Schunk}
+\begin{Sinput}
+> dat <- lapply(1:3, function(i) sample(0:2, 10, replace = TRUE))
+> dat
+\end{Sinput}
+\begin{Soutput}
+[[1]]
+ [1] 0 0 0 2 1 2 1 2 0 0
+
+[[2]]
+ [1] 2 2 1 1 1 0 1 0 2 1
+
+[[3]]
+ [1] 2 1 0 2 2 0 1 2 2 0
+\end{Soutput}
+\begin{Sinput}
+> x <- new("genlight", dat)
+> x
+\end{Sinput}
+\begin{Soutput}
+ === S4 class genlight ===
+ 3 genotypes,  10 binary SNPs
+ Ploidy: 2
+ 0 (0 %) missing data
+\end{Soutput}
+\begin{Sinput}
+> indNames(x)
+\end{Sinput}
+\begin{Soutput}
+NULL
+\end{Soutput}
+\begin{Sinput}
+> indNames(x) <- paste("individual", 1:3)
+> indNames(x)
+\end{Sinput}
+\begin{Soutput}
+[1] "individual 1" "individual 2" "individual 3"
+\end{Soutput}
+\begin{Sinput}
+> locNames(x)
+\end{Sinput}
+\begin{Soutput}
+NULL
+\end{Soutput}
+\begin{Sinput}
+> locNames(x) <- paste("SNP", 1:nLoc(x), sep = ".")
+> as.matrix(x)
+\end{Sinput}
+\begin{Soutput}
+             SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
+individual 1     0     0     0     2     1     2     1     2     0      0
+individual 2     2     2     1     1     1     0     1     0     2      1
+individual 3     2     1     0     2     2     0     1     2     2      0
+\end{Soutput}
+\end{Schunk}
+
+\noindent
+In addition, some specific accessors are available for \texttt{genlight} objects:
+\begin{itemize}
+  \item \texttt{NA.posi}: returns the position of missing values in each individual.
+  \item \texttt{chromosome}$^*$: returns/sets the chromosome of each SNP.
+  \item \texttt{chr}$^*$: same as \texttt{chromosome} --- used as a shortcut.
+  \item \texttt{position}$^*$: returns/sets the position of each SNP.
+\end{itemize}
+
+
+Accessors are meant to be clever about replacement, meaning that they try hard to prevent
+replacement with inconsistent values. For instance, if we try to set information about the
+chromosomes of the SNPs, the provided factor has to match the number of loci:
+\begin{Schunk}
+\begin{Sinput}
+> x
+\end{Sinput}
+\begin{Soutput}
+ === S4 class genlight ===
+ 3 genotypes,  10 binary SNPs
+ Ploidy: 2
+ 0 (0 %) missing data
+\end{Soutput}
+\begin{Sinput}
+> temp <- try(chr(x) <- rep("chr-1", 7), silent = TRUE)
+> temp
+\end{Sinput}
+\begin{Soutput}
+[1] "Error in `chromosome<-`(`*tmp*`, value = c(\"chr-1\", \"chr-1\", \"chr-1\",  : \n  Vector length does no match number of loci\n"
+attr(,"class")
+[1] "try-error"
+\end{Soutput}
+\begin{Sinput}
+> chr(x) <- rep("chr-1", 10)
+> x
+\end{Sinput}
+\begin{Soutput}
+ === S4 class genlight ===
+ 3 genotypes,  10 binary SNPs
+ Ploidy: 2
+ 0 (0 %) missing data
+ @chromosome: chromosome of the SNPs
+\end{Soutput}
+\begin{Sinput}
+> chr(x)
+\end{Sinput}
+\begin{Soutput}
+ [1] chr-1 chr-1 chr-1 chr-1 chr-1 chr-1 chr-1 chr-1 chr-1 chr-1
+Levels: chr-1
+\end{Soutput}
+\end{Schunk}
+
+
 
 
 
 %%%%%%%%%%%%%%%%
-\subsection{Using accessors}
+\subsection{Subsetting the data}
 %%%%%%%%%%%%%%%%
 
 
@@ -451,6 +590,19 @@ if the package \textit{multicore} is installed an multiple cores are available.
 
 
 
+
+\begin{thebibliography}{9}
+
+\bibitem{tjart05}
+  Jombart, T. (2008) adegenet: a R package for the multivariate
+  analysis of genetic markers. \textit{Bioinformatics} 24: 1403-1405.
+
+\bibitem{np145}
+  R Development Core Team (2011). R: A language and environment for
+  statistical computing. R Foundation for Statistical Computing,
+  Vienna, Austria. ISBN 3-900051-07-0.
+
+\end{thebibliography}
 
 
 \end{document}
