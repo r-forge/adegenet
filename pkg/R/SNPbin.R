@@ -502,11 +502,11 @@ setMethod ("show", "genlight", function(object){
     }
 
     if(!is.null(alleles(object))){
-        cat("\n @alleles: position of the SNPs")
+        cat("\n @alleles: alleles of the SNPs")
     }
 
     if(!is.null(object@loc.names)){
-        cat("\n @loc.names: names of the SNPs")
+        cat("\n @loc.names: labels of the SNPs")
     }
 
     if(!is.null(other(object))){
