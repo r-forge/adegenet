@@ -363,7 +363,7 @@ is a valid replacement.
 returned by \texttt{as.matrix}.
 Therefore, subsetting can be achieved using $[$ \texttt{idx.row , idx.col} $]$ where \texttt{idx.row}
 and \texttt{idx.col} are indices for rows (individuals) and columns (SNPs).
-For instance, using the previous toy dataset, we try a few classical subsetting for matrices:
+For instance, using the previous toy dataset, we try a few classical subsetting of rows and columns:
 <<>>=
 x
 as.matrix(x)
@@ -393,15 +393,108 @@ generates blocks of randomly selected SNPs.
 
 
 
+
 %%%%%%%%%%%%%%%%
 \subsection{Data conversions}
 %%%%%%%%%%%%%%%%
 
-
-
 % % % % % % % % % % % % %
 \subsubsection{The \texttt{.snp} format}
 % % % % % % % % % % % % %
+
+\textit{adegenet} has defined its own format for storing biallelic SNP data in text files with
+extension \texttt{.snp}.
+This format has several advantages: it is fairly compact (more so than usual non-compressed
+formats), allows for any information about individuals or loci to be stored, allows for comments,
+and is easily parsed --- in particular, not all information has to be read at a time, again
+minimizing RAM requirements for import procedures.
+
+
+An example file of this format is distributed with adegenet.
+Once the package has been installed, the file can be accessed by typing:
+<<eval=FALSE>>=
+file.show(system.file("files/exampleSnpDat.snp",package="adegenet"))
+@
+Otherwise, this file is also accessible from the \textit{adegenet} website (section 'Documents').
+A complete description of the \texttt{.snp} format is provided in the comment section of the file.
+\\
+
+
+The structure of a \texttt{.snp} file can be summarized as follows:
+\begin{itemize}
+\item a (possibly empty) \texttt{comment section}
+\item \texttt{meta-information}, i.e. information about loci or individuals, stored as named vectors
+\item \texttt{genotypes}, stored as named vectors
+\end{itemize}
+
+The \textit{comment section} can starts with the line:\\
+\noindent \texttt{>>>> begin comments - do not remove this line <<<<}\\
+\noindent and ends with the line:\\
+\noindent \texttt{>>>> end comments - do not remove this line <<<<}.\\
+\noindent While this section can be left empty, these two lines have to be present for the format to
+be valid.
+Each \textit{meta-information} is stored using two lines, the first starting as
+\texttt{>> name-of-the-information}, and the second containing the information itself, each
+item separated by a single space.
+Any label can be used, but some specific names will be recognized and interpreted by the parser:
+\begin{itemize}
+\item \texttt{position}: the following line contains integers giving the position of the SNPs on the sequence
+\item \texttt{allele}: character strings representing the two alleles of each loci separated by "/"
+\item \texttt{population}: character strings indicating a group memberships of the individuals
+\item \texttt{ploidy}: integers indicating the ploidy of each individual; alternatively, one single integer if
+all individuals have the same ploidy
+\item \texttt{chromosome}: character strings indicating the chromosome on which the SNP are located
+\end{itemize}
+Each \textit{genotype} is stored using two lines, the first being
+\texttt{> label-of-the-individual}, and the second being integers corresponding to the number of
+second allele for each loci, without separators; missing data are coded as '\texttt{-}'.
+\\
+
+
+\texttt{.snp} files can be read in R using \texttt{read.snp}, which converts data into
+\texttt{genlight} objects.
+The function reads data by chunks of a several individuals (minimum 1, no maximum besides RAM
+constraints) at a time, which allows one to read massive datasets with negligible RAM requirements
+(albeit at a cost of computational time). The argument \texttt{chunkSize} indicates the number of
+genomes read at a time; larger values mean reading data faster but require more RAM.
+We can illustrate \texttt{read.snp} using the example file mentioned above.
+The non-comment part of the file reads:
+\begin{verbatim}
+[...]
+>> position
+1 8 11 43
+>> allele
+a/t g/c a/c t/a
+>> population
+Brit Brit Fren monster NA
+>> ploidy
+2
+> foo
+1020
+> bar
+0012
+> toto
+10-0
+> Nyarlathotep
+0120
+> an even longer label but OK since on a single line
+1100
+\end{verbatim}
+We read the file in using:
+<<>>=
+obj <- read.snp(system.file("files/exampleSnpDat.snp",package="adegenet"), chunk=2)
+obj
+as.matrix(obj)
+alleles(obj)
+pop(obj)
+indNames(obj)
+@
+Note that \texttt{system.file} is generally useless: it is only used in this example to access a
+file installed alongside the package. Usual calls to \texttt{read.snp} will ressemble:
+<<eval=FALSE>>=
+obj <- read.snp("path-to-my-file.snp")
+@
+
 
 % % % % % % % % % % % % %
 \subsubsection{Importing data from PLINK}

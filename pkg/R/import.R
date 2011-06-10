@@ -859,7 +859,7 @@ read.snp <- function(file, quiet=FALSE, chunkSize=1000,
         other <- list(chromosome = misc.info$chromosome)
     }
 
-    res <- new("genlight", gen=res, ind.names=ind.names, loc.names=misc.info$position, loc.all=misc.info$allele, ploidy=misc.info$ploidy, pop=misc.info$population, other=other)
+    res <- new("genlight", gen=res, ind.names=ind.names, position=misc.info$position, loc.all=misc.info$allele, ploidy=misc.info$ploidy, pop=misc.info$population, other=other)
 
     if(!quiet) cat("\n...done.\n\n")
 
