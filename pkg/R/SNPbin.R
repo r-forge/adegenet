@@ -501,6 +501,14 @@ setMethod ("show", "genlight", function(object){
         cat("\n @position: position of the SNPs")
     }
 
+    if(!is.null(alleles(object))){
+        cat("\n @alleles: position of the SNPs")
+    }
+
+    if(!is.null(object@loc.names)){
+        cat("\n @loc.names: names of the SNPs")
+    }
+
     if(!is.null(other(object))){
         cat("\n @other: ")
         cat("a list containing: ")
@@ -617,7 +625,16 @@ setReplaceMethod("ploidy","genlight",function(x,value) {
 
 ## locNames
 setMethod("locNames","genlight", function(x,...){
-    return(x@loc.names)
+    ## if loc names provided, return them
+    if(!is.null(x@loc.names)) return(x@loc.names)
+
+    ## otherwise, look for position / alleles
+    if(!is.null(res <- position(x))){
+        if(!is.null(alleles(x))){
+            res <- paste(res, alleles(x), sep=".")
+        }
+        return(res)
+    }
 })
 
 
