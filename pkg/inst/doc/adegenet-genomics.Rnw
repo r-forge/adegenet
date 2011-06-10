@@ -428,14 +428,20 @@ The structure of a \texttt{.snp} file can be summarized as follows:
 \end{itemize}
 
 The \textit{comment section} can starts with the line:\\
-\noindent \texttt{>>>> begin comments - do not remove this line <<<<}\\
+\begin{verbatim}
+>>>> begin comments - do not remove this line <<<<
+\end{verbatim}
 \noindent and ends with the line:\\
-\noindent \texttt{>>>> end comments - do not remove this line <<<<}.\\
+\begin{verbatim}
+>>>> end comments - do not remove this line <<<<}
+\end{verbatim}
 \noindent While this section can be left empty, these two lines have to be present for the format to
 be valid.
-Each \textit{meta-information} is stored using two lines, the first starting as
-\texttt{>> name-of-the-information}, and the second containing the information itself, each
-item separated by a single space.
+Each \textit{meta-information} is stored using two lines, the first starting as:
+\begin{verbatim}
+>> name-of-the-information
+\end{verbatim}
+and the second containing the information itself, each item separated by a single space.
 Any label can be used, but some specific names will be recognized and interpreted by the parser:
 \begin{itemize}
 \item \texttt{position}: the following line contains integers giving the position of the SNPs on the sequence
@@ -500,20 +506,33 @@ obj <- read.snp("path-to-my-file.snp")
 \subsubsection{Importing data from PLINK}
 % % % % % % % % % % % % %
 
-Genome-wide SNP data are most often stored as text files with particular formats, with format of the
-software PLINK being the most popular.
-Data with PLINK format can be read into \texttt{genlight} objects using \texttt{read.PLINK}.
-This function requires the data to be saved in PLINK using the `-recodeA` option (see details
+Genome-wide SNP data for diploid organisms are frequently analyzed using PLINK, whose format is
+therefore becoming a standard.
+Data with PLINK format (\texttt{.raw}) can be imported into \texttt{genlight} objects using \texttt{read.PLINK}.
+This function requires the data to be saved in PLINK using the `\textit{-recodeA}` option (see details
 section in \texttt{?read.PLINK}).
+More information on exporting from PLINK can be found at \url{http://pngu.mgh.harvard.edu/~purcell/plink/dataman.shtml#recode}.
+\\
 
-\texttt{read.PLINK} has the advantage of being able to read the data by chunks of a few individuals
-(up to a single one at a time), which minimizes the amount of memory needed to read information
+
+Like \texttt{read.snp}, \texttt{read.PLINK} has the advantage of reading data by chunks of a few individuals
+(down to a single one at a time, no upper limits), which minimizes the amount of memory needed to read information
 before its conversion to \texttt{genlight}; however, using more chunks also means more computational
 time, since the procedure has to re-read the same file several time.
+Note that meta information about the loci also known as \texttt{.map} can also be read alongside a
+\texttt{.raw} file using the argument \texttt{map.file}.
+Alternatively, such information can be added to a \texttt{genlight} object afterwards using \texttt{extract.PLINKmap}.
 
-% % % % % % % % % % % % %
-\subsubsection{Conversions within R}
-% % % % % % % % % % % % %
+
+
+%% % % % % % % % % % % % % %
+%% \subsubsection{Conversions within R}
+%% % % % % % % % % % % % % %
+
+
+
+
+
 
 
 
@@ -522,6 +541,28 @@ time, since the procedure has to re-read the same file several time.
 \section{Data analysis using \texttt{genlight} objects}
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
+
+In the following, we illustrate some methods for the analysis of \texttt{genlight} objects, ranging
+from simple tools for diagnosing allele frequencies or missing data to recently developed multivariate approaches.
+Troughout these examples, we use \texttt{glSim} to simulate \texttt{genlight} objects.
+This simple simulation tool allows for simulating large SNPs data with possibly contrasted
+structures between two groups of individuals. See \texttt{?glSim} for more details on this tool.
+
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Simple operations}
+%%%%%%%%%%%%%%%%
+
+
+
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Principal Component Analysis (PCA)}
+%%%%%%%%%%%%%%%%
+
+
 
 %%%%%%%%%%%%%%%%
 \subsection{Principal Component Analysis (PCA)}

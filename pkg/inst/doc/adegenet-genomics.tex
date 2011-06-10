@@ -136,8 +136,8 @@ If no argument is provided, an empty object is created:
 \begin{Soutput}
  === S4 class SNPbin ===
  0 SNPs coded as bits
- Ploidy: NA
- 2 (Inf %) missing data
+ Ploidy: 1
+ 0 (NaN %) missing data
 \end{Soutput}
 \end{Schunk}
 In practice, only the \texttt{snp} information and possibly the ploidy has to be provided; various
@@ -222,7 +222,7 @@ For instance:
 > print(object.size(x), unit = "auto")
 \end{Sinput}
 \begin{Soutput}
-122.8 Kb
+123.4 Kb
 \end{Soutput}
 \end{Schunk}
 here, we converted a million SNPs into a \texttt{SNPbin} object, which turns out to be
@@ -388,11 +388,11 @@ simulate 50 individuals typed for 1,00,000 SNPs each (including occasional NAs):
 > object.size(dat)/object.size(x)
 \end{Sinput}
 \begin{Soutput}
-61.6512065339821 bytes
+61.328597606747 bytes
 \end{Soutput}
 \end{Schunk}
 here again, the storage if the data is much more efficient in \texttt{genlight} than using integers: converted data occupy
-62 times less memory than the original data.
+61 times less memory than the original data.
 \\
 
 The advantage of this storage is therefore being extremely compact, and allowing to analyse very large
@@ -457,13 +457,13 @@ where $^{\dagger}$ indicates that a replacement method is available using \textt
 \end{Sinput}
 \begin{Soutput}
 [[1]]
- [1] 1 2 1 2 0 2 0 0 1 2
+ [1] 0 1 0 1 2 1 1 0 1 1
 
 [[2]]
- [1] 2 0 2 1 0 0 0 0 2 0
+ [1] 2 0 2 1 0 1 0 0 1 1
 
 [[3]]
- [1] 2 1 0 2 2 2 1 1 2 0
+ [1] 2 0 0 1 2 1 0 1 0 1
 \end{Soutput}
 \begin{Sinput}
 > x <- new("genlight", dat)
@@ -490,19 +490,14 @@ NULL
 \end{Soutput}
 \begin{Sinput}
 > locNames(x)
-\end{Sinput}
-\begin{Soutput}
-NULL
-\end{Soutput}
-\begin{Sinput}
 > locNames(x) <- paste("SNP", 1:nLoc(x), sep = ".")
 > as.matrix(x)
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     1     2     1     2     0     2     0     0     1      2
-individual 2     2     0     2     1     0     0     0     0     2      0
-individual 3     2     1     0     2     2     2     1     1     2      0
+individual 1     0     1     0     1     2     1     1     0     1      1
+individual 2     2     0     2     1     0     1     0     0     1      1
+individual 3     2     0     0     1     2     1     0     1     0      1
 \end{Soutput}
 \end{Schunk}
 
@@ -527,6 +522,7 @@ replacement with inconsistent values. For instance, in object \texttt{x}:
  3 genotypes,  10 binary SNPs
  Ploidy: 2
  0 (0 %) missing data
+ @loc.names: names of the SNPs
 \end{Soutput}
 \end{Schunk}
 if we try to set information about the chromosomes of the SNPs, the instruction:
@@ -547,6 +543,7 @@ will generate an error because the provided factor does not match the number of 
  Ploidy: 2
  0 (0 %) missing data
  @chromosome: chromosome of the SNPs
+ @loc.names: names of the SNPs
 \end{Soutput}
 \begin{Sinput}
 > chr(x)
@@ -568,7 +565,7 @@ is a valid replacement.
 returned by \texttt{as.matrix}.
 Therefore, subsetting can be achieved using $[$ \texttt{idx.row , idx.col} $]$ where \texttt{idx.row}
 and \texttt{idx.col} are indices for rows (individuals) and columns (SNPs).
-For instance, using the previous toy dataset, we try a few classical subsetting for matrices:
+For instance, using the previous toy dataset, we try a few classical subsetting of rows and columns:
 \begin{Schunk}
 \begin{Sinput}
 > x
@@ -579,40 +576,41 @@ For instance, using the previous toy dataset, we try a few classical subsetting 
  Ploidy: 2
  0 (0 %) missing data
  @chromosome: chromosome of the SNPs
+ @loc.names: names of the SNPs
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x)
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     1     2     1     2     0     2     0     0     1      2
-individual 2     2     0     2     1     0     0     0     0     2      0
-individual 3     2     1     0     2     2     2     1     1     2      0
+individual 1     0     1     0     1     2     1     1     0     1      1
+individual 2     2     0     2     1     0     1     0     0     1      1
+individual 3     2     0     0     1     2     1     0     1     0      1
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x[c(1, 3), ])
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     1     2     1     2     0     2     0     0     1      2
-individual 3     2     1     0     2     2     2     1     1     2      0
+individual 1     0     1     0     1     2     1     1     0     1      1
+individual 3     2     0     0     1     2     1     0     1     0      1
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x[, c(TRUE, FALSE)])
 \end{Sinput}
 \begin{Soutput}
-     SNP.1 SNP.3 SNP.5 SNP.7 SNP.9
-[1,]     1     1     0     0     1
-[2,]     2     2     0     0     2
-[3,]     2     0     2     1     2
+             SNP.1 SNP.3 SNP.5 SNP.7 SNP.9
+individual 1     0     0     2     1     1
+individual 2     2     2     0     0     1
+individual 3     2     0     2     0     0
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x[1:2, c(1, 1, 1, 2, 2, 2, 3, 3, 3)])
 \end{Sinput}
 \begin{Soutput}
-     SNP.1 SNP.1 SNP.1 SNP.2 SNP.2 SNP.2 SNP.3 SNP.3 SNP.3
-[1,]     1     1     1     2     2     2     1     1     1
-[2,]     2     2     2     0     0     0     2     2     2
+             SNP.1 SNP.1 SNP.1 SNP.2 SNP.2 SNP.2 SNP.3 SNP.3 SNP.3
+individual 1     0     0     0     1     1     1     0     0     0
+individual 2     2     2     2     0     0     0     2     2     2
 \end{Soutput}
 \end{Schunk}
 
@@ -633,15 +631,16 @@ For instance:
  Ploidy: 2
  0 (0 %) missing data
  @chromosome: chromosome of the SNPs
+ @loc.names: names of the SNPs
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x)
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     1     2     1     2     0     2     0     0     1      2
-individual 2     2     0     2     1     0     0     0     0     2      0
-individual 3     2     1     0     2     2     2     1     1     2      0
+individual 1     0     1     0     1     2     1     1     0     1      1
+individual 2     2     0     2     1     0     1     0     0     1      1
+individual 3     2     0     0     1     2     1     0     1     0      1
 \end{Soutput}
 \begin{Sinput}
 > seploc(x, n.block = 2)
@@ -653,6 +652,7 @@ $block.1
  Ploidy: 2
  0 (0 %) missing data
  @chromosome: chromosome of the SNPs
+ @loc.names: names of the SNPs
 
 $block.2
  === S4 class genlight ===
@@ -660,22 +660,23 @@ $block.2
  Ploidy: 2
  0 (0 %) missing data
  @chromosome: chromosome of the SNPs
+ @loc.names: names of the SNPs
 \end{Soutput}
 \begin{Sinput}
 > lapply(seploc(x, n.block = 2), as.matrix)
 \end{Sinput}
 \begin{Soutput}
 $block.1
-     SNP.1 SNP.3 SNP.2 SNP.5 SNP.4
-[1,]     1     1     2     0     2
-[2,]     2     2     0     0     1
-[3,]     2     0     1     2     2
+             SNP.1 SNP.2 SNP.3 SNP.4 SNP.5
+individual 1     0     1     0     1     2
+individual 2     2     0     2     1     0
+individual 3     2     0     0     1     2
 
 $block.2
-     SNP.8 SNP.10 SNP.9 SNP.7 SNP.6
-[1,]     0      2     1     0     2
-[2,]     0      0     2     0     0
-[3,]     1      0     2     1     2
+             SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
+individual 1     1     1     0     1      1
+individual 2     1     0     0     1      1
+individual 3     1     0     1     0      1
 \end{Soutput}
 \end{Schunk}
 splits the data into two blocks of contiguous SNPs, while:
@@ -685,19 +686,20 @@ splits the data into two blocks of contiguous SNPs, while:
 \end{Sinput}
 \begin{Soutput}
 $block.1
-     SNP.3 SNP.1 SNP.2 SNP.5 SNP.10
-[1,]     1     1     2     0      2
-[2,]     2     2     0     0      0
-[3,]     0     2     1     2      0
+             SNP.3 SNP.7 SNP.1 SNP.5 SNP.10
+individual 1     0     1     0     2      1
+individual 2     2     0     2     0      1
+individual 3     0     0     2     2      1
 
 $block.2
-     SNP.8 SNP.4 SNP.6 SNP.7 SNP.9
-[1,]     0     2     2     0     1
-[2,]     0     1     0     0     2
-[3,]     1     2     2     1     2
+             SNP.6 SNP.9 SNP.4 SNP.2 SNP.8
+individual 1     1     1     1     1     0
+individual 2     1     1     1     0     0
+individual 3     1     0     1     0     1
 \end{Soutput}
 \end{Schunk}
 generates blocks of randomly selected SNPs.
+
 
 
 
@@ -705,30 +707,212 @@ generates blocks of randomly selected SNPs.
 \subsection{Data conversions}
 %%%%%%%%%%%%%%%%
 
-
-
 % % % % % % % % % % % % %
 \subsubsection{The \texttt{.snp} format}
 % % % % % % % % % % % % %
+
+\textit{adegenet} has defined its own format for storing biallelic SNP data in text files with
+extension \texttt{.snp}.
+This format has several advantages: it is fairly compact (more so than usual non-compressed
+formats), allows for any information about individuals or loci to be stored, allows for comments,
+and is easily parsed --- in particular, not all information has to be read at a time, again
+minimizing RAM requirements for import procedures.
+
+
+An example file of this format is distributed with adegenet.
+Once the package has been installed, the file can be accessed by typing:
+\begin{Schunk}
+\begin{Sinput}
+> file.show(system.file("files/exampleSnpDat.snp", package = "adegenet"))
+\end{Sinput}
+\end{Schunk}
+Otherwise, this file is also accessible from the \textit{adegenet} website (section 'Documents').
+A complete description of the \texttt{.snp} format is provided in the comment section of the file.
+\\
+
+
+The structure of a \texttt{.snp} file can be summarized as follows:
+\begin{itemize}
+\item a (possibly empty) \texttt{comment section}
+\item \texttt{meta-information}, i.e. information about loci or individuals, stored as named vectors
+\item \texttt{genotypes}, stored as named vectors
+\end{itemize}
+
+The \textit{comment section} can starts with the line:\\
+\begin{verbatim}
+>>>> begin comments - do not remove this line <<<<
+\end{verbatim}
+\noindent and ends with the line:\\
+\begin{verbatim}
+>>>> end comments - do not remove this line <<<<}
+\end{verbatim}
+\noindent While this section can be left empty, these two lines have to be present for the format to
+be valid.
+Each \textit{meta-information} is stored using two lines, the first starting as:
+\begin{verbatim}
+>> name-of-the-information
+\end{verbatim}
+\texttt{>}\texttt{>}
+and the second containing the information itself, each item separated by a single space.
+Any label can be used, but some specific names will be recognized and interpreted by the parser:
+\begin{itemize}
+\item \texttt{position}: the following line contains integers giving the position of the SNPs on the sequence
+\item \texttt{allele}: character strings representing the two alleles of each loci separated by "/"
+\item \texttt{population}: character strings indicating a group memberships of the individuals
+\item \texttt{ploidy}: integers indicating the ploidy of each individual; alternatively, one single integer if
+all individuals have the same ploidy
+\item \texttt{chromosome}: character strings indicating the chromosome on which the SNP are located
+\end{itemize}
+Each \textit{genotype} is stored using two lines, the first being
+\texttt{> label-of-the-individual}, and the second being integers corresponding to the number of
+second allele for each loci, without separators; missing data are coded as '\texttt{-}'.
+\\
+
+
+\texttt{.snp} files can be read in R using \texttt{read.snp}, which converts data into
+\texttt{genlight} objects.
+The function reads data by chunks of a several individuals (minimum 1, no maximum besides RAM
+constraints) at a time, which allows one to read massive datasets with negligible RAM requirements
+(albeit at a cost of computational time). The argument \texttt{chunkSize} indicates the number of
+genomes read at a time; larger values mean reading data faster but require more RAM.
+We can illustrate \texttt{read.snp} using the example file mentioned above.
+The non-comment part of the file reads:
+\begin{verbatim}
+[...]
+>> position
+1 8 11 43
+>> allele
+a/t g/c a/c t/a
+>> population
+Brit Brit Fren monster NA
+>> ploidy
+2
+> foo
+1020
+> bar
+0012
+> toto
+10-0
+> Nyarlathotep
+0120
+> an even longer label but OK since on a single line
+1100
+\end{verbatim}
+We read the file in using:
+\begin{Schunk}
+\begin{Sinput}
+> obj <- read.snp(system.file("files/exampleSnpDat.snp", package = "adegenet"), 
++     chunk = 2)
+\end{Sinput}
+\begin{Soutput}
+ Reading biallelic SNP data file into a genlight object... 
+
+
+ Reading comments... 
+
+ Reading general information... 
+
+ Reading 5 genotypes... 
+...
+ Checking consistency... 
+
+ Building final object... 
+
+...done.
+\end{Soutput}
+\begin{Sinput}
+> obj
+\end{Sinput}
+\begin{Soutput}
+ === S4 class genlight ===
+ 5 genotypes,  4 binary SNPs
+ Ploidy: 2
+ 1 (0.05 %) missing data
+ @pop: individual membership for 4 populations
+ @position: position of the SNPs
+ @alleles: position of the SNPs
+\end{Soutput}
+\begin{Sinput}
+> as.matrix(obj)
+\end{Sinput}
+\begin{Soutput}
+                                                   1.a/t.a/t 8.g/c.g/c
+foo                                                        1         0
+bar                                                        0         0
+toto                                                       1         0
+Nyarlathotep                                               0         1
+an even longer label but OK since on a single line         1         1
+                                                   11.a/c.a/c 43.t/a.t/a
+foo                                                         2          0
+bar                                                         1          2
+toto                                                       NA          0
+Nyarlathotep                                                2          0
+an even longer label but OK since on a single line          0          0
+\end{Soutput}
+\begin{Sinput}
+> alleles(obj)
+\end{Sinput}
+\begin{Soutput}
+[1] "a/t" "g/c" "a/c" "t/a"
+\end{Soutput}
+\begin{Sinput}
+> pop(obj)
+\end{Sinput}
+\begin{Soutput}
+[1] Brit    Brit    Fren    monster NA     
+Levels: Brit Fren monster NA
+\end{Soutput}
+\begin{Sinput}
+> indNames(obj)
+\end{Sinput}
+\begin{Soutput}
+[1] "foo"                                               
+[2] "bar"                                               
+[3] "toto"                                              
+[4] "Nyarlathotep"                                      
+[5] "an even longer label but OK since on a single line"
+\end{Soutput}
+\end{Schunk}
+Note that \texttt{system.file} is generally useless: it is only used in this example to access a
+file installed alongside the package. Usual calls to \texttt{read.snp} will ressemble:
+\begin{Schunk}
+\begin{Sinput}
+> obj <- read.snp("path-to-my-file.snp")
+\end{Sinput}
+\end{Schunk}
+
 
 % % % % % % % % % % % % %
 \subsubsection{Importing data from PLINK}
 % % % % % % % % % % % % %
 
-Genome-wide SNP data are most often stored as text files with particular formats, with format of the
-software PLINK being the most popular.
-Data with PLINK format can be read into \texttt{genlight} objects using \texttt{read.PLINK}.
-This function requires the data to be saved in PLINK using the `-recodeA` option (see details
+Genome-wide SNP data for diploid organisms are frequently analyzed using PLINK, whose format is
+therefore becoming a standard.
+Data with PLINK format (\texttt{.raw}) can be imported into \texttt{genlight} objects using \texttt{read.PLINK}.
+This function requires the data to be saved in PLINK using the `\textit{-recodeA}` option (see details
 section in \texttt{?read.PLINK}).
+More information on exporting from PLINK can be found at \url{http://pngu.mgh.harvard.edu/~purcell/plink/dataman.shtml#recode}.
+\\
 
-\texttt{read.PLINK} has the advantage of being able to read the data by chunks of a few individuals
-(up to a single one at a time), which minimizes the amount of memory needed to read information
+
+Like \texttt{read.snp}, \texttt{read.PLINK} has the advantage of reading data by chunks of a few individuals
+(down to a single one at a time, no upper limits), which minimizes the amount of memory needed to read information
 before its conversion to \texttt{genlight}; however, using more chunks also means more computational
 time, since the procedure has to re-read the same file several time.
+Note that meta information about the loci also known as \texttt{.map} can also be read alongside a
+\texttt{.raw} file using the argument \texttt{map.file}.
+Alternatively, such information can be added to a \texttt{genlight} object afterwards using \texttt{extract.PLINKmap}.
 
-% % % % % % % % % % % % %
-\subsubsection{Conversions within R}
-% % % % % % % % % % % % %
+
+
+%% % % % % % % % % % % % % %
+%% \subsubsection{Conversions within R}
+%% % % % % % % % % % % % % %
+
+
+
+
+
 
 
 
@@ -737,6 +921,13 @@ time, since the procedure has to re-read the same file several time.
 \section{Data analysis using \texttt{genlight} objects}
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Principal Component Analysis (PCA)}
+%%%%%%%%%%%%%%%%
+
+
 
 %%%%%%%%%%%%%%%%
 \subsection{Principal Component Analysis (PCA)}
