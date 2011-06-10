@@ -1024,3 +1024,132 @@ read.PLINK <- function(file, map.file=NULL, quiet=FALSE, chunkSize=1000,
 
     return(res)
 } # end read.PLINK
+
+
+
+
+
+
+
+###########################
+## Function fasta2genlight
+###########################
+fasta2genlight <- function(file, quiet=FALSE, chunkSize=1000, saveNbAlleles=TRUE,
+                       multicore=require("multicore"), n.cores=NULL, ...){
+    ## HANDLE ARGUMENTS ##
+    ext <- .readExt(file)
+    ext <- toupper(ext)
+    if(!ext %in% c("FASTA", "FA", "FAS")) warning("wrong file extension - '.fasta', '.fa' or '.fas' expected")
+    if(!quiet) cat("\n Converting FASTA alignment into a genlight object... \n\n")
+    if(multicore && !require(multicore)) stop("multicore package requested but not installed")
+    if(multicore && is.null(n.cores)){
+        n.cores <- multicore:::detectCores()
+    }
+
+
+    ## PRIOR CHECKS ##
+    ## find nb of lines per genome
+    lines.to.skip <- 0
+    txt <- scan(file,what="character",sep="\n",quiet=TRUE, nmax=1)
+
+    while(length(grep("^>.+", txt))<2){
+        lines.to.skip <- lines.to.skip + 1
+        txt <- scan(file,what="character",sep="\n",quiet=TRUE, nmax=lines.to.skip)
+    }
+
+    LINES.PER.IND <- lines.to.skip-1
+
+
+    ## find length of a genome
+    NLOC <- sum(nchar(txt[2:LINES.PER.IND]))
+
+
+    ## SCAN ALL POSITIONS AND IDENTIFY SNPs ##
+    if(!quiet) cat("\n Looking for polymorphic positions... \n")
+
+    ## read all genomes by chunks
+    ## initialize
+    lines.to.skip <- 0
+    IND.LAB <- NULL
+    POOL <- as.list(rep("-", NLOC))
+    COUNT <- 0 # used to count the nb reads
+
+    txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=LINES.PER.IND*chunkSize)
+
+    ## read and process chunks
+    while(length(txt)>0){
+        COUNT <- COUNT + 1
+        if(!quiet) {
+            for(i in 1:(COUNT*chunkSize)) cat(".")
+        }
+
+
+        nb.ind <- length(grep("^>", txt))
+        IND.LAB <- c(IND.LAB, sub(">","",txt[grep("^>", txt)])) # find individuals' labels
+        txt <- split(txt, rep(1:nb.ind, each=LINES.PER.IND)) # split per individuals
+        txt <- lapply(txt, function(e) strsplit(paste(e[-1], collapse=""), split="")) # each genome -> one vector
+
+
+        ## POOL contains all alleles of each position
+        temp <- as.list(apply(matrix(unlist(txt), byrow=TRUE, nrow=length(txt)),2,unique)) # alleles current genomes
+        POOL <- mapply(function(x,y) unique(c(x,y)), POOL, temp, SIMPLIFY=FALSE) # update global pool
+
+        lines.to.skip <- lines.to.skip + nb.ind*LINES.PER.IND
+        txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=LINES.PER.IND*chunkSize)
+    }
+
+
+    ## analyse pool of alleles
+    POOL <- lapply(POOL, setdiff, "-")
+    nb.alleles <- sapply(POOL, length)
+    snp.posi <- nb.alleles==2
+    sec.all <- unlist(lapply(POOL[snp.posi], function(e) e[2]))
+
+
+
+    ## RE-READ DATA, CONVERT SNPs TO GENLIGHT ##
+    ## initialize
+    lines.to.skip <- 0
+    COUNT <- 0 # used to count the nb reads
+    res <- list()
+
+    txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=LINES.PER.IND*chunkSize)
+
+    ## read and process chunks
+    while(length(txt)>0){
+        COUNT <- COUNT + 1
+        if(!quiet) {
+            for(i in 1:(COUNT*chunkSize)) cat(".")
+        }
+
+
+        ## read SNPs
+        nb.ind <- length(grep("^>", txt))
+        txt <- split(txt, rep(1:nb.ind, each=LINES.PER.IND)) # split per individuals
+        txt <- lapply(txt, function(e) strsplit(paste(e[-1], collapse=""), split="")[[1]][snp.posi]) # each genome -> one SNP vector
+
+
+        ## convert to genlight
+        res <- c(res, lapply(txt, function(e) new("SNPbin", as.integer(e==sec.all))))
+
+        lines.to.skip <- lines.to.skip + nb.ind*LINES.PER.IND
+        txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=LINES.PER.IND*chunkSize)
+    }
+
+
+
+    ## BUILD FINAL OBJECT ##
+    if(!quiet) cat("\n Building final object... \n")
+
+    res <- new("genlight",res, ploidy=1)
+    indNames(res) <- IND.LAB
+    alleles(res) <- sapply(POOL[snp.posi], paste, collapse="/")
+    position(res) <- which(snp.posi)
+    if(saveNbAlleles) other(res) <- list(nb.all.per.loc=nb.alleles)
+
+
+    ## RETURN OUTPUT ##
+    if(!quiet) cat("\n...done.\n\n")
+
+    return(res)
+} # end fasta2genlight
