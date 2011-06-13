@@ -1034,7 +1034,7 @@ read.PLINK <- function(file, map.file=NULL, quiet=FALSE, chunkSize=1000,
 ###########################
 ## Function fasta2genlight
 ###########################
-fasta2genlight <- function(file, quiet=FALSE, chunkSize=1000, saveNbAlleles=TRUE,
+fasta2genlight <- function(file, quiet=FALSE, chunkSize=1000, saveNbAlleles=FALSE,
                        multicore=require("multicore"), n.cores=NULL, ...){
     ## HANDLE ARGUMENTS ##
     ext <- .readExt(file)
@@ -1110,6 +1110,8 @@ fasta2genlight <- function(file, quiet=FALSE, chunkSize=1000, saveNbAlleles=TRUE
 
 
     ## RE-READ DATA, CONVERT SNPs TO GENLIGHT ##
+    if(!quiet) cat("\n Extracting SNPs from the alignment... \n")
+
     ## initialize
     lines.to.skip <- 0
     COUNT <- 0 # used to count the nb reads

@@ -1,13 +1,11 @@
 \encoding{UTF-8}
-\name{read.snp}
-\alias{read.snp}
-\title{ Reading Single Nucleotide Polymorphism data}
+\name{fasta2genlight}
+\alias{fasta2genlight}
+\title{ Extract Single Nucleotide Polymorphism (SNPs) from alignments}
 \description{
-  The function \code{read.snp} reads a SNP data file with extension '.snp' and
-  converts it into a \linkS4class{genlight} object. This format is
-  devoted to handle biallelic SNP only, but can accomodate massive
-  datasets such as complete genomes with considerably less memory than
-  other formats.
+  The function \code{fasta2genlight} reads alignments with the fasta
+  format (extensions ".fasta", ".fas", or ".fa"), extracts the binary
+  SNPs, and converts the output into a \linkS4class{genlight} object. 
 
   The function reads data by chunks of a few genomes (minimum 1, no
   maximum) at a time, which allows one to read massive datasets with
@@ -16,21 +14,26 @@
   read at a time. Increasing this value decreases the computational time
   required to read data in, while increasing memory requirements.
 
-  A description of the .snp format is provided in an example file
-  distributed with adegenet (see example below).
+  Multiple cores can be used to decrease the overall computational time
+  on multicore architectures (needs the package \code{multicore}).
 }
 \usage{
-read.snp(file, quiet=FALSE, chunkSize = 1000, multicore = require("multicore"),
-    n.cores = NULL, \dots)
+fasta2genlight(file, quiet=FALSE, chunkSize = 1000, saveNbAlleles=FALSE,
+               multicore = require("multicore"), n.cores = NULL, \dots)
 }
 \arguments{
-   \item{file}{ a character string giving the path to the file to
+  \item{file}{ a character string giving the path to the file to
     convert, with the extension ".snp".}
   \item{quiet}{ logical stating whether a conversion messages should be
     printed (TRUE,default) or not (FALSE).}
   \item{chunkSize}{an integer indicating the number of genomes to be
-  read at a time; larger values require more RAM but decrease the time
-  needed to read the data.}
+    read at a time; larger values require more RAM but decrease the time
+    needed to read the data.}
+  \item{saveNbAlleles}{a logical indicating whether the number of
+    alleles for each loci in the original alignment should be saved in the
+    \code{other} slot (TRUE), or not (FALSE, default). In large genomes,
+    this takes some space but allows for tracking SNPs with more than 2
+    alleles, lost during the conversion.}
   \item{multicore}{a logical indicating whether multiple cores -if
     available- should be used for the computations (TRUE, default), or
     not (FALSE); requires the package \code{multicore} to be installed
@@ -39,18 +42,12 @@ read.snp(file, quiet=FALSE, chunkSize = 1000, multicore = require("multicore"),
     used in the computations; if NULL, then the maximum number of cores
     available on the computer is used.}
   \item{\dots}{other arguments to be passed to other functions -
-  currently not used.}
+    currently not used.}
 }
 \details{
-  === The .snp format ===
-  
-  Details of the .snp format can be found in the example file
-  distributed with adegenet (see below), or on the adegenet website
-  (type \code{adegenetWeb()} in R).
 
-  
   === Using multiple cores ===
-  
+
   Most recent machines have one or several processors with multiple
   cores. R processes usually use one single core. The package
   \code{multicore} allows for parallelizing some computations on
@@ -66,32 +63,27 @@ read.snp(file, quiet=FALSE, chunkSize = 1000, multicore = require("multicore"),
 \seealso{
   - \code{?genlight} for a description of the class \linkS4class{genlight}.
 
+  - \code{\link{read.snp}}: read SNPs in adegenet's '.snp' format.
+
   - \code{\link{read.PLINK}}: read SNPs in PLINK's '.raw' format.
-  
-  - \code{\link{fasta2genlight}}: extract SNPs from alignments with
-  fasta format.
-  
+
   - \code{\link{df2genind}}: convert any multiallelic markers into
   adegenet \linkS4class{genind}.
-  
+
   - \code{\link{import2genind}}: read multiallelic markers from various
-  software into adegenet.\cr
+  software into adegenet.
 }
 \author{Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
 ## show the example file ##
 ## this is the path to the file:
-system.file("files/exampleSnpDat.snp",package="adegenet")
-
-## show its content:
-file.show(system.file("files/exampleSnpDat.snp",package="adegenet"))
+myPath <- system.file("files/usflu.fasta",package="adegenet")
+myPath
 
 ## read the file
-obj <-
-read.snp(system.file("files/exampleSnpDat.snp",package="adegenet"), chunk=2)
+obj <- fasta2genlight(myPath, chunk=10) # process 10 sequences at a time
 obj
-as.matrix(obj)
-ploidy(obj)
+position(obj)
 alleles(obj)
 locNames(obj)
 }
