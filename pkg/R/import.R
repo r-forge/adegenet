@@ -1100,7 +1100,9 @@ fasta2genlight <- function(file, quiet=FALSE, chunkSize=1000, saveNbAlleles=TRUE
 
 
     ## analyse pool of alleles
-    POOL <- lapply(POOL, setdiff, "-")
+    letterOK <- c("a","g","c","t","A","G","C","T")
+    POOL <- lapply(POOL, function(e) e[e %in% letterOK]) # keep only proper letters
+    ## POOL <- lapply(POOL, setdiff, "-")
     nb.alleles <- sapply(POOL, length)
     snp.posi <- nb.alleles==2
     sec.all <- unlist(lapply(POOL[snp.posi], function(e) e[2]))
