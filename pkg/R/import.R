@@ -1117,6 +1117,13 @@ fasta2genlight <- function(file, quiet=FALSE, chunkSize=1000, saveNbAlleles=TRUE
 
     txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=LINES.PER.IND*chunkSize)
 
+    ## returns a vector of nb of second alleles or NAs
+    f1 <- function(vec){
+        out <- as.integer(vec==sec.all)
+        out[!vec %in% letterOK] <- NA
+        return(out)
+    }
+
     ## read and process chunks
     while(length(txt)>0){
         COUNT <- COUNT + 1
@@ -1132,7 +1139,8 @@ fasta2genlight <- function(file, quiet=FALSE, chunkSize=1000, saveNbAlleles=TRUE
 
 
         ## convert to genlight
-        res <- c(res, lapply(txt, function(e) new("SNPbin", as.integer(e==sec.all))))
+        ##res <- c(res, lapply(txt, function(e) new("SNPbin", as.integer(e==sec.all))))
+        res <- c(res, lapply(txt, function(e) new("SNPbin", f1(e))))
 
         lines.to.skip <- lines.to.skip + nb.ind*LINES.PER.IND
         txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, nmax=LINES.PER.IND*chunkSize)
