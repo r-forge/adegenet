@@ -90,11 +90,13 @@ extract.PLINKmap(file, x=NULL)
   chromosome and position information.
 }
 \seealso{
-  - a description of the class \linkS4class{genlight}.
+  - \code{?genlight} for a description of the class \linkS4class{genlight}.
 
-  - \code{\link{read.snp}}: read from adegenet's dedicated format to
-  - store biallelic SNP data.
-  
+  - \code{\link{read.snp}}: read SNPs in adegenet's '.snp' format.
+
+  - \code{\link{fasta2genlight}}: extract SNPs from alignments with
+  fasta format.
+
   - other import function in adegenet: \code{\link{import2genind}},
   \code{\link{df2genind}}, \code{\link{read.genetix}}
   \code{\link{read.fstat}}, \code{\link{read.structure}},
