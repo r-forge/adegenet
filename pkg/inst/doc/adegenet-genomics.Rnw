@@ -9,7 +9,7 @@
 
 \usepackage[utf8]{inputenc} % for UTF-8/single quotes from sQuote()
 \newcommand{\code}[1]{{{\tt #1}}}
-\title{Analysing genomic-wide SNP data using  \textit{adegenet} \Sexpr{packageDescription("adegenet", fields = "Version")}}
+\title{Analysing genome-wide SNP data using  \textit{adegenet} \Sexpr{packageDescription("adegenet", fields = "Version")}}
 \author{Thibaut Jombart}
 \date{\today}
 
@@ -451,8 +451,11 @@ Any label can be used, but some specific names will be recognized and interprete
 all individuals have the same ploidy
 \item \texttt{chromosome}: character strings indicating the chromosome on which the SNP are located
 \end{itemize}
-Each \textit{genotype} is stored using two lines, the first being
-\texttt{> label-of-the-individual}, and the second being integers corresponding to the number of
+Each \textit{genotype} is stored using two lines, the first being:
+\begin{verbatim}
+> label-of-the-individual
+\end{verbatim}
+and the second being integers corresponding to the number of
 second allele for each loci, without separators; missing data are coded as '\texttt{-}'.
 \\
 
@@ -506,7 +509,7 @@ obj <- read.snp("path-to-my-file.snp")
 \subsubsection{Importing data from PLINK}
 % % % % % % % % % % % % %
 
-Genome-wide SNP data for diploid organisms are frequently analyzed using PLINK, whose format is
+Genome-wide SNP data of diploid organisms are frequently analyzed using PLINK, whose format is
 therefore becoming a standard.
 Data with PLINK format (\texttt{.raw}) can be imported into \texttt{genlight} objects using \texttt{read.PLINK}.
 This function requires the data to be saved in PLINK using the `\textit{-recodeA}` option (see details
@@ -523,6 +526,92 @@ Note that meta information about the loci also known as \texttt{.map} can also b
 \texttt{.raw} file using the argument \texttt{map.file}.
 Alternatively, such information can be added to a \texttt{genlight} object afterwards using \texttt{extract.PLINKmap}.
 
+
+
+
+
+% % % % % % % % % % % % %
+\subsubsection{Extracting SNPs from alignments}
+% % % % % % % % % % % % %
+In many cases, raw genomic data are available as aligned sequences, in which case extracting
+polymorphic sites can be non-trivial.
+The biggest issue is again memory: most software extracting SNPs from aligned sequences
+require all the sequences to be stored in memory at a time, a duty that most common computers cannot undertake.
+\textit{adegenet} implements a more parsimonious alternative which allows for extracting SNPs from
+alignment while processing a reduced number of sequences (down to a single) at a time.
+\\
+
+The function \texttt{fasta2genlight} extracts SNPs from alignments with \textit{fasta} format (file
+extensions '\texttt{.fasta}', '\texttt{.fas}', or '\texttt{.fa}').
+Like \texttt{read.snp} and \texttt{read.PLINK}, \texttt{fasta2genlight} processes data by chunks of
+individuals so as to save memory requirements.
+It first scans the whole file for polymorphic positions, and then extracts all biallelic SNPs from
+the alignment.
+\\
+
+\texttt{fasta2genlight} is illustrated like \texttt{read.snp} using a toy dataset distributed
+alongside the package.
+The file is first located using \texttt{system.file}, and then processed using \texttt{fasta2genlight}:
+<<>>=
+myPath <- system.file("files/usflu.fasta",package="adegenet")
+obj <- fasta2genlight(myPath, chunk=10)
+obj
+@
+
+\noindent \texttt{obj} is a \texttt{genlight} object containing SNPs of 80 isolates of seasonal
+influenza (H3N2) sampled within the US over the last two decades; sequences correspond to the
+hemagglutinin (HA) segment.
+Besides genotypes, \texttt{obj} contains the positions of the SNPs and the alleles at each retained loci.
+Names of the loci are constructed as the combination of both:
+<<>>=
+head(position(obj), 20)
+head(alleles(obj), 20)
+head(locNames(obj), 20)
+@
+
+\noindent It is usually informative to assess the position of the polymorphic sites within the
+genome; this is very easily done in R, using \texttt{density} with an appropriate bandewidth:
+<<fig=TRUE>>=
+temp <- density(position(obj), bw=10)
+plot(temp, type="n", xlab="Position in the alignment", main="Location of the SNPs")
+polygon(c(temp$x,rev(temp$x)), c(temp$y, rep(0,length(temp$x))), col=transp("blue",.3))
+points(position(obj), rep(0, nLoc(obj)), pch="|", col="blue")
+@
+
+\noindent Note that retaining only biallelic sites may cause minor loss of information, as sites
+with more than 2 alleles are discarded from the data.
+It is however possible to ask \texttt{fasta2genlight} to keep track of the number of alleles for
+each site of the original alignment, by specifying:
+<<>>=
+obj <- fasta2genlight(myPath, chunk=10,saveNbAlleles=TRUE, quiet=TRUE)
+obj
+@
+
+\noindent The output object \texttt{obj} now contains the number of alleles of each position, stored
+in the \texttt{other} slot:
+<<>>=
+head(other(obj)$nb.all.per.loc, 20)
+100*mean(unlist(other(obj))>1)
+@
+About \Sexpr{round(100*mean(unlist(other(obj))>1))}\% of the sites are polymorphic, which is fairly high.
+This is not entirely surprising, given that the HA segment of influenza is known for its high
+mutation rate.
+What is the nature of this polymorphism?
+<<fig=TRUE>>=
+temp <- table(unlist(other(obj)))
+barplot(temp, main="Distribution of the number \nof alleles per loci",
+        xlab="Number of alleles", ylab="Number of sites")
+@
+Most polymorphic loci are biallelic, but a few loci with 3 or 4 alleles were lost.
+We can estimate the loss of information very simply:
+<<>>=
+temp <- temp[-1]
+temp <- 100*temp/sum(temp)
+round(temp,1)
+@
+In this case, \Sexpr{round(temp,1)[1]}\% of the polymorphic sites were biallelic, the others being
+essentially triallelic.
+This is probably a fairly exceptional situation due to the high mutation rate of the HA segment.
 
 
 %% % % % % % % % % % % % % %

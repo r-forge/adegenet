@@ -904,9 +904,9 @@ setAs("genlight", "matrix", def=function(from){
     res <- unlist(lapply(from@gen, as.integer))
     res <- matrix(res, ncol=nLoc(from), nrow=nInd(from), byrow=TRUE)
     colnames(res) <- locNames(from)
-    if(!is.null(alleles(from))){
-        colnames(res) <- paste(locNames(from), alleles(from), sep=ifelse(is.null(locNames(from)), "", "."))
-    }
+    ## if(!is.null(alleles(from))){
+    ##     colnames(res) <- paste(locNames(from), alleles(from), sep=ifelse(is.null(locNames(from)), "", "."))
+    ## }
     rownames(res) <- indNames(from)
     return(res)
 })

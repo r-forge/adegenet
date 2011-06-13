@@ -9,7 +9,7 @@
 
 \usepackage[utf8]{inputenc} % for UTF-8/single quotes from sQuote()
 \newcommand{\code}[1]{{{\tt #1}}}
-\title{Analysing genomic-wide SNP data using  \textit{adegenet} 1.3-0}
+\title{Analysing genome-wide SNP data using  \textit{adegenet} 1.3-0}
 \author{Thibaut Jombart}
 \date{\today}
 
@@ -388,7 +388,7 @@ simulate 50 individuals typed for 1,00,000 SNPs each (including occasional NAs):
 > object.size(dat)/object.size(x)
 \end{Sinput}
 \begin{Soutput}
-61.328597606747 bytes
+61.3365722669428 bytes
 \end{Soutput}
 \end{Schunk}
 here again, the storage if the data is much more efficient in \texttt{genlight} than using integers: converted data occupy
@@ -457,13 +457,13 @@ where $^{\dagger}$ indicates that a replacement method is available using \textt
 \end{Sinput}
 \begin{Soutput}
 [[1]]
- [1] 0 1 0 1 2 1 1 0 1 1
+ [1] 1 0 1 2 1 0 0 0 1 2
 
 [[2]]
- [1] 2 0 2 1 0 1 0 0 1 1
+ [1] 0 1 0 0 0 2 1 1 1 0
 
 [[3]]
- [1] 2 0 0 1 2 1 0 1 0 1
+ [1] 2 0 1 2 0 0 2 2 1 1
 \end{Soutput}
 \begin{Sinput}
 > x <- new("genlight", dat)
@@ -495,9 +495,9 @@ NULL
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     0     1     0     1     2     1     1     0     1      1
-individual 2     2     0     2     1     0     1     0     0     1      1
-individual 3     2     0     0     1     2     1     0     1     0      1
+individual 1     1     0     1     2     1     0     0     0     1      2
+individual 2     0     1     0     0     0     2     1     1     1      0
+individual 3     2     0     1     2     0     0     2     2     1      1
 \end{Soutput}
 \end{Schunk}
 
@@ -522,7 +522,7 @@ replacement with inconsistent values. For instance, in object \texttt{x}:
  3 genotypes,  10 binary SNPs
  Ploidy: 2
  0 (0 %) missing data
- @loc.names: names of the SNPs
+ @loc.names: labels of the SNPs
 \end{Soutput}
 \end{Schunk}
 if we try to set information about the chromosomes of the SNPs, the instruction:
@@ -543,7 +543,7 @@ will generate an error because the provided factor does not match the number of 
  Ploidy: 2
  0 (0 %) missing data
  @chromosome: chromosome of the SNPs
- @loc.names: names of the SNPs
+ @loc.names: labels of the SNPs
 \end{Soutput}
 \begin{Sinput}
 > chr(x)
@@ -576,41 +576,41 @@ For instance, using the previous toy dataset, we try a few classical subsetting 
  Ploidy: 2
  0 (0 %) missing data
  @chromosome: chromosome of the SNPs
- @loc.names: names of the SNPs
+ @loc.names: labels of the SNPs
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x)
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     0     1     0     1     2     1     1     0     1      1
-individual 2     2     0     2     1     0     1     0     0     1      1
-individual 3     2     0     0     1     2     1     0     1     0      1
+individual 1     1     0     1     2     1     0     0     0     1      2
+individual 2     0     1     0     0     0     2     1     1     1      0
+individual 3     2     0     1     2     0     0     2     2     1      1
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x[c(1, 3), ])
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     0     1     0     1     2     1     1     0     1      1
-individual 3     2     0     0     1     2     1     0     1     0      1
+individual 1     1     0     1     2     1     0     0     0     1      2
+individual 3     2     0     1     2     0     0     2     2     1      1
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x[, c(TRUE, FALSE)])
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.3 SNP.5 SNP.7 SNP.9
-individual 1     0     0     2     1     1
-individual 2     2     2     0     0     1
-individual 3     2     0     2     0     0
+individual 1     1     1     1     0     1
+individual 2     0     0     0     1     1
+individual 3     2     1     0     2     1
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x[1:2, c(1, 1, 1, 2, 2, 2, 3, 3, 3)])
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.1 SNP.1 SNP.2 SNP.2 SNP.2 SNP.3 SNP.3 SNP.3
-individual 1     0     0     0     1     1     1     0     0     0
-individual 2     2     2     2     0     0     0     2     2     2
+individual 1     1     1     1     0     0     0     1     1     1
+individual 2     0     0     0     1     1     1     0     0     0
 \end{Soutput}
 \end{Schunk}
 
@@ -631,16 +631,16 @@ For instance:
  Ploidy: 2
  0 (0 %) missing data
  @chromosome: chromosome of the SNPs
- @loc.names: names of the SNPs
+ @loc.names: labels of the SNPs
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x)
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     0     1     0     1     2     1     1     0     1      1
-individual 2     2     0     2     1     0     1     0     0     1      1
-individual 3     2     0     0     1     2     1     0     1     0      1
+individual 1     1     0     1     2     1     0     0     0     1      2
+individual 2     0     1     0     0     0     2     1     1     1      0
+individual 3     2     0     1     2     0     0     2     2     1      1
 \end{Soutput}
 \begin{Sinput}
 > seploc(x, n.block = 2)
@@ -652,7 +652,7 @@ $block.1
  Ploidy: 2
  0 (0 %) missing data
  @chromosome: chromosome of the SNPs
- @loc.names: names of the SNPs
+ @loc.names: labels of the SNPs
 
 $block.2
  === S4 class genlight ===
@@ -660,7 +660,7 @@ $block.2
  Ploidy: 2
  0 (0 %) missing data
  @chromosome: chromosome of the SNPs
- @loc.names: names of the SNPs
+ @loc.names: labels of the SNPs
 \end{Soutput}
 \begin{Sinput}
 > lapply(seploc(x, n.block = 2), as.matrix)
@@ -668,15 +668,15 @@ $block.2
 \begin{Soutput}
 $block.1
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5
-individual 1     0     1     0     1     2
-individual 2     2     0     2     1     0
-individual 3     2     0     0     1     2
+individual 1     1     0     1     2     1
+individual 2     0     1     0     0     0
+individual 3     2     0     1     2     0
 
 $block.2
              SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     1     1     0     1      1
-individual 2     1     0     0     1      1
-individual 3     1     0     1     0      1
+individual 1     0     0     0     1      2
+individual 2     2     1     1     1      0
+individual 3     0     2     2     1      1
 \end{Soutput}
 \end{Schunk}
 splits the data into two blocks of contiguous SNPs, while:
@@ -686,16 +686,16 @@ splits the data into two blocks of contiguous SNPs, while:
 \end{Sinput}
 \begin{Soutput}
 $block.1
-             SNP.3 SNP.7 SNP.1 SNP.5 SNP.10
-individual 1     0     1     0     2      1
-individual 2     2     0     2     0      1
-individual 3     0     0     2     2      1
+             SNP.8 SNP.5 SNP.2 SNP.6 SNP.1
+individual 1     0     1     0     0     1
+individual 2     1     0     1     2     0
+individual 3     2     0     0     0     2
 
 $block.2
-             SNP.6 SNP.9 SNP.4 SNP.2 SNP.8
-individual 1     1     1     1     1     0
-individual 2     1     1     1     0     0
-individual 3     1     0     1     0     1
+             SNP.4 SNP.9 SNP.10 SNP.7 SNP.3
+individual 1     2     1      2     0     1
+individual 2     0     1      0     1     0
+individual 3     2     1      1     2     1
 \end{Soutput}
 \end{Schunk}
 generates blocks of randomly selected SNPs.
@@ -752,7 +752,6 @@ Each \textit{meta-information} is stored using two lines, the first starting as:
 \begin{verbatim}
 >> name-of-the-information
 \end{verbatim}
-\texttt{>}\texttt{>}
 and the second containing the information itself, each item separated by a single space.
 Any label can be used, but some specific names will be recognized and interpreted by the parser:
 \begin{itemize}
@@ -830,7 +829,7 @@ We read the file in using:
  1 (0.05 %) missing data
  @pop: individual membership for 4 populations
  @position: position of the SNPs
- @alleles: position of the SNPs
+ @alleles: alleles of the SNPs
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(obj)
@@ -886,7 +885,7 @@ file installed alongside the package. Usual calls to \texttt{read.snp} will ress
 \subsubsection{Importing data from PLINK}
 % % % % % % % % % % % % %
 
-Genome-wide SNP data for diploid organisms are frequently analyzed using PLINK, whose format is
+Genome-wide SNP data of diploid organisms are frequently analyzed using PLINK, whose format is
 therefore becoming a standard.
 Data with PLINK format (\texttt{.raw}) can be imported into \texttt{genlight} objects using \texttt{read.PLINK}.
 This function requires the data to be saved in PLINK using the `\textit{-recodeA}` option (see details
@@ -905,6 +904,250 @@ Alternatively, such information can be added to a \texttt{genlight} object after
 
 
 
+
+
+% % % % % % % % % % % % %
+\subsubsection{Extracting SNPs from alignments}
+% % % % % % % % % % % % %
+In many cases, raw genomic data are available as aligned sequences, in which case extracting
+polymorphic sites can be non-trivial.
+The biggest issue is again memory: most software extracting SNPs from aligned sequences
+require all the sequences to be stored in memory at a time, a duty that most common computers cannot undertake.
+\textit{adegenet} implements a more parsimonious alternative which allows for extracting SNPs from
+alignment while processing a reduced number of sequences (down to a single) at a time.
+\\
+
+The function \texttt{fasta2genlight} extracts SNPs from alignments with \textit{fasta} format (file
+extensions '\texttt{.fasta}', '\texttt{.fas}', or '\texttt{.fa}').
+Like \texttt{read.snp} and \texttt{read.PLINK}, \texttt{fasta2genlight} processes data by chunks of
+individuals so as to save memory requirements.
+It first scans the whole file for polymorphic positions, and then extracts all biallelic SNPs from
+the alignment.
+\\
+
+\texttt{fasta2genlight} is illustrated like \texttt{read.snp} using a toy dataset distributed
+alongside the package.
+The file is first located using \texttt{system.file}, and then processed using \texttt{fasta2genlight}:
+\begin{Schunk}
+\begin{Sinput}
+> myPath <- system.file("files/usflu.fasta", package = "adegenet")
+> obj <- fasta2genlight(myPath, chunk = 10)
+\end{Sinput}
+\begin{Soutput}
+ Converting FASTA alignment into a genlight object... 
+
+
+ Looking for polymorphic positions... 
+........................................................................................................................................................................................................................................................................................................................................................................
+ Extracting SNPs from the alignment... 
+........................................................................................................................................................................................................................................................................................................................................................................
+ Building final object... 
+
+...done.
+\end{Soutput}
+\begin{Sinput}
+> obj
+\end{Sinput}
+\begin{Soutput}
+ === S4 class genlight ===
+ 80 genotypes,  274 binary SNPs
+ Ploidy: 1
+ 26 (0 %) missing data
+ @position: position of the SNPs
+ @alleles: alleles of the SNPs
+\end{Soutput}
+\end{Schunk}
+
+\noindent \texttt{obj} is a \texttt{genlight} object containing SNPs of 80 isolates of seasonal
+influenza (H3N2) sampled within the US over the last two decades; sequences correspond to the
+hemagglutinin (HA) segment.
+Besides genotypes, \texttt{obj} contains the positions of the SNPs and the alleles at each retained loci.
+Names of the loci are constructed as the combination of both:
+\begin{Schunk}
+\begin{Sinput}
+> position(obj)
+\end{Sinput}
+\begin{Soutput}
+  [1]    7   12   31   32   36   37   44   45   52   60   62   72   73   78   96
+ [16]   99  105  108  121  128  140  146  147  150  165  177  181  187  190  191
+ [31]  193  196  197  210  216  218  219  232  234  246  249  255  273  286  289
+ [46]  295  310  323  327  328  365  402  405  412  417  418  419  424  438  439
+ [61]  441  444  445  447  450  451  460  462  466  467  472  478  479  483  499
+ [76]  508  510  511  512  513  514  516  518  520  522  524  531  537  538  547
+ [91]  549  563  564  571  577  585  591  603  604  606  609  614  616  622  623
+[106]  624  625  626  628  630  635  636  638  642  648  650  652  669  671  672
+[121]  687  689  690  693  694  696  702  705  706  712  714  715  716  717  721
+[136]  722  723  727  729  732  733  734  735  744  754  759  778  780  786  811
+[151]  822  831  833  837  854  855  859  872  875  876  881  882  884  885  894
+[166]  903  913  920  927  930  945  948  954  963  973  981  983  988  990  993
+[181] 1005 1009 1011 1017 1023 1030 1044 1047 1053 1056 1059 1080 1087 1089 1092
+[196] 1107 1116 1125 1128 1134 1140 1146 1149 1158 1163 1169 1170 1171 1173 1176
+[211] 1180 1182 1185 1188 1191 1197 1200 1201 1205 1206 1218 1221 1230 1233 1246
+[226] 1263 1266 1275 1290 1296 1320 1323 1325 1338 1347 1353 1389 1397 1401 1403
+[241] 1404 1413 1416 1431 1446 1453 1458 1474 1475 1485 1512 1518 1524 1527 1530
+[256] 1536 1548 1557 1563 1572 1574 1613 1614 1620 1627 1637 1642 1644 1652 1653
+[271] 1683 1687 1688 1700
+\end{Soutput}
+\begin{Sinput}
+> alleles(obj)
+\end{Sinput}
+\begin{Soutput}
+  [1] "a/g" "c/t" "t/c" "t/c" "t/c" "c/a" "t/c" "c/t" "a/g" "c/t" "g/t" "c/a"
+ [13] "a/g" "a/g" "a/g" "c/t" "a/g" "g/a" "c/a" "a/g" "a/g" "a/g" "a/c" "t/c"
+ [25] "t/c" "t/a" "a/g" "t/c" "g/a" "c/t" "g/a" "a/g" "g/a" "t/c" "c/t" "g/a"
+ [37] "a/g" "a/g" "a/g" "g/a" "a/t" "t/c" "t/g" "c/a" "a/g" "g/a" "g/a" "a/c"
+ [49] "t/c" "t/c" "c/t" "g/a" "g/a" "a/g" "a/g" "g/a" "a/g" "a/g" "c/a" "g/a"
+ [61] "t/c" "g/a" "g/a" "t/c" "g/a" "a/g" "g/t" "t/a" "a/g" "a/t" "g/a" "g/a"
+ [73] "t/a" "c/a" "t/c" "t/c" "g/a" "c/a" "a/c" "c/t" "a/c" "a/c" "t/c" "g/a"
+ [85] "a/c" "a/t" "t/c" "g/a" "c/t" "a/t" "t/c" "g/a" "c/a" "g/a" "t/c" "t/c"
+ [97] "g/a" "g/a" "a/g" "c/t" "g/a" "g/a" "g/a" "a/g" "c/t" "c/t" "a/t" "g/t"
+[109] "c/t" "a/g" "t/c" "t/c" "g/a" "a/t" "g/a" "g/a" "g/a" "a/g" "g/t" "a/g"
+[121] "a/g" "t/c" "c/t" "g/a" "a/g" "t/c" "g/a" "t/c" "a/g" "t/a" "g/a" "g/a"
+[133] "t/g" "a/g" "g/a" "g/a" "t/c" "t/c" "c/t" "t/c" "a/c" "g/t" "a/g" "c/a"
+[145] "a/t" "a/g" "t/c" "g/a" "t/c" "c/a" "c/t" "a/g" "a/g" "g/a" "g/a" "g/a"
+[157] "g/a" "g/a" "a/c" "c/a" "g/a" "t/c" "c/t" "t/c" "c/t" "t/c" "c/t" "a/g"
+[169] "t/a" "t/c" "g/a" "c/t" "t/c" "c/t" "g/a" "a/g" "a/c" "c/t" "g/a" "a/g"
+[181] "g/a" "c/a" "g/a" "a/g" "g/t" "a/g" "c/t" "c/t" "c/t" "a/g" "t/c" "g/a"
+[193] "g/a" "a/g" "c/t" "c/t" "a/g" "g/a" "c/a" "a/g" "a/t" "t/c" "t/c" "t/a"
+[205] "c/a" "c/t" "c/a" "g/a" "c/t" "a/g" "a/g" "c/t" "g/a" "a/g" "g/a" "g/a"
+[217] "a/g" "a/g" "a/g" "g/a" "g/a" "a/g" "a/g" "c/t" "t/a" "a/g" "t/c" "c/t"
+[229] "a/g" "t/c" "c/t" "g/a" "a/g" "c/t" "c/t" "t/c" "g/a" "g/a" "a/t" "g/a"
+[241] "g/a" "g/a" "g/a" "c/t" "c/t" "a/g" "c/t" "g/a" "c/t" "g/a" "t/c" "a/g"
+[253] "a/g" "c/t" "a/g" "a/g" "c/t" "a/g" "t/c" "g/a" "c/t" "t/c" "a/g" "c/t"
+[265] "c/t" "t/c" "c/t" "g/t" "t/c" "c/t" "g/a" "a/g" "a/g" "g/a"
+\end{Soutput}
+\begin{Sinput}
+> locNames(obj)
+\end{Sinput}
+\begin{Soutput}
+  [1] "7.a/g"    "12.c/t"   "31.t/c"   "32.t/c"   "36.t/c"   "37.c/a"  
+  [7] "44.t/c"   "45.c/t"   "52.a/g"   "60.c/t"   "62.g/t"   "72.c/a"  
+ [13] "73.a/g"   "78.a/g"   "96.a/g"   "99.c/t"   "105.a/g"  "108.g/a" 
+ [19] "121.c/a"  "128.a/g"  "140.a/g"  "146.a/g"  "147.a/c"  "150.t/c" 
+ [25] "165.t/c"  "177.t/a"  "181.a/g"  "187.t/c"  "190.g/a"  "191.c/t" 
+ [31] "193.g/a"  "196.a/g"  "197.g/a"  "210.t/c"  "216.c/t"  "218.g/a" 
+ [37] "219.a/g"  "232.a/g"  "234.a/g"  "246.g/a"  "249.a/t"  "255.t/c" 
+ [43] "273.t/g"  "286.c/a"  "289.a/g"  "295.g/a"  "310.g/a"  "323.a/c" 
+ [49] "327.t/c"  "328.t/c"  "365.c/t"  "402.g/a"  "405.g/a"  "412.a/g" 
+ [55] "417.a/g"  "418.g/a"  "419.a/g"  "424.a/g"  "438.c/a"  "439.g/a" 
+ [61] "441.t/c"  "444.g/a"  "445.g/a"  "447.t/c"  "450.g/a"  "451.a/g" 
+ [67] "460.g/t"  "462.t/a"  "466.a/g"  "467.a/t"  "472.g/a"  "478.g/a" 
+ [73] "479.t/a"  "483.c/a"  "499.t/c"  "508.t/c"  "510.g/a"  "511.c/a" 
+ [79] "512.a/c"  "513.c/t"  "514.a/c"  "516.a/c"  "518.t/c"  "520.g/a" 
+ [85] "522.a/c"  "524.a/t"  "531.t/c"  "537.g/a"  "538.c/t"  "547.a/t" 
+ [91] "549.t/c"  "563.g/a"  "564.c/a"  "571.g/a"  "577.t/c"  "585.t/c" 
+ [97] "591.g/a"  "603.g/a"  "604.a/g"  "606.c/t"  "609.g/a"  "614.g/a" 
+[103] "616.g/a"  "622.a/g"  "623.c/t"  "624.c/t"  "625.a/t"  "626.g/t" 
+[109] "628.c/t"  "630.a/g"  "635.t/c"  "636.t/c"  "638.g/a"  "642.a/t" 
+[115] "648.g/a"  "650.g/a"  "652.g/a"  "669.a/g"  "671.g/t"  "672.a/g" 
+[121] "687.a/g"  "689.t/c"  "690.c/t"  "693.g/a"  "694.a/g"  "696.t/c" 
+[127] "702.g/a"  "705.t/c"  "706.a/g"  "712.t/a"  "714.g/a"  "715.g/a" 
+[133] "716.t/g"  "717.a/g"  "721.g/a"  "722.g/a"  "723.t/c"  "727.t/c" 
+[139] "729.c/t"  "732.t/c"  "733.a/c"  "734.g/t"  "735.a/g"  "744.c/a" 
+[145] "754.a/t"  "759.a/g"  "778.t/c"  "780.g/a"  "786.t/c"  "811.c/a" 
+[151] "822.c/t"  "831.a/g"  "833.a/g"  "837.g/a"  "854.g/a"  "855.g/a" 
+[157] "859.g/a"  "872.g/a"  "875.a/c"  "876.c/a"  "881.g/a"  "882.t/c" 
+[163] "884.c/t"  "885.t/c"  "894.c/t"  "903.t/c"  "913.c/t"  "920.a/g" 
+[169] "927.t/a"  "930.t/c"  "945.g/a"  "948.c/t"  "954.t/c"  "963.c/t" 
+[175] "973.g/a"  "981.a/g"  "983.a/c"  "988.c/t"  "990.g/a"  "993.a/g" 
+[181] "1005.g/a" "1009.c/a" "1011.g/a" "1017.a/g" "1023.g/t" "1030.a/g"
+[187] "1044.c/t" "1047.c/t" "1053.c/t" "1056.a/g" "1059.t/c" "1080.g/a"
+[193] "1087.g/a" "1089.a/g" "1092.c/t" "1107.c/t" "1116.a/g" "1125.g/a"
+[199] "1128.c/a" "1134.a/g" "1140.a/t" "1146.t/c" "1149.t/c" "1158.t/a"
+[205] "1163.c/a" "1169.c/t" "1170.c/a" "1171.g/a" "1173.c/t" "1176.a/g"
+[211] "1180.a/g" "1182.c/t" "1185.g/a" "1188.a/g" "1191.g/a" "1197.g/a"
+[217] "1200.a/g" "1201.a/g" "1205.a/g" "1206.g/a" "1218.g/a" "1221.a/g"
+[223] "1230.a/g" "1233.c/t" "1246.t/a" "1263.a/g" "1266.t/c" "1275.c/t"
+[229] "1290.a/g" "1296.t/c" "1320.c/t" "1323.g/a" "1325.a/g" "1338.c/t"
+[235] "1347.c/t" "1353.t/c" "1389.g/a" "1397.g/a" "1401.a/t" "1403.g/a"
+[241] "1404.g/a" "1413.g/a" "1416.g/a" "1431.c/t" "1446.c/t" "1453.a/g"
+[247] "1458.c/t" "1474.g/a" "1475.c/t" "1485.g/a" "1512.t/c" "1518.a/g"
+[253] "1524.a/g" "1527.c/t" "1530.a/g" "1536.a/g" "1548.c/t" "1557.a/g"
+[259] "1563.t/c" "1572.g/a" "1574.c/t" "1613.t/c" "1614.a/g" "1620.c/t"
+[265] "1627.c/t" "1637.t/c" "1642.c/t" "1644.g/t" "1652.t/c" "1653.c/t"
+[271] "1683.g/a" "1687.a/g" "1688.a/g" "1700.g/a"
+\end{Soutput}
+\end{Schunk}
+
+\noindent It is usually informative to assess the position of the polymorphic sites within the
+genome; this is very easily done in R, using \texttt{density} with an appropriate bandewidth:
+\begin{Schunk}
+\begin{Sinput}
+> temp <- density(position(obj), bw = 10)
+> plot(temp, type = "n", xlab = "Position in the alignment", main = "Location of the SNPs")
+> polygon(c(temp$x, rev(temp$x)), c(temp$y, rep(0, length(temp$x))), 
++     col = transp("blue", 0.3))
+> points(position(obj), rep(0, nLoc(obj)), pch = "|", col = "blue")
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/genomics-027}
+
+\noindent Note that retaining only biallelic sites may cause minor loss of information, as sites
+with more than 2 alleles are discarded from the data.
+It is however possible to ask \texttt{fasta2genlight} to keep track of the number of alleles for
+each site of the original alignment, by specifying:
+\begin{Schunk}
+\begin{Sinput}
+> obj <- fasta2genlight(myPath, chunk = 10, saveNbAlleles = TRUE, 
++     quiet = TRUE)
+> obj
+\end{Sinput}
+\begin{Soutput}
+ === S4 class genlight ===
+ 80 genotypes,  274 binary SNPs
+ Ploidy: 1
+ 26 (0 %) missing data
+ @position: position of the SNPs
+ @alleles: alleles of the SNPs
+ @other: a list containing: nb.all.per.loc 
+\end{Soutput}
+\end{Schunk}
+
+\noindent The output object \texttt{obj} now contains the number of alleles of each position, stored
+in the \texttt{other} slot:
+\begin{Schunk}
+\begin{Sinput}
+> head(other(obj)$nb.all.per.loc, 20)
+\end{Sinput}
+\begin{Soutput}
+ [1] 1 1 1 1 1 1 2 1 1 1 1 2 1 1 1 1 1 1 1 1
+\end{Soutput}
+\begin{Sinput}
+> 100 * mean(unlist(other(obj)) > 1)
+\end{Sinput}
+\begin{Soutput}
+[1] 17.81305
+\end{Soutput}
+\end{Schunk}
+About 18\% of the sites are polymorphic, which is fairly high.
+This is not entirely surprising, given that the HA segment of influenza is known for its high
+mutation rate.
+What is the nature of this polymorphism?
+\begin{Schunk}
+\begin{Sinput}
+> temp <- table(unlist(other(obj)))
+> barplot(temp, main = "Distribution of the number \nof alleles per loci", 
++     xlab = "Number of alleles", ylab = "Number of sites")
+\end{Sinput}
+\end{Schunk}
+Most polymorphic loci are biallelic, but a few loci with 3 or 4 alleles were lost.
+We can estimate the loss of information very simply:
+\begin{Schunk}
+\begin{Sinput}
+> temp <- temp[-1]
+> temp <- 100 * temp/sum(temp)
+> round(temp, 1)
+\end{Sinput}
+\begin{Soutput}
+   2    3    4 
+90.4  8.3  1.3 
+\end{Soutput}
+\end{Schunk}
+In this case, 90.4\% of the polymorphic sites were biallelic, the others being
+essentially triallelic.
+This is probably a fairly exceptional situation due to the high mutation rate of the HA segment.
+
+
 %% % % % % % % % % % % % % %
 %% \subsubsection{Conversions within R}
 %% % % % % % % % % % % % % %
@@ -921,6 +1164,21 @@ Alternatively, such information can be added to a \texttt{genlight} object after
 \section{Data analysis using \texttt{genlight} objects}
 %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%
+
+In the following, we illustrate some methods for the analysis of \texttt{genlight} objects, ranging
+from simple tools for diagnosing allele frequencies or missing data to recently developed multivariate approaches.
+Troughout these examples, we use \texttt{glSim} to simulate \texttt{genlight} objects.
+This simple simulation tool allows for simulating large SNPs data with possibly contrasted
+structures between two groups of individuals. See \texttt{?glSim} for more details on this tool.
+
+
+
+%%%%%%%%%%%%%%%%
+\subsection{Simple operations}
+%%%%%%%%%%%%%%%%
+
+
+
 
 
 %%%%%%%%%%%%%%%%
