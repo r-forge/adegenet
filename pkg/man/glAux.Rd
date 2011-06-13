@@ -8,9 +8,9 @@
 \title{Auxiliary functions for genlight objects}
 \description{
   These functions provide facilities for usual computations using
-  \linkS4class{genlight} objects. In many cases, the output
-  depends on whether the information units are individuals, or
-  alleles within individuals (see details).
+  \linkS4class{genlight} objects. When ploidy varies across individuals,
+   the outputs of these functions depend on whether the information
+   units are individuals, or alleles within individuals (see details).
   
   These functions are:
   
@@ -56,6 +56,7 @@ glDotProd(x, center = FALSE, scale = FALSE, alleleAsUnit = FALSE,
 }
 \details{
   === On the unit of information ===
+  
   In the cases where individuals can have different ploidy, computation
   of sums, means, etc. of allelic data depends on what we consider as a
   unit of information.

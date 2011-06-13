@@ -573,7 +573,7 @@ head(locNames(obj), 20)
 genome; this is very easily done in R, using \texttt{density} with an appropriate bandewidth:
 <<fig=TRUE>>=
 temp <- density(position(obj), bw=10)
-plot(temp, type="n", xlab="Position in the alignment", main="Location of the SNPs")
+plot(temp, type="n", xlab="Position in the alignment", main="Location of the SNPs", xlim=c(0,1701))
 polygon(c(temp$x,rev(temp$x)), c(temp$y, rep(0,length(temp$x))), col=transp("blue",.3))
 points(position(obj), rep(0, nLoc(obj)), pch="|", col="blue")
 @
@@ -642,6 +642,41 @@ structures between two groups of individuals. See \texttt{?glSim} for more detai
 %%%%%%%%%%%%%%%%
 \subsection{Simple operations}
 %%%%%%%%%%%%%%%%
+Some simple operations such as computing allele frequencies or diagnosing missing values can be
+problematic when the data matrix cannot be represented in memory.
+\textit{adegenet} implements a few basic procedures which perform such basic tasks on
+\texttt{genlight} objects processing one individual at a time, thereby minimizing memory
+requirements. The most computer-intensive of these procedures can also use compiled C code and/or
+multicore capabilities (when available) to speed up computations.
+\\
+
+
+All these procedures are named using the prefix \texttt{gl} (for \texttt{genlight}), and can therefore be listed by
+typing \texttt{gl} and pressing the TAB key twice.
+They are (see \texttt{?glMean}):
+\begin{itemize}
+\item \texttt{glSum}: computes the sum of second alleles for each SNP.
+\item \texttt{glNA}: computes the number of missing values in each locus.
+\item \texttt{glMean}: computes the mean of second alleles, i.e. second allele frequencies for
+  each SNP.
+\item \texttt{glVar}: computes the variance of the second allele frequency for each SNP.
+\item \texttt{glDotProd}: computes the dot products between all pairs of individuals, with
+  possible centring and scaling.
+\end{itemize}
+For instance, one can easily map missing data across loci as we have done for SNP positions in the
+US influenza dataset (see previous section) using \texttt{glNA} and \texttt{density}:
+<<>>=
+head(glNA(obj),20)
+temp <- density(glNA(obj), bw=10)
+plot(temp, type="n", xlab="Position in the alignment", main="Location of the missing values (NAs)", xlim=c(0,1701))
+polygon(c(temp$x,rev(temp$x)), c(temp$y, rep(0,length(temp$x))), col=transp("blue",.3))
+points(glNA(obj), rep(0, nLoc(obj)), pch="|", col="blue")
+@
+
+\noindent Here, the few missing values are all located at the beginning at the alignment, probably
+reflecting heterogeneity in DNA amplification during the sequencing process.
+In actually large datasets, such simple investigation can give crucial insights about the quality of
+the data and the existence of possible biases.
 
 
 
@@ -651,11 +686,6 @@ structures between two groups of individuals. See \texttt{?glSim} for more detai
 \subsection{Principal Component Analysis (PCA)}
 %%%%%%%%%%%%%%%%
 
-
-
-%%%%%%%%%%%%%%%%
-\subsection{Principal Component Analysis (PCA)}
-%%%%%%%%%%%%%%%%
 
 
 

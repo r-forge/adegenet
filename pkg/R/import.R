@@ -1087,8 +1087,12 @@ fasta2genlight <- function(file, quiet=FALSE, chunkSize=1000, saveNbAlleles=FALS
         nb.ind <- length(grep("^>", txt))
         IND.LAB <- c(IND.LAB, sub(">","",txt[grep("^>", txt)])) # find individuals' labels
         txt <- split(txt, rep(1:nb.ind, each=LINES.PER.IND)) # split per individuals
-        txt <- lapply(txt, function(e) strsplit(paste(e[-1], collapse=""), split="")) # each genome -> one vector
-
+        if(multicore){
+            txt <- mclapply(txt, function(e) strsplit(paste(e[-1], collapse=""), split=""),
+                            mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE) # each genome -> one vector
+        } else {
+            txt <- lapply(txt, function(e) strsplit(paste(e[-1], collapse=""), split="")) # each genome -> one vector
+        }
 
         ## POOL contains all alleles of each position
         temp <- as.list(apply(matrix(unlist(txt), byrow=TRUE, nrow=length(txt)),2,unique)) # alleles current genomes
@@ -1137,8 +1141,12 @@ fasta2genlight <- function(file, quiet=FALSE, chunkSize=1000, saveNbAlleles=FALS
         ## read SNPs
         nb.ind <- length(grep("^>", txt))
         txt <- split(txt, rep(1:nb.ind, each=LINES.PER.IND)) # split per individuals
-        txt <- lapply(txt, function(e) strsplit(paste(e[-1], collapse=""), split="")[[1]][snp.posi]) # each genome -> one SNP vector
-
+        if(multicore){
+            txt <- mclapply(txt, function(e) strsplit(paste(e[-1], collapse=""), split="")[[1]][snp.posi],
+                                        mc.cores=n.cores, mc.silent=TRUE, mc.cleanup=TRUE, mc.preschedule=FALSE) # each genome -> one SNP vector
+        } else {
+            txt <- lapply(txt, function(e) strsplit(paste(e[-1], collapse=""), split="")[[1]][snp.posi]) # each genome -> one SNP vector
+        }
 
         ## convert to genlight
         ##res <- c(res, lapply(txt, function(e) new("SNPbin", as.integer(e==sec.all))))
