@@ -46,8 +46,8 @@
   representation using allele frequencies.
   This vignette introduces these classes and illustrates how these objects can be handled and
   analyzed in R.
-  It also introduces more advanced features of an API in C language which may be useful to develop
-  new method based on these objects.
+  %% It also introduces more advanced features of an API in C language which may be useful to develop
+  %% new method based on these objects.
 \end{abstract}
 
 \newpage
@@ -388,7 +388,7 @@ simulate 50 individuals typed for 1,00,000 SNPs each (including occasional NAs):
 > object.size(dat)/object.size(x)
 \end{Sinput}
 \begin{Soutput}
-61.3380771523837 bytes
+61.3515491658149 bytes
 \end{Soutput}
 \end{Schunk}
 here again, the storage if the data is much more efficient in \texttt{genlight} than using integers: converted data occupy
@@ -457,13 +457,13 @@ where $^{\dagger}$ indicates that a replacement method is available using \textt
 \end{Sinput}
 \begin{Soutput}
 [[1]]
- [1] 2 1 1 1 0 1 1 2 0 2
+ [1] 0 0 0 0 1 2 2 1 0 1
 
 [[2]]
- [1] 0 0 2 0 0 2 1 2 1 0
+ [1] 1 1 0 2 1 2 2 1 1 2
 
 [[3]]
- [1] 2 2 1 2 2 2 0 2 1 1
+ [1] 1 2 1 2 1 2 0 0 1 1
 \end{Soutput}
 \begin{Sinput}
 > x <- new("genlight", dat)
@@ -495,9 +495,9 @@ NULL
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     2     1     1     1     0     1     1     2     0      2
-individual 2     0     0     2     0     0     2     1     2     1      0
-individual 3     2     2     1     2     2     2     0     2     1      1
+individual 1     0     0     0     0     1     2     2     1     0      1
+individual 2     1     1     0     2     1     2     2     1     1      2
+individual 3     1     2     1     2     1     2     0     0     1      1
 \end{Soutput}
 \end{Schunk}
 
@@ -583,34 +583,34 @@ For instance, using the previous toy dataset, we try a few classical subsetting 
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     2     1     1     1     0     1     1     2     0      2
-individual 2     0     0     2     0     0     2     1     2     1      0
-individual 3     2     2     1     2     2     2     0     2     1      1
+individual 1     0     0     0     0     1     2     2     1     0      1
+individual 2     1     1     0     2     1     2     2     1     1      2
+individual 3     1     2     1     2     1     2     0     0     1      1
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x[c(1, 3), ])
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     2     1     1     1     0     1     1     2     0      2
-individual 3     2     2     1     2     2     2     0     2     1      1
+individual 1     0     0     0     0     1     2     2     1     0      1
+individual 3     1     2     1     2     1     2     0     0     1      1
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x[, c(TRUE, FALSE)])
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.3 SNP.5 SNP.7 SNP.9
-individual 1     2     1     0     1     0
-individual 2     0     2     0     1     1
-individual 3     2     1     2     0     1
+individual 1     0     0     1     2     0
+individual 2     1     0     1     2     1
+individual 3     1     1     1     0     1
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x[1:2, c(1, 1, 1, 2, 2, 2, 3, 3, 3)])
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.1 SNP.1 SNP.2 SNP.2 SNP.2 SNP.3 SNP.3 SNP.3
-individual 1     2     2     2     1     1     1     1     1     1
-individual 2     0     0     0     0     0     0     2     2     2
+individual 1     0     0     0     0     0     0     0     0     0
+individual 2     1     1     1     1     1     1     0     0     0
 \end{Soutput}
 \end{Schunk}
 
@@ -638,9 +638,9 @@ For instance:
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     2     1     1     1     0     1     1     2     0      2
-individual 2     0     0     2     0     0     2     1     2     1      0
-individual 3     2     2     1     2     2     2     0     2     1      1
+individual 1     0     0     0     0     1     2     2     1     0      1
+individual 2     1     1     0     2     1     2     2     1     1      2
+individual 3     1     2     1     2     1     2     0     0     1      1
 \end{Soutput}
 \begin{Sinput}
 > seploc(x, n.block = 2)
@@ -668,15 +668,15 @@ $block.2
 \begin{Soutput}
 $block.1
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5
-individual 1     2     1     1     1     0
-individual 2     0     0     2     0     0
-individual 3     2     2     1     2     2
+individual 1     0     0     0     0     1
+individual 2     1     1     0     2     1
+individual 3     1     2     1     2     1
 
 $block.2
              SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     1     1     2     0      2
-individual 2     2     1     2     1      0
-individual 3     2     0     2     1      1
+individual 1     2     2     1     0      1
+individual 2     2     2     1     1      2
+individual 3     2     0     0     1      1
 \end{Soutput}
 \end{Schunk}
 splits the data into two blocks of contiguous SNPs, while:
@@ -686,16 +686,16 @@ splits the data into two blocks of contiguous SNPs, while:
 \end{Sinput}
 \begin{Soutput}
 $block.1
-             SNP.1 SNP.5 SNP.3 SNP.7 SNP.8
-individual 1     2     0     1     1     2
-individual 2     0     0     2     1     2
-individual 3     2     2     1     0     2
+             SNP.2 SNP.1 SNP.5 SNP.9 SNP.6
+individual 1     0     0     1     0     2
+individual 2     1     1     1     1     2
+individual 3     2     1     1     1     2
 
 $block.2
-             SNP.4 SNP.2 SNP.6 SNP.10 SNP.9
-individual 1     1     1     1      2     0
-individual 2     0     0     2      0     1
-individual 3     2     2     2      1     1
+             SNP.10 SNP.7 SNP.3 SNP.8 SNP.4
+individual 1      1     2     0     1     0
+individual 2      2     2     0     1     2
+individual 3      1     0     1     0     2
 \end{Soutput}
 \end{Schunk}
 generates blocks of randomly selected SNPs.
@@ -928,7 +928,7 @@ The file is first located using \texttt{system.file}, and then processed using \
 \begin{Schunk}
 \begin{Sinput}
 > myPath <- system.file("files/usflu.fasta", package = "adegenet")
-> obj <- fasta2genlight(myPath, chunk = 10)
+> flu <- fasta2genlight(myPath, chunk = 10)
 \end{Sinput}
 \begin{Soutput}
  Converting FASTA alignment into a genlight object... 
@@ -943,7 +943,7 @@ The file is first located using \texttt{system.file}, and then processed using \
 ...done.
 \end{Soutput}
 \begin{Sinput}
-> obj
+> flu
 \end{Sinput}
 \begin{Soutput}
  === S4 class genlight ===
@@ -955,28 +955,28 @@ The file is first located using \texttt{system.file}, and then processed using \
 \end{Soutput}
 \end{Schunk}
 
-\noindent \texttt{obj} is a \texttt{genlight} object containing SNPs of 80 isolates of seasonal
+\noindent \texttt{flu} is a \texttt{genlight} object containing SNPs of 80 isolates of seasonal
 influenza (H3N2) sampled within the US over the last two decades; sequences correspond to the
 hemagglutinin (HA) segment.
-Besides genotypes, \texttt{obj} contains the positions of the SNPs and the alleles at each retained loci.
+Besides genotypes, \texttt{flu} contains the positions of the SNPs and the alleles at each retained loci.
 Names of the loci are constructed as the combination of both:
 \begin{Schunk}
 \begin{Sinput}
-> head(position(obj), 20)
+> head(position(flu), 20)
 \end{Sinput}
 \begin{Soutput}
  [1]   7  12  31  32  36  37  44  45  52  60  62  72  73  78  96  99 105 108 121
 [20] 128
 \end{Soutput}
 \begin{Sinput}
-> head(alleles(obj), 20)
+> head(alleles(flu), 20)
 \end{Sinput}
 \begin{Soutput}
  [1] "a/g" "c/t" "t/c" "t/c" "t/c" "c/a" "t/c" "c/t" "a/g" "c/t" "g/t" "c/a"
 [13] "a/g" "a/g" "a/g" "c/t" "a/g" "g/a" "c/a" "a/g"
 \end{Soutput}
 \begin{Sinput}
-> head(locNames(obj), 20)
+> head(locNames(flu), 20)
 \end{Sinput}
 \begin{Soutput}
  [1] "7.a/g"   "12.c/t"  "31.t/c"  "32.t/c"  "36.t/c"  "37.c/a"  "44.t/c" 
@@ -989,25 +989,30 @@ Names of the loci are constructed as the combination of both:
 genome; this is very easily done in R, using \texttt{density} with an appropriate bandewidth:
 \begin{Schunk}
 \begin{Sinput}
-> temp <- density(position(obj), bw = 10)
+> temp <- density(position(flu), bw = 10)
 > plot(temp, type = "n", xlab = "Position in the alignment", main = "Location of the SNPs", 
 +     xlim = c(0, 1701))
 > polygon(c(temp$x, rev(temp$x)), c(temp$y, rep(0, length(temp$x))), 
 +     col = transp("blue", 0.3))
-> points(position(obj), rep(0, nLoc(obj)), pch = "|", col = "blue")
+> points(position(flu), rep(0, nLoc(flu)), pch = "|", col = "blue")
 \end{Sinput}
 \end{Schunk}
 \includegraphics{figs/genomics-027}
 
-\noindent Note that retaining only biallelic sites may cause minor loss of information, as sites
+\noindent In this case, SNPs are distributed fairly homogeneously across the HA segment, with
+a few possible hotspots of polymorphism within positions 400---700.
+\\
+
+
+Note that retaining only biallelic sites may cause minor loss of information, as sites
 with more than 2 alleles are discarded from the data.
 It is however possible to ask \texttt{fasta2genlight} to keep track of the number of alleles for
 each site of the original alignment, by specifying:
 \begin{Schunk}
 \begin{Sinput}
-> obj <- fasta2genlight(myPath, chunk = 10, saveNbAlleles = TRUE, 
+> flu <- fasta2genlight(myPath, chunk = 10, saveNbAlleles = TRUE, 
 +     quiet = TRUE)
-> obj
+> flu
 \end{Sinput}
 \begin{Soutput}
  === S4 class genlight ===
@@ -1020,17 +1025,17 @@ each site of the original alignment, by specifying:
 \end{Soutput}
 \end{Schunk}
 
-\noindent The output object \texttt{obj} now contains the number of alleles of each position, stored
+\noindent The output object \texttt{flu} now contains the number of alleles of each position, stored
 in the \texttt{other} slot:
 \begin{Schunk}
 \begin{Sinput}
-> head(other(obj)$nb.all.per.loc, 20)
+> head(other(flu)$nb.all.per.loc, 20)
 \end{Sinput}
 \begin{Soutput}
  [1] 1 1 1 1 1 1 2 1 1 1 1 2 1 1 1 1 1 1 1 1
 \end{Soutput}
 \begin{Sinput}
-> 100 * mean(unlist(other(obj)) > 1)
+> 100 * mean(unlist(other(flu)) > 1)
 \end{Sinput}
 \begin{Soutput}
 [1] 17.81305
@@ -1042,13 +1047,14 @@ mutation rate.
 What is the nature of this polymorphism?
 \begin{Schunk}
 \begin{Sinput}
-> temp <- table(unlist(other(obj)))
+> temp <- table(unlist(other(flu)))
 > barplot(temp, main = "Distribution of the number \nof alleles per loci", 
-+     xlab = "Number of alleles", ylab = "Number of sites")
++     xlab = "Number of alleles", ylab = "Number of sites", col = heat.colors(4))
 \end{Sinput}
 \end{Schunk}
 \includegraphics{figs/genomics-030}
-Most polymorphic loci are biallelic, but a few loci with 3 or 4 alleles were lost.
+
+\noindent Most polymorphic loci are biallelic, but a few loci with 3 or 4 alleles were lost.
 We can estimate the loss of information very simply:
 \begin{Schunk}
 \begin{Sinput}
@@ -1066,12 +1072,6 @@ essentially triallelic.
 This is probably a fairly exceptional situation due to the high mutation rate of the HA segment.
 
 
-%% % % % % % % % % % % % % %
-%% \subsubsection{Conversions within R}
-%% % % % % % % % % % % % % %
-
-
-
 
 
 
@@ -1085,15 +1085,77 @@ This is probably a fairly exceptional situation due to the high mutation rate of
 
 In the following, we illustrate some methods for the analysis of \texttt{genlight} objects, ranging
 from simple tools for diagnosing allele frequencies or missing data to recently developed multivariate approaches.
-Troughout these examples, we use \texttt{glSim} to simulate \texttt{genlight} objects.
+Some examples below are illustrated using toy datasets generated using the function \texttt{glSim}.
 This simple simulation tool allows for simulating large SNPs data with possibly contrasted
-structures between two groups of individuals. See \texttt{?glSim} for more details on this tool.
-
+structures between two groups of individuals or patterns of linkage disequilibrium (LD).
+See \texttt{?glSim} for more details on this tool.
 
 
 %%%%%%%%%%%%%%%%
-\subsection{Simple operations}
+\subsection{Basic analyses}
 %%%%%%%%%%%%%%%%
+
+
+% % % % % % % % % %
+\subsubsection{Plotting \texttt{genlight} objects}
+% % % % % % % % % %
+Basic features of the data may also be inferred by simply looking at the data.
+\texttt{genlight} objects can be plotted using \texttt{glPlot}, or simply \texttt{plot} (both names
+actually correspond to the same function).
+This function displays the data as images, representing numbers of second alleles using colours.
+For instance, we can have a feel for the amount and location of missing data in the influenza
+dataset (see previous section) fairly easily:
+\begin{Schunk}
+\begin{Sinput}
+> glPlot(flu, posi = "topleft")
+\end{Sinput}
+\end{Schunk}
+The white streches in the first 30 SNPs observed around individual 70 indicate missing data.
+There are only a few missing data, and they only concern a couple of individuals.
+\\
+
+In some simple cases, some biological structures might also be apparent in such plot.
+For instance, we can generate data with independent SNPs distributions for two groups:
+\begin{Schunk}
+\begin{Sinput}
+> x <- glSim(100, 0, 100, ploidy = 2)
+\end{Sinput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Sinput}
+> plot(x)
+\end{Sinput}
+\end{Schunk}
+\begin{center}
+  \includegraphics{figs/glsim1}
+\end{center}
+
+Strong patterns of LD between contiguous sites are also very easy to spot:
+\begin{Schunk}
+\begin{Sinput}
+> x <- glSim(100, 100, ploidy = 2, LD = TRUE, block.size = 10)
+\end{Sinput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Sinput}
+> plot(x)
+\end{Sinput}
+\end{Schunk}
+\begin{center}
+  \includegraphics{figs/glsim2}
+\end{center}
+
+Of course, this is merely a very preliminary approach to the data.
+More detailed analysis can be achieved using both standard and \textit{ad hoc} procedures as
+detailed below.
+
+
+
+% % % % % % % % % %
+\subsubsection{\texttt{genlight}-optimized routines}
+% % % % % % % % % %
+
+
 Some simple operations such as computing allele frequencies or diagnosing missing values can be
 problematic when the data matrix cannot be represented in memory.
 \textit{adegenet} implements a few basic procedures which perform such basic tasks on
@@ -1115,11 +1177,53 @@ They are (see \texttt{?glMean}):
 \item \texttt{glDotProd}: computes the dot products between all pairs of individuals, with
   possible centring and scaling.
 \end{itemize}
-For instance, one can easily map missing data across loci as we have done for SNP positions in the
+For instance, one can easily derive the distributiong of allele frequencies using:
+\begin{Schunk}
+\begin{Sinput}
+> myFreq <- glMean(flu)
+> hist(myFreq, proba = TRUE, col = "gold", xlab = "Allele frequencies", 
++     main = "Distribution of (second) allele frequencies")
+> temp <- density(myFreq)
+> lines(temp$x, temp$y * 1.8, lwd = 3)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/genomics-037}
+
+\noindent In biallelic loci, one allele is always entirely redundant with the other, so it is generally
+sufficient to analyse a single allele per loci.
+However, the distribution of allele frequencies may be more interpretable by restoring its native symmetry:
+\begin{Schunk}
+\begin{Sinput}
+> myFreq <- glMean(flu)
+> myFreq <- c(myFreq, 1 - myFreq)
+> hist(myFreq, proba = TRUE, col = "darkseagreen3", xlab = "Allele frequencies", 
++     main = "Distribution of allele frequencies", nclass = 20)
+> temp <- density(myFreq, bw = 0.05)
+> lines(temp$x, temp$y * 2, lwd = 3)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/genomics-038}
+
+\noindent While a large number of loci are nearly fixed (frequencies close to 0 or 1), there is an
+appreciable number of alleles with intermediate frequencies and therefore susceptible to contain
+interesting biological signal.
+More generally and perhaps more importantly, this figure may also cast light on a well-known social
+phenomenon occuring mainly in young people attending noisy kinds of conferences:
+\begin{center}
+  \includegraphics{figs/devilsign}
+\end{center}
+
+\noindent We can indeed wonder whether the gesture usually referred to as the '\textit{devil sign}'
+is not actually a reference to the usual shape of SNPs frequency distributions.  It is still
+unclear, however, how many geneticists do attend metal gigs, although recent observations suggest
+they would be more frequent in grindcore events than in classical heavy metal shows.
+\\
+
+Besides these considerations, we can also map missing data across loci as we have done for SNP positions in the
 US influenza dataset (see previous section) using \texttt{glNA} and \texttt{density}:
 \begin{Schunk}
 \begin{Sinput}
-> head(glNA(obj), 20)
+> head(glNA(flu), 20)
 \end{Sinput}
 \begin{Soutput}
   7.a/g  12.c/t  31.t/c  32.t/c  36.t/c  37.c/a  44.t/c  45.c/t  52.a/g  60.c/t 
@@ -1128,19 +1232,271 @@ US influenza dataset (see previous section) using \texttt{glNA} and \texttt{dens
       1       1       1       1       1       1       0       0       0       0 
 \end{Soutput}
 \begin{Sinput}
-> temp <- density(glNA(obj), bw = 10)
+> temp <- density(glNA(flu), bw = 10)
 > plot(temp, type = "n", xlab = "Position in the alignment", main = "Location of the missing values (NAs)", 
 +     xlim = c(0, 1701))
 > polygon(c(temp$x, rev(temp$x)), c(temp$y, rep(0, length(temp$x))), 
 +     col = transp("blue", 0.3))
-> points(glNA(obj), rep(0, nLoc(obj)), pch = "|", col = "blue")
+> points(glNA(flu), rep(0, nLoc(flu)), pch = "|", col = "blue")
 \end{Sinput}
 \end{Schunk}
 
 \noindent Here, the few missing values are all located at the beginning at the alignment, probably
 reflecting heterogeneity in DNA amplification during the sequencing process.
-In actually large datasets, such simple investigation can give crucial insights about the quality of
-the data and the existence of possible biases.
+In larger datasets, such simple investigation can give crucial insights about the quality of
+the data and the existence of possible sequencing biases.
+\\
+
+
+
+
+% % % % % % % % % %
+\subsubsection{Analysing data per block}
+% % % % % % % % % %
+
+Some operations such as computations of distances between individuals can also be useful,
+and have yet to be implemented for \texttt{genlight} objects.
+These operations are easy to carry out by converting data to alleles counts (using
+\texttt{as.matrix}), but this conversion itself can be problematic because of memory limitations.
+One easy workaround consists in parallelizing computations across blocks of loci.
+\texttt{seploc} is first used to create a list of smaller \texttt{genlight} objects, each of which
+can individually be converted to absolute allele frequencies using \texttt{as.matrix}.
+Then, computations are carried on the list of object, without ever having to convert the entire
+dataset, and results are finally reunited.
+\\
+
+Let us illustrate this procedure using 40 simulated individuals with 100,000 SNPs each:
+\begin{Schunk}
+\begin{Sinput}
+> x <- glSim(40, 1e+05, LD = FALSE)
+> x
+\end{Sinput}
+\begin{Soutput}
+ === S4 class genlight ===
+ 40 genotypes,  100000 binary SNPs
+ Ploidy: 1
+ 0 (0 %) missing data
+ @pop: individual membership for 2 populations
+\end{Soutput}
+\end{Schunk}
+\texttt{seploc} is used to create a list of smaller objects (here, 10 blocks of 10,000 SNPs):
+\begin{Schunk}
+\begin{Sinput}
+> x <- seploc(x, n.block = 10)
+> class(x)
+\end{Sinput}
+\begin{Soutput}
+[1] "list"
+\end{Soutput}
+\begin{Sinput}
+> names(x)
+\end{Sinput}
+\begin{Soutput}
+ [1] "block.1"  "block.2"  "block.3"  "block.4"  "block.5"  "block.6" 
+ [7] "block.7"  "block.8"  "block.9"  "block.10"
+\end{Soutput}
+\begin{Sinput}
+> x[1:2]
+\end{Sinput}
+\begin{Soutput}
+$block.1
+ === S4 class genlight ===
+ 40 genotypes,  10000 binary SNPs
+ Ploidy: 1
+ 0 (0 %) missing data
+ @pop: individual membership for 2 populations
+
+$block.2
+ === S4 class genlight ===
+ 40 genotypes,  10000 binary SNPs
+ Ploidy: 1
+ 0 (0 %) missing data
+ @pop: individual membership for 2 populations
+\end{Soutput}
+\end{Schunk}
+\texttt{dist} is used within a \texttt{lapply} loop to compute pairwise distances between
+individuals for each block:
+\begin{Schunk}
+\begin{Sinput}
+> lD <- lapply(x, function(e) dist(as.matrix(e)))
+> class(lD)
+\end{Sinput}
+\begin{Soutput}
+[1] "list"
+\end{Soutput}
+\begin{Sinput}
+> names(lD)
+\end{Sinput}
+\begin{Soutput}
+ [1] "block.1"  "block.2"  "block.3"  "block.4"  "block.5"  "block.6" 
+ [7] "block.7"  "block.8"  "block.9"  "block.10"
+\end{Soutput}
+\begin{Sinput}
+> class(lD[[1]])
+\end{Sinput}
+\begin{Soutput}
+[1] "dist"
+\end{Soutput}
+\end{Schunk}
+\texttt{lD} is a list of distances matrices (\texttt{dist} objects) between pairs of individuals.
+The general distance matrix is obtained by summing these:
+\begin{Schunk}
+\begin{Sinput}
+> D <- Reduce("+", lD)
+\end{Sinput}
+\end{Schunk}
+And we could now carry on further analyses, such as a neighbor-joining tree using the \textit{ape} package:
+\begin{Schunk}
+\begin{Sinput}
+> library(ape)
+> plot(nj(D), type = "fan")
+> title("A simple NJ tree of simulated genlight data")
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/genomics-044}
+
+
+
+
+% % % % % % % % % %
+\subsubsection{What is the unit of observation?}
+% % % % % % % % % %
+Whenever ploidy varies across individuals, an issue arises as to what is defined as the \textit{unit of observation}.
+Technically speaking, the unit of observation is the entity on which the observation is made.
+When working with allelic data, it is not always clear what the unit of observation is.
+The unit of observation may be:
+\begin{itemize}
+  \item \textit{individuals}: in this case each individual is represented by a vector of allele frequencies
+  \item \textit{alleles}: in this case we consider that each individual represents a sample of
+    alleles, with a sample size equalling the ploidy for each locus
+\end{itemize}
+
+This distinction is most of the time overlooked when analysing genetic data.
+As a matter of fact, it does not matter when all individuals have the same ploidy.
+For instance, if we take the following data:
+\begin{Schunk}
+\begin{Sinput}
+> x <- new("genlight", list(a = c(0, 0, 1, 1), b = c(1, 1, 0, 0), 
++     c = c(1, 1, 1, 1)))
+> locNames(x) <- 1:4
+> x
+\end{Sinput}
+\begin{Soutput}
+ === S4 class genlight ===
+ 3 genotypes,  4 binary SNPs
+ Ploidy: 1
+ 0 (0 %) missing data
+ @loc.names: labels of the SNPs
+\end{Soutput}
+\begin{Sinput}
+> as.matrix(x)
+\end{Sinput}
+\begin{Soutput}
+  1 2 3 4
+a 0 0 1 1
+b 1 1 0 0
+c 1 1 1 1
+\end{Soutput}
+\end{Schunk}
+and assume that all individuals are haploid, then computing e.g. the allele frequencies is
+straightforward (they all equal $2/3$):
+\begin{Schunk}
+\begin{Sinput}
+> glMean(x)
+\end{Sinput}
+\begin{Soutput}
+        1         2         3         4 
+0.6666667 0.6666667 0.6666667 0.6666667 
+\end{Soutput}
+\end{Schunk}
+Let us no consider a sightly different case:
+\begin{Schunk}
+\begin{Sinput}
+> x <- new("genlight", list(a = c(0, 0, 2, 2), b = c(1, 1, 0, 0), 
++     c = c(1, 1, 1, 1)))
+> locNames(x) <- 1:4
+> x
+\end{Sinput}
+\begin{Soutput}
+ === S4 class genlight ===
+ 3 genotypes,  4 binary SNPs
+ Ploidy statistics (min/median/max): 1 / 1 / 2
+ 0 (0 %) missing data
+ @loc.names: labels of the SNPs
+\end{Soutput}
+\begin{Sinput}
+> as.matrix(x)
+\end{Sinput}
+\begin{Soutput}
+  1 2 3 4
+a 0 0 2 2
+b 1 1 0 0
+c 1 1 1 1
+\end{Soutput}
+\begin{Sinput}
+> ploidy(x)
+\end{Sinput}
+\begin{Soutput}
+a b c 
+2 1 1 
+\end{Soutput}
+\end{Schunk}
+What are the allele frequencies in this case?
+Well, it depends on what we mean by '\textit{allele frequency}'.
+\\
+
+
+Is it the frequency of the alleles in the population?
+In this case, the unit of observation is the allele.
+We have a total of 4 samples for each loci, (since '\texttt{a}' is diploid, it
+represents actually two samples) and the frequencies are $1/2$, $1/2$, $3/4$, $3/4$.
+Note, however, that this assumes that alleles are randomly associated within individuals (pangamy).
+
+Or is it the frequency of the alleles within the individuals?
+In this case, the unit of observation is the individual, and the vector of allele frequencies represents the 'average individual'.
+We first need to convert each individual vector into relative frequencies (i.e., divide by their respective ploidy), and then compute the
+average frequency across individuals, which ends up with $2/3$ for each locus:
+\begin{Schunk}
+\begin{Sinput}
+> M <- as.matrix(x)/ploidy(x)
+> apply(M, 2, mean)
+\end{Sinput}
+\begin{Soutput}
+        1         2         3         4 
+0.6666667 0.6666667 0.6666667 0.6666667 
+\end{Soutput}
+\end{Schunk}
+
+The procedures designed for \texttt{genlight} objects seen above (\texttt{glMean}, \texttt{glNA},
+etc.) allow for this distinction to be made.
+The option \texttt{alleleAsUnit} is a logical indicating whether the observation unit is the allele
+(\texttt{TRUE}, default) or the individual (\texttt{FALSE}).
+For instance:
+\begin{Schunk}
+\begin{Sinput}
+> as.matrix(x)
+\end{Sinput}
+\begin{Soutput}
+  1 2 3 4
+a 0 0 2 2
+b 1 1 0 0
+c 1 1 1 1
+\end{Soutput}
+\begin{Sinput}
+> glMean(x, alleleAsUnit = TRUE)
+\end{Sinput}
+\begin{Soutput}
+   1    2    3    4 
+0.50 0.50 0.75 0.75 
+\end{Soutput}
+\begin{Sinput}
+> glMean(x, alleleAsUnit = FALSE)
+\end{Sinput}
+\begin{Soutput}
+        1         2         3         4 
+0.6666667 0.6666667 0.6666667 0.6666667 
+\end{Soutput}
+\end{Schunk}
 
 
 
@@ -1149,6 +1505,103 @@ the data and the existence of possible biases.
 %%%%%%%%%%%%%%%%
 \subsection{Principal Component Analysis (PCA)}
 %%%%%%%%%%%%%%%%
+Principal Component Analysis (PCA) is implemented for \texttt{genlight} objects by the function \texttt{glPca}.
+This function can accommodate any level of ploidy in the data (including varying ploidy across
+individuals). More importantly, it performs computations without ever processing more than a
+couple of genomes at a time, thereby minimizing memory requirements.
+It also uses compiled C code and possibly multicore ressources if available to speed up computations.
+We illustrate the method on the previously introduced influenza dataset (object \texttt{flu}):
+\begin{Schunk}
+\begin{Sinput}
+> flu
+> pca1 <- glPca(flu)
+\end{Sinput}
+\end{Schunk}
+\begin{center}
+  \includegraphics{figs/pca1}
+\end{center}
+When \texttt{nf} (number of retained factors) is not specified, the function displays the barplot of
+eigenvalues of the analysis and asks the user for a number of retained principal components.
+\texttt{glPca} returns a list with the class \texttt{glPca} containing the eigenvalues, principal
+components and loadings of the analysis:
+\begin{Schunk}
+\begin{Sinput}
+> pca1
+\end{Sinput}
+\begin{Soutput}
+ === PCA of genlight object ===
+Class: list of type glPca
+Call ($call):glPca(x = flu)
+
+Eigenvalues ($eig):
+ 11.385 4.019 1.391 1.275 0.636 0.569 ...
+
+Principal components ($scores):
+ matrix with 80 rows (individuals) and 4 columns (axes) 
+
+Principal axes ($loadings):
+ matrix with 274 rows (SNPs) and 4 columns (axes) 
+\end{Soutput}
+\end{Schunk}
+
+In addition to usual graphics, \texttt{glPca} object can displayed using \texttt{scatter} (produces
+a scatterplot of the principal components (PCs)) and \texttt{loadingplot} (plots the allele contributions,
+i.e. squared loadings).
+The scatterplot is obtained by:
+\begin{Schunk}
+\begin{Sinput}
+> scatter(pca1, posi = "bottomright")
+> title("PCA of the US influenza data\n axes 1-2")
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/genomics-053}
+The first PC suggests the existence of two clades in the data, while the second one shows groups of
+closely related isolates arranged along a cline of genetic differentiation.
+This structure is confirmed by a simple neighbour-joining (NJ) tree:
+\begin{Schunk}
+\begin{Sinput}
+> library(ape)
+> tre <- nj(dist(as.matrix(flu)))
+> tre
+\end{Sinput}
+\begin{Soutput}
+Phylogenetic tree with 80 tips and 78 internal nodes.
+
+Tip labels:
+	 CY013200,  CY013781,  CY012128,  CY013613,  CY012160,  CY012272, ...
+
+Unrooted; includes branch lengths.
+\end{Soutput}
+\begin{Sinput}
+> plot(tre, typ = "fan", cex = 0.7)
+> title("NJ tree of the US influenza data")
+\end{Sinput}
+\end{Schunk}
+
+The correspondance between both analyses can be better assessed using colors based on PCs; this is
+achieved by \texttt{colorplot}:
+\begin{Schunk}
+\begin{Sinput}
+> myCol <- colorplot(pca1$scores, pca1$scores, transp = TRUE, cex = 4)
+> abline(h = 0, v = 0, col = "grey")
+> add.scatter.eig(pca1$eig[1:40], 2, 1, 2, posi = "topright", inset = 0.05, 
++     ratio = 0.3)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/genomics-055}
+
+\begin{Schunk}
+\begin{Sinput}
+> plot(tre, typ = "fan", show.tip = FALSE)
+> tiplabels(pch = 20, col = myCol, cex = 4)
+> title("NJ tree of the US influenza data")
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/genomics-056}
+
+\noindent As expected, both approaches give congruent results, but both are complementary: NJ is
+better at showing bunches of related isolates, but the cline of genetic differentiation is much
+clearer in PCA.
 
 
 
@@ -1156,6 +1609,116 @@ the data and the existence of possible biases.
 %%%%%%%%%%%%%%%%
 \subsection{Discriminant Analysis of Principal Components (DAPC)}
 %%%%%%%%%%%%%%%%
+Discriminant analysis of Principal Components (DAPC) is implemented for \texttt{genlight} objects by
+an appropriate method for the \texttt{find.clusters} and \texttt{dapc} generics.
+To put it simply, you can run \texttt{find.clusters} and \texttt{dapc} on \texttt{genlight} objects and the appropriate
+functions will be used.
+As in \texttt{glPca}, these methods never require more than a couple of genomes to be translated into
+allele frequencies at a time, thereby minimizing RAM requirements.
+\\
+
+Below, we illustrate DAPC on a \texttt{genlight} including only 50 structured SNPs out of 100,000
+non-structured SNPs:
+\begin{Schunk}
+\begin{Sinput}
+> x <- glSim(100, 1e+05, 50)
+\end{Sinput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Sinput}
+> x
+\end{Sinput}
+\begin{Soutput}
+ === S4 class genlight ===
+ 100 genotypes,  100050 binary SNPs
+ Ploidy: 1
+ 0 (0 %) missing data
+ @pop: individual membership for 2 populations
+\end{Soutput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Sinput}
+> dapc1 <- dapc(x, n.pca = 20, n.da = 1)
+\end{Sinput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Sinput}
+> dapc1
+\end{Sinput}
+\begin{Soutput}
+	#########################################
+	# Discriminant Analysis of Principal Components #
+	#########################################
+class: dapc
+$call: dapc.genlight(x = x, n.pca = 20, n.da = 1)
+
+$n.pca: 20 first PCs of PCA used
+$n.da: 1 discriminant functions saved
+$var (proportion of conserved variance): 0.212
+
+$eig (eigenvalues): 132.9  vector    length content                   
+1 $eig      1      eigenvalues               
+2 $grp      100    prior group assignment    
+3 $prior    2      prior group probabilities 
+4 $assign   100    posterior group assignment
+5 $pca.cent 100050 centring vector of PCA    
+6 $pca.norm 100050 scaling vector of PCA     
+7 $pca.eig  99     eigenvalues of PCA        
+
+  data.frame    nrow   ncol content                                          
+1 $tab          100    20   retained PCs of PCA                              
+2 $means        2      20   group means                                      
+3 $loadings     20     1    loadings of variables                            
+4 $ind.coord    100    1    coordinates of individuals (principal components)
+5 $grp.coord    2      1    coordinates of groups                            
+6 $posterior    100    2    posterior membership probabilities               
+7 $pca.loadings 100050 20   PCA loadings of original variables               
+8 $var.contr    100050 1    contribution of original variables               
+\end{Soutput}
+\end{Schunk}
+
+For the last 50 structured SNPs (located at the end of the alignment), the two groups of individuals have different (random) distribution of
+allele frequencies, while they share the same distributions in other loci.
+DAPC can still make some decent discrimination:
+\begin{Schunk}
+\begin{Sinput}
+> scatter(dapc1, scree.da = FALSE, bg = "white", posi.pca = "topright", 
++     legen = TRUE, txt.leg = paste("group", 1:2), col = c("red", 
++         "blue"))
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/genomics-062}
+
+\noindent While the composition plot confirms that groups are not entirely disentanbled...
+\begin{Schunk}
+\begin{Sinput}
+> compoplot(dapc1, col = c("red", "blue"), lab = "", txt.leg = paste("group", 
++     1:2), ncol = 2)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/genomics-063}
+
+\noindent ... the loading plot identifies pretty well the most discriminating alleles:
+\begin{Schunk}
+\begin{Sinput}
+> loadingplot(dapc1$var.contr, thres = 4e-04)
+\end{Sinput}
+\end{Schunk}
+
+\begin{center}
+  \includegraphics{figs/loadingplotGL}
+\end{center}
+
+\noindent And we can zoom in to the contributions of the last 100 SNPs to make sure that the tail indeed
+corresponds to the 50 last structured loci:
+\begin{Schunk}
+\begin{Sinput}
+> loadingplot(tail(dapc1$var.contr[, 1], 100))
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/genomics-065}
+
+\noindent Here, we indeed identified the structured region of the genome fairly well.
 
 
 

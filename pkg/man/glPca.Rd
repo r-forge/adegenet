@@ -116,6 +116,7 @@ glPca(x, center = TRUE, scale = FALSE, nf = NULL, loadings = TRUE,
 }
 \details{
   === Using multiple cores ===
+  
   Most recent machines have one or several processors with multiple
   cores. R processes usually use one single core. The package
   \code{multicore} allows for parallelizing some computations on
@@ -132,7 +133,8 @@ glPca(x, center = TRUE, scale = FALSE, nf = NULL, loadings = TRUE,
   with the multicore option.
 }
 \value{
-  === glPca objects ===\cr
+  === glPca objects ===
+  
   The class \code{glPca} is a list with the following
   components:\cr
   \item{call}{the matched call.}
@@ -141,9 +143,11 @@ glPca(x, center = TRUE, scale = FALSE, nf = NULL, loadings = TRUE,
     coordinates of each individual (in row) on each principal axis (in column).}
   \item{loadings}{(optional) a matrix of loadings, containing the loadings of each
     SNP (in row) for each principal axis (in column).}
- 
 
-  === other outputs ===\cr
+  -
+  
+  === other outputs ===
+  
   Other functions have different outputs:\cr
   - \code{scatter} return the matched call.\cr
   - \code{loadingplot} returns information about the most contributing
