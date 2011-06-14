@@ -9,22 +9,21 @@ glPlot <- function(x, col=NULL, legend=TRUE, posi="bottomleft", bg=rgb(1,1,1,.5)
     X <- X[,ncol(X):1]
     ylabpos <- pretty(1:nInd(x),5)
     if(is.null(col)) {
-        myCol <- colorRampPalette(c("royalblue3", "firebrick1"))(max(X)+1)
+        myCol <- colorRampPalette(c("royalblue3", "firebrick1"))(max(X,na.rm=TRUE)+1)
     } else {
         myCol <- col
     }
 
     ## draw the plot ##
     ## main plot
-    image(x=1:nLoc(x), y=1:nInd(x), z=X, xlab="SNP index", ylab="Individual index", yaxt="n",
-          col=myCol, ...)
+    image(x=1:nLoc(x), y=1:nInd(x), z=X, xlab="SNP index", ylab="Individual index", yaxt="n", col=myCol, ...)
 
     ## add y axis
     axis(side=2, at=nInd(x)-ylabpos+1, lab=ylabpos)
 
     ## add legend
     if(legend){
-        legend("bottomleft", fill=myCol, legend=0:max(X), horiz=TRUE, bg=bg, title="Number of 2nd allele")
+        legend(posi, fill=myCol, legend=0:max(X,na.rm=TRUE), horiz=TRUE, bg=bg, title="Number of 2nd allele")
     }
 
     return(invisible())
