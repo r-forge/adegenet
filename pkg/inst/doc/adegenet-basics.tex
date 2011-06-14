@@ -1,6 +1,6 @@
 \documentclass{article}
-% \VignettePackage{adegenet}
-% \VignetteIndexEntry{adegenet basics: analysing genetic data}
+% \VignettePackage{dapc}
+% \VignetteIndexEntry{An introduction to the adegenet package}
 
 \usepackage{graphicx}
 \usepackage[colorlinks=true,urlcolor=blue]{hyperref}
@@ -8,8 +8,20 @@
 \usepackage{color}
 
 \usepackage[utf8]{inputenc} % for UTF-8/single quotes from sQuote()
+
+
+% for bold symbols in mathmode
+\usepackage{bm}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\m}[1]{\mathbf{#1}}
+
+
+
 \newcommand{\code}[1]{{{\tt #1}}}
-\title{adegenet basics: analysing genetic data}
+\title{An introduction to \textit{adegenet} 1.3-0}
 \author{Thibaut Jombart}
 \date{\today}
 
@@ -25,6 +37,8 @@
 
 
 
+
+
 \definecolor{Soutput}{rgb}{0,0,0.56}
 \definecolor{Sinput}{rgb}{0.56,0,0}
 \DefineVerbatimEnvironment{Sinput}{Verbatim}
@@ -35,9 +49,460 @@
 \color{black}
 
 \maketitle
+
+\begin{abstract}
+  This vignette provides an introductory tutorial to the \textit{adegenet} package \cite{tjart05}
+  for the R software \cite{np145}. This package implements tools to handle, analyse and simulate
+  genetic data.  Originally developped for multiallelic, codominant markers such as microsatellites,
+  \textit{adegenet} now also handles dominant markers, allows for any ploidy in the data, and
+  implements the most memory-efficient storage and handling of genome-wide SNP data. This vignette
+  introduces basic functionalities of the package. Other vignettes are dedicated to specific topics
+  (see Introduction below).
+\end{abstract}
+
+
+\newpage
 \tableofcontents
 
 
 
 
-\end{document}
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+This tutorial introduces some basic functionalities of the \textit{adegenet} package for R \cite{np145}.
+The purpose of this package is to provide tools for handling, analysing and simulating genetic
+markers data, with an emphasis on multivariate approaches and exploratory methods.
+Standard multivariate analyses are implemented in the \textit{ade4} package \cite{tj311}, of which
+\textit{adegenet} was originally an extension.
+However, the package has since grown methods of its own such as the Discriminant Analysis of
+Principal Components (DAPC, \cite{tjart19}), the spatial Principal Components Analysis (sPCA,
+\cite{tjart04}), or the \textit{SeqTrack} algorithm \cite{tjart20}.
+
+
+Data can be imported from a wide range of formats, including those of
+popular software (GENETIX, STRUCTURE, Fstat, Genepop), or from simple dataframes of genotypes.
+Polymorphic sites can be extracted from both nucleotide and amino-acid sequences, with special
+methods for handling genome-wide SNPs data with maximum efficiency.
+\\
+
+In this tutorial, we first introduce the \texttt{genind} and \texttt{genpop} classes used to store
+multiallelic markers, and then show how to extract information from these objects using a variety of
+tools.
+Other vignettes are dedicated to some specific topics:
+\begin{itemize}
+\item DAPC: type \texttt{vignette("adegenet-dapc",package='adegenet')} in R to access this vignette.
+\item sPCA: type \texttt{vignette("adegenet-spca",package='adegenet')}
+\item genome-wide SNPs handling and analysis: type \texttt{vignette("adegenet-genomics",package='adegenet')}
+\end{itemize}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{First steps}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Installing the package}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Current version of the package is 1.3-0.
+Please make sure to be using the latest version of R and adegenet
+before sending question about missing functions to the mailing list.
+
+Here, the \textit{adegenet} package is installed along with other recommended packages.
+\begin{Schunk}
+\begin{Sinput}
+> install.packages("adegenet", dep = TRUE)
+\end{Sinput}
+\end{Schunk}
+Then the first step is to load the package:
+\begin{Schunk}
+\begin{Sinput}
+> library(adegenet)
+\end{Sinput}
+\end{Schunk}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Object classes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Two classes of objects are defined, depending on the level at which the genetic information is stored:
+\texttt{genind} is used for individual genotypes, whereas \texttt{genpop} is used for alleles numbers counted by populations.
+Note that the term 'population', here and later, is employed in a broad sense: it simply refers to any grouping of individuals.
+
+% % % % % % % % % % % % % % % % % %
+\subsubsection{genind objects}
+% % % % % % % % % % % % % % % % % %
+These objects can be obtained by reading data files from other software,
+from a \texttt{data.frame} of genotypes, by conversion from a table of
+allelic frequencies, or even from aligned DNA sequences (see 'importing data').
+\begin{Schunk}
+\begin{Sinput}
+> data(nancycats)
+> is.genind(nancycats)
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\begin{Sinput}
+> nancycats
+\end{Sinput}
+\begin{Soutput}
+   #####################
+   ### Genind object ### 
+   #####################
+- genotypes of individuals - 
+
+S4 class:  genind
+@call: genind(tab = truenames(nancycats)$tab, pop = truenames(nancycats)$pop)
+
+@tab:  237 x 108 matrix of genotypes
+
+@ind.names: vector of  237 individual names
+@loc.names: vector of  9 locus names
+@loc.nall: number of alleles per locus
+@loc.fac: locus factor for the  108 columns of @tab
+@all.names: list of  9 components yielding allele names for each locus
+@ploidy:  2
+@type:  codom
+
+Optionnal contents: 
+@pop:  factor giving the population of each individual
+@pop.names:  factor giving the population of each individual
+
+@other: a list containing: xy 
+\end{Soutput}
+\end{Schunk}
+A \texttt{genind} object is formal S4 object with several slots,
+accessed using the '\texttt{@}' operator (see \texttt{class?genind}).
+Note that the '\texttt{\$}' was also implemented for adegenet objects,
+so that slots can be accessed as if they were components of a list.
+The main slot in \texttt{genind} is a table of allelic frequencies of individuals (in rows) for every alleles in every loci.
+Being frequencies, data sum to one per locus, giving the score of 1 for an homozygote and 0.5 for an heterozygote.
+The particular case of presence/absence data will is described in an
+ad-hoc section (see 'Handling presence/absence data').
+For instance:
+\begin{Schunk}
+\begin{Sinput}
+> nancycats$tab[10:18, 1:10]
+\end{Sinput}
+\begin{Soutput}
+    L1.01 L1.02 L1.03 L1.04 L1.05 L1.06 L1.07 L1.08 L1.09 L1.10
+010     0     0     0     0     0   0.0   0.0   0.0   1.0   0.0
+011     0     0     0     0     0   0.0   0.0   0.0   0.0   0.5
+012     0     0     0     0     0   0.5   0.0   0.5   0.0   0.0
+013     0     0     0     0     0   0.5   0.0   0.5   0.0   0.0
+014     0     0     0     0     0   0.0   0.0   1.0   0.0   0.0
+015     0     0     0     0     0   0.0   0.5   0.0   0.5   0.0
+016     0     0     0     0     0   0.5   0.0   0.0   0.5   0.0
+017     0     0     0     0     0   0.5   0.0   0.5   0.0   0.0
+018     0     0     0     0     0   0.5   0.0   0.0   0.5   0.0
+\end{Soutput}
+\end{Schunk}
+Individual '010' is an homozygote for the allele 09 at locus 1, while '018' is an heterozygote with alleles 06 and 09.
+As user-defined labels are not always valid (for instance, they can
+be duplicated), generic labels are used for individuals, markers, alleles and eventually population.
+The true names are stored in the object (components \texttt{\$[...].names} where ... can be 'ind', 'loc', 'all' or 'pop').
+For instance :
+\begin{Schunk}
+\begin{Sinput}
+> nancycats$loc.names
+\end{Sinput}
+\begin{Soutput}
+     L1      L2      L3      L4      L5      L6      L7      L8      L9 
+ "fca8" "fca23" "fca43" "fca45" "fca77" "fca78" "fca90" "fca96" "fca37" 
+\end{Soutput}
+\end{Schunk}
+gives the true marker names, and
+\begin{Schunk}
+\begin{Sinput}
+> nancycats$all.names[[3]]
+\end{Sinput}
+\begin{Soutput}
+   01    02    03    04    05    06    07    08    09    10 
+"133" "135" "137" "139" "141" "143" "145" "147" "149" "157" 
+\end{Soutput}
+\end{Schunk}
+gives the allele names for marker 3.
+Alternatively, one can use the accessor \texttt{locNames}:
+\begin{Schunk}
+\begin{Sinput}
+> locNames(nancycats)
+\end{Sinput}
+\begin{Soutput}
+     L1      L2      L3      L4      L5      L6      L7      L8      L9 
+ "fca8" "fca23" "fca43" "fca45" "fca77" "fca78" "fca90" "fca96" "fca37" 
+\end{Soutput}
+\begin{Sinput}
+> head(locNames(nancycats, withAlleles = TRUE), 10)
+\end{Sinput}
+\begin{Soutput}
+ [1] "fca8.117" "fca8.119" "fca8.121" "fca8.123" "fca8.127" "fca8.129"
+ [7] "fca8.131" "fca8.133" "fca8.135" "fca8.137"
+\end{Soutput}
+\end{Schunk}
+
+
+\noindent The slot 'ploidy' is an integer giving the level of ploidy
+of the considered organisms (defaults to 2).
+This parameter is essential, in particular when switching from
+individual frequencies (genind object) to allele counts per
+populations (genpop).
+
+\noindent
+The slot 'type' describes the type of marker used: codominant ('codom', e.g. microsatellites) or presence/absence ('PA', e.g. AFLP).
+By default, adegenet considers that markers are codominant.
+Note that actual handling of presence/absence markers has been made available since version 1.2-3.
+See the dedicated section for more information about presence/absence markers.
+
+Optional components are also allowed.
+The slot \texttt{@other} is a list that can include any additionnal information.
+The optional slot \texttt{@pop} (a factor giving a grouping of individuals) is particular in that the behaviour of many functions will check automatically for it and behave accordingly.
+In fact, each time an argument 'pop' is required by a function, it is first seeked in \texttt{@pop}.
+For instance, using the function \texttt{genind2genpop} to convert \texttt{nancycats} to a \texttt{genpop} object, there is no need to give a 'pop' argument as it exists in the \texttt{genind} object:
+\begin{Schunk}
+\begin{Sinput}
+> table(nancycats$pop)
+\end{Sinput}
+\begin{Soutput}
+P01 P02 P03 P04 P05 P06 P07 P08 P09 P10 P11 P12 P13 P14 P15 P16 P17 
+ 10  22  12  23  15  11  14  10   9  11  20  14  13  17  11  12  13 
+\end{Soutput}
+\begin{Sinput}
+> catpop <- genind2genpop(nancycats)
+\end{Sinput}
+\begin{Soutput}
+ Converting data from a genind to a genpop object... 
+
+...done.
+\end{Soutput}
+\begin{Sinput}
+> catpop
+\end{Sinput}
+\begin{Soutput}
+       #####################
+       ### Genpop object ### 
+       #####################
+- Alleles counts for populations - 
+
+S4 class:  genpop
+@call: genind2genpop(x = nancycats)
+
+@tab:  17 x 108 matrix of alleles counts
+
+@pop.names: vector of  17 population names
+@loc.names: vector of  9 locus names
+@loc.nall: number of alleles per locus
+@loc.fac: locus factor for the  108 columns of @tab
+@all.names: list of  9 components yielding allele names for each locus
+@ploidy:  2
+@type:  codom
+
+@other: a list containing: xy 
+\end{Soutput}
+\end{Schunk}
+Other additional components can be stored (like here, spatial coordinates of populations in \$xy) but will not be passed during any conversion (\texttt{catpop} has no \$other\$xy).
+
+\noindent Note that the slot 'pop' can be retrieved and set using the \texttt{pop} function:
+\begin{Schunk}
+\begin{Sinput}
+> obj <- nancycats[sample(1:50, 10)]
+> pop(obj)
+\end{Sinput}
+\begin{Soutput}
+ [1] 1 1 4 2 2 2 2 2 4 1
+Levels: 1 4 2
+\end{Soutput}
+\begin{Sinput}
+> pop(obj) <- rep("newPop", 10)
+> pop(obj)
+\end{Sinput}
+\begin{Soutput}
+ [1] newPop newPop newPop newPop newPop newPop newPop newPop newPop newPop
+Levels: newPop
+\end{Soutput}
+\end{Schunk}
+
+
+Finally, a \texttt{genind} object generally contains its matched call, \textit{i.e.} the instruction that created it.
+This is not the case, however, for objects loaded using \texttt{data}.
+When call is available, it can be used to regenerate an object.
+\begin{Schunk}
+\begin{Sinput}
+> obj <- read.genetix(system.file("files/nancycats.gtx", package = "adegenet"))
+\end{Sinput}
+\begin{Soutput}
+ Converting data from GENETIX to a genind object... 
+
+...done.
+\end{Soutput}
+\begin{Sinput}
+> obj$call
+\end{Sinput}
+\begin{Soutput}
+read.genetix(file = system.file("files/nancycats.gtx", package = "adegenet"))
+\end{Soutput}
+\begin{Sinput}
+> toto <- eval(obj$call)
+\end{Sinput}
+\begin{Soutput}
+ Converting data from GENETIX to a genind object... 
+
+...done.
+\end{Soutput}
+\begin{Sinput}
+> identical(obj, toto)
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\end{Schunk}
+
+% % % % % % % % % % % % % % % % % %
+\subsubsection{genpop objects}
+% % % % % % % % % % % % % % % % % %
+We use the previously built \texttt{genpop} object:
+\begin{Schunk}
+\begin{Sinput}
+> catpop
+\end{Sinput}
+\begin{Soutput}
+       #####################
+       ### Genpop object ### 
+       #####################
+- Alleles counts for populations - 
+
+S4 class:  genpop
+@call: genind2genpop(x = nancycats)
+
+@tab:  17 x 108 matrix of alleles counts
+
+@pop.names: vector of  17 population names
+@loc.names: vector of  9 locus names
+@loc.nall: number of alleles per locus
+@loc.fac: locus factor for the  108 columns of @tab
+@all.names: list of  9 components yielding allele names for each locus
+@ploidy:  2
+@type:  codom
+
+@other: a list containing: xy 
+\end{Soutput}
+\begin{Sinput}
+> is.genpop(catpop)
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\begin{Sinput}
+> catpop$tab[1:5, 1:10]
+\end{Sinput}
+\begin{Soutput}
+   L1.01 L1.02 L1.03 L1.04 L1.05 L1.06 L1.07 L1.08 L1.09 L1.10
+01     0     0     0     0     0     0     0     2     9     1
+02     0     0     0     0     0    10     9     8    14     2
+03     0     0     0     4     0     0     0     0     1    10
+04     0     0     0     3     0     0     0     1     7    17
+05     0     0     0     1     0     0     0     0     7    10
+\end{Soutput}
+\end{Schunk}
+The matrix \$tab contains alleles counts per population (here, cat colonies).
+These objects are otherwise very similar to \texttt{genind} in their
+structure, and possess generic names, true names, the matched call and
+an \texttt{@other} slot.
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Various topics}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Importing data}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% % % % % % % % % % % % % % % % % %
+\subsubsection{From GENETIX, STRUCTURE, FSTAT, Genepop}
+% % % % % % % % % % % % % % % % % %
+
+Data can be read from the software GENETIX (.gtx), STRUCTURE (.str or
+.stru), FSTAT (.dat) and Genepop (.gen) files, using the corresponding
+\texttt{read} function: \texttt{read.genetix},  \texttt{read.structure},
+\texttt{read.fstat}, and  \texttt{read.genepop}.
+These functions take as main argument the path (as a string character) to an input file, and produce a \texttt{genind} object.
+Alternatively, one can use the function \texttt{import2genind} which detects a file format from its extension and uses the appropriate routine.
+For instance:
+\begin{Schunk}
+\begin{Sinput}
+> obj1 <- read.genetix(system.file("files/nancycats.gtx", package = "adegenet"))
+\end{Sinput}
+\begin{Soutput}
+ Converting data from GENETIX to a genind object... 
+
+...done.
+\end{Soutput}
+\begin{Sinput}
+> obj2 <- import2genind(system.file("files/nancycats.gtx", package = "adegenet"))
+\end{Sinput}
+\begin{Soutput}
+ Converting data from GENETIX to a genind object... 
+
+...done.
+\end{Soutput}
+\begin{Sinput}
+> all.equal(obj1, obj2)
+\end{Sinput}
+\begin{Soutput}
+[1] "Attributes: < Component 2: target, current do not match when deparsed >"
+\end{Soutput}
+\end{Schunk}
+
+\noindent The only difference between \texttt{obj1} and \texttt{obj2} is
+their call (which is normal as they were obtained from different
+command lines).
+
+
+% % % % % % % % % % % % % % % % % %
+\subsubsection{From other software}
+% % % % % % % % % % % % % % % % % %
+Genetic markers data can most of the time be stored as a table with individuals in row and markers
+in column, where each entry is a character string coding the alleles possessed at one locus.
+Such data are easily imported into R as a \texttt{data.frame}, using for instance \texttt{read.table}
+for text files or \texttt{read.csv} for comma-separated text files.
+Then, the obtained \texttt{data.frame} can be converted into a \texttt{genind} object using \texttt{df2genind}.
+
+There are only a few pre-requisite the data should meet for this conversion to be possible. The
+easiest and clearest way of coding data is using a separator between alleles. For instance,
+"80/78'', "80|78", or "80,78'' are different ways of coding a genotype at a microsatellite locus
+with alleles '80' and 78".
+Note that for haploid data, no separator shall be used.
+As a consequence, SNP data should consist of the raw nucleotides.
+The only contraint when using a separator is that the same separator is used in all the
+dataset. There are no contraints as to i) the type of separator used or ii) the ploidy of the data.
+These parameters can be set in \texttt{df2genind} through arguments 'sep' and 'ploidy', respectively.
+
+Alternatively, no separator may be used provided a fixed number of characters is used to code any allele.
+For instance, in a diploid organism, "0101" is an homozygote 1/1 while "1209" is a heterozygote
+12/09 in a two-character per allele coding scheme.
+In a tetraploid system with one character per allele, "1209" will be understood as 1/2/0/9.
+
+Here, we provide an example using a data set from the library hierfstat.
+\begin{Schunk}
+\begin{Sinput}
+> library(hierfstat)
