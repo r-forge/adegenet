@@ -89,12 +89,12 @@ methods for handling genome-wide SNPs data with maximum efficiency.
 \\
 
 In this tutorial, we first introduce the \texttt{genind} and \texttt{genpop} classes used to store
-multiallelic markers, and then show how to extract information from these objects using a variety of
-tools.
-Other vignettes are dedicated to some specific topics:
+multiallelic markers (respectively for individuals and populations), and then show how to extract
+information from these objects using a variety of tools.  Other vignettes are dedicated to some
+specific topics:
 \begin{itemize}
-\item DAPC: type \texttt{vignette("adegenet-dapc",package='adegenet')} in R to access this vignette.
 \item sPCA: type \texttt{vignette("adegenet-spca",package='adegenet')}
+\item DAPC: type \texttt{vignette("adegenet-dapc",package='adegenet')} in R to access this vignette.
 \item genome-wide SNPs handling and analysis: type \texttt{vignette("adegenet-genomics",package='adegenet')}
 \end{itemize}
 
@@ -103,40 +103,143 @@ Other vignettes are dedicated to some specific topics:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{First steps}
+\section{Getting started}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Installing the package}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+Before going further, we shall make sure that \textit{adegenet} is weel installed
+on the computer.
 Current version of the package is \Sexpr{packageDescription("adegenet", fields = "Version")}.
-Please make sure to be using the latest version of R and adegenet
-before sending question about missing functions to the mailing list.
 
-Here, the \textit{adegenet} package is installed along with other recommended packages.
-<<inst,eval=F>>=
-install.packages("adegenet",dep=TRUE)
+Make sure you have a recent version ($\geq 2.13.0$) of R by typing:
+<<>>=
+R.version.string
 @
-Then the first step is to load the package:
+
+Then, install \textit{adegenet} with dependencies using:
+<<eval=FALSE>>=
+install.packages("adegenet", dep=TRUE)
+@
+This only installs packages on CRAN.
+However, some functions in \textit{adegenet} also use \textit{graph}, developped on Bioconductor, an
+alternative package repository.
+To install \textit{graph}, type:
+<<eval=FALSE>>=
+source("http://bioconductor.org/biocLite.R")
+biocLite("graph")
+@
+
+We can now load the package using:
 <<>>=
 library(adegenet)
 @
 
+\noindent You can make sure that the right version of the package is installed using:
+<<>>=
+packageDescription("adegenet", fields = "Version")
+@
+\textit{adegenet} version should read \Sexpr{packageDescription("adegenet", fields = "Version")}.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Getting help}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+There are several ways of getting information about R in general, or about
+\textit{adegenet} in particular.
+The function \texttt{help.search} is used to look for help on a given topic.
+For instance:
+<<>>=
+help.search("Hardy-Weinberg")
+@
+replies that there is a function \texttt{HWE.test.genind} in the
+\textit{adegenet} package, other similar functions in \textit{genetics} and \textit{pegas}.
+To get help for a given function, use \texttt{?foo} where `foo' is the
+function of interest.
+For instance (quotes can be removed):
+<<eval=FALSE>>=
+?spca
+@
+will open up the manpage of the spatial principal component analysis \cite{tjart04}.
+At the end of a manpage, an `example' section often shows how to use a function.
+This can be copied and pasted to the console, or directly executed
+from the console using \texttt{example}.
+For further questions concerning R, the function \texttt{RSiteSearch}
+is a powerful tool for making online researches using keywords in R's archives (mailing
+lists and manpages).
+\\
+
+
+\textit{adegenet} has a few extra documentation sources.
+Information can be found from the website
+(\url{http://adegenet.r-forge.r-project.org/}), in the `documents'
+section, including tutorial and a manual which includes all
+manpages of the package, and a dedicated mailing list with searchable archives.
+To open the website from \Rlogo, use:
+<<eval=FALSE>>=
+adegenetWeb()
+@
+The same can be done for tutorials, using \texttt{adegenetTutorial} (see
+manpage to choose the tutorial to open).
+Alternatively, one can use \texttt{vignette}, for which \texttt{adegenetTutorial} is merely a wrapper.
+
+You will also find a listing of the main functions of the package typing:
+<<eval=FALSE>>=
+?adegenet
+@
+
+Note that you can also browse help pages as html pages, using:
+<<eval=FALSE>>=
+help.start()
+@
+To go to the \textit{adegenet} page, click `packages', `adegenet', and
+`adegenet-package'.
+\\
+
+
+Lastly, several mailing lists are available to find different kinds of
+information on R; to name a few:
+\begin{itemize}
+\item adegenet forum
+  (\url{https://lists.r-forge.r-project.org/cgi-bin/mailman/listinfo/adegenet-forum}):
+  adegenet and multivariate analysis of genetic markers
+\item R-help (\url{https://stat.ethz.ch/mailman/listinfo/r-help}):
+  general questions about R
+\item R-sig-genetics
+  (\url{https://stat.ethz.ch/mailman/listinfo/r-sig-genetics}):
+  genetics in R
+\item R-sig-phylo
+  (\url{https://stat.ethz.ch/mailman/listinfo/r-sig-phylo}):
+  phylogenetics in R
+\end{itemize}
+
+
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Object classes}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Two classes of objects are defined, depending on the level at which the genetic information is stored:
+\section{Object classes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Two classes of objects are used for storing genetic marker data, depending on the level at which the genetic information is considered:
 \texttt{genind} is used for individual genotypes, whereas \texttt{genpop} is used for alleles numbers counted by populations.
 Note that the term 'population', here and later, is employed in a broad sense: it simply refers to any grouping of individuals.
+The specific class \texttt{genlight} is used for storing large genome-wide SNPs data.
+See \textit{adegenet-genomics} vignette for more information.
 
-% % % % % % % % % % % % % % % % % %
-\subsubsection{genind objects}
-% % % % % % % % % % % % % % % % % %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{genind objects}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 These objects can be obtained by reading data files from other software,
 from a \texttt{data.frame} of genotypes, by conversion from a table of
-allelic frequencies, or even from aligned DNA sequences (see 'importing data').
+allelic frequencies, or even from aligned DNA or proteic sequences (see 'importing data').
 <<genind>>=
 data(nancycats)
 is.genind(nancycats)
@@ -146,7 +249,36 @@ A \texttt{genind} object is formal S4 object with several slots,
 accessed using the '\texttt{@}' operator (see \texttt{class?genind}).
 Note that the '\texttt{\$}' was also implemented for adegenet objects,
 so that slots can be accessed as if they were components of a list.
-The main slot in \texttt{genind} is a table of allelic frequencies of individuals (in rows) for every alleles in every loci.
+\\
+
+The structure of \texttt{genind} objects is described by:
+<<>>=
+getClassDef("genind")
+@
+
+The slightly cryptic output of this function means that \texttt{genind} objects possess the following slots:
+\begin{itemize}
+  \item \texttt{tab}: a table of relative allele frequencies (individuals in rows, alleles in columns).
+  \item \texttt{loc.names}: a vector of labels for the loci.
+  \item \texttt{loc.fac}: a factor indicating which columns in \texttt{@tab} correspond to which marker.
+  \item \texttt{loc.nall}: the number of alleles in each marker.
+  \item \texttt{all.names}: a vector of labels for the alleles.
+  \item \texttt{ind.names}:  a vector of labels for the individuals.
+  \item \texttt{pop}: a factor storing group membership of the individuals.
+  \item \texttt{pop.names}: labels used for populations.
+  \item \texttt{ploidy}: the ploidy level of the genome.
+  \item \texttt{type}: a character string indicating whether the marker is codominant
+    (\texttt{codom}) or presence/absence ('\texttt{PA}').
+  \item \texttt{other}: a list storing optional information.
+  \item \texttt{call}: the matched call, i.e. command used to create the object.
+\end{itemize}
+Slots can be accessed using '\texttt{@}' or '\texttt{\$}', although in some cases it is more
+convenient to use accessors (i.e. function which return specific content of the object) than
+accessing the slot directly (see section 'Using accessors').
+\\
+
+The main slot in \texttt{genind} is the table of allelic frequencies of individuals (in rows) for
+every alleles in every loci stored in \texttt{@tab}.
 Being frequencies, data sum to one per locus, giving the score of 1 for an homozygote and 0.5 for an heterozygote.
 The particular case of presence/absence data will is described in an
 ad-hoc section (see 'Handling presence/absence data').
@@ -167,27 +299,24 @@ gives the true marker names, and
 nancycats$all.names[[3]]
 @
 gives the allele names for marker 3.
-Alternatively, one can use the accessor \texttt{locNames}:
-<<>>=
-locNames(nancycats)
-head(locNames(nancycats, withAlleles=TRUE), 10)
-@
 
 
 \noindent The slot 'ploidy' is an integer giving the level of ploidy
 of the considered organisms (defaults to 2).
 This parameter is essential, in particular when switching from
-individual frequencies (genind object) to allele counts per
-populations (genpop).
+individual frequencies (\texttt{genind} object) to allele counts per
+populations (\texttt{genpop}).
 
 \noindent
 The slot 'type' describes the type of marker used: codominant ('codom', e.g. microsatellites) or presence/absence ('PA', e.g. AFLP).
 By default, adegenet considers that markers are codominant.
 Note that actual handling of presence/absence markers has been made available since version 1.2-3.
 See the dedicated section for more information about presence/absence markers.
+\\
 
-Optional components are also allowed.
-The slot \texttt{@other} is a list that can include any additionnal information.
+
+Optional content can are also be stored within the object.
+The slot \texttt{@other} is a list that can include any additional information.
 The optional slot \texttt{@pop} (a factor giving a grouping of individuals) is particular in that the behaviour of many functions will check automatically for it and behave accordingly.
 In fact, each time an argument 'pop' is required by a function, it is first seeked in \texttt{@pop}.
 For instance, using the function \texttt{genind2genpop} to convert \texttt{nancycats} to a \texttt{genpop} object, there is no need to give a 'pop' argument as it exists in the \texttt{genind} object:
@@ -197,15 +326,7 @@ catpop <- genind2genpop(nancycats)
 catpop
 @
 Other additional components can be stored (like here, spatial coordinates of populations in \$xy) but will not be passed during any conversion (\texttt{catpop} has no \$other\$xy).
-
-\noindent Note that the slot 'pop' can be retrieved and set using the \texttt{pop} function:
-<<>>=
-obj <- nancycats[sample(1:50,10)]
-pop(obj)
-pop(obj) <- rep("newPop",10)
-pop(obj)
-@
-
+\\
 
 Finally, a \texttt{genind} object generally contains its matched call, \textit{i.e.} the instruction that created it.
 This is not the case, however, for objects loaded using \texttt{data}.
@@ -217,9 +338,10 @@ toto <- eval(obj$call)
 identical(obj,toto)
 @
 
-% % % % % % % % % % % % % % % % % %
-\subsubsection{genpop objects}
-% % % % % % % % % % % % % % % % % %
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{genpop objects}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 We use the previously built \texttt{genpop} object:
 <<>>=
 catpop
@@ -229,11 +351,60 @@ catpop$tab[1:5,1:10]
 The matrix \$tab contains alleles counts per population (here, cat colonies).
 These objects are otherwise very similar to \texttt{genind} in their
 structure, and possess generic names, true names, the matched call and
-an \texttt{@other} slot.
+an \texttt{@other} slot:
+<<>>=
+getClassDef("genpop")
+@
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Using accessors}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+One advantage of formal (S4) classes is that they allow for interacting simply with possibly complex objects.
+This is made possible by using accessors, i.e. functions that extract information from an object,
+rather than accessing the slots directly.
+Another advantage of this approach is that as long as accessors remain identical on the user's
+side, the internal structure of an object may change from one release to another without generating
+errors in old scripts.
+Although \texttt{genind} and \texttt{genpop} objects are fairly simple, we recommend using accessors whenever possible
+to access their content.
+\\
 
+Available accessors are:
+\begin{itemize}
+  \item \texttt{nInd}: returns the number of individuals in the object; only for \texttt{genind}.
+  \item \texttt{nLoc}: returns the number of loci (SNPs).
+  \item \texttt{indNames}$^{\dagger}$: returns/sets labels for individuals; only for \texttt{genind}.
+  \item \texttt{locNames}$^{\dagger}$: returns/sets labels for loci (SNPs).
+  \item \texttt{alleles}$^{\dagger}$: returns/sets alleles.
+  \item \texttt{ploidy}$^{\dagger}$: returns/sets ploidy of the individuals.
+  \item \texttt{pop}$^{\dagger}$: returns/sets a factor grouping individuals; only for \texttt{genind}.
+  \item \texttt{other}$^{\dagger}$: returns/sets misc information stored as a list.
+\end{itemize}
+where $^{\dagger}$ indicates that a replacement method is available using \texttt{<-}; for instance:
+<<>>=
+head(indNames(nancycats),10)
+indNames(nancycats) <- paste("cat", 1:nInd(nancycats),sep=".")
+head(indNames(nancycats),10)
+@
+
+Some accessors such as \texttt{locNames} may have specific options:
+<<>>=
+locNames(nancycats)
+head(locNames(nancycats, withAlleles=TRUE), 10)
+@
+
+\noindent The slot 'pop' can be retrieved and set using \texttt{pop}:
+<<>>=
+obj <- nancycats[sample(1:50,10)]
+pop(obj)
+pop(obj) <- rep("newPop",10)
+pop(obj)
+@
+An additional advantage of using accessors is they are most of the time safer. For instance,
+\texttt{pop<-} will check the length of the new group membership vector against the data, and
+complain if there is a mismatch.
 
 
 
@@ -242,19 +413,14 @@ an \texttt{@other} slot.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Various topics}
+\section{Importing/exporting data}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Importing data}
+\subsection{From GENETIX, STRUCTURE, FSTAT, Genepop}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-% % % % % % % % % % % % % % % % % %
-\subsubsection{From GENETIX, STRUCTURE, FSTAT, Genepop}
-% % % % % % % % % % % % % % % % % %
 
 Data can be read from the software GENETIX (.gtx), STRUCTURE (.str or
 .stru), FSTAT (.dat) and Genepop (.gen) files, using the corresponding
@@ -275,9 +441,9 @@ their call (which is normal as they were obtained from different
 command lines).
 
 
-% % % % % % % % % % % % % % % % % %
-\subsubsection{From other software}
-% % % % % % % % % % % % % % % % % %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{From other software}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Genetic markers data can most of the time be stored as a table with individuals in row and markers
 in column, where each entry is a character string coding the alleles possessed at one locus.
 Such data are easily imported into R as a \texttt{data.frame}, using for instance \texttt{read.table}
@@ -316,10 +482,18 @@ frequencies (\texttt{\$tab} slot).
 
 
 
-% % % % % % % % % % % % % % % % % %
-\subsubsection{SNPs data}
-% % % % % % % % % % % % % % % % % %
-In adegenet, SNP data are handled as other codominant markers such as microsatellites.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{SNPs data}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+In adegenet, SNP data can be handled in two different ways.
+For relatively small datasets (up to a few thousand SNPs) SNPs can
+be handled as other codominant markers such as microsatellites using \texttt{genind} objects.
+In the case of genome-wide SNP data (from hundreds of thousands to millions of SNPs),
+\texttt{genind} objects are no longer efficient representation of the data.
+In this case, we use \texttt{genlight} objects to store and handle information with maximum
+efficiency and minimum memory requirements. See the vignette \textit{adegenet-genomics} for more information.
+\\
+
 The most convenient way to convert SNPs into a \texttt{genind} is using \texttt{df2genind}, which is
 described in the previous section.
 Let \texttt{dat} be an input matrix, as can be read into R using \texttt{read.table} or \texttt{read.csv},
@@ -338,9 +512,16 @@ analysis in adegenet.
 
 
 
-% % % % % % % % % % % % % % % % % %
-\subsubsection{DNA sequences}
-% % % % % % % % % % % % % % % % % %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Extracting polymorphism from DNA sequences}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+This section only covers the cases of relatively small datasets which can be handled efficiently
+using \texttt{genind} objects. For bigger (near full-genomes) datasets, SNPs can be extracted from
+\textit{fasta} files into a \texttt{genlight} object using \texttt{fasta2genlight}.
+See the vignette \textit{adegenet-genomics} for more information.
+\\
+
+
 DNA sequences can be read into R using the ape package \cite{tj527,np83}, and
 imported into adegenet using \texttt{DNAbin2genind}.
 There are several ways ape can be used to read in DNA sequences.
@@ -348,7 +529,6 @@ The easiest one is reading data from a usual format such as FASTA or Clustal usi
 Other options include reading data directly from GenBank using \texttt{read.GenBank}, or from other
 public databases using the seqinr package and transforming the \texttt{alignment} object into a
 \texttt{DNAbin} using \texttt{as.DNAbin}.
-
 Here, we illustrate this approach by re-using the example of \texttt{read.GenBank}. A connection to
 the internet is required, as sequences are read directly from a distant database.
 <<>>=
@@ -378,9 +558,9 @@ Here, out of the 1045 nucleotides of the sequences, 318 SNPs where extracted and
 
 
 
-% % % % % % % % % % % % % % % % % %
-\subsubsection{Proteic sequences}
-% % % % % % % % % % % % % % % % % %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Extracting polymorphism from proteic sequences}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Alignments of proteic sequences can be exploited in adegenet in the same way as DNA sequences (see
 section above).
 Alignments are scanned for polymorphic sites, and only those are retained to form a \texttt{genind} object.
@@ -453,9 +633,9 @@ title("Principal Coordinate Analysis\n-based on proteic distances-")
 
 
 
-% % % % % % % % % % % % % % % % % %
-\subsubsection{Using genind/genpop constructors}
-% % % % % % % % % % % % % % % % % %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Using genind/genpop constructors}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Lastly, \texttt{genind} or \texttt{genpop} objects can be constructed from data matrices similar to the \texttt{\$tab} component (respectively, alleles frequencies and alleles counts).
 This is achieved by the constructors \texttt{genind} (or \texttt{as.genind})  and \texttt{genpop}
 (or \texttt{as.genpop}).
@@ -645,7 +825,7 @@ Done !
 Both \texttt{genind} and \texttt{genpop} objects have a summary providing basic information about data.
 Informations are both printed and invisibly returned as a list.
 
-<<sumry,fig=TRUE,png=FALSE,pdf=TRUE,size=.8>>=
+<<sumry,fig=TRUE,png=FALSE,pdf=TRUE>>=
 toto <- summary(nancycats)
 names(toto)
 
@@ -801,12 +981,12 @@ obj <- na.replace(microbov,method="mean")
 @
 
 \noindent Done. Now, the analysis can be performed. Data are centred but not scaled as 'units' are the same.
-<<fig=T,size=.4>>=
+<<fig=T>>=
 pca1 <- dudi.pca(obj$tab,cent=TRUE,scale=FALSE,scannf=FALSE,nf=3)
 barplot(pca1$eig[1:50],main="Eigenvalues")
 @
 Here we represent the genotypes and 95\% inertia ellipses for populations.
-<<fig=T,size=.6>>=
+<<fig=T>>=
 s.class(pca1$li,obj$pop,lab=obj$pop.names,sub="PCA 1-2",csub=2)
 add.scatter.eig(pca1$eig[1:20],nf=3,xax=1,yax=2,posi="top")
 @
@@ -814,7 +994,7 @@ add.scatter.eig(pca1$eig[1:20],nf=3,xax=1,yax=2,posi="top")
 \noindent This plane shows that the main structuring is between African an French breeds, the second structure reflecting genetic diversity among African breeds.
 The third axis reflects the diversity among French breeds:
 Overall, all breeds seem well differentiated.
-<<fig=T,size=.6>>=
+<<fig=T>>=
 s.class(pca1$li,obj$pop,xax=1,yax=3,lab=obj$pop.names,sub="PCA 1-3",csub=2)
 add.scatter.eig(pca1$eig[1:20],nf=3,xax=1,yax=3,posi="top")
 @
@@ -831,7 +1011,7 @@ The approach is very similar to the previous one for PCA.
 Missing data are first replaced during convertion from \texttt{genind},
 but one could create a \texttt{genpop} with NAs and then use
 \texttt{na.replace} to get rid of missing observations.
-<<caexpl,fig=T,size=.4>>=
+<<caexpl,fig=T>>=
 data(microbov)
 obj <- genind2genpop(microbov,missing="chi2")
 ca1 <- dudi.coa(as.data.frame(obj$tab),scannf=FALSE,nf=3)
@@ -839,12 +1019,12 @@ barplot(ca1$eig,main="Eigenvalues")
 @
 
 Now we display the resulting typologies:
-<<fig=T,size=.6>>=
+<<fig=T>>=
 s.label(ca1$li,lab=obj$pop.names,sub="CA 1-2",csub=2)
 add.scatter.eig(ca1$eig,nf=3,xax=1,yax=2,posi="top")
 @
 
-<<fig=T,size=.6>>=
+<<fig=T>>=
 s.label(ca1$li,xax=1,yax=3,lab=obj$pop.names,sub="CA 1-3",csub=2)
 add.scatter.eig(ca1$eig,nf=3,xax=2,yax=3,posi="bottomright")
 @
@@ -868,7 +1048,7 @@ X <- toto$fca90
 \texttt{fca90.ind} is a matrix containing only genotypes for the marker fca90.
 It can be analyzed, for instance, using an inter-class PCA.
 This analyzis provides a typology of individuals having maximal inter-colonies variance.
-<<fig=T,png=F,pdf=T, size=.6>>=
+<<fig=T,png=F,pdf=T>>=
 library(ade4)
 
 pcaX <- dudi.pca(X,cent=T,scale=F,scannf=FALSE)
@@ -906,7 +1086,7 @@ Isolation by distance (IBD) is tested using Mantel test between a matrix of gene
 It can be tested using individuals as well as populations.
 This example uses cat colonies.
 We use Edwards' distance \textit{versus} Euclidean distances between colonies.
-<<ibd,fig=T,size=.35>>=
+<<ibd,fig=T>>=
 data(nancycats)
 toto <- genind2genpop(nancycats,miss="0")
 Dgen <- dist.genpop(toto,method=2)
@@ -940,7 +1120,7 @@ Indeed, the very purpose of this tutorial is simply to show how it can be used o
 Let's take the example from the function's manpage and detail it.
 The dataset used is \texttt{sim2pop}.
 
-<<mon1,fig=TRUE,size=.6>>=
+<<mon1,fig=TRUE>>=
 data(sim2pop)
 sim2pop
 summary(sim2pop$pop)
@@ -1065,7 +1245,7 @@ plot(mon1)
 
 \noindent see arguments in \texttt{?plot.monmonier} to customize this representation.
 Last, we can compare the infered boundary with the actual distribution of populations:
-<<fig=TRUE,size=.7>>=
+<<fig=TRUE>>=
 plot(mon1,add.arrows=FALSE,bwd=8)
 
 temp <- sim2pop$pop
@@ -1110,7 +1290,7 @@ F4 <- hybridize(salers, F3, n=40)
 \noindent and so on...
 Are these hybrids still genetically distinct?
 Let's merge all hybrids in a single dataset and test for genetic differentiation:
-<<fig=TRUE,size=.4>>=
+<<fig=TRUE>>=
 dat <- repool(zebler,F2,F3,F4)
 test <- gstat.randtest(dat)
 plot(test)
@@ -1220,273 +1400,6 @@ of ploidy.
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Assigning genotypes to clusters using Discriminant Analysis}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-The approach described below led to the development of a a new methodological approach for studying the genetic
-diversity of biological populations, called the Discriminant Analysis of Principal Components (DAPC,
-Jombart et al. submitted).
-This method has been implemented by the functions \texttt{find.clusters} and \texttt{dapc} but is still
-considered under development.
-It will be documented along with this section pending the publication of the corresponding paper.
-
-% % % % % % % % % % % % % % % % %
-\subsubsection{Defining clusters}
-% % % % % % % % % % % % % % % % %
-
-Bayesian clustering methods are not the only approaches for assigning
-genotypes to groups of genotypes.
-Discriminant analysis \cite[DA; for a general presentation, see][]{tj617} is a multivariate method that has
-been used for the exact same purpose \cite{tj160}.
-It can be applied whenever pre-defined groups exist, to assign
-genotypes to and assess the robustness of these groups.
-New genotypes with unknown group can also be assigned to existing clusters.
-Although a few precautions have to be taken when applying DA (see
-\cite{tjart10} for a short overview), this is
-a useful and straightforward approach.
-It is here illustrated using cat colonies of Nancy, France
-(\texttt{nancycats} dataset).
-
-<<>>=
-data(nancycats)
-nancycats
-unique(pop(nancycats))
-@
-
-This dataset contains 237 genotypes of cats sampled over 17 colonies.
-A usual PCA on the allele frequencies of the populations would not
-show any structure, but colonies seem nonetheless mildly differentiated, as
-confirmed by Goudet's $G$ test (and the $F_{st}$ value):
-<<>>=
-gstat.randtest(nancycats, n=199)
-fstat(nancycats, fstonly=TRUE)
-@
-
-DA can be used to find the linear combinations of alleles that
-discriminate best the groups of genotypes (here, colonies).
-While a powerful method, DA is impaired by correlation between
-predictors, which arises for instance when linkage disequilibrium
-occurs between alleles.
-It is also impracticable when the number of alleles ($p$) is
-greater than the number of genotypes ($n$), and it generally requires
-$n>>p$ to yield reliable (numerically stable) results.
-
-Thus, DA can seem often problematic when it comes to genetic data.
-One simple and efficient solution to all these issues is to transform
-alleles frequencies into a few independent (uncorrelated) components that summarise
-most of the genetic information, retaining only essential genetic features.
-This can be achieved by different multivariate methods; here, we shall
-use PCA.
-Genotype data are first transformed into scaled allele frequencies
-(using \texttt{scaleGen}):
-<<>>=
-x <- scaleGen(nancycats, missing="mean")
-@
-
-\noindent Then, we proceed to the PCA, retaining many principal
-components (PCs):
-<<fig=TRUE,size=.5>>=
-x.pca <- dudi.pca(x, center=FALSE, scale=FALSE, scannf=FALSE, nf=100)
-barplot(x.pca$eig, main="Nancycats PCA eigenvalues")
-@
-
-These eigenvalues indicate no structure, but this is no problem since
-here, we just use PCA as a mean of transforming genetic variables in
-an adequate way.
-PCs are stored in \texttt{x.pca\$li}:
-<<>>=
-head(x.pca$li[,1:5])
-dim(x.pca$li)
-@
-
-Now, the question relates to how many PCs should be retained.
-This choice could be based on the success of assignment using DA (looking for the
-optimal value), or on a given fraction of the genetic diversity we
-would like to retain.
-We here use the latter, more simple and sufficient to illustrate the method.
-The following graph shows the cumulative amount of genetic information
-brought by each added PC:
-<<fig=TRUE, size=.7>>=
-temp <- cumsum(x.pca$eig)/sum(x.pca$eig)
-plot(temp, xlab="Added PC", ylab="Fraction of the total genetic information")
-min(which(temp>0.8))
-axis(1,at=52,lab=52)
-segments(52, 0, 52, temp[52], col="red")
-segments(-5,0.8,52,0.8,col="red")
-@
-
-\noindent For instance, the first 52 PCs are sufficient to express
-80\% of the total genetic variability (see red segments).
-We choose to retain these 52 PCs and use them as new predictors
-in a DA.
-While there is a \texttt{discrimin} function in \textit{ade4}, we use
-the function \texttt{lda} from the \texttt{MASS} package, which allows assigning
-(possibly new) genotypes to clusters.
-<<lda>>=
-x.lda <- lda(x.pca$li[,1:52], grouping=pop(nancycats))
-names(x.lda)
-@
-
-\noindent The object \texttt{x.lda} contains the results of the DA.
-For instance, coefficients of the linear combinations
-(\textit{discriminant functions}) are stored in
-\texttt{x.lda\$scaling}.
-For a further description of the content of these objects, see
-\texttt{?x.lda}.
-As far as assignment is concerned, the most interesting information
-is provided by \texttt{predict}:
-<<>>=
-x.pred <- predict(x.lda)
-names(x.pred)
-x.pred$class
-head(x.pred$posterior[,1:5])
-@
-
-\noindent The \texttt{class} slot contains the cluster to which each
-genotype would be assigned with the highest probability, while
-\texttt{posterior} gives posterior probabilities of assignment of
-genotypes to clusters.
-The inferred groups can be compared easily to actual colonies:
-<<>>=
-mean(x.pred$class==pop(nancycats))
-@
-In this case, each genotype would be assigned to the colony where it was
-actually found in \Sexpr{round(mean(x.pred$class==pop(nancycats))*100)}\% of cases.
-`Miss-assigned' individuals could be hybrids or migrants, or simply
-reflect less clear-cut clusters.
-It is easy to check if some colonies have more of these:
-<<fig=TRUE,size=.8>>=
-misAs <- tapply(x.pred$class!=pop(nancycats), pop(nancycats), mean)
-barplot(misAs, xlab="colonies", ylab="% of `miss-assignment'", col="orange", las=3)
-title("Percentage of miss-assignments per colony")
-@
-
-For more details about genotypes, we can have a look at the
-\texttt{posterior} component, which gives probabilities of belonging
-to each cluster for each genotype:
-<<>>=
-head(x.pred$posterior[,1:10])
-@
-
-This information is best perceived graphically (here, for the first 50 genotypes):
-<<fig=TRUE,size=.8>>=
-table.paint(head(x.pred$posterior,50), col.lab=paste("colony",1:17,sep="."))
-@
-
-\noindent For instance, N215 (first row) is clearly assigned to colony
-1, while it is unclear whether N158 (middle) belongs to colony 3 or 5.
-Such graphics is really good at summarising probabilities of
-assignment.
-In particular, it can be employed even when the number of clusters is
-relatively high, which would not be the case with classical graphs
-proposed in STRUCTURE.
-
-
-
-% % % % % % % % % % % % % % % % %
-\subsubsection{Assigning new individuals}
-% % % % % % % % % % % % % % % % %
-In certain cases, we may want to assign new genotypes to a
-pre-existing classification, as defined by a DA.
-This can be the case when new samples have been made available after a
-pilot study, or when doing cross-validation.
-We will simulate these cases by drawing 30 genotypes at random,
-and then trying to assign them to the defined clusters.
-
-The following code only repeats the former analyses after withdrawing the 30
-genotypes:
-<<>>=
-id <- sample(1:237, 30)
-newSamp <- nancycats[id]
-newObj <-  nancycats[-id]
-newx <- x[-id,]
-
-newx.pca <- dudi.pca(newx, center=FALSE, scale=FALSE, scannf=FALSE, nf=100)
-newx.lda <- lda(newx.pca$li[,1:52], grouping=pop(newObj))
-@
-
-The new object \texttt{x.lda} now contains a DA based on only 207 individuals.
-Our purpose is to assign the new genotypes (\texttt{newObj}) to
-existing clusters based on the discriminant functions defined in
-\texttt{x.lda}.
-It is a bit tricky, because we have to make sure new data are
-transformed like the old data, that is, with the same centring and scaling.
-Fortunately, centring and scaling values are stored as attributes
-in \texttt{x}, and can be provided to a new call to \texttt{scaleGen}:
-<<>>=
-newSamp
-newSamp.x <- scaleGen(newSamp, center=attr(x,"scaled:center"), scale=attr(x,"scaled:scale"), missing="mean")
-@
-From there, the coordinates of these new genotypes onto the former PCA
-axes are obtained easily using \texttt{suprow}:
-<<>>=
-newSamp.pc <- suprow(newx.pca, newSamp.x)$lisup
-dim(newSamp.pc)
-head(newSamp.pc[,1:5])
-@
-
-\noindent The object \texttt{newSamp.pc} contains the supplementary principal
-components for the new 30 genotypes.
-To find the probabilities of belonging to any cluster for each new
-genotype, we simply use \texttt{predict}, and plot posterior
-probabilities as before, adding a green cross to indicate the actual colony:
-<<>>=
-newSamp.pred <- predict(newx.lda, newSamp.pc[,1:52])
-@
-<<fig=TRUE, size=.8>>=
-table.paint(newSamp.pred$posterior, col.lab=paste("colony",1:17,sep="."))
-points(as.numeric(as.character(pop(newSamp))), 30:1, pch="x",col="green", cex=2)
-mean(as.character(newSamp.pred$class)==as.character(pop(newSamp)))
-@
-
-In this example, the new genotypes have been assigned to their actual
-group in \Sexpr{round(100*mean(as.character(newSamp.pred$class)==as.character(pop(newSamp))))}\% of cases.
-If our purpose was to cross-validate the classification of genotypes
-into groups, we would repeat this operation a large number of times,
-drawing a different random sample of genotypes each time.
-
-
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Frequently Asked Questions}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% % % % % % % % % % % % % % % % % %
-\subsubsection{The function ... is not found. What's wrong?}
-% % % % % % % % % % % % % % % % % %
-
-You installed R, and adegenet, and all went ok.
-Yet, when trying to use some functions, like \texttt{read.genetix} for
-instance, you get an error message saying that the function is not
-found.
-The most likely explanation is that you do not have the most recent
-version of adegenet.
-This can be because you did not update your packages (see function \texttt{update.packages}).
-If your packages have been updated, and the problem persist, then you
-are likely using an outdated version of R, and though adegenet is
-up-to-date with respect to this R version, you are still using an
-outdated version of the package.
-
-To know which version of adegenet you are using:
-<<>>=
-packageDescription("adegenet", fields="Version")
-@
-
-\noindent And to know which version of R you are using:
-<<>>=
-R.version.string
-@
-
-
-
-
 \begin{thebibliography}{9}
 
 \bibitem{tjart19}
@@ -1506,3 +1419,283 @@ R.version.string
 \end{thebibliography}
 
 \end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \subsection{Assigning genotypes to clusters using Discriminant Analysis}
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% The approach described below led to the development of a a new methodological approach for studying the genetic
+%% diversity of biological populations, called the Discriminant Analysis of Principal Components (DAPC,
+%% Jombart et al. submitted).
+%% This method has been implemented by the functions \texttt{find.clusters} and \texttt{dapc} but is still
+%% considered under development.
+%% It will be documented along with this section pending the publication of the corresponding paper.
+
+%% % % % % % % % % % % % % % % % % %
+%% \subsubsection{Defining clusters}
+%% % % % % % % % % % % % % % % % % %
+
+%% Bayesian clustering methods are not the only approaches for assigning
+%% genotypes to groups of genotypes.
+%% Discriminant analysis \cite[DA; for a general presentation, see][]{tj617} is a multivariate method that has
+%% been used for the exact same purpose \cite{tj160}.
+%% It can be applied whenever pre-defined groups exist, to assign
+%% genotypes to and assess the robustness of these groups.
+%% New genotypes with unknown group can also be assigned to existing clusters.
+%% Although a few precautions have to be taken when applying DA (see
+%% \cite{tjart10} for a short overview), this is
+%% a useful and straightforward approach.
+%% It is here illustrated using cat colonies of Nancy, France
+%% (\texttt{nancycats} dataset).
+
+%% <<>>=
+%% data(nancycats)
+%% nancycats
+%% unique(pop(nancycats))
+%% @
+
+%% This dataset contains 237 genotypes of cats sampled over 17 colonies.
+%% A usual PCA on the allele frequencies of the populations would not
+%% show any structure, but colonies seem nonetheless mildly differentiated, as
+%% confirmed by Goudet's $G$ test (and the $F_{st}$ value):
+%% <<>>=
+%% gstat.randtest(nancycats, n=199)
+%% fstat(nancycats, fstonly=TRUE)
+%% @
+
+%% DA can be used to find the linear combinations of alleles that
+%% discriminate best the groups of genotypes (here, colonies).
+%% While a powerful method, DA is impaired by correlation between
+%% predictors, which arises for instance when linkage disequilibrium
+%% occurs between alleles.
+%% It is also impracticable when the number of alleles ($p$) is
+%% greater than the number of genotypes ($n$), and it generally requires
+%% $n>>p$ to yield reliable (numerically stable) results.
+
+%% Thus, DA can seem often problematic when it comes to genetic data.
+%% One simple and efficient solution to all these issues is to transform
+%% alleles frequencies into a few independent (uncorrelated) components that summarise
+%% most of the genetic information, retaining only essential genetic features.
+%% This can be achieved by different multivariate methods; here, we shall
+%% use PCA.
+%% Genotype data are first transformed into scaled allele frequencies
+%% (using \texttt{scaleGen}):
+%% <<>>=
+%% x <- scaleGen(nancycats, missing="mean")
+%% @
+
+%% \noindent Then, we proceed to the PCA, retaining many principal
+%% components (PCs):
+%% <<fig=TRUE>>=
+%% x.pca <- dudi.pca(x, center=FALSE, scale=FALSE, scannf=FALSE, nf=100)
+%% barplot(x.pca$eig, main="Nancycats PCA eigenvalues")
+%% @
+
+%% These eigenvalues indicate no structure, but this is no problem since
+%% here, we just use PCA as a mean of transforming genetic variables in
+%% an adequate way.
+%% PCs are stored in \texttt{x.pca\$li}:
+%% <<>>=
+%% head(x.pca$li[,1:5])
+%% dim(x.pca$li)
+%% @
+
+%% Now, the question relates to how many PCs should be retained.
+%% This choice could be based on the success of assignment using DA (looking for the
+%% optimal value), or on a given fraction of the genetic diversity we
+%% would like to retain.
+%% We here use the latter, more simple and sufficient to illustrate the method.
+%% The following graph shows the cumulative amount of genetic information
+%% brought by each added PC:
+%% <<fig=TRUE>>=
+%% temp <- cumsum(x.pca$eig)/sum(x.pca$eig)
+%% plot(temp, xlab="Added PC", ylab="Fraction of the total genetic information")
+%% min(which(temp>0.8))
+%% axis(1,at=52,lab=52)
+%% segments(52, 0, 52, temp[52], col="red")
+%% segments(-5,0.8,52,0.8,col="red")
+%% @
+
+%% \noindent For instance, the first 52 PCs are sufficient to express
+%% 80\% of the total genetic variability (see red segments).
+%% We choose to retain these 52 PCs and use them as new predictors
+%% in a DA.
+%% While there is a \texttt{discrimin} function in \textit{ade4}, we use
+%% the function \texttt{lda} from the \texttt{MASS} package, which allows assigning
+%% (possibly new) genotypes to clusters.
+%% <<lda>>=
+%% x.lda <- lda(x.pca$li[,1:52], grouping=pop(nancycats))
+%% names(x.lda)
+%% @
+
+%% \noindent The object \texttt{x.lda} contains the results of the DA.
+%% For instance, coefficients of the linear combinations
+%% (\textit{discriminant functions}) are stored in
+%% \texttt{x.lda\$scaling}.
+%% For a further description of the content of these objects, see
+%% \texttt{?x.lda}.
+%% As far as assignment is concerned, the most interesting information
+%% is provided by \texttt{predict}:
+%% <<>>=
+%% x.pred <- predict(x.lda)
+%% names(x.pred)
+%% x.pred$class
+%% head(x.pred$posterior[,1:5])
+%% @
+
+%% \noindent The \texttt{class} slot contains the cluster to which each
+%% genotype would be assigned with the highest probability, while
+%% \texttt{posterior} gives posterior probabilities of assignment of
+%% genotypes to clusters.
+%% The inferred groups can be compared easily to actual colonies:
+%% <<>>=
+%% mean(x.pred$class==pop(nancycats))
+%% @
+%% In this case, each genotype would be assigned to the colony where it was
+%% actually found in \Sexpr{round(mean(x.pred$class==pop(nancycats))*100)}\% of cases.
+%% `Miss-assigned' individuals could be hybrids or migrants, or simply
+%% reflect less clear-cut clusters.
+%% It is easy to check if some colonies have more of these:
+%% <<fig=TRUE>>=
+%% misAs <- tapply(x.pred$class!=pop(nancycats), pop(nancycats), mean)
+%% barplot(misAs, xlab="colonies", ylab="% of `miss-assignment'", col="orange", las=3)
+%% title("Percentage of miss-assignments per colony")
+%% @
+
+%% For more details about genotypes, we can have a look at the
+%% \texttt{posterior} component, which gives probabilities of belonging
+%% to each cluster for each genotype:
+%% <<>>=
+%% head(x.pred$posterior[,1:10])
+%% @
+
+%% This information is best perceived graphically (here, for the first 50 genotypes):
+%% <<fig=TRUE>>=
+%% table.paint(head(x.pred$posterior,50), col.lab=paste("colony",1:17,sep="."))
+%% @
+
+%% \noindent For instance, N215 (first row) is clearly assigned to colony
+%% 1, while it is unclear whether N158 (middle) belongs to colony 3 or 5.
+%% Such graphics is really good at summarising probabilities of
+%% assignment.
+%% In particular, it can be employed even when the number of clusters is
+%% relatively high, which would not be the case with classical graphs
+%% proposed in STRUCTURE.
+
+
+
+%% % % % % % % % % % % % % % % % % %
+%% \subsubsection{Assigning new individuals}
+%% % % % % % % % % % % % % % % % % %
+%% In certain cases, we may want to assign new genotypes to a
+%% pre-existing classification, as defined by a DA.
+%% This can be the case when new samples have been made available after a
+%% pilot study, or when doing cross-validation.
+%% We will simulate these cases by drawing 30 genotypes at random,
+%% and then trying to assign them to the defined clusters.
+
+%% The following code only repeats the former analyses after withdrawing the 30
+%% genotypes:
+%% <<>>=
+%% id <- sample(1:237, 30)
+%% newSamp <- nancycats[id]
+%% newObj <-  nancycats[-id]
+%% newx <- x[-id,]
+
+%% newx.pca <- dudi.pca(newx, center=FALSE, scale=FALSE, scannf=FALSE, nf=100)
+%% newx.lda <- lda(newx.pca$li[,1:52], grouping=pop(newObj))
+%% @
+
+%% The new object \texttt{x.lda} now contains a DA based on only 207 individuals.
+%% Our purpose is to assign the new genotypes (\texttt{newObj}) to
+%% existing clusters based on the discriminant functions defined in
+%% \texttt{x.lda}.
+%% It is a bit tricky, because we have to make sure new data are
+%% transformed like the old data, that is, with the same centring and scaling.
+%% Fortunately, centring and scaling values are stored as attributes
+%% in \texttt{x}, and can be provided to a new call to \texttt{scaleGen}:
+%% <<>>=
+%% newSamp
+%% newSamp.x <- scaleGen(newSamp, center=attr(x,"scaled:center"), scale=attr(x,"scaled:scale"), missing="mean")
+%% @
+%% From there, the coordinates of these new genotypes onto the former PCA
+%% axes are obtained easily using \texttt{suprow}:
+%% <<>>=
+%% newSamp.pc <- suprow(newx.pca, newSamp.x)$lisup
+%% dim(newSamp.pc)
+%% head(newSamp.pc[,1:5])
+%% @
+
+%% \noindent The object \texttt{newSamp.pc} contains the supplementary principal
+%% components for the new 30 genotypes.
+%% To find the probabilities of belonging to any cluster for each new
+%% genotype, we simply use \texttt{predict}, and plot posterior
+%% probabilities as before, adding a green cross to indicate the actual colony:
+%% <<>>=
+%% newSamp.pred <- predict(newx.lda, newSamp.pc[,1:52])
+%% @
+%% <<fig=TRUE>>=
+%% table.paint(newSamp.pred$posterior, col.lab=paste("colony",1:17,sep="."))
+%% points(as.numeric(as.character(pop(newSamp))), 30:1, pch="x",col="green", cex=2)
+%% mean(as.character(newSamp.pred$class)==as.character(pop(newSamp)))
+%% @
+
+%% In this example, the new genotypes have been assigned to their actual
+%% group in \Sexpr{round(100*mean(as.character(newSamp.pred$class)==as.character(pop(newSamp))))}\% of cases.
+%% If our purpose was to cross-validate the classification of genotypes
+%% into groups, we would repeat this operation a large number of times,
+%% drawing a different random sample of genotypes each time.
+
+
+
+
+
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \section{Frequently Asked Questions}
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \subsubsection{The function ... is not found. What's wrong?}
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% You installed R, and adegenet, and all went ok.
+%% Yet, when trying to use some functions, like \texttt{read.genetix} for
+%% instance, you get an error message saying that the function is not
+%% found.
+%% The most likely explanation is that you do not have the most recent
+%% version of adegenet.
+%% This can be because you did not update your packages (see function \texttt{update.packages}).
+%% If your packages have been updated, and the problem persist, then you
+%% are likely using an outdated version of R, and though adegenet is
+%% up-to-date with respect to this R version, you are still using an
+%% outdated version of the package.
+
+%% To know which version of adegenet you are using:
+%% <<>>=
+%% packageDescription("adegenet", fields="Version")
+%% @
+
+%% \noindent And to know which version of R you are using:
+%% <<>>=
+%% R.version.string
+%% @
+
+

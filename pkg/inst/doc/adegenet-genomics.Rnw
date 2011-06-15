@@ -312,7 +312,7 @@ Most of them are identical to accessors for \texttt{genind} and \texttt{genpop} 
   \item \texttt{pop}$^{\dagger}$: returns/sets a factor grouping individuals.
   \item \texttt{other}$^{\dagger}$: returns/sets misc information stored as a list.
 \end{itemize}
-where $^{\dagger}$ indicates that a replacement method is available using \texttt{<-'}; for instance:
+where $^{\dagger}$ indicates that a replacement method is available using \texttt{<-}; for instance:
 <<>>=
 dat <- lapply(1:3, function(i) sample(0:2, 10, replace=TRUE))
 dat
