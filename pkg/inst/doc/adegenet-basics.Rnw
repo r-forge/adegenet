@@ -419,7 +419,7 @@ complain if there is a mismatch.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{From GENETIX, STRUCTURE, FSTAT, Genepop}
+\subsection{Importing data from GENETIX, STRUCTURE, FSTAT, Genepop}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Data can be read from the software GENETIX (.gtx), STRUCTURE (.str or
@@ -441,14 +441,17 @@ their call (which is normal as they were obtained from different
 command lines).
 
 
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{From other software}
+\subsection{Inporting data from other software}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Genetic markers data can most of the time be stored as a table with individuals in row and markers
 in column, where each entry is a character string coding the alleles possessed at one locus.
 Such data are easily imported into R as a \texttt{data.frame}, using for instance \texttt{read.table}
 for text files or \texttt{read.csv} for comma-separated text files.
 Then, the obtained \texttt{data.frame} can be converted into a \texttt{genind} object using \texttt{df2genind}.
+\\
 
 There are only a few pre-requisite the data should meet for this conversion to be possible. The
 easiest and clearest way of coding data is using a separator between alleles. For instance,
@@ -459,24 +462,24 @@ As a consequence, SNP data should consist of the raw nucleotides.
 The only contraint when using a separator is that the same separator is used in all the
 dataset. There are no contraints as to i) the type of separator used or ii) the ploidy of the data.
 These parameters can be set in \texttt{df2genind} through arguments 'sep' and 'ploidy', respectively.
+\\
 
 Alternatively, no separator may be used provided a fixed number of characters is used to code any allele.
 For instance, in a diploid organism, "0101" is an homozygote 1/1 while "1209" is a heterozygote
 12/09 in a two-character per allele coding scheme.
 In a tetraploid system with one character per allele, "1209" will be understood as 1/2/0/9.
 
-Here, we provide an example using a data set from the library hierfstat.
+Here, we provide an example using randomly generated tetraploid data.
 <<>>=
-library(hierfstat)
-toto <- read.fstat.data(paste(.path.package("hierfstat"),"/data/diploid.dat",sep="",collapse=""),nloc=5)
-head(toto)
-@
-\texttt{toto} is a data frame containing genotypes and a population factor.
-<<>>=
-obj <- df2genind(X=toto[,-1],pop=toto[,1])
+temp <- lapply(1:30, function(i) sample(0:9, 4, replace=TRUE))
+temp <- sapply(temp, paste, collapse="")
+temp <- matrix(temp, nrow=10, dimnames=list(paste("ind",1:10), paste("loc",1:3)))
+temp
+obj <- df2genind(temp, ploidy=4, sep="")
 obj
 @
-\texttt{obj} is a \texttt{genind} containing the same information, but recoded as a matrix of allele
+
+\noindent \texttt{obj} is a \texttt{genind} containing the same information, but recoded as a matrix of allele
 frequencies (\texttt{\$tab} slot).
 
 
@@ -1093,8 +1096,46 @@ given genotype (log-likelihood are summed across loci for more than one marker).
 This estimation is achieved by \texttt{inbreeding}.
 Depending on the value of the argument \texttt{res.type}, the function returns a sample from the
 likelihood function (\texttt{res.type='sample'}) or the likelihood function itself, as a R function (\texttt{res.type='function'}).
-While likelihood function are quickly obtained and easy to display graphically, sampling from the
-distributions is required to compute summary statistics of the distributions.
+While likelihood functions are quickly obtained and easy to display graphically, sampling from the
+distributions is more computer intensive but may be useful if one wants to derive summary statistics of the distributions.
+Here, we illustrate \texttt{inbreeding} using the \texttt{microbov} dataset, which contains cattle
+breeds genotypes for 30 microsatellites; to focus on breed Salers only, we use \texttt{seppop}:
+<<>>=
+data(microbov)
+sal <- seppop(microbov)$Salers
+sal
+@
+We first compute the mean inbreeding for each individual, and plot the resulting distribution:
+<<>>=
+temp <- inbreeding(sal, N=100)
+class(temp)
+head(names(temp))
+@
+\texttt{temp} is a list of values sampled from the likelihood distribution of each individual; means
+values are obtained for all individuals using \texttt{sapply}:
+<<>>=
+Fbar <- sapply(temp, mean)
+@
+<<fig=TRUE>>=
+hist(Fbar, col="firebrick", main="Average inbreeding in Salers cattles")
+@
+
+\noindent We can see that some individuals (actually, a single one) have higher inbreeding (>0.4). We can recompute
+inbreeding for this individual, asking for the likelihood function to be returned:
+<<>>=
+which(Fbar>0.4)
+F <- inbreeding(sal, res.type="function")[which(Fbar>0.4)]
+F
+@
+The output object \texttt{F} can seem a bit cryptic: it is an function embedded within a hidden environment.
+This does not matter, however, since it is easily represented:
+<<fig=TRUE>>=
+plot(F$FRBTSAL9266, main=paste("Inbreeding of individual",names(F)), xlab="Inbreeding (F)", ylab="Probability density")
+@
+\noindent Indeed, this individual shows subsequent inbreeding, with about 50\% chances of being
+homozygote through inheritance from a common ancestor of its parents.
+
+
 
 
 
@@ -1223,6 +1264,14 @@ In this case the information is best summarized by F statistics than by an ordin
 It is likely because all colonies are differentiated but none forming clusters of related colonies.
 
 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Spatial analysis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 

@@ -87,9 +87,9 @@
 
 
 ###############
-## inbreeding.ml
+## inbreeding
 ###############
-inbreeding.ml <- function(x, pop=NULL, truenames=TRUE, res.type=c("sample","function"), N=200, M=N*10){
+inbreeding <- function(x, pop=NULL, truenames=TRUE, res.type=c("sample","function"), N=200, M=N*10){
     ## CHECKS ##
     if(!is.genind(x)) stop("x is not a valid genind object")
     checkType(x)
@@ -191,4 +191,4 @@ inbreeding.ml <- function(x, pop=NULL, truenames=TRUE, res.type=c("sample","func
 
     res <- lapply(res, getSample)
     return(res)
-} # end inbreeding.ml
+} # end inbreeding

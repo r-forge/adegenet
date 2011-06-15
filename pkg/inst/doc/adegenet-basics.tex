@@ -90,12 +90,12 @@ methods for handling genome-wide SNPs data with maximum efficiency.
 \\
 
 In this tutorial, we first introduce the \texttt{genind} and \texttt{genpop} classes used to store
-multiallelic markers, and then show how to extract information from these objects using a variety of
-tools.
-Other vignettes are dedicated to some specific topics:
+multiallelic markers (respectively for individuals and populations), and then show how to extract
+information from these objects using a variety of tools.  Other vignettes are dedicated to some
+specific topics:
 \begin{itemize}
-\item DAPC: type \texttt{vignette("adegenet-dapc",package='adegenet')} in R to access this vignette.
 \item sPCA: type \texttt{vignette("adegenet-spca",package='adegenet')}
+\item DAPC: type \texttt{vignette("adegenet-dapc",package='adegenet')} in R to access this vignette.
 \item genome-wide SNPs handling and analysis: type \texttt{vignette("adegenet-genomics",package='adegenet')}
 \end{itemize}
 
@@ -104,44 +104,169 @@ Other vignettes are dedicated to some specific topics:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{First steps}
+\section{Getting started}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Installing the package}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+Before going further, we shall make sure that \textit{adegenet} is weel installed
+on the computer.
 Current version of the package is 1.3-0.
-Please make sure to be using the latest version of R and adegenet
-before sending question about missing functions to the mailing list.
 
-Here, the \textit{adegenet} package is installed along with other recommended packages.
+Make sure you have a recent version ($\geq 2.13.0$) of R by typing:
+\begin{Schunk}
+\begin{Sinput}
+> R.version.string
+\end{Sinput}
+\begin{Soutput}
+[1] "R version 2.13.0 (2011-04-13)"
+\end{Soutput}
+\end{Schunk}
+
+Then, install \textit{adegenet} with dependencies using:
 \begin{Schunk}
 \begin{Sinput}
 > install.packages("adegenet", dep = TRUE)
 \end{Sinput}
 \end{Schunk}
-Then the first step is to load the package:
+This only installs packages on CRAN.
+However, some functions in \textit{adegenet} also use \textit{graph}, developped on Bioconductor, an
+alternative package repository.
+To install \textit{graph}, type:
+\begin{Schunk}
+\begin{Sinput}
+> source("http://bioconductor.org/biocLite.R")
+> biocLite("graph")
+\end{Sinput}
+\end{Schunk}
+
+We can now load the package using:
 \begin{Schunk}
 \begin{Sinput}
 > library(adegenet)
 \end{Sinput}
 \end{Schunk}
 
+\noindent You can make sure that the right version of the package is installed using:
+\begin{Schunk}
+\begin{Sinput}
+> packageDescription("adegenet", fields = "Version")
+\end{Sinput}
+\begin{Soutput}
+[1] "1.3-0"
+\end{Soutput}
+\end{Schunk}
+\textit{adegenet} version should read 1.3-0.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Getting help}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+There are several ways of getting information about R in general, or about
+\textit{adegenet} in particular.
+The function \texttt{help.search} is used to look for help on a given topic.
+For instance:
+\begin{Schunk}
+\begin{Sinput}
+> help.search("Hardy-Weinberg")
+\end{Sinput}
+\end{Schunk}
+replies that there is a function \texttt{HWE.test.genind} in the
+\textit{adegenet} package, other similar functions in \textit{genetics} and \textit{pegas}.
+To get help for a given function, use \texttt{?foo} where `foo' is the
+function of interest.
+For instance (quotes can be removed):
+\begin{Schunk}
+\begin{Sinput}
+> `?`(spca)
+\end{Sinput}
+\end{Schunk}
+will open up the manpage of the spatial principal component analysis \cite{tjart04}.
+At the end of a manpage, an `example' section often shows how to use a function.
+This can be copied and pasted to the console, or directly executed
+from the console using \texttt{example}.
+For further questions concerning R, the function \texttt{RSiteSearch}
+is a powerful tool for making online researches using keywords in R's archives (mailing
+lists and manpages).
+\\
+
+
+\textit{adegenet} has a few extra documentation sources.
+Information can be found from the website
+(\url{http://adegenet.r-forge.r-project.org/}), in the `documents'
+section, including tutorial and a manual which includes all
+manpages of the package, and a dedicated mailing list with searchable archives.
+To open the website from \Rlogo, use:
+\begin{Schunk}
+\begin{Sinput}
+> adegenetWeb()
+\end{Sinput}
+\end{Schunk}
+The same can be done for tutorials, using \texttt{adegenetTutorial} (see
+manpage to choose the tutorial to open).
+Alternatively, one can use \texttt{vignette}, for which \texttt{adegenetTutorial} is merely a wrapper.
+
+You will also find a listing of the main functions of the package typing:
+\begin{Schunk}
+\begin{Sinput}
+> `?`(adegenet)
+\end{Sinput}
+\end{Schunk}
+
+Note that you can also browse help pages as html pages, using:
+\begin{Schunk}
+\begin{Sinput}
+> help.start()
+\end{Sinput}
+\end{Schunk}
+To go to the \textit{adegenet} page, click `packages', `adegenet', and
+`adegenet-package'.
+\\
+
+
+Lastly, several mailing lists are available to find different kinds of
+information on R; to name a few:
+\begin{itemize}
+\item adegenet forum
+  (\url{https://lists.r-forge.r-project.org/cgi-bin/mailman/listinfo/adegenet-forum}):
+  adegenet and multivariate analysis of genetic markers
+\item R-help (\url{https://stat.ethz.ch/mailman/listinfo/r-help}):
+  general questions about R
+\item R-sig-genetics
+  (\url{https://stat.ethz.ch/mailman/listinfo/r-sig-genetics}):
+  genetics in R
+\item R-sig-phylo
+  (\url{https://stat.ethz.ch/mailman/listinfo/r-sig-phylo}):
+  phylogenetics in R
+\end{itemize}
+
+
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Object classes}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Two classes of objects are defined, depending on the level at which the genetic information is stored:
+\section{Object classes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Two classes of objects are used for storing genetic marker data, depending on the level at which the genetic information is considered:
 \texttt{genind} is used for individual genotypes, whereas \texttt{genpop} is used for alleles numbers counted by populations.
 Note that the term 'population', here and later, is employed in a broad sense: it simply refers to any grouping of individuals.
+The specific class \texttt{genlight} is used for storing large genome-wide SNPs data.
+See \textit{adegenet-genomics} vignette for more information.
 
-% % % % % % % % % % % % % % % % % %
-\subsubsection{genind objects}
-% % % % % % % % % % % % % % % % % %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{genind objects}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 These objects can be obtained by reading data files from other software,
 from a \texttt{data.frame} of genotypes, by conversion from a table of
-allelic frequencies, or even from aligned DNA sequences (see 'importing data').
+allelic frequencies, or even from aligned DNA or proteic sequences (see 'importing data').
 \begin{Schunk}
 \begin{Sinput}
 > data(nancycats)
@@ -183,7 +308,54 @@ A \texttt{genind} object is formal S4 object with several slots,
 accessed using the '\texttt{@}' operator (see \texttt{class?genind}).
 Note that the '\texttt{\$}' was also implemented for adegenet objects,
 so that slots can be accessed as if they were components of a list.
-The main slot in \texttt{genind} is a table of allelic frequencies of individuals (in rows) for every alleles in every loci.
+\\
+
+The structure of \texttt{genind} objects is described by:
+\begin{Schunk}
+\begin{Sinput}
+> getClassDef("genind")
+\end{Sinput}
+\begin{Soutput}
+Class "genind" [package "adegenet"]
+
+Slots:
+                                                                       
+Name:           tab    loc.names      loc.fac     loc.nall    all.names
+Class:       matrix    character factorOrNULL     intOrNum   listOrNULL
+                                                                       
+Name:          call    ind.names          pop    pop.names       ploidy
+Class:   callOrNULL    character factorOrNULL   charOrNULL      integer
+                                
+Name:          type        other
+Class:    character   listOrNULL
+
+Extends: "gen", "indInfo"
+\end{Soutput}
+\end{Schunk}
+
+The slightly cryptic output of this function means that \texttt{genind} objects possess the following slots:
+\begin{itemize}
+  \item \texttt{tab}: a table of relative allele frequencies (individuals in rows, alleles in columns).
+  \item \texttt{loc.names}: a vector of labels for the loci.
+  \item \texttt{loc.fac}: a factor indicating which columns in \texttt{@tab} correspond to which marker.
+  \item \texttt{loc.nall}: the number of alleles in each marker.
+  \item \texttt{all.names}: a vector of labels for the alleles.
+  \item \texttt{ind.names}:  a vector of labels for the individuals.
+  \item \texttt{pop}: a factor storing group membership of the individuals.
+  \item \texttt{pop.names}: labels used for populations.
+  \item \texttt{ploidy}: the ploidy level of the genome.
+  \item \texttt{type}: a character string indicating whether the marker is codominant
+    (\texttt{codom}) or presence/absence ('\texttt{PA}').
+  \item \texttt{other}: a list storing optional information.
+  \item \texttt{call}: the matched call, i.e. command used to create the object.
+\end{itemize}
+Slots can be accessed using '\texttt{@}' or '\texttt{\$}', although in some cases it is more
+convenient to use accessors (i.e. function which return specific content of the object) than
+accessing the slot directly (see section 'Using accessors').
+\\
+
+The main slot in \texttt{genind} is the table of allelic frequencies of individuals (in rows) for
+every alleles in every loci stored in \texttt{@tab}.
 Being frequencies, data sum to one per locus, giving the score of 1 for an homozygote and 0.5 for an heterozygote.
 The particular case of presence/absence data will is described in an
 ad-hoc section (see 'Handling presence/absence data').
@@ -230,39 +402,24 @@ gives the true marker names, and
 \end{Soutput}
 \end{Schunk}
 gives the allele names for marker 3.
-Alternatively, one can use the accessor \texttt{locNames}:
-\begin{Schunk}
-\begin{Sinput}
-> locNames(nancycats)
-\end{Sinput}
-\begin{Soutput}
-     L1      L2      L3      L4      L5      L6      L7      L8      L9 
- "fca8" "fca23" "fca43" "fca45" "fca77" "fca78" "fca90" "fca96" "fca37" 
-\end{Soutput}
-\begin{Sinput}
-> head(locNames(nancycats, withAlleles = TRUE), 10)
-\end{Sinput}
-\begin{Soutput}
- [1] "fca8.117" "fca8.119" "fca8.121" "fca8.123" "fca8.127" "fca8.129"
- [7] "fca8.131" "fca8.133" "fca8.135" "fca8.137"
-\end{Soutput}
-\end{Schunk}
 
 
 \noindent The slot 'ploidy' is an integer giving the level of ploidy
 of the considered organisms (defaults to 2).
 This parameter is essential, in particular when switching from
-individual frequencies (genind object) to allele counts per
-populations (genpop).
+individual frequencies (\texttt{genind} object) to allele counts per
+populations (\texttt{genpop}).
 
 \noindent
 The slot 'type' describes the type of marker used: codominant ('codom', e.g. microsatellites) or presence/absence ('PA', e.g. AFLP).
 By default, adegenet considers that markers are codominant.
 Note that actual handling of presence/absence markers has been made available since version 1.2-3.
 See the dedicated section for more information about presence/absence markers.
+\\
 
-Optional components are also allowed.
-The slot \texttt{@other} is a list that can include any additionnal information.
+
+Optional content can are also be stored within the object.
+The slot \texttt{@other} is a list that can include any additional information.
 The optional slot \texttt{@pop} (a factor giving a grouping of individuals) is particular in that the behaviour of many functions will check automatically for it and behave accordingly.
 In fact, each time an argument 'pop' is required by a function, it is first seeked in \texttt{@pop}.
 For instance, using the function \texttt{genind2genpop} to convert \texttt{nancycats} to a \texttt{genpop} object, there is no need to give a 'pop' argument as it exists in the \texttt{genind} object:
@@ -308,27 +465,7 @@ S4 class:  genpop
 \end{Soutput}
 \end{Schunk}
 Other additional components can be stored (like here, spatial coordinates of populations in \$xy) but will not be passed during any conversion (\texttt{catpop} has no \$other\$xy).
-
-\noindent Note that the slot 'pop' can be retrieved and set using the \texttt{pop} function:
-\begin{Schunk}
-\begin{Sinput}
-> obj <- nancycats[sample(1:50, 10)]
-> pop(obj)
-\end{Sinput}
-\begin{Soutput}
- [1] 1 1 4 2 2 2 2 2 4 1
-Levels: 1 4 2
-\end{Soutput}
-\begin{Sinput}
-> pop(obj) <- rep("newPop", 10)
-> pop(obj)
-\end{Sinput}
-\begin{Soutput}
- [1] newPop newPop newPop newPop newPop newPop newPop newPop newPop newPop
-Levels: newPop
-\end{Soutput}
-\end{Schunk}
-
+\\
 
 Finally, a \texttt{genind} object generally contains its matched call, \textit{i.e.} the instruction that created it.
 This is not the case, however, for objects loaded using \texttt{data}.
@@ -364,9 +501,10 @@ read.genetix(file = system.file("files/nancycats.gtx", package = "adegenet"))
 \end{Soutput}
 \end{Schunk}
 
-% % % % % % % % % % % % % % % % % %
-\subsubsection{genpop objects}
-% % % % % % % % % % % % % % % % % %
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{genpop objects}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 We use the previously built \texttt{genpop} object:
 \begin{Schunk}
 \begin{Sinput}
@@ -414,11 +552,113 @@ S4 class:  genpop
 The matrix \$tab contains alleles counts per population (here, cat colonies).
 These objects are otherwise very similar to \texttt{genind} in their
 structure, and possess generic names, true names, the matched call and
-an \texttt{@other} slot.
+an \texttt{@other} slot:
+\begin{Schunk}
+\begin{Sinput}
+> getClassDef("genpop")
+\end{Sinput}
+\begin{Soutput}
+Class "genpop" [package "adegenet"]
+
+Slots:
+                                                                       
+Name:           tab    loc.names      loc.fac     loc.nall    all.names
+Class:       matrix    character factorOrNULL     intOrNum   listOrNULL
+                                                                       
+Name:          call    pop.names       ploidy         type        other
+Class:   callOrNULL    character      integer    character   listOrNULL
+
+Extends: "gen", "popInfo"
+\end{Soutput}
+\end{Schunk}
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Using accessors}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+One advantage of formal (S4) classes is that they allow for interacting simply with possibly complex objects.
+This is made possible by using accessors, i.e. functions that extract information from an object,
+rather than accessing the slots directly.
+Another advantage of this approach is that as long as accessors remain identical on the user's
+side, the internal structure of an object may change from one release to another without generating
+errors in old scripts.
+Although \texttt{genind} and \texttt{genpop} objects are fairly simple, we recommend using accessors whenever possible
+to access their content.
+\\
 
+Available accessors are:
+\begin{itemize}
+  \item \texttt{nInd}: returns the number of individuals in the object; only for \texttt{genind}.
+  \item \texttt{nLoc}: returns the number of loci (SNPs).
+  \item \texttt{indNames}$^{\dagger}$: returns/sets labels for individuals; only for \texttt{genind}.
+  \item \texttt{locNames}$^{\dagger}$: returns/sets labels for loci (SNPs).
+  \item \texttt{alleles}$^{\dagger}$: returns/sets alleles.
+  \item \texttt{ploidy}$^{\dagger}$: returns/sets ploidy of the individuals.
+  \item \texttt{pop}$^{\dagger}$: returns/sets a factor grouping individuals; only for \texttt{genind}.
+  \item \texttt{other}$^{\dagger}$: returns/sets misc information stored as a list.
+\end{itemize}
+where $^{\dagger}$ indicates that a replacement method is available using \texttt{<-}; for instance:
+\begin{Schunk}
+\begin{Sinput}
+> head(indNames(nancycats), 10)
+\end{Sinput}
+\begin{Soutput}
+   001    002    003    004    005    006    007    008    009    010 
+"N215" "N216" "N217" "N218" "N219" "N220" "N221" "N222" "N223" "N224" 
+\end{Soutput}
+\begin{Sinput}
+> indNames(nancycats) <- paste("cat", 1:nInd(nancycats), sep = ".")
+> head(indNames(nancycats), 10)
+\end{Sinput}
+\begin{Soutput}
+     001      002      003      004      005      006      007      008 
+ "cat.1"  "cat.2"  "cat.3"  "cat.4"  "cat.5"  "cat.6"  "cat.7"  "cat.8" 
+     009      010 
+ "cat.9" "cat.10" 
+\end{Soutput}
+\end{Schunk}
+
+Some accessors such as \texttt{locNames} may have specific options:
+\begin{Schunk}
+\begin{Sinput}
+> locNames(nancycats)
+\end{Sinput}
+\begin{Soutput}
+     L1      L2      L3      L4      L5      L6      L7      L8      L9 
+ "fca8" "fca23" "fca43" "fca45" "fca77" "fca78" "fca90" "fca96" "fca37" 
+\end{Soutput}
+\begin{Sinput}
+> head(locNames(nancycats, withAlleles = TRUE), 10)
+\end{Sinput}
+\begin{Soutput}
+ [1] "fca8.117" "fca8.119" "fca8.121" "fca8.123" "fca8.127" "fca8.129"
+ [7] "fca8.131" "fca8.133" "fca8.135" "fca8.137"
+\end{Soutput}
+\end{Schunk}
+
+\noindent The slot 'pop' can be retrieved and set using \texttt{pop}:
+\begin{Schunk}
+\begin{Sinput}
+> obj <- nancycats[sample(1:50, 10)]
+> pop(obj)
+\end{Sinput}
+\begin{Soutput}
+ [1] 2 2 2 3 3 3 3 3 1 1
+Levels: 2 3 1
+\end{Soutput}
+\begin{Sinput}
+> pop(obj) <- rep("newPop", 10)
+> pop(obj)
+\end{Sinput}
+\begin{Soutput}
+ [1] newPop newPop newPop newPop newPop newPop newPop newPop newPop newPop
+Levels: newPop
+\end{Soutput}
+\end{Schunk}
+An additional advantage of using accessors is they are most of the time safer. For instance,
+\texttt{pop<-} will check the length of the new group membership vector against the data, and
+complain if there is a mismatch.
 
 
 
@@ -427,19 +667,14 @@ an \texttt{@other} slot.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Various topics}
+\section{Importing/exporting data}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Importing data}
+\subsection{From GENETIX, STRUCTURE, FSTAT, Genepop}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-% % % % % % % % % % % % % % % % % %
-\subsubsection{From GENETIX, STRUCTURE, FSTAT, Genepop}
-% % % % % % % % % % % % % % % % % %
 
 Data can be read from the software GENETIX (.gtx), STRUCTURE (.str or
 .stru), FSTAT (.dat) and Genepop (.gen) files, using the corresponding
@@ -478,9 +713,9 @@ their call (which is normal as they were obtained from different
 command lines).
 
 
-% % % % % % % % % % % % % % % % % %
-\subsubsection{From other software}
-% % % % % % % % % % % % % % % % % %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{From other software}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Genetic markers data can most of the time be stored as a table with individuals in row and markers
 in column, where each entry is a character string coding the alleles possessed at one locus.
 Such data are easily imported into R as a \texttt{data.frame}, using for instance \texttt{read.table}
