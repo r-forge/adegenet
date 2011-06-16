@@ -76,7 +76,7 @@
 This tutorial introduces some basic functionalities of the \textit{adegenet} package for R \cite{np145}.
 The purpose of this package is to provide tools for handling, analysing and simulating genetic
 markers data, with an emphasis on multivariate approaches and exploratory methods.
-Standard multivariate analyses are implemented in the \textit{ade4} package \cite{tj311}, of which
+Standard multivariate analyses are implemented in the \textit{ade4} package \cite{tj548}, of which
 \textit{adegenet} was originally an extension.
 However, the package has since grown methods of its own such as the Discriminant Analysis of
 Principal Components (DAPC, \cite{tjart19}), the spatial Principal Components Analysis (sPCA,
@@ -102,6 +102,7 @@ specific topics:
 
 
 
+\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Getting started}
@@ -115,7 +116,6 @@ specific topics:
 Before going further, we shall make sure that \textit{adegenet} is weel installed
 on the computer.
 Current version of the package is 1.3-0.
-
 Make sure you have a recent version ($\geq 2.13.0$) of R by typing:
 \begin{Schunk}
 \begin{Sinput}
@@ -250,6 +250,7 @@ information on R; to name a few:
 
 
 
+\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Object classes}
@@ -644,8 +645,8 @@ Some accessors such as \texttt{locNames} may have specific options:
 > pop(obj)
 \end{Sinput}
 \begin{Soutput}
- [1] 1 2 2 2 2 3 2 2 2 2
-Levels: 1 2 3
+ [1] 3 2 3 4 1 2 2 3 2 4
+Levels: 3 2 4 1
 \end{Soutput}
 \begin{Sinput}
 > pop(obj) <- rep("newPop", 10)
@@ -665,6 +666,7 @@ complain if there is a mismatch.
 
 
 
+\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Importing/exporting data}
@@ -752,16 +754,16 @@ Here, we provide an example using randomly generated tetraploid data.
 \end{Sinput}
 \begin{Soutput}
        loc 1  loc 2  loc 3 
-ind 1  "3447" "5726" "9046"
-ind 2  "6440" "2265" "1009"
-ind 3  "5602" "2989" "0248"
-ind 4  "4095" "8838" "4501"
-ind 5  "1845" "7682" "2922"
-ind 6  "2945" "8115" "1281"
-ind 7  "8978" "4407" "4553"
-ind 8  "4408" "4812" "1696"
-ind 9  "7773" "7345" "1955"
-ind 10 "6200" "5515" "0349"
+ind 1  "6998" "2427" "1766"
+ind 2  "7026" "1444" "1141"
+ind 3  "8956" "6567" "7466"
+ind 4  "3866" "5401" "4620"
+ind 5  "4031" "3217" "9901"
+ind 6  "5834" "9524" "3020"
+ind 7  "1959" "6515" "7494"
+ind 8  "0088" "5036" "1201"
+ind 9  "6723" "0982" "5113"
+ind 10 "1950" "5585" "4833"
 \end{Soutput}
 \begin{Sinput}
 > obj <- df2genind(temp, ploidy = 4, sep = "")
@@ -776,12 +778,12 @@ ind 10 "6200" "5515" "0349"
 S4 class:  genind
 @call: df2genind(X = temp, sep = "", ploidy = 4)
 
-@tab:  10 x 29 matrix of genotypes
+@tab:  10 x 30 matrix of genotypes
 
 @ind.names: vector of  10 individual names
 @loc.names: vector of  3 locus names
 @loc.nall: number of alleles per locus
-@loc.fac: locus factor for the  29 columns of @tab
+@loc.fac: locus factor for the  30 columns of @tab
 @all.names: list of  3 components yielding allele names for each locus
 @ploidy:  4
 @type:  codom
@@ -1036,19 +1038,19 @@ with genotypes in row and SNP loci in columns.
 \end{Sinput}
 \begin{Soutput}
          1   2   3   4   5  
-genot. 1 "g" "a" "g" "c" "g"
-genot. 2 "a" "g" "t" "c" "t"
-genot. 3 "c" "c" "c" "g" "t"
+genot. 1 "c" "c" "c" "t" "a"
+genot. 2 "a" "a" "a" "c" "c"
+genot. 3 "a" "g" "t" "c" "a"
 \end{Soutput}
 \begin{Sinput}
 > obj <- df2genind(dat, ploidy = 1)
 > truenames(obj)
 \end{Sinput}
 \begin{Soutput}
-         1.a 1.c 1.g 2.a 2.c 2.g 3.c 3.g 3.t 4.c 4.g 5.g 5.t
-genot. 1   0   0   1   1   0   0   0   1   0   1   0   1   0
-genot. 2   1   0   0   0   0   1   0   0   1   1   0   0   1
-genot. 3   0   1   0   0   1   0   1   0   0   0   1   0   1
+         1.a 1.c 2.a 2.c 2.g 3.a 3.c 3.t 4.c 4.t 5.a 5.c
+genot. 1   0   1   0   1   0   0   1   0   0   1   1   0
+genot. 2   1   0   1   0   0   1   0   0   1   0   0   1
+genot. 3   1   0   0   0   1   0   0   1   1   0   1   0
 \end{Soutput}
 \end{Schunk}
 
@@ -1067,7 +1069,7 @@ See the vignette \textit{adegenet-genomics} for more information.
 \\
 
 
-DNA sequences can be read into R using the ape package \cite{tj527,np83}, and
+DNA sequences can be read into R using the ape package \cite{tj527}, and
 imported into adegenet using \texttt{DNAbin2genind}.
 There are several ways ape can be used to read in DNA sequences.
 The easiest one is reading data from a usual format such as FASTA or Clustal using \texttt{read.dna}.
@@ -1560,6 +1562,7 @@ Note that tabulations can be obtained as follows using '{$\backslash$}t' charact
 
 
 
+\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Basics of data analysis}
@@ -2292,7 +2295,7 @@ function (F)
     do.call("mapply", c(FUN = FUN, args[dovec], MoreArgs = list(args[!dovec]), 
         SIMPLIFY = SIMPLIFY, USE.NAMES = USE.NAMES))
 }
-<environment: 0x18a7c90>
+<environment: 0x525f550>
 \end{Soutput}
 \end{Schunk}
 The output object \texttt{F} can seem a bit cryptic: it is an function embedded within a hidden environment.
@@ -2304,6 +2307,7 @@ This does not matter, however, since it is easily represented:
 \end{Sinput}
 \end{Schunk}
 \includegraphics{figs/base-065}
+
 \noindent Indeed, this individual shows subsequent inbreeding, with about 50\% chances of being
 homozygote through inheritance from a common ancestor of its parents.
 
@@ -2312,6 +2316,7 @@ homozygote through inheritance from a common ancestor of its parents.
 
 
 
+\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Multivariate analysis}
@@ -2502,7 +2507,7 @@ The basic scatterplot for this analysis can be obtained by:
 \end{Schunk}
 \includegraphics{figs/base-070}
 
-However, this figure can largely be improved.
+\noindent However, this figure can largely be improved.
 First, we can use \texttt{s.class} to represent both the genotypes and inertia ellipses for populations.
 \begin{Schunk}
 \begin{Sinput}
@@ -2524,7 +2529,8 @@ The third axis reflects the diversity among French breeds:
 \end{Sinput}
 \end{Schunk}
 \includegraphics{figs/base-072}
-Overall, all breeds seem well differentiated.
+
+\noindent Overall, all breeds seem well differentiated.
 ~\\
 
 However, we can yet improve these scatterplots, which are fortunately easy to customize.
@@ -2554,10 +2560,12 @@ scale:
 \end{Sinput}
 \end{Schunk}
 \includegraphics{figs/base-074}
-Colors are based on the first three PCs of the PCA, recoded respectively on the red, green, and blue channel.
+
+\noindent Colors are based on the first three PCs of the PCA, recoded respectively on the red, green, and blue channel.
 In this figure, the genetic diversity is represented in two redundant ways: by the distances
 (further away = more genetically different), and by the colors (more different colors = more
 genetically different).
+\\
 
 We can represent the diversity on the third axis similarly:
 \begin{Schunk}
@@ -2676,6 +2684,7 @@ group separation (\textit{adegenet-dapc}).
 
 
 
+\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Spatial analysis}
@@ -2724,11 +2733,11 @@ Call: mantel.randtest(m1 = Dgen, m2 = Dgeo)
 Observation: 0.00492068 
 
 Based on 999 replicates
-Simulated p-value: 0.459 
+Simulated p-value: 0.458 
 Alternative hypothesis: greater 
 
-    Std.Obs Expectation    Variance 
- 0.08345315 -0.00374887  0.01079214 
+     Std.Obs  Expectation     Variance 
+ 0.093756493 -0.004680006  0.010485806 
 \end{Soutput}
 \end{Schunk}
 \begin{Schunk}
@@ -2766,8 +2775,8 @@ Based on 999 replicates
 Simulated p-value: 0.001 
 Alternative hypothesis: greater 
 
-      Std.Obs   Expectation      Variance 
- 3.398208e+00 -8.289222e-05  1.392692e-03 
+    Std.Obs Expectation    Variance 
+3.361033347 0.001240891 0.001394103 
 \end{Soutput}
 \end{Schunk}
 \begin{Schunk}
@@ -2776,7 +2785,8 @@ Alternative hypothesis: greater
 \end{Sinput}
 \end{Schunk}
 \includegraphics{figs/base-082}
-This time there is a clear isolation by distance pattern.
+
+\noindent This time there is a clear isolation by distance pattern.
 
 
 % % % % % % % % % % % % % % % % % % % % %
@@ -2883,10 +2893,10 @@ P01 P02
 \end{Soutput}
 \begin{Sinput}
 > temp <- sim2pop$pop
-> levels(temp) <- 3:4
+> levels(temp) <- c(3, 5)
 > temp <- as.numeric(as.character(temp))
 > plot(sim2pop$other$xy, pch = temp, cex = 1.5, xlab = "x", ylab = "y")
-> legend("topright", leg = c("Pop A", "Pop B"), pch = 3:4)
+> legend("topright", leg = c("Pop A", "Pop B"), pch = c(3, 5))
 \end{Sinput}
 \end{Schunk}
 \includegraphics{figs/base-mon1}
@@ -2971,8 +2981,8 @@ use only a small number of replicates to generate $F_{ST}$ values in absence of 
 > replicate(10, pairwise.fst(sim2pop, pop = sample(pop(sim2pop))))
 \end{Sinput}
 \begin{Soutput}
- [1] 0.004193672 0.004151741 0.003889462 0.003439725 0.003841775 0.004762628
- [7] 0.004070344 0.003531810 0.002912701 0.003663360
+ [1] 0.004182984 0.003325440 0.003499744 0.004075277 0.004365510 0.003540032
+ [7] 0.003754623 0.003234999 0.003385460 0.003815465
 \end{Soutput}
 \end{Schunk}
 $F_{ST}$ values in absence of population structure would be one order of magnitude lower (more
@@ -3138,10 +3148,10 @@ Last, we can compare the infered boundary with the actual distribution of popula
 \begin{Sinput}
 > plot(mon1, add.arrows = FALSE, bwd = 8)
 > temp <- sim2pop$pop
-> levels(temp) <- 3:4
+> levels(temp) <- c(3, 5)
 > temp <- as.numeric(as.character(temp))
 > points(sim2pop$other$xy, pch = temp, cex = 1.3)
-> legend("topright", leg = c("Pop A", "Pop B"), pch = 3:4)
+> legend("topright", leg = c("Pop A", "Pop B"), pch = c(3, 5))
 \end{Sinput}
 \end{Schunk}
 \includegraphics{figs/base-099}
@@ -3152,7 +3162,9 @@ Last, we can compare the infered boundary with the actual distribution of popula
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{How to simulate hybridization?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Simulating hybridization}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 The function \texttt{hybridize} allows to simulate hybridization between
 individuals from two distinct genetic pools, or more broadly between
@@ -3199,13 +3211,8 @@ implemented... suggestion or (better) contributions are welcome!
 
 
 
-
+\newpage
 \begin{thebibliography}{9}
-
-\bibitem{tjart19}
-  Jombart T, Devillard S and Balloux, F (2010).
-  Discriminant analysis of principal components: a new method for the analysis of genetically structured populations.
-  \textit{BMC Genetics} 11: 94.
 
 \bibitem{tjart05}
   Jombart, T. (2008) adegenet: a R package for the multivariate
@@ -3216,13 +3223,45 @@ implemented... suggestion or (better) contributions are welcome!
   statistical computing. R Foundation for Statistical Computing,
   Vienna, Austria. ISBN 3-900051-07-0.
 
+\bibitem{tj548}
+  Dray S and Dufour A-B (2007) The ade4 package: implementing the duality diagram for ecologists. \textit{Journal of Statistical Software} 22: 1-20.
+
+\bibitem{tjart19}
+  Jombart T, Devillard S and Balloux, F (2010).
+  Discriminant analysis of principal components: a new method for the analysis of genetically structured populations.
+  \textit{BMC Genetics} 11: 94.
+
+\bibitem{tjart04}
+  Jombart T, Devillard S, Dufour A-B and Pontier D (2008) Revealing cryptic spatial
+  patterns in genetic variability by a new multivariate method.  \textit{Heredity} 101: 92-103.
+
+\bibitem{tjart20}
+  Jombart T, Eggo RM, Dodd PJ and Balloux F (2010) Reconstructing disease outbreaks from genetic
+  data: a graph approach. \textit{Heredity} 106: 383-390.
+
 \bibitem{tjart10}
   Jombart T, Pontier D and Dufour A-B (2009) Genetic markers in the playground of multivariate analysis.
   \textit{Heredity} 102: 330-341.
 
-\bibitem{tjart04}
-Jombart T, Devillard S, Dufour A-B and Pontier D (2008) Revealing cryptic spatial patterns in genetic variability by a new multivariate method.
-\textit{Heredity} 101: 92-103.
+\bibitem{tj527}
+  Paradis E, Claude J, and Strimmer K (2004) APE: analyses of phylogenetics and evolution in R language.
+  \textit{Bioinformatics}: 20, 289-290.
+
+\bibitem{np160}
+  Charif D, and Lobry J (2007) SeqinR 1.0-2: a contributed package to the R project for statistical
+  computing devoted to biological sequences retrieval and analysis. \textit{in} Structural approaches to sequence evolution: Molecules, networks, populations, \textit{Springer Verlag}, 207-232.
+
+\bibitem{tj814}
+  Nei M (1973) Analysis of gene diversity in subdivided populations. \textit{Proc Natl Acad Sci USA} 70: 3321-3323.
+
+
+\bibitem{tj433}
+  Monmonier M (1973) Maximum-difference barriers: an alternative numerical regionalization method. \textit{Geographical Analysis} 3: 245-261.
+
+\bibitem{np120}
+  Manni F, Guerard E and Heyer E (2004) Geographic patterns of (genetic, morphologic, linguistic)
+  variation: how barriers can be detected by "Monmonier's algorithm". \textit{Human Biology} 76: 173-190.
+
 
 \end{thebibliography}
 
