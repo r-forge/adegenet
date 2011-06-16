@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.4.7)  25 MAY 2011 18:18
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.4.12)  16 JUN 2011 17:04
 entering extended mode
  %&-line parsing enabled.
 **adegenet-basics.tex
@@ -93,7 +93,7 @@ Package etexcmds Info: Could not find \expanded.
 (etexcmds)             that some package has redefined \expanded.
 (etexcmds)             In the latter case, load this package earlier.
 )
-(/etc/texmf/tex/latex/config/hyperref.cfg
+(/usr/share/texmf-texlive/tex/latex/latexconfig/hyperref.cfg
 File: hyperref.cfg 2002/06/06 v1.2 hyperref configuration of TeXLive
 )
 (/usr/share/texmf-texlive/tex/latex/oberdiek/kvoptions.sty
@@ -402,6 +402,14 @@ Now handling font encoding PD1 ...
    defining Unicode char U+2122 (decimal 8482)
    defining Unicode char U+2423 (decimal 9251)
 ))
+(/usr/share/texmf-texlive/tex/latex/tools/bm.sty
+Package: bm 2004/02/26 v1.1c Bold Symbol Support (DPC/FMi)
+\symboldoperators=\mathgroup4
+\symboldletters=\mathgroup5
+\symboldsymbols=\mathgroup6
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 138.
+LaTeX Info: Redefining \bm on input line 204.
+)
 (/usr/local/R-versions/R-2.13.0/share/texmf/tex/latex/Sweave.sty
 Package: Sweave 
 
@@ -589,27 +597,27 @@ File: t1aer.fd 1997/11/16 Font definitions for T1/aer.
 )))) (./adegenet-basics.aux)
 \openout1 = `adegenet-basics.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 24.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 24.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 36.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 36.
 
 (/usr/share/texmf-texlive/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    ... okay on input line 36.
 
 (/usr/share/texmf/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -624,7 +632,7 @@ LaTeX Font Info:    ... okay on input line 24.
 \MPnumerator=\count102
 \everyMPtoPDFconversion=\toks20
 )
-Package hyperref Info: Link coloring ON on input line 24.
+Package hyperref Info: Link coloring ON on input line 36.
  (/usr/share/texmf-texlive/tex/latex/hyperref/nameref.sty
 Package: nameref 2007/05/29 v2.31 Cross-referencing by name of section
 
@@ -633,8 +641,8 @@ Package: refcount 2008/08/11 v3.1 Data extraction from references (HO)
 )
 \c@section@level=\count103
 )
-LaTeX Info: Redefining \ref on input line 24.
-LaTeX Info: Redefining \pageref on input line 24.
+LaTeX Info: Redefining \ref on input line 36.
+LaTeX Info: Redefining \pageref on input line 36.
 
 (./adegenet-basics.out) (./adegenet-basics.out)
 \@outlinefile=\write4
@@ -642,35 +650,440 @@ LaTeX Info: Redefining \pageref on input line 24.
 
 \AtBeginShipoutBox=\box28
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 38.
+(Font)              <12> on input line 52.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 38.
+(Font)              <8> on input line 52.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 38.
- (./adegenet-basics.toc)
+(Font)              <6> on input line 52.
+ [1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./adegenet-basics.toc
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 3.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 3.
+LaTeX Font Info:    Try loading font information for T1+aett on input line 26.
+
+(/usr/share/texmf-texlive/tex/latex/ae/t1aett.fd
+File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
+))
 \tf@toc=\write5
 \openout5 = `adegenet-basics.toc'.
 
+ [2]
 
-[1
+LaTeX Warning: Citation `tj311' on page 3 undefined on input line 79.
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./adegenet-basics.aux) ) 
+
+LaTeX Warning: Citation `tjart20' on page 3 undefined on input line 83.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 86--91
+
+ []
+
+LaTeX Font Info:    Try loading font information for TS1+aer on input line 97.
+(/usr/local/R-versions/R-2.13.0/share/texmf/tex/latex/ts1aer.fd
+File: ts1aer.fd 
+)
+LaTeX Font Info:    Font shape `TS1/aer/m/n' in size <10> not available
+(Font)              Font shape `TS1/cmr/m/n' tried instead on input line 97.
+ [3]
+LaTeX Font Info:    Try loading font information for TS1+aett on input line 186
+.
+
+(/usr/local/R-versions/R-2.13.0/share/texmf/tex/latex/ts1aett.fd
+File: ts1aett.fd 
+)
+LaTeX Font Info:    Try loading font information for TS1+cmtt on input line 186
+.
+
+(/usr/share/texmf-texlive/tex/latex/base/ts1cmtt.fd
+File: ts1cmtt.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `TS1/aett/m/n' in size <8> not available
+(Font)              Font shape `TS1/cmtt/m/n' tried instead on input line 186.
+
+Underfull \hbox (badness 10000) in paragraph at lines 189--197
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 227--230
+
+ []
+
+[4]
+Underfull \hbox (badness 6364) in paragraph at lines 235--238
+[]\T1/aer/m/n/10 adegenet fo-rum ([][]$\T1/aett/m/n/10 https : / / lists . r-[]
+forge . r-[]project . org / cgi-[]bin /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 235--238
+\T1/aett/m/n/10 mailman / listinfo / adegenet-[]forum$[][]\T1/aer/m/n/10 ): ade
+-genet and mul-ti-vari-ate
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 240--243
+[]\T1/aer/m/n/10 R-sig-genetics ([][]$\T1/aett/m/n/10 https : / / stat . ethz .
+ ch / mailman / listinfo /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 243--246
+[]\T1/aer/m/n/10 R-sig-phylo ([][]$\T1/aett/m/n/10 https : / / stat . ethz . ch
+ / mailman / listinfo /
+ []
+
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 307--312
+
+ []
+
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 352--356
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 413--419
+
+ []
+
+[7]
+Underfull \hbox (badness 10000) in paragraph at lines 467--469
+
+ []
+
+[8] [9]
+Underfull \hbox (badness 10000) in paragraph at lines 580--589
+
+ []
+
+[10]
+Underfull \hbox (badness 2680) in paragraph at lines 676--676
+[]\T1/aer/bx/n/12 Importing data from GENETIX, STRUC-TURE,
+ []
+
+[11]
+Underfull \hbox (badness 10000) in paragraph at lines 721--727
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 728--738
+
+ []
+
+[12] [13]
+Underfull \hbox (badness 10000) in paragraph at lines 815--826
+
+ []
+
+[14] [15] <figs/base-pcaaflp.pdf, id=267, 433.62pt x 433.62pt>
+File: figs/base-pcaaflp.pdf Graphic file (type pdf)
+
+<use figs/base-pcaaflp.pdf> [16 <./figs/base-pcaaflp.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 1016--1024
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1063--1068
+
+ []
+
+[17]
+
+LaTeX Warning: Citation `tj527' on page 18 undefined on input line 1070.
+
+
+LaTeX Warning: Citation `np83' on page 18 undefined on input line 1070.
+
+[18]
+
+LaTeX Warning: Citation `np160' on page 19 undefined on input line 1173.
+
+[19]
+Underfull \hbox (badness 2837) in paragraph at lines 1249--1254
+\T1/aer/m/n/10 The six aligned pro-tein se-quences (\T1/aett/m/n/10 mase.res\T1
+/aer/m/n/10 ) have been scanned for
+ []
+
+[20] <figs/base-njAA.pdf, id=294, 433.62pt x 433.62pt>
+File: figs/base-njAA.pdf Graphic file (type pdf)
+
+<use figs/base-njAA.pdf> [21] <figs/base-040.pdf, id=299, 433.62pt x 433.62pt>
+File: figs/base-040.pdf Graphic file (type pdf)
+
+<use figs/base-040.pdf> [22 <./figs/base-njAA.pdf>] [23 <./figs/base-040.pdf>]
+[24] [25] [26]
+Underfull \hbox (badness 10000) in paragraph at lines 1656--1659
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1708--1711
+
+ []
+
+[27] [28]
+Underfull \hbox (badness 10000) in paragraph at lines 1828--1831
+
+ []
+
+[29] [30] <figs/base-sumry.pdf, id=351, 433.62pt x 433.62pt>
+File: figs/base-sumry.pdf Graphic file (type pdf)
+
+<use figs/base-sumry.pdf> [31 <./figs/base-sumry.pdf>] [32]
+Underfull \hbox (badness 10000) in paragraph at lines 2075--2081
+
+ []
+
+
+LaTeX Warning: Citation `tj814' on page 33 undefined on input line 2124.
+
+[33]
+Underfull \hbox (badness 10000) in paragraph at lines 2172--2180
+
+ []
+
+
+Underfull \hbox (badness 3861) in paragraph at lines 2194--2198
+\T1/aer/m/n/10 This there-fore al-lows for com-put-ing the like-li-hood of a gi
+ven state
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2194--2198
+
+ []
+
+[34] <figs/base-063.pdf, id=378, 433.62pt x 433.62pt>
+File: figs/base-063.pdf Graphic file (type pdf)
+ <use figs/base-063.pdf>
+[35] <figs/base-065.pdf, id=383, 433.62pt x 433.62pt>
+File: figs/base-065.pdf Graphic file (type pdf)
+ <use figs/base-065.pdf>
+Underfull \hbox (badness 5592) in paragraph at lines 2306--2309
+[] \T1/aer/m/n/10 In-deed, this
+ []
+
+[36 <./figs/base-063.pdf>]
+Underfull \hbox (badness 5302) in paragraph at lines 2325--2333
+\T1/aer/m/n/10 Multivariate anal-y-sis con-sists in sum-maris-ing a strongly mu
+l-ti-vari-ate
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2325--2333
+
+ []
+
+[37 <./figs/base-065.pdf>]
+Underfull \hbox (badness 4872) in paragraph at lines 2346--2348
+[]\T1/aett/m/n/10 dist \T1/aer/m/n/10 (\T1/aer/m/it/10 stats\T1/aer/m/n/10 ): c
+om-putes pair-wise dis-tances be-tween mul-ti-vari-ate
+ []
+
+
+Underfull \hbox (badness 2126) in paragraph at lines 2367--2370
+[]\T1/aett/m/n/10 scatter \T1/aer/m/n/10 (\T1/aer/m/it/10 ade4,adegenet\T1/aer/
+m/n/10 ): generic func-tion to dis-play mul-ti-vari-ate
+ []
+
+
+Underfull \hbox (badness 1490) in paragraph at lines 2371--2374
+\T1/aer/m/n/10 con-tri-bu-tion to a given struc-ture) of al-le-les for a given 
+prin-ci-pal
+ []
+
+[38]
+Underfull \hbox (badness 2990) in paragraph at lines 2382--2385
+[]\T1/aett/m/n/10 colorplot \T1/aer/m/n/10 (\T1/aer/m/it/10 ade-genet\T1/aer/m/
+n/10 ): graph-i-cal dis-play of 1 to 3 quan-ti-ta-tive
+ []
+
+
+Underfull \hbox (badness 1122) in paragraph at lines 2386--2388
+[]\T1/aett/m/n/10 num2col \T1/aer/m/n/10 (\T1/aer/m/it/10 ade-genet\T1/aer/m/n/
+10 ): aux-il-iary func-tion trans-form-ing a quan-ti-ta-tive
+ []
+
+
+Underfull \hbox (badness 2564) in paragraph at lines 2390--2392
+[]\T1/aett/m/n/10 compoplot \T1/aer/m/n/10 (\T1/aer/m/it/10 ade-genet\T1/aer/m/
+n/10 ): spe-cific 'STRUCTURE-like' plot of group
+ []
+
+
+LaTeX Font Warning: Font shape `T1/aett/bx/n' undefined
+(Font)              using `T1/aett/m/n' instead on input line 2407.
+
+[39]
+Underfull \hbox (badness 10000) in paragraph at lines 2443--2446
+
+ []
+
+<figs/base-068.pdf, id=418, 433.62pt x 433.62pt>
+File: figs/base-068.pdf Graphic file (type pdf)
+ <use figs/base-068.pdf>
+[40 <./figs/base-068.pdf>] <figs/base-070.pdf, id=429, 433.62pt x 433.62pt>
+File: figs/base-070.pdf Graphic file (type pdf)
+
+<use figs/base-070.pdf> [41] <figs/base-071.pdf, id=434, 433.62pt x 433.62pt>
+File: figs/base-071.pdf Graphic file (type pdf)
+
+<use figs/base-071.pdf> [42 <./figs/base-070.pdf>]
+<figs/base-072.pdf, id=445, 433.62pt x 433.62pt>
+File: figs/base-072.pdf Graphic file (type pdf)
+ <use figs/base-072.pdf>
+Underfull \hbox (badness 10000) in paragraph at lines 2526--2529
+[] \T1/aer/m/n/10 Over-all, all
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2526--2529
+
+ []
+
+[43 <./figs/base-071.pdf>] <figs/base-073.pdf, id=458, 433.62pt x 433.62pt>
+File: figs/base-073.pdf Graphic file (type pdf)
+
+<use figs/base-073.pdf>
+Underfull \hbox (badness 10000) in paragraph at lines 2540--2542
+
+ []
+
+[44 <./figs/base-072.pdf>] <figs/base-074.pdf, id=470, 433.62pt x 433.62pt>
+File: figs/base-074.pdf Graphic file (type pdf)
+
+<use figs/base-074.pdf>
+Underfull \hbox (badness 10000) in paragraph at lines 2556--2561
+[] \T1/aer/m/n/10 Col-ors are
+ []
+
+[45 <./figs/base-073.pdf>] <figs/base-075.pdf, id=484, 433.62pt x 433.62pt>
+File: figs/base-075.pdf Graphic file (type pdf)
+
+<use figs/base-075.pdf> [46 <./figs/base-074.pdf>]
+<figs/base-caexpl.pdf, id=499, 433.62pt x 433.62pt>
+File: figs/base-caexpl.pdf Graphic file (type pdf)
+ <use figs/base-caexpl.pdf>
+[47 <./figs/base-075.pdf>] <figs/base-077.pdf, id=514, 433.62pt x 433.62pt>
+File: figs/base-077.pdf Graphic file (type pdf)
+
+<use figs/base-077.pdf> [48 <./figs/base-caexpl.pdf>]
+<figs/base-078.pdf, id=525, 433.62pt x 433.62pt>
+File: figs/base-078.pdf Graphic file (type pdf)
+ <use figs/base-078.pdf>
+[49 <./figs/base-077.pdf>] [50 <./figs/base-078.pdf>]
+<figs/base-080.pdf, id=545, 433.62pt x 433.62pt>
+File: figs/base-080.pdf Graphic file (type pdf)
+ <use figs/base-080.pdf>
+Underfull \hbox (badness 10000) in paragraph at lines 2741--2747
+
+ []
+
+[51 <./figs/base-080.pdf>] <figs/base-082.pdf, id=556, 433.62pt x 433.62pt>
+File: figs/base-082.pdf Graphic file (type pdf)
+
+<use figs/base-082.pdf> [52 <./figs/base-082.pdf>]
+<figs/base-083.pdf, id=567, 433.62pt x 433.62pt>
+File: figs/base-083.pdf Graphic file (type pdf)
+ <use figs/base-083.pdf>
+<figs/densIbd.png, id=568, 481.8pt x 481.8pt>
+File: figs/densIbd.png Graphic file (type png)
+ <use figs/densIbd.png> [53 <./figs/base-083.pdf>]
+Underfull \hbox (badness 3219) in paragraph at lines 2829--2829
+[]\T1/aer/bx/n/12 Using Mon-monier's al-go-rithm to de-fine ge-netic
+ []
+
+
+LaTeX Warning: Citation `tj433' on page 54 undefined on input line 2831.
+
+
+LaTeX Warning: Citation `np120' on page 54 undefined on input line 2833.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2836--2843
+
+ []
+
+[54 <./figs/densIbd.png (PNG copy)>]
+<figs/base-mon1.pdf, id=583, 433.62pt x 433.62pt>
+File: figs/base-mon1.pdf Graphic file (type pdf)
+ <use figs/base-mon1.pdf>
+[55] <figs/base-mon4.pdf, id=589, 433.62pt x 433.62pt> [56 <./figs/base-mon1.pd
+f>]
+File: figs/base-mon4.pdf Graphic file (type pdf)
+ <use figs/base-mon4.pdf> <figs/monthres1.png, id=599, 481.8pt x 481.8pt>
+File: figs/monthres1.png Graphic file (type png)
+
+<use figs/monthres1.png>
+Underfull \hbox (badness 10000) in paragraph at lines 2947--2951
+
+ []
+
+[57 <./figs/base-mon4.pdf> <./figs/monthres1.png (PNG copy)>]
+Underfull \hbox (badness 10000) in paragraph at lines 2978--2982
+
+ []
+
+<figs/base-mon6.pdf, id=609, 433.62pt x 433.62pt>
+File: figs/base-mon6.pdf Graphic file (type pdf)
+ <use figs/base-mon6.pdf>
+[58] <figs/monthres2.png, id=614, 481.8pt x 481.8pt>
+File: figs/monthres2.png Graphic file (type png)
+ <use figs/monthres2.png>
+[59 <./figs/base-mon6.pdf> <./figs/monthres2.png (PNG copy)>] [60]
+<figs/base-098.pdf, id=630, 433.62pt x 433.62pt>
+File: figs/base-098.pdf Graphic file (type pdf)
+ <use figs/base-098.pdf>
+[61] <figs/base-099.pdf, id=636, 433.62pt x 433.62pt>
+File: figs/base-099.pdf Graphic file (type pdf)
+ <use figs/base-099.pdf>
+[62 <./figs/base-098.pdf>] [63 <./figs/base-099.pdf>] [64]
+(./adegenet-basics.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+LaTeX Warning: There were undefined references.
+
+ ) 
 Here is how much of TeX's memory you used:
- 5595 strings out of 493848
- 79617 string characters out of 1152824
- 138759 words of memory out of 3000000
- 8759 multiletter control sequences out of 15000+50000
- 19449 words of font info for 44 fonts, out of 3000000 for 9000
+ 6111 strings out of 493848
+ 86947 string characters out of 1152823
+ 152180 words of memory out of 3000000
+ 9076 multiletter control sequences out of 15000+50000
+ 47391 words of font info for 100 fonts, out of 3000000 for 9000
  714 hyphenation exceptions out of 8191
- 38i,6n,21p,278b,288s stack positions out of 5000i,500n,10000p,200000b,50000s
-<
-/usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/
-texmf-texlive/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-texliv
-e/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/fonts/type
-1/public/amsfonts/cm/cmr17.pfb>
-Output written on adegenet-basics.pdf (1 page, 38940 bytes).
+ 38i,6n,36p,282b,495s stack positions out of 5000i,500n,10000p,200000b,50000s
+{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/share/texmf
+-texlive/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texmf-texlive/fo
+nts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-texlive/fonts/type1/p
+ublic/amsfonts/cm/cmbx9.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfon
+ts/cm/cmex10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmmi1
+0.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/
+share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-
+texlive/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/font
+s/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-texlive/fonts/type1/publ
+ic/amsfonts/cm/cmr7.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/c
+m/cmr9.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
+</usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/
+texmf-texlive/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texmf-texli
+ve/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texmf-texlive/fonts/ty
+pe1/public/amsfonts/cm/cmti9.pfb></usr/share/texmf-texlive/fonts/type1/public/a
+msfonts/cm/cmtt10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/
+cmtt12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt8.pfb><
+/usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf/fon
+ts/type1/public/cm-super/sftt0800.pfb>
+Output written on adegenet-basics.pdf (64 pages, 1953924 bytes).
 PDF statistics:
- 28 PDF objects out of 1000 (max. 8388607)
- 3 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 752 PDF objects out of 1000 (max. 8388607)
+ 105 named destinations out of 1000 (max. 500000)
+ 400 words of extra memory for PDF output out of 10000 (max. 10000000)
 
