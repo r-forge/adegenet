@@ -154,7 +154,7 @@ There are several ways of getting information about R in general, or about
 \textit{adegenet} in particular.
 The function \texttt{help.search} is used to look for help on a given topic.
 For instance:
-<<>>=
+<<eval=FALSE>>=
 help.search("Hardy-Weinberg")
 @
 replies that there is a function \texttt{HWE.test.genind} in the
@@ -180,7 +180,7 @@ Information can be found from the website
 (\url{http://adegenet.r-forge.r-project.org/}), in the `documents'
 section, including tutorial and a manual which includes all
 manpages of the package, and a dedicated mailing list with searchable archives.
-To open the website from \Rlogo, use:
+To open the website from R, use:
 <<eval=FALSE>>=
 adegenetWeb()
 @
@@ -783,14 +783,14 @@ class(obj)
 obj[1:4,1:5]
 @
 
-\noindent Now we can use the function \texttt{varcomp.glob} from
-\emph{hierfstat} to compute 'variance' components:
-<<echo=FALSE>>=
-detach("package:ape")
-@
-<<>>=
-varcomp.glob(obj$pop,obj[,-1])
-@
+%% \noindent Now we can use the function \texttt{varcomp.glob} from
+%% \emph{hierfstat} to compute 'variance' components:
+%% <<echo=FALSE,eval=FALSE>>=
+%% detach("package:ape")
+%% @
+%% <<>>=
+%% varcomp.glob(obj$pop,obj[,-1])
+%% @
 
 
 A more generic way to export data is to produce a data.frame of genotypes
@@ -1420,8 +1420,9 @@ group separation (\textit{adegenet-dapc}).
 
 
 
-\SweaveOpts{eval=TRUE}
 
+
+\SweaveOpts{eval=TRUE}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1429,26 +1430,93 @@ group separation (\textit{adegenet-dapc}).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+The R software is probably the largest collection of spatial methods.
+Here, we briefly illustrate two methods commonly used in population genetics.
+Spatial multivariate analysis is covered in a dedicated vignette; see \textit{adegenet-spca} for
+more information.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Testing for isolation by distance}
+\subsection{Isolation by distance}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% % % % % % % % % % % % % % % % % % % % %
+\subsubsection{Testing isolation by distance}
+% % % % % % % % % % % % % % % % % % % % %
 Isolation by distance (IBD) is tested using Mantel test between a matrix of genetic distances and a matrix of geographic distances.
 It can be tested using individuals as well as populations.
-This example uses cat colonies.
-We use Edwards' distance \textit{versus} Euclidean distances between colonies.
-<<ibd,fig=T>>=
+This example uses cat colonies from the city of Nancy.
+We test the correlation between Edwards' distances and Euclidean geographic distances between colonies.
+<<ibd>>=
 data(nancycats)
 toto <- genind2genpop(nancycats,miss="0")
 Dgen <- dist.genpop(toto,method=2)
 Dgeo <- dist(nancycats$other$xy)
-library(ade4)
 ibd <- mantel.randtest(Dgen,Dgeo)
 ibd
+@
+<<fig=TRUE>>=
 plot(ibd)
 @
-Isolation by distance is clearly not significant.
+
+\noindent The original value of the correlation between the distance matrices is represented by the
+dot, while histograms represent permuted values (i.e., under the absence of spatial structure).
+Significant spatial structure would therefore result in the original value being out of the
+reference distribution.
+Here, isolation by distance is clearly not significant.
+\\
+
+
+Let us provide another example using a dataset of individuals simulated under an IBD model:
+<<>>=
+data(spcaIllus)
+x <- spcaIllus$dat2B
+Dgen <- dist(x$tab)
+Dgeo <- dist(other(x)$xy)
+ibd <- mantel.randtest(Dgen,Dgeo)
+ibd
+@
+<<fig=TRUE>>=
+plot(ibd)
+@
+This time there is a clear isolation by distance pattern.
+
+
+% % % % % % % % % % % % % % % % % % % % %
+\subsubsection{Cline or distant patches?}
+% % % % % % % % % % % % % % % % % % % % %
+The correlation between genetic and geographic distances can occur under a range of different
+biological scenarios.
+Classical IBD would result in continuous clines of genetic differentiation and cause such correlation.
+However, distant and differentiated populations would also result in such a pattern.
+These are slightly different processes and we would like to be able to disentangle them.
+A very simple first approach is simply plotting both distances:
+<<fig=TRUE>>=
+plot(Dgeo, Dgen)
+abline(lm(Dgen~Dgeo), col="red",lty=2)
+@
+
+\noindent Most of the time, simple scatterplots fail to provide a good picture of the data as the
+density of points in the scatterplot is badly displayed.
+Colors can be used to provide better (and prettier) plots.
+Local density is measured using a 2-dimensional kernel density estimation (\texttt{kde2d}), and the
+results are displayed using \texttt{image}; \texttt{colorRampPalette} is used to generate a
+customized color palette:
+<<eval=FALSE>>=
+dens <- kde2d(Dgeo,Dgen, n=300, lims=c(-.1, 1.5,-.5,4))
+myPal <- colorRampPalette(c("white","blue","gold", "orange", "red"))
+plot(Dgeo, Dgen, pch=20,cex=.5)
+image(dens, col=transp(myPal(300),.7), add=TRUE)
+abline(lm(Dgen~Dgeo))
+title("Isolation by distance plot")
+@
+\begin{center}
+\includegraphics{figs/densIbd}
+\end{center}
+
+The scatterplot clearly shows one single consistent cloud of point, without discontinuities which
+would have indicated patches.
+This is reassuring, since the data were actually simulated under an IBD (continuous) model.
 
 
 
@@ -1478,10 +1546,10 @@ sim2pop
 summary(sim2pop$pop)
 
 temp <- sim2pop$pop
-levels(temp) <- c(17,19)
+levels(temp) <- 3:4
 temp <- as.numeric(as.character(temp))
 plot(sim2pop$other$xy,pch=temp,cex=1.5,xlab='x',ylab='y')
-legend("topright",leg=c("Pop A", "Pop B"),pch=c(17,19))
+legend("topright",leg=c("Pop A", "Pop B"),pch=3:4)
 @
 
 There are two sampled populations in this dataset, with inequal sample sizes (100 and 30).
@@ -1525,23 +1593,22 @@ Why do the algorithm fail to find a boundary?
 Either because there is no genetic differentiation to be found, or because the signal differentiating both populations is too weak to overcome the random noise in genetic distances.
 What is the $F_{st}$ between the two samples?
 <<>>=
-library(hierfstat)
-temp <- genind2hierfstat(sim2pop)
-varcomp.glob(temp[,1],temp[,-1])$F
+pairwise.fst(sim2pop)
 @
 
-\noindent This value is somewhat moderate ($F_{st}=0.038$).
+\noindent This value would be considered as very weak differentiation ($F_{ST}=0.023$).
 Is it significant?
-
-<<fig=TRUE>>=
-gtest <- gstat.randtest(sim2pop)
-gtest
-plot(gtest)
+We can easily ellaborate a permutation test of this $F_{ST}$ value; to save computational time, we
+use only a small number of replicates to generate $F_{ST}$ values in absence of population structure:
+<<>>=
+replicate(10, pairwise.fst(sim2pop, pop=sample(pop(sim2pop))))
 @
+$F_{ST}$ values in absence of population structure would be one order of magnitude lower (more
+replicate would give a very low p-value --- just replace \texttt{10} by \texttt{200} in the above command).
+In fact, the two samples are indeed genetically differentiated.
+\\
 
-\noindent Yes, it is very significant.
-The two samples are indeed genetically differenciated.
-So, can Monmonier's algorithm find a boundary between the two populations?
+Can Monmonier's algorithm find a boundary between the two populations?
 Yes, if we get rid of the random noise.
 This can be achieved using simple ordination method like Principal Coordinates Analysis.
 
@@ -1599,12 +1666,11 @@ plot(mon1)
 Last, we can compare the infered boundary with the actual distribution of populations:
 <<fig=TRUE>>=
 plot(mon1,add.arrows=FALSE,bwd=8)
-
 temp <- sim2pop$pop
-levels(temp) <- c(17,19)
+levels(temp) <- 3:4
 temp <- as.numeric(as.character(temp))
 points(sim2pop$other$xy,pch=temp,cex=1.3)
-legend("topright",leg=c("Pop A", "Pop B"),pch=c(17,19))
+legend("topright",leg=c("Pop A", "Pop B"),pch=3:4)
 @
 
 \noindent Not too bad...
@@ -1638,31 +1704,12 @@ F2 <- hybridize(salers, zebler, n=40)
 F3 <- hybridize(salers, F2, n=40)
 F4 <- hybridize(salers, F3, n=40)
 @
-
-\noindent and so on...
-Are these hybrids still genetically distinct?
-Let's merge all hybrids in a single dataset and test for genetic differentiation:
-<<fig=TRUE>>=
-dat <- repool(zebler,F2,F3,F4)
-test <- gstat.randtest(dat)
-plot(test)
-temp <- genind2hierfstat(dat)
-varcomp.glob(temp[,1],temp[,-1])$F
-@
-
-\noindent The $F_{st}$ is not very strong (0.013) but still very
-significant: hybrids are still pretty well differentiated.
-
 Finally, note that despite this example shows hybridization between
 diploid organisms, \texttt{hybridize} is not retrained to this case.
 In fact, organisms with any even level of ploidy can be used, in which
 case half of the genes is taken from each reference population.
 Ultimately, more complex mating schemes could be
 implemented... suggestion or (better) contributions are welcome!
-
-
-
-
 
 
 
@@ -1695,283 +1742,4 @@ Jombart T, Devillard S, Dufour A-B and Pontier D (2008) Revealing cryptic spatia
 \end{thebibliography}
 
 \end{document}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% \subsection{Assigning genotypes to clusters using Discriminant Analysis}
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% The approach described below led to the development of a a new methodological approach for studying the genetic
-%% diversity of biological populations, called the Discriminant Analysis of Principal Components (DAPC,
-%% Jombart et al. submitted).
-%% This method has been implemented by the functions \texttt{find.clusters} and \texttt{dapc} but is still
-%% considered under development.
-%% It will be documented along with this section pending the publication of the corresponding paper.
-
-%% % % % % % % % % % % % % % % % % %
-%% \subsubsection{Defining clusters}
-%% % % % % % % % % % % % % % % % % %
-
-%% Bayesian clustering methods are not the only approaches for assigning
-%% genotypes to groups of genotypes.
-%% Discriminant analysis \cite[DA; for a general presentation, see][]{tj617} is a multivariate method that has
-%% been used for the exact same purpose \cite{tj160}.
-%% It can be applied whenever pre-defined groups exist, to assign
-%% genotypes to and assess the robustness of these groups.
-%% New genotypes with unknown group can also be assigned to existing clusters.
-%% Although a few precautions have to be taken when applying DA (see
-%% \cite{tjart10} for a short overview), this is
-%% a useful and straightforward approach.
-%% It is here illustrated using cat colonies of Nancy, France
-%% (\texttt{nancycats} dataset).
-
-%% <<>>=
-%% data(nancycats)
-%% nancycats
-%% unique(pop(nancycats))
-%% @
-
-%% This dataset contains 237 genotypes of cats sampled over 17 colonies.
-%% A usual PCA on the allele frequencies of the populations would not
-%% show any structure, but colonies seem nonetheless mildly differentiated, as
-%% confirmed by Goudet's $G$ test (and the $F_{st}$ value):
-%% <<>>=
-%% gstat.randtest(nancycats, n=199)
-%% fstat(nancycats, fstonly=TRUE)
-%% @
-
-%% DA can be used to find the linear combinations of alleles that
-%% discriminate best the groups of genotypes (here, colonies).
-%% While a powerful method, DA is impaired by correlation between
-%% predictors, which arises for instance when linkage disequilibrium
-%% occurs between alleles.
-%% It is also impracticable when the number of alleles ($p$) is
-%% greater than the number of genotypes ($n$), and it generally requires
-%% $n>>p$ to yield reliable (numerically stable) results.
-
-%% Thus, DA can seem often problematic when it comes to genetic data.
-%% One simple and efficient solution to all these issues is to transform
-%% alleles frequencies into a few independent (uncorrelated) components that summarise
-%% most of the genetic information, retaining only essential genetic features.
-%% This can be achieved by different multivariate methods; here, we shall
-%% use PCA.
-%% Genotype data are first transformed into scaled allele frequencies
-%% (using \texttt{scaleGen}):
-%% <<>>=
-%% x <- scaleGen(nancycats, missing="mean")
-%% @
-
-%% \noindent Then, we proceed to the PCA, retaining many principal
-%% components (PCs):
-%% <<fig=TRUE>>=
-%% x.pca <- dudi.pca(x, center=FALSE, scale=FALSE, scannf=FALSE, nf=100)
-%% barplot(x.pca$eig, main="Nancycats PCA eigenvalues")
-%% @
-
-%% These eigenvalues indicate no structure, but this is no problem since
-%% here, we just use PCA as a mean of transforming genetic variables in
-%% an adequate way.
-%% PCs are stored in \texttt{x.pca\$li}:
-%% <<>>=
-%% head(x.pca$li[,1:5])
-%% dim(x.pca$li)
-%% @
-
-%% Now, the question relates to how many PCs should be retained.
-%% This choice could be based on the success of assignment using DA (looking for the
-%% optimal value), or on a given fraction of the genetic diversity we
-%% would like to retain.
-%% We here use the latter, more simple and sufficient to illustrate the method.
-%% The following graph shows the cumulative amount of genetic information
-%% brought by each added PC:
-%% <<fig=TRUE>>=
-%% temp <- cumsum(x.pca$eig)/sum(x.pca$eig)
-%% plot(temp, xlab="Added PC", ylab="Fraction of the total genetic information")
-%% min(which(temp>0.8))
-%% axis(1,at=52,lab=52)
-%% segments(52, 0, 52, temp[52], col="red")
-%% segments(-5,0.8,52,0.8,col="red")
-%% @
-
-%% \noindent For instance, the first 52 PCs are sufficient to express
-%% 80\% of the total genetic variability (see red segments).
-%% We choose to retain these 52 PCs and use them as new predictors
-%% in a DA.
-%% While there is a \texttt{discrimin} function in \textit{ade4}, we use
-%% the function \texttt{lda} from the \texttt{MASS} package, which allows assigning
-%% (possibly new) genotypes to clusters.
-%% <<lda>>=
-%% x.lda <- lda(x.pca$li[,1:52], grouping=pop(nancycats))
-%% names(x.lda)
-%% @
-
-%% \noindent The object \texttt{x.lda} contains the results of the DA.
-%% For instance, coefficients of the linear combinations
-%% (\textit{discriminant functions}) are stored in
-%% \texttt{x.lda\$scaling}.
-%% For a further description of the content of these objects, see
-%% \texttt{?x.lda}.
-%% As far as assignment is concerned, the most interesting information
-%% is provided by \texttt{predict}:
-%% <<>>=
-%% x.pred <- predict(x.lda)
-%% names(x.pred)
-%% x.pred$class
-%% head(x.pred$posterior[,1:5])
-%% @
-
-%% \noindent The \texttt{class} slot contains the cluster to which each
-%% genotype would be assigned with the highest probability, while
-%% \texttt{posterior} gives posterior probabilities of assignment of
-%% genotypes to clusters.
-%% The inferred groups can be compared easily to actual colonies:
-%% <<>>=
-%% mean(x.pred$class==pop(nancycats))
-%% @
-%% In this case, each genotype would be assigned to the colony where it was
-%% actually found in \Sexpr{round(mean(x.pred$class==pop(nancycats))*100)}\% of cases.
-%% `Miss-assigned' individuals could be hybrids or migrants, or simply
-%% reflect less clear-cut clusters.
-%% It is easy to check if some colonies have more of these:
-%% <<fig=TRUE>>=
-%% misAs <- tapply(x.pred$class!=pop(nancycats), pop(nancycats), mean)
-%% barplot(misAs, xlab="colonies", ylab="% of `miss-assignment'", col="orange", las=3)
-%% title("Percentage of miss-assignments per colony")
-%% @
-
-%% For more details about genotypes, we can have a look at the
-%% \texttt{posterior} component, which gives probabilities of belonging
-%% to each cluster for each genotype:
-%% <<>>=
-%% head(x.pred$posterior[,1:10])
-%% @
-
-%% This information is best perceived graphically (here, for the first 50 genotypes):
-%% <<fig=TRUE>>=
-%% table.paint(head(x.pred$posterior,50), col.lab=paste("colony",1:17,sep="."))
-%% @
-
-%% \noindent For instance, N215 (first row) is clearly assigned to colony
-%% 1, while it is unclear whether N158 (middle) belongs to colony 3 or 5.
-%% Such graphics is really good at summarising probabilities of
-%% assignment.
-%% In particular, it can be employed even when the number of clusters is
-%% relatively high, which would not be the case with classical graphs
-%% proposed in STRUCTURE.
-
-
-
-%% % % % % % % % % % % % % % % % % %
-%% \subsubsection{Assigning new individuals}
-%% % % % % % % % % % % % % % % % % %
-%% In certain cases, we may want to assign new genotypes to a
-%% pre-existing classification, as defined by a DA.
-%% This can be the case when new samples have been made available after a
-%% pilot study, or when doing cross-validation.
-%% We will simulate these cases by drawing 30 genotypes at random,
-%% and then trying to assign them to the defined clusters.
-
-%% The following code only repeats the former analyses after withdrawing the 30
-%% genotypes:
-%% <<>>=
-%% id <- sample(1:237, 30)
-%% newSamp <- nancycats[id]
-%% newObj <-  nancycats[-id]
-%% newx <- x[-id,]
-
-%% newx.pca <- dudi.pca(newx, center=FALSE, scale=FALSE, scannf=FALSE, nf=100)
-%% newx.lda <- lda(newx.pca$li[,1:52], grouping=pop(newObj))
-%% @
-
-%% The new object \texttt{x.lda} now contains a DA based on only 207 individuals.
-%% Our purpose is to assign the new genotypes (\texttt{newObj}) to
-%% existing clusters based on the discriminant functions defined in
-%% \texttt{x.lda}.
-%% It is a bit tricky, because we have to make sure new data are
-%% transformed like the old data, that is, with the same centring and scaling.
-%% Fortunately, centring and scaling values are stored as attributes
-%% in \texttt{x}, and can be provided to a new call to \texttt{scaleGen}:
-%% <<>>=
-%% newSamp
-%% newSamp.x <- scaleGen(newSamp, center=attr(x,"scaled:center"), scale=attr(x,"scaled:scale"), missing="mean")
-%% @
-%% From there, the coordinates of these new genotypes onto the former PCA
-%% axes are obtained easily using \texttt{suprow}:
-%% <<>>=
-%% newSamp.pc <- suprow(newx.pca, newSamp.x)$lisup
-%% dim(newSamp.pc)
-%% head(newSamp.pc[,1:5])
-%% @
-
-%% \noindent The object \texttt{newSamp.pc} contains the supplementary principal
-%% components for the new 30 genotypes.
-%% To find the probabilities of belonging to any cluster for each new
-%% genotype, we simply use \texttt{predict}, and plot posterior
-%% probabilities as before, adding a green cross to indicate the actual colony:
-%% <<>>=
-%% newSamp.pred <- predict(newx.lda, newSamp.pc[,1:52])
-%% @
-%% <<fig=TRUE>>=
-%% table.paint(newSamp.pred$posterior, col.lab=paste("colony",1:17,sep="."))
-%% points(as.numeric(as.character(pop(newSamp))), 30:1, pch="x",col="green", cex=2)
-%% mean(as.character(newSamp.pred$class)==as.character(pop(newSamp)))
-%% @
-
-%% In this example, the new genotypes have been assigned to their actual
-%% group in \Sexpr{round(100*mean(as.character(newSamp.pred$class)==as.character(pop(newSamp))))}\% of cases.
-%% If our purpose was to cross-validate the classification of genotypes
-%% into groups, we would repeat this operation a large number of times,
-%% drawing a different random sample of genotypes each time.
-
-
-
-
-
-
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% \section{Frequently Asked Questions}
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% \subsubsection{The function ... is not found. What's wrong?}
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% You installed R, and adegenet, and all went ok.
-%% Yet, when trying to use some functions, like \texttt{read.genetix} for
-%% instance, you get an error message saying that the function is not
-%% found.
-%% The most likely explanation is that you do not have the most recent
-%% version of adegenet.
-%% This can be because you did not update your packages (see function \texttt{update.packages}).
-%% If your packages have been updated, and the problem persist, then you
-%% are likely using an outdated version of R, and though adegenet is
-%% up-to-date with respect to this R version, you are still using an
-%% outdated version of the package.
-
-%% To know which version of adegenet you are using:
-%% <<>>=
-%% packageDescription("adegenet", fields="Version")
-%% @
-
-%% \noindent And to know which version of R you are using:
-%% <<>>=
-%% R.version.string
-%% @
-
 
