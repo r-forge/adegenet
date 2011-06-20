@@ -163,7 +163,7 @@ We use \code{find.clusters} to identify clusters, although true clusters are, in
 (and accessible using \texttt{pop(x)}).
 We specify that we want to evaluate up to $k=40$ groups (\texttt{max.n.clust=40}):
 <<eval=TRUE,echo=FALSE>>=
-load("Robjects/grp.RData")
+grp <- find.clusters(x, n.pca=200, n.clust=6)
 @
 <<eval=FALSE>>=
 grp <- find.clusters(x, max.n.clust=40)
@@ -288,7 +288,7 @@ the class \texttt{genind} (usual genetic markers) and \texttt{genlight} (genome 
 We run the analysis on the previous toy dataset, using the inferred groups stored in \texttt{grp\$grp}:
 
 <<echo=FALSE>>=
-load("Robjects/dapc1.RData")
+dapc1 <- dapc(x, grp$grp, n.pca=40, n.da=100)
 @
 <<eval=FALSE>>=
 dapc1 <- dapc(x, grp$grp)
