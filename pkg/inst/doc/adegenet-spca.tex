@@ -22,7 +22,7 @@
 
 
 \newcommand{\code}[1]{{{\tt #1}}}
-\title{A tutorial for spatial Analysis of Principal Components (sPCA) using \textit{adegenet} 1.3-0}
+\title{A tutorial for the spatial Analysis of Principal Components (sPCA) using \textit{adegenet} 1.3-0}
 \author{Thibaut Jombart}
 \date{\today}
 
@@ -79,9 +79,9 @@ the identification of spatial genetic patterns.
 The purpose of this tutorial is to provide guidelines for the application of sPCA as well as to
 illustrate its usefulness for the investigation of spatial genetic patterns.
 After briefly going through the rationale of the method, we introduce the different tools
-implemented for sPCA in \texttt{adegenet}.
+implemented for sPCA in \textit{adegenet}.
 This technical overview is then followed by the analysis of an empirical dataset which illustrates
-the advantage of sPCA over classical PCA.
+the advantage of sPCA over classical PCA for investigating spatial patterns.
 
 
 
@@ -89,8 +89,8 @@ the advantage of sPCA over classical PCA.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Rationale of sPCA}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-Mathematical notations used in this tutorial are those from \cite{tjart04}.
-The sPCA analyses a data matrix $\m{X}$ which contains genotypes or
+Mathematical notations used in this tutorial are identical to the original publication \cite{tjart04}.
+The sPCA analyses a matrix of relative allele frequencies $\m{X}$ which contains genotypes or
 populations (later refered to as 'entities') in rows and alleles in columns.
 Spatial information is stored inside a spatial weighting matrix
 $\m{L}$ which contains positive terms corresponding to some measurement
@@ -118,8 +118,8 @@ autocorrelation, referred to as \emph{local structures}).
 \\
 
 
-However, Moran's index measures only spatial structures, does not take
-the variability of $\m{x}$ into account.
+However, since it is standardized by the variance of
+$\m{x}$, Moran's index measures only spatial structures and not genetic variability.
 The sPCA defines the following function to measure both spatial
 structure and variability in $\m{x}$:
 \beq
@@ -133,7 +133,7 @@ when $\m{x}$ has a high variance and displays a local structure.
 This function is the criterion used in sPCA, which finds linear
 combinations of the alleles of $\m{X}$ (denoted $\m{Xv}$) decomposing $C$ from its
 maximum to its minimum value.
-Because $C(\m{Xv})$ is a product of variance and of autocorrelation,
+Because $C(\m{Xv})$ is a product of variance and autocorrelation,
 it is important, when interpreting the results, to detail both
 components and to compare their value with their range of variation
 (maximum attainable variance, as well as maximum and minimum $I$ are
@@ -141,7 +141,7 @@ known analytically).
 A structure with a low spatial autocorrelation can barely be
 interpreted as a spatial pattern; similarly, a structure with a low
 variance would likely not reflect any genetic structure.
-We will later see how these information can be retrieved in \texttt{adegenet}.
+We will later see how these information can be retrieved from \texttt{spca} results.
 
 
 
@@ -152,12 +152,13 @@ We will later see how these information can be retrieved in \texttt{adegenet}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 The simulated dataset used to illustrate this section has been
 analyzed in \cite{tjart04}, and corresponds to Figure 2A of the article.
-In \texttt{adegenet}, the matrix of alleles frequencies previously
+In \textit{adegenet}, the matrix of alleles frequencies previously
 denoted $\m{X}$ exactly corresponds to the \texttt{@tab} slot of \texttt{genind} or
 \texttt{genpop} objects:
 \begin{Schunk}
 \begin{Sinput}
 > library(adegenet)
+> library(adehabitat)
 > data(spcaIllus)
 > obj <- spcaIllus$dat2A
 > obj
@@ -202,6 +203,8 @@ Optionnal contents:
 \end{Schunk}
 \noindent The object \texttt{obj} is a \texttt{genind} object; note
 that here, we only displayed the table for the first locus (\texttt{loc="L01"}).
+\\
+
 
 The function performing the sPCA is \texttt{spca}; it accepts a bunch
 of arguments, but only the first two are mandatory to perform the
@@ -227,53 +230,29 @@ which is a matrix of spatial coordinates with
 'x' and 'y' coordinates in columns.
 Alternatively, these coordinates can be stored inside the
 \texttt{genind}/\texttt{genpop} object, preferably as
-\texttt{@other\$xy}, in which case the \texttt{spca} function will not
-require a \texttt{xy} argument.
-Basically, spatial information could be stored in any form and with
-any name in the \texttt{@other} slot, but the \texttt{spca} function
-would not recognize it directly.
+\texttt{@other\$xy}, in which case the \texttt{spca} function will detect and use this information,
+and not
+request an \texttt{xy} argument.
 Note that \texttt{obj} already contains spatial coordinates at the
 appropriate place.
-Hence, the following uses are valid (\texttt{ask} and \texttt{scannf}
+Hence, we can use the following command to run the sPCA (\texttt{ask} and \texttt{scannf}
 are set to FALSE to avoid interactivity):
 \begin{Schunk}
 \begin{Sinput}
 > mySpca <- spca(obj, ask = FALSE, type = 1, scannf = FALSE)
 \end{Sinput}
-\begin{Soutput}
-deldir 0.0-13 
-
-     Please note: The process for determining duplicated points
-     has changed from that used in version 0.0-9 (and previously).
-\end{Soutput}
-\begin{Sinput}
-> mySpca2 <- spca(obj, xy = other(obj)$xy, ask = FALSE, type = 1, 
-+     scannf = FALSE)
-> all.equal(mySpca, mySpca2)
-\end{Sinput}
-\begin{Soutput}
-[1] "Component 8: target, current do not match when deparsed"
-\end{Soutput}
-\begin{Sinput}
-> names(mySpca)[8]
-\end{Sinput}
-\begin{Soutput}
-[1] "call"
-\end{Soutput}
 \end{Schunk}
-\noindent Both objects are the same: they only differ by their call.
-\\
+~\\
 
 
 Note, however, that spatial coordinates are not directly used in sPCA:
 the spatial information is included in the analysis by the spatial
 weighting matrix $\m{L}$ derived from a connection network (eq. \ref{eqn:I} and \ref{eqn:C}).
-Technically, the \texttt{spca} function does not directly use a
-matrix of spatial weightings, but a connection network with the class
-\texttt{nb} or a list of spatial weights of class \texttt{listw},
-which are both implemented in the \texttt{spdep} package.
+Technically, the \texttt{spca} function can incorporate spatial weightings as a matrix (argument
+\texttt{matWeight}), as a connection network with the classes
+\texttt{nb} or \texttt{listw} (argument \texttt{cn}), both implemented in the \texttt{spdep} package.
 The function \texttt{chooseCN} is a wrapper for different functions
-spread in several packages implementing a variety of connection networks.
+scattered across several packages implementing a variety of connection networks.
 If only spatial coordinates are provided to \texttt{spca},
 \texttt{chooseCN} is called to construct an appropriate graph.
 See \texttt{?chooseCN} for more information.
@@ -295,8 +274,8 @@ the command:
 \end{Sinput}
 \end{Schunk}
 \noindent computes a sPCA using a connection network which defines
-neighbouring entities from their distances (\texttt{type=5}),
-considering as neighbours two entities whose distance between 0 (\texttt{d1=0}) and 2(\texttt{d2=2}).
+neighbouring entities based on pairwise geographic distances (\texttt{type=5}),
+considering as neighbours two entities whose distance between 0 (\texttt{d1=0}) and 2 (\texttt{d2=2}).
 \\
 
 
@@ -330,10 +309,10 @@ Average number of links: 11.65
 neighbours) as a connection network.
 \\
 
-After providing a genetic dataset along with a spatial information,
-the \texttt{spca} function displays a barplot of eigenvalues and asks
-for a number of positive axes ('first number of axes') and negative
-axes ('second number of axes') to be retained (unless \texttt{scannf} is set to \texttt{FALSE}).
+
+When used interactively (\texttt{scannf=TRUE}), \texttt{spca} displays a barplot of eigenvalues and
+asks the user for a number of positive axes ('first number of axes') and negative
+axes ('second number of axes') to be retained.
 For the object \texttt{mySpca}, this barplot would be (here we
 indicate in red the retained eigenvalue):
 \begin{Schunk}
@@ -342,7 +321,8 @@ indicate in red the retained eigenvalue):
 +     "grey"), c(1, 100)))
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-007}
+\includegraphics{figs/spca-008}
+
 \noindent Positive eigenvalues (on the left) correspond to global
 structures, while negative eigenvalues (on the right) indicate local patterns.
 Actual structures should result in more extreme (positive or
@@ -352,7 +332,7 @@ If one does not want to choose the number of retained axes
 interactively, the arguments \texttt{nfposi} (number of retained
 factors with positive eigenvalues) and \texttt{nfnega} (number of
 retained factors with negative eigenvalues) can be used.
-Once these information have been provided to \texttt{spca}, the
+Once this information has been provided to \texttt{spca}, the
 analysis is computed and stored inside an object with the class \texttt{spca}.
 
 
@@ -363,7 +343,7 @@ analysis is computed and stored inside an object with the class \texttt{spca}.
 \subsection{Contents of a \texttt{spca} object}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 Let us consider a \texttt{spca} object resulting from the analysis of
-the object \texttt{obj}, using a Delaunay triangulation as connection network:
+the object \texttt{obj}, using a Delaunay triangulation (\texttt{type=1}) as connection network:
 \begin{Schunk}
 \begin{Sinput}
 > mySpca <- spca(obj, type = 1, scannf = FALSE, plot.nb = FALSE, 
@@ -434,214 +414,20 @@ First, eigenvalues of the analysis are stored inside the
 [1] 79
 \end{Soutput}
 \begin{Sinput}
-> plot(mySpca$eig, type = "h", lwd = 2, main = "A variant of the plot\n of sPCA eigenvalues")
+> myPal <- colorRampPalette(c("red", "grey", "blue"))
+> barplot(mySpca$eig, main = "A variant of the plot\n of sPCA eigenvalues", 
++     col = myPal(length(mySpca$eig)))
+> legend("topright", fill = c("red", "blue"), leg = c("Global structures", 
++     "Local structures"))
 > abline(h = 0, col = "grey")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-009}
+\includegraphics{figs/spca-010}
 
 \noindent The axes of the analysis, denoted $\m{v}$ in eq. (4) \cite{tjart04}
 are stored as columns inside the \texttt{\$c1} component.
 Each columns contains loadings for all the alleles:
 \begin{Schunk}
-\begin{Sinput}
-> mySpca$c1
-\end{Sinput}
-\begin{Soutput}
-               Axis 1
-L01.1    1.268838e-02
-L01.2    2.220446e-16
-L01.3   -1.119979e-01
-L01.4   -4.440892e-16
-L01.5   -2.766095e-02
-L01.6   -4.477031e-02
-L01.7   -8.673617e-19
-L01.8    7.555869e-02
-L01.9    9.618208e-02
-L02.01  -3.689948e-02
-L02.02   8.065343e-03
-L02.03   3.792050e-02
-L02.04   6.383679e-03
-L02.05   8.818737e-02
-L02.06  -5.804721e-02
-L02.07  -3.191157e-02
-L02.08  -1.033976e-25
-L02.09  -7.866429e-02
-L02.10   0.000000e+00
-L02.11   6.496566e-02
-L03.1   -1.009742e-28
-L03.2    2.084734e-02
-L03.3    5.405746e-02
-L03.4    1.226999e-01
-L03.5   -1.372961e-01
-L03.6   -1.540744e-33
-L03.7   -3.362424e-02
-L03.8   -2.668446e-02
-L04.1   -1.362459e-01
-L04.2    1.443615e-01
-L04.3    0.000000e+00
-L04.4    0.000000e+00
-L04.5   -5.741018e-02
-L04.6   -1.147944e-41
-L04.7    1.728662e-03
-L04.8    4.756588e-02
-L05.1   -5.605194e-45
-L05.2   -3.503246e-46
-L05.3   -5.665231e-02
-L05.4    0.000000e+00
-L05.5    4.276424e-50
-L05.6   -2.672765e-51
-L05.7    8.350792e-03
-L05.8    1.339803e-01
-L05.9   -8.567875e-02
-L06.01  -3.102925e-02
-L06.02   4.527011e-02
-L06.03  -1.991365e-59
-L06.04  -3.111508e-61
-L06.05  -9.921947e-03
-L06.06  -3.192068e-02
-L06.07   9.464883e-02
-L06.08  -9.153327e-02
-L06.09  -4.446149e-03
-L06.10  -1.475188e-02
-L06.11   4.368425e-02
-L07.1   -5.912766e-02
-L07.2    0.000000e+00
-L07.3    1.087945e-01
-L07.4   -3.516619e-02
-L07.5   -6.995648e-02
-L07.6    5.881782e-03
-L07.7    1.301858e-02
-L07.8   -2.635286e-02
-L07.9    6.290836e-02
-L08.01   1.130714e-02
-L08.02   4.021857e-02
-L08.03   1.994916e-02
-L08.04  -4.794037e-94
-L08.05   3.523383e-04
-L08.06  -1.744903e-01
-L08.07   1.742903e-01
-L08.08 -1.785918e-102
-L08.09   0.000000e+00
-L08.10 -5.450189e-107
-L08.11  -7.162714e-02
-L09.01   1.184934e-01
-L09.02  -2.709607e-03
-L09.03   5.920972e-03
-L09.04  -4.335124e-02
-L09.05  -7.487314e-02
-L09.06  -8.335186e-02
-L09.07   1.497592e-02
-L09.08   0.000000e+00
-L09.09   1.113123e-02
-L09.10   0.000000e+00
-L09.11   5.376433e-02
-L10.1    2.504824e-02
-L10.2    7.072426e-02
-L10.3   -3.036288e-02
-L10.4    7.391488e-02
-L10.5   -1.288548e-01
-L10.6    0.000000e+00
-L10.7    2.504824e-02
-L10.8   -3.551790e-02
-L11.1    0.000000e+00
-L11.2    2.036407e-02
-L11.3    0.000000e+00
-L11.4   -2.472112e-01
-L11.5    1.122655e-01
-L11.6    1.145816e-01
-L12.1    0.000000e+00
-L12.2   -2.658753e-02
-L12.3    0.000000e+00
-L12.4   -1.788594e-01
-L12.5    1.340382e-03
-L12.6    0.000000e+00
-L12.7    7.896368e-02
-L12.8    1.251428e-01
-L13.01   0.000000e+00
-L13.02   1.332178e-02
-L13.03  -3.249165e-03
-L13.04  -1.339280e-02
-L13.05  -1.460385e-01
-L13.06   9.330816e-02
-L13.07   0.000000e+00
-L13.08   3.120220e-02
-L13.09   9.509832e-04
-L13.10   2.389730e-02
-L14.01   0.000000e+00
-L14.02   6.235773e-02
-L14.03  -7.948718e-02
-L14.04   1.113123e-02
-L14.05  -8.394201e-02
-L14.06  -3.414988e-02
-L14.07  -4.773145e-02
-L14.08   1.807464e-02
-L14.09   6.383679e-03
-L14.10  -1.995468e-02
-L14.11   1.673179e-01
-L15.01   3.194486e-02
-L15.02   8.033966e-03
-L15.03  -8.388260e-02
-L15.04   0.000000e+00
-L15.05   4.768429e-02
-L15.06   1.780219e-02
-L15.07   5.466061e-02
-L15.08   0.000000e+00
-L15.09  -8.106139e-02
-L15.10  -4.255964e-02
-L15.11   0.000000e+00
-L15.12   2.374409e-02
-L15.13   0.000000e+00
-L15.14   2.363363e-02
-L16.01  -1.095284e-02
-L16.02  -1.695265e-01
-L16.03   2.243837e-02
-L16.04  -3.697041e-02
-L16.05   4.411850e-02
-L16.06  -6.477905e-02
-L16.07  -8.361412e-03
-L16.08  -2.803524e-04
-L16.09   2.891119e-02
-L16.10   1.675135e-01
-L16.11   2.788895e-02
-L17.1    1.357193e-01
-L17.2   -2.406925e-01
-L17.3    8.463989e-05
-L17.4    8.132827e-02
-L17.5    3.841352e-02
-L17.6    1.167365e-01
-L17.7   -1.315896e-01
-L18.01   0.000000e+00
-L18.02   0.000000e+00
-L18.03  -3.108654e-02
-L18.04  -7.231939e-02
-L18.05   1.113227e-01
-L18.06  -1.097742e-01
-L18.07   5.267695e-02
-L18.08  -3.711225e-03
-L18.09   2.712486e-02
-L18.10   2.576680e-02
-L19.01   0.000000e+00
-L19.02  -3.802937e-02
-L19.03   0.000000e+00
-L19.04  -1.411136e-01
-L19.05   8.463254e-02
-L19.06   9.207072e-03
-L19.07  -4.750854e-02
-L19.08  -2.922071e-02
-L19.09   0.000000e+00
-L19.10  -4.251438e-02
-L19.11   5.197636e-02
-L19.12   1.525706e-01
-L20.1   -2.598833e-02
-L20.2    1.888407e-02
-L20.3    2.871585e-01
-L20.4    1.485180e-02
-L20.5   -1.500353e-02
-L20.6    1.659481e-02
-L20.7   -1.426074e-01
-L20.8   -1.538899e-01
-\end{Soutput}
 \begin{Sinput}
 > head(mySpca$c1)
 \end{Sinput}
@@ -746,11 +532,11 @@ Lag vectors are stored in the \texttt{\$ls} component:
 \end{Soutput}
 \end{Schunk}
 
-\noindent Lastly, we can compare the axes of an ordinary, 'classical'
+\noindent Lastly, we can compare the axes of an classical
 PCA (denoted $\m{u}$ in the paper) to the axes of the sPCA ($\m{v}$).
 This is achieved by projecting $\m{u}$ onto $\m{v}$, but this
 projection is a particular one: because both $\m{u}$ and $\m{v}$ are
-centred to mean zero and scaled to unit variance, this value of the
+centred to mean zero and scaled to unit variance, the value of the
 projection simply is the correlation between both axes.
 This information is stored inside the \texttt{\$as} component:
 \begin{Schunk}
@@ -790,8 +576,8 @@ The corresponding function is \texttt{screeplot}, and can be used on any
 \includegraphics{figs/spca-screeplot}
 
 \noindent The resulting figure represents eigenvalues of sPCA (denoted
-$\lambda_i$ with $i=1,\ldots,n-1$, where $\lambda_1$ is the strongest
-global eigenvalue, and $\lambda_{n-1}$ is the strongest negative
+$\lambda_i$ with $i=1,\ldots,r$, where $\lambda_1$ is the highest
+positive eigenvalue, and $\lambda_{r}$ is the highest negative
 eigenvalue) according the their variance and Moran's $I$ components.
 These eigenvalues are contained inside a rectangle indicated in dashed
 lines.
@@ -830,7 +616,7 @@ Simulated p-value: 0.01
 Alternative hypothesis: greater 
 
      Std.Obs  Expectation     Variance 
-5.500655e+00 1.273582e-02 4.886649e-07 
+5.088240e+00 1.281796e-02 5.469511e-07 
 \end{Soutput}
 \begin{Sinput}
 > plot(myGtest)
@@ -846,10 +632,10 @@ the resulting figure shows an histogram of permuted test statistics
 and indicates the observed statistics by a black dot and a segment.
 Here, the plot clearly shows that the oberved test statistic is larger
 than most simulated values, leading to a likely rejection of
-alternative hypothesis.
+the null hypothesis of absence of spatial structure.
 Note that because 99 permutations were used, the p-value cannot be
 lower than 0.01.
-In practice, more permutations should be used (like 9999 for results
+In practice, more permutations should be used (like 999 or 9999 for results
 intended to be published).
 
 The same can be done with the local test, which here we do not expect
@@ -866,11 +652,11 @@ Call: local.rtest(X = obj$tab, listw = mySpca$lw, nperm = 99)
 Observation: 0.01397349 
 
 Based on 99 replicates
-Simulated p-value: 0.17 
+Simulated p-value: 0.15 
 Alternative hypothesis: greater 
 
      Std.Obs  Expectation     Variance 
-9.766686e-01 1.321484e-02 6.033766e-07 
+1.115539e+00 1.316718e-02 5.224396e-07 
 \end{Soutput}
 \begin{Sinput}
 > plot(myLtest)
@@ -888,15 +674,12 @@ The first, most simple approach is through the function plot (see \texttt{?plot.
 \begin{Sinput}
 > plot(mySpca)
 \end{Sinput}
-\begin{Soutput}
-Spatial Point Pattern Analysis Code in S-Plus
-
- Version 2 - Spatial and Space-Time analysis
-\end{Soutput}
 \end{Schunk}
 \includegraphics{figs/spca-plotspca}
-\noindent This figure shows different information, that we detail from
-the top to bottom and from left to right.
+
+
+\noindent This figure displays various information, that we detail from
+the top to bottom and from left to right (also see \texttt{?plot.spca}).
 The first plot shows the connection network that was used to define
 spatial weightings.
 The second, third, and fourth plots are different representations of
@@ -922,9 +705,12 @@ The last two plots of the \texttt{plot.spca} function are the two
 already seen displays of eigenvalues.
 \\
 
-Another way of representing a score of sPCA is using the
+
+While the default \texttt{plot} function for \texttt{spca} objects provides a useful summary of the
+results, more flexible tools are needed e.g. to map the principal components onto the geographic space.
+This can be achieved using the
 \texttt{colorplot} function.
-This function can show up to three scores at the same time by
+This function can summarize up to three scores at the same time by
 translating each score into a channel of color (red, green, and blue).
 The obtained values are used to compose a color using the RGB system.
 See \texttt{?colorplot} for details about this function.
@@ -938,19 +724,65 @@ first global structure that was retained in \texttt{mySpca}:
 \end{Sinput}
 \end{Schunk}
 \includegraphics{figs/spca-colorplot}
-\noindent See \texttt{example(colorplot)} and \texttt{example(spca)}
+
+\noindent See examples in \texttt{?colorplot} and \texttt{?spca}
 for more examples of applications of colorplot to represent sPCA scores.
+\\
+
+Another common practice is interpolating principal components to get maps of genetic clines.
+Note that it is crucial to perform this interpolation after the analysis, and not before, which
+would add artefactual structures to the data.
+Interpolation is easy to realize using \texttt{interp} from the \texttt{akima} package, and
+\texttt{image}, or \texttt{filled.contour} to display the results:
+\begin{Schunk}
+\begin{Sinput}
+> library(akima)
+> x <- other(obj)$xy[, 1]
+> y <- other(obj)$xy[, 2]
+\end{Sinput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Sinput}
+> temp <- interp(x, y, mySpca$li[, 1])
+> image(temp)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/spca-021}
+
+\noindent Note that for better clarity, we can use the lagged principal scores (\texttt{\$ls})
+rather than the original scores (\texttt{\$li}); we also achieve a better resolution using specific
+interpolated coordinates:
+\begin{Schunk}
+\begin{Sinput}
+> interpX <- seq(min(x), max(x), le = 200)
+> interpY <- seq(min(y), max(y), le = 200)
+> temp <- interp(x, y, mySpca$ls[, 1], xo = interpX, yo = interpY)
+> image(temp)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/spca-022}
+
+\noindent Alternatively, \texttt{filled.contour} can be used for the display, and a customized color
+palette can be specified:
+\begin{Schunk}
+\begin{Sinput}
+> myPal <- colorRampPalette(c("firebrick2", "white", "lightslateblue"))
+> annot <- function() {
++     title("sPCA - interpolated map of individual scores")
++     points(x, y)
++ }
+> filled.contour(temp, color.pal = myPal, nlev = 50, key.title = title("lagged \nscore 1"), 
++     plot.title = annot())
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/spca-023}
+~\\
 
 
-So far, we assessed the spatial genetic structures existing in the data.
-We learned that a global structure existed, and we observed that it
-consisted in two east-west genetic clusters.
-Now, we may like to know how each allele contributes to a given score.
-To quantify such contribution, only the absolute value of loadings for
-a given structure is meaningful.
-However, it is more relevant to consider squared loadings, as their
-sum is always constrained to be unit (because $\|\m{v}\|^2=1$).
-We can look for the alleles contributing most to the first axis
+Besides assessing spatial patterns, it is sometimes valuable to assess which alleles actually
+exhibit the structure of interest.
+In sPCA, the contribution of alleles to a specific structure is given by the corresponding squared loading.
+We can look for the alleles contributing most to e.g. the first axis
 of sPCA, using the function \texttt{loadingplot} (see \texttt{?loadingplot} for
 a description of the arguments):
 \begin{Schunk}
@@ -961,7 +793,8 @@ a description of the arguments):
 +     main = "Contribution of alleles \n to the first sPCA axis")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-019}
+\includegraphics{figs/spca-024}
+
 \noindent See \texttt{?loadingplot} for more information about this
 function, in particular for the definition of the threshold value
 above which alleles are annotated.
@@ -978,7 +811,7 @@ contributions to the first global structure in \texttt{mySpca}, we need:
 > temp <- loadingplot(myLoadings, threshold = quantile(myLoadings, 
 +     0.95), xlab = "Alleles", ylab = "Weight of the alleles", 
 +     main = "Contribution of alleles \n to the first sPCA axis", 
-+     fac = obj@loc.fac, cex.fac = 0.6)
++     fac = obj$loc.fac, cex.fac = 0.6)
 > temp
 \end{Sinput}
 \begin{Soutput}
@@ -1001,13 +834,15 @@ $var.values
 0.05793290 0.08246000 0.02368209 
 \end{Soutput}
 \end{Schunk}
-\includegraphics{figs/spca-020}
+\includegraphics{figs/spca-025}
 
-But to assess the average contribution of each marker, a traditional
-boxplot remains a better tool:
+But to assess the average contribution of each marker, the
+boxplot probably is a better tool:
 \begin{Schunk}
 \begin{Sinput}
-> boxplot(myLoadings ~ obj$loc.fac, las = 3, main = "Contributions by markers \nto the first global score")
+> boxplot(myLoadings ~ obj$loc.fac, las = 3, ylab = "Contribution", 
++     xlab = "Marker", main = "Contributions by markers \nto the first global score", 
++     col = "grey")
 \end{Sinput}
 \end{Schunk}
 \includegraphics{figs/spca-boxplot}
@@ -1040,7 +875,7 @@ this question, genetic data can be used to tackle the issue, as
 departure from panmixia should result in genetic structuring.
 The dataset \textit{rupica} contains 335 georeferenced genotypes of Chamois from the
 Bauges mountains for 9 microsatellite markers, which we propose to
-analyse in this exercise.
+analyse.
 
 
 
@@ -1079,30 +914,22 @@ Optionnal contents:
 @other: a list containing: xy  mnt  showBauges 
 \end{Soutput}
 \end{Schunk}
-\texttt{rupica} is a typical \texttt{genind} object, which is the class
+\texttt{rupica} is a \texttt{genind} object, that is, the class
 of objects storing genotypes (as opposed to population data) in \textit{adegenet}.
 \texttt{rupica} also contains topographic information about the
 sampled area, which can be displayed by calling
 \texttt{rupica\$other\$showBauges}.
-For instance, the spatial distribution of the sampling can be
-displayed as follows:
+Altitude maps are displayed using the \textit{adehabitat} package \cite{tj440}.
+The spatial distribution of the sampling can be displayed as follows:
 \begin{Schunk}
 \begin{Sinput}
 > rupica$other$showBauges()
-\end{Sinput}
-\begin{Soutput}
-Be careful: it is now recommended to use the newpackages adehabitatMA, adehabitatLT, adehabitatHR, and adehabitatHS.
-These 4 packages are intended to become the future of adehabitat.
-The "classical" version of adehabitat will still be maintained for some
-time, but no new method will be added to the package.
-\end{Soutput}
-\begin{Sinput}
 > points(rupica$other$xy, col = "red", pch = 20)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-023}
+\includegraphics{figs/spca-028}
 
-This spatial distribution is clearly not random, but seems arranged into
+\noindent This spatial distribution is clearly not random, but seems arranged into
 loose clusters.
 However, superimposed samples can bias our visual assessment of the spatial clustering.
 Use a two-dimensional kernel density estimation (function \texttt{s.kde2d}) to overcome this possible
@@ -1114,11 +941,11 @@ issue.
 > points(rupica$other$xy, col = "red", pch = 20)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-024}
+\includegraphics{figs/spca-029}
 
-Is geographical clustering strong enough to assign safely each individual to a group?
-Accordingly, shall we analyse these data at individual or group level?
-
+Unfortunately, geographical clustering is not strong enough to assign unambiguously each individual to a group.
+Therefore, we need to carry all analyses at the individual level, which precludes the use of most
+population genetics tools.
 
 
 
@@ -1167,15 +994,15 @@ L1 L2 L3 L4 L5 L6 L7 L8 L9
 0.4070709 
 \end{Soutput}
 \begin{Sinput}
-> plot(rupica.smry$Hexp, rupica.smry$Hobs, main = "Observed vs expected heterozygosity")
+> plot(rupica.smry$Hobs, rupica.smry$Hexp, main = "Observed vs expected heterozygosity")
 > abline(0, 1, col = "red")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-025}
-The red line indicate identity between both quantities.
-What can we say about heterozygosity in this population?
-How can this be tested?
-The result below can be reproduced using a standard testing procedure:
+\includegraphics{figs/spca-030}
+
+\noindent The red line indicate identity between both quantities.
+Observed heterozygosity do not seem to deviate massively from theoretical expectations.
+This is confirmed by a classical pairwise $t$-test::
 \begin{Schunk}
 \begin{Sinput}
 > t.test(rupica.smry$Hexp, rupica.smry$Hobs, paired = TRUE, var.equal = TRUE)
@@ -1196,11 +1023,12 @@ mean of the differences
 ~\\
 
 We can seek a global picture of the genetic diversity among genotypes
-using a Principal Component Analysis (PCA, \cite{tj383,np137}, \texttt{dudi.pca} in \texttt{ade4}
+using a Principal Component Analysis (PCA, function \texttt{dudi.pca} in the \texttt{ade4}
 package).
-The analysis is performed on a table of standardised alleles
+The analysis is performed on a table of standardized alleles
 frequencies, obtained by \texttt{scaleGen} (use the binomial scaling option).
-Remember to disable the scaling option when performing the PCA.
+Note that we disable the scaling option when performing the PCA, which would otherwise re-scale the
+data and therefore erase the previous scaling of \texttt{scaleGen}.
 The function \texttt{dudi.pca} displays a barplot of
 eigenvalues and asks for a number of retained principal components:
 \begin{Schunk}
@@ -1208,10 +1036,11 @@ eigenvalues and asks for a number of retained principal components:
 > rupica.X <- scaleGen(rupica, method = "binom")
 > rupica.pca1 <- dudi.pca(rupica.X, cent = FALSE, scale = FALSE, 
 +     scannf = FALSE, nf = 2)
-> barplot(rupica.pca1$eig)
+> barplot(rupica.pca1$eig, title = "Rupica dataset - PCA eigenvalues", 
++     col = heat.colors(length(rupica.pca1$eig)))
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-027}
+\includegraphics{figs/spca-032}
 
 \noindent The output produced by \texttt{dudi.pca} is a \texttt{dudi} object.
 A \texttt{dudi} object contains various information; in the case of
@@ -1248,16 +1077,14 @@ other elements: cent norm
 
 In general, eigenvalues represent the amount of genetic diversity --- as measured by
 the multivariate method being used --- represented by each principal component (PC).
-Verify that here, each eigenvalue is the variance of the corresponding PC.
-
 An abrupt decrease in eigenvalues is likely to indicate the boundary
 between true patterns and non-interpretable structures.
-In this case, how many PCs would you interprete?
+In this case, the first two PCs may contain some relevant biological signal.
 \\
 
 
-Use \texttt{s.label} to display to two first components of the analysis.
-Then, use a kernel density (\texttt{s.kde2d}) for a better
+We can use \texttt{s.label} to display to two first components of the analysis.
+Kernel density estimation (\texttt{s.kde2d}) is used for a better
 assessment of the distribution of the genotypes onto the principal axes:
 \begin{Schunk}
 \begin{Sinput}
@@ -1266,22 +1093,19 @@ assessment of the distribution of the genotypes onto the principal axes:
 > add.scatter.eig(rupica.pca1$eig, 2, 1, 2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-029}
+\includegraphics{figs/spca-034}
 
-What can we say about the genetic diversity among these genotypes as
-inferred by PCA?
-The function \texttt{loadingplot} allows to visualize the contribution
-of each allele, expressed as squared loadings, for a given principal component.
+\noindent This scatterplot shows that the only structure identified by PCA points to a few outliers.
+\texttt{loadingplot} confirms that this corresponds to the possession of a few original alleles:
 Using this function, reproduce this figure:
 \begin{Schunk}
 \begin{Sinput}
 > loadingplot(rupica.pca1$c1^2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-030}
+\includegraphics{figs/spca-035}
 
-\noindent What do we observe?
-We can get back to the genotypes for the concerned markers (e.g.,
+\noindent We can go back to the genotypes for the concerned markers (e.g.,
 Bm203) to check whether the highlighted genotypes are uncommon.
 \texttt{truenames} extracts the table of allele frequencies from a
 \texttt{genind} object (restoring original labels for markers, alleles, and individuals):
@@ -1321,7 +1145,9 @@ Which individuals are they?
    "8"   "86"  "600" "7385" 
 \end{Soutput}
 \end{Schunk}
-Conclusion?
+These are indeed our outliers.
+From the point of view of PCA, this would be the only structure in the data.
+However, further analyses show that more is to be seen...
 \\
 
 
@@ -1333,7 +1159,7 @@ Conclusion?
 \subsection{Mapping and testing PCA results}
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 A frequent practice in spatial genetics is mapping the first principal components (PCs) onto the geographic space.
-The function \texttt{s.value} is well-suited to do so, using black and
+\textit{ade4}'s function \texttt{s.value} is well-suited to do so, using black and
 white squares of variable size for positive and negative values.
 To give a legend for this type of representation:
 \begin{Schunk}
@@ -1344,7 +1170,7 @@ To give a legend for this type of representation:
 \end{Schunk}
 \includegraphics{figs/spca-svaluedem}
 
-\noindent Apply this graphical representation to the first
+\noindent We apply this graphical representation to the first
 two PCs of the PCA:
 \begin{Schunk}
 \begin{Sinput}
@@ -1354,7 +1180,7 @@ two PCs of the PCA:
 > title("PCA - first PC", col.main = "yellow", line = -2, cex.main = 2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-034}
+\includegraphics{figs/spca-039}
 
 \begin{Schunk}
 \begin{Sinput}
@@ -1363,21 +1189,17 @@ two PCs of the PCA:
 > title("PCA - second PC", col.main = "yellow", line = -2, cex.main = 2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-035}
+\includegraphics{figs/spca-040}
 
 
-\noindent What can we say about spatial genetic structure as inferred by PCA?
-This visual assessment can be complemented by testing the spatial autocorrelation in the first PCs
-of PCA.
+\noindent As we can see, none of these PCs seems to display a particular spatial pattern.
+This visual assessment can be complemented by a test of spatial autocorrelation in these PCs.
 This can be achieved using Moran's $I$ test.
-Use the function \texttt{moran.mc} in the package \emph{spdep} to perform these tests.
-You will need first to define the spatial connectivity between the sampled individuals.
+We use \textit{spdep}'s function \texttt{moran.mc} to perform these two tests.
+We first need to define the spatial connectivity between the sampled individuals.
 For these data, spatial connectivity is best defined as the overlap between home ranges of
-individuals.
-Home ranges will be modelled as disks with a radius of 1150m.
-Use \texttt{chooseCN} to create a connection network based on distance range (``neighbourhood by
-distance'').
-What threshold distance do you choose for individuals to be considered as neighbours?
+individuals, modelled as disks with a radius of 1150m.
+\texttt{chooseCN} is used to create the corresponding connection network:
 \begin{Schunk}
 \begin{Sinput}
 > rupica.graph <- chooseCN(rupica$other$xy, type = 5, d1 = 0, d2 = 2300, 
@@ -1407,7 +1229,7 @@ W 335 112225 335 15.04311 1352.07
 > title("rupica.graph")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-037}
+\includegraphics{figs/spca-042}
 
 Perform Moran's test for the first two PCs, and plot the results.
 The first test should be significant:
@@ -1417,32 +1239,31 @@ The first test should be significant:
 > plot(pc1.mctest)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-038}
+\includegraphics{figs/spca-043}
 
-\noindent Compare this result to the mapping of the first PC of PCA. What is wrong?
-When a test gives unexpected results, it is worth looking into the data in more details.
-Moran's plot (\texttt{moran.plot}) plots the tested variable against its lagged vector.
-Use it on the first PC:
+\noindent This result is surprisingly significant. Why is this?
+Moran's plot (\texttt{moran.plot}) represents the tested variable against its lagged vector; we
+apply it to the first PC:
 \begin{Schunk}
 \begin{Sinput}
 > moran.plot(rupica.pca1$li[, 1], rupica.graph)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-039}
+\includegraphics{figs/spca-044}
 
-\noindent Actual positive autocorrelation corresponds to a positive correlation between a variable
+\noindent Positive autocorrelation corresponds to a positive correlation between a variable
 and its lag vector.
-Is it the case here? How can we explain that Moran's test was significant?
-
-
-Repeat these analyses for the second PC. What are your conclusions?
+Here, we can see that this relation is entirely driven by the previously identified outliers, which
+turn out to be neighbours.
+This is therefore a fairly trivial and uninteresting pattern.
+Results obtained on the second PC are less surprisingly non-significant:
 \begin{Schunk}
 \begin{Sinput}
 > pc2.mctest <- moran.mc(rupica.pca1$li[, 2], rupica.graph, 999)
 > plot(pc2.mctest)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-040}
+\includegraphics{figs/spca-045}
 
 
 
@@ -1467,12 +1288,10 @@ Perform Mantel test, using the scaled genetic data you used before in PCA, and t
 > plot(mtest, nclass = 30)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-041}
+\includegraphics{figs/spca-046}
 
-\noindent What is your conclusion? Shall we be looking for spatial structures?
-If so, how can we explain that PCA did not reveal them?
-Does the Mantel correlogram (\texttt{mantel.correlog} in \emph{vegan} package) bring any help solving the problem?
-
+\noindent Interestingly, this test turns out to be marginally significant, and would encourage us to
+look for spatial patterns. This is the role of the spatial Principal Component Analysis.
 
 
 
@@ -1482,49 +1301,20 @@ Does the Mantel correlogram (\texttt{mantel.correlog} in \emph{vegan} package) b
 \subsection{spatial Principal Component Analysis}
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The spatial Principal Component Analysis (sPCA, function \texttt{spca} \cite{tjart04}) has been especially developed to
-investigate hidden or non-obvious spatial genetic patterns.
-Like Moran's $I$ test, sPCA first requires the spatial proximities between genotypes to be
-modeled.
-You will reuse the connection network defined previously using \texttt{chooseCN}, and pass it as the
-'cn' argument of the function \texttt{spca}.
-~\\
-
-Read the documentation of \texttt{spca}, and apply the function to the dataset \texttt{rupica}.
-The function will display a barplot of eigenvalues:
+We apply an sPCA to the \texttt{rupica} dataset, using the connection network used previously in
+Moran's $I$ tests:
 \begin{Schunk}
 \begin{Sinput}
 > rupica.spca1 <- spca(rupica, cn = rupica.graph, scannf = FALSE, 
 +     nfposi = 2, nfnega = 0)
-> barplot(rupica.spca1$eig, col = rep(c("red", "grey"), c(2, 1000)))
+> barplot(rupica.spca1$eig, col = rep(c("red", "grey"), c(2, 1000)), 
++     main = "rupica dataset - sPCA eigenvalues")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-042}
-This figure illustrates the fundamental difference between PCA and sPCA.
-Like \texttt{dudi.pca}, \texttt{spca} displays a barplot of
-eigenvalues, but unlike in PCA, eigenvalues of sPCA can also be negative.
-This is because the criterion optimized by the analysis can have
-positive and negative values, corresponding respectively to positive
-and negative autocorrelation.
-Positive spatial autocorrelation correspond to greater genetic similarity between geographically
-closer individuals.
-Conversely, negative spatial autocorrelation corresponds to greater dissimilarity between neighbours.
-The spatial autocorrelation of a variable is measured by Moran's $I$, and interpreted as follows:
-\begin{itemize}
-  \item $I_0 = -1/(n-1)$: no spatial autocorrelation ($x$ is randomly distributed across space)
-  \item $I > I_0$: positive spatial autocorrelation
-  \item $I < I_0$: negative spatial autocorrelation
-\end{itemize}
+\includegraphics{figs/spca-047}
 
-Principal components of PCA ensure that ($\phi$ referring to one PC) $var(\phi)$ is maximum.
-By contrast, sPCA provides PC which decompose the quantity $var(\phi)I(\phi)$.
-In other words, PCA focuses on variability only, while sPCA is a compromise between variability
-($var(\phi)$) and spatial structure ($I(\phi)$).
-\\
-
-
-In this case, only the principal components associated with the two
-first positive eigenvalues (in red) shall be retained.
+\noindent The principal components associated with the first two
+positive eigenvalues (in red) shall be retained.
 The printing of \texttt{spca} objects is more explicit than
 \texttt{dudi} objects, but named with the same conventions:
 \begin{Schunk}
@@ -1571,7 +1361,7 @@ The function \texttt{screeplot} allows to display this information graphically:
 > screeplot(rupica.spca1)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-044}
+\includegraphics{figs/spca-049}
 
 \noindent While $\lambda_1$ indicates with no doubt a structure, the
 second eigenvalue, $\lambda_2$ is less clearly distinct from the
@@ -1581,39 +1371,55 @@ second principal component of the analysis.
 \\
 
 
-Try visualising the sPCA results as you did before with the PCA results.
-To clarify the possible spatial patterns, you can map the lagged PC (\$ls) instead of the PC (\$li), which are a
+We map the sPCA results using \texttt{s.value} and lagged scores (\texttt{\$ls}) instead of the PC (\texttt{\$li}), which are a
 'denoisified' version of the PCs.
+\begin{Schunk}
+\begin{Sinput}
+> showBauges()
+> s.value(rupica$other$xy, rupica.spca1$ls[, 1], add.p = TRUE, 
++     csize = 0.7)
+> title("sPCA - first PC", col.main = "yellow", line = -2, cex.main = 2)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/spca-050}
 
-First, map the first principal component of sPCA.
-How would you interprete this result?
-How does it compare to the first PC of PCA?
-What inferrence can we make about the way the landscape
-influences gene flow in this population of Chamois?
+\noindent This first PC shows a remarkably clear structure opposing two high-altitude areas
+separated by a valley, which is thought to be an obstacle to the dispersal of Chamois (due to higher
+exposition to predation in low-altitude areas).
 
-Do the same with the second PC of sPCA.
-Some field observations suggest that this pattern is not artefactual.
-How would you interprete this second structure?
+The second PC of sPCA shows an equally interesting structure:
+\begin{Schunk}
+\begin{Sinput}
+> showBauges()
+> s.value(rupica$other$xy, rupica.spca1$ls[, 2], add.p = TRUE, 
++     csize = 0.7)
+> title("sPCA - second PC", col.main = "yellow", line = -2, cex.main = 2)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{figs/spca-051}
+
+\noindent The smaller clusters appearing on this map correspond to social units identified by
+direct observation in the field.
+Therefore, this genetic structure is merely a reflect of the social behaviour of these individuals.
 \\
 
-To finish, you can try representing both structures at the same time
-using the color coding introduced by \cite{tj177} (\texttt{?colorplot}).
+
+Both genetic structures can be represented altogether using \texttt{colorplot}.
 The final figure should ressemble this (although colors may change from one computer to another):
 \begin{Schunk}
 \begin{Sinput}
 > showBauges()
 > colorplot(rupica$other$xy, rupica.spca1$ls, axes = 1:2, transp = TRUE, 
-+     add = TRUE, cex = 2)
++     add = TRUE, cex = 3)
 > title("sPCA - colorplot of PC 1 and 2\n(lagged scores)", col.main = "yellow", 
 +     line = -2, cex = 2)
 \end{Sinput}
 \end{Schunk}
+\includegraphics{figs/spca-052}
 
-\begin{center}
-\includegraphics[width=.6\textwidth]{figs/rupicacolors.png}
-\end{center}
-
-
+%% \begin{center}
+%% \includegraphics[width=.6\textwidth]{figs/rupicacolors.png}
+%% \end{center}
 
 
 
@@ -1622,6 +1428,10 @@ The final figure should ressemble this (although colors may change from one comp
 
 \newpage
 \begin{thebibliography}{9}
+
+\bibitem{tjart04}
+  Jombart T, Devillard S, Dufour A-B and Pontier D (2008) Revealing cryptic spatial
+  patterns in genetic variability by a new multivariate method.  \textit{Heredity} 101: 92-103.
 
 \bibitem{tjart05}
   Jombart, T. (2008) adegenet: a R package for the multivariate
@@ -1640,10 +1450,6 @@ The final figure should ressemble this (although colors may change from one comp
 %%   Discriminant analysis of principal components: a new method for the analysis of genetically structured populations.
 %%   \textit{BMC Genetics} 11: 94.
 
-\bibitem{tjart04}
-  Jombart T, Devillard S, Dufour A-B and Pontier D (2008) Revealing cryptic spatial
-  patterns in genetic variability by a new multivariate method.  \textit{Heredity} 101: 92-103.
-
 
 \bibitem{tj88}
   Legendre P and Legendre L (1998) Numerical ecology. Elsevier Science B. V., Amsterdam.
@@ -1660,9 +1466,9 @@ The final figure should ressemble this (although colors may change from one comp
 \bibitem{tj179} Menozzi P, Piazza A and Cavalli-Sforza LL (1978) Synthetic maps of human gene frequencies in {Europeans}.
   \emph{Science} 201: 786--792.
 
-\bibitem{tj177}
-Cavalli-Sforza LL, Menozzi P and Piazza A (1993) Demic expansions and human evolution.
- \textit{Science} 259: 639--646.
+%% \bibitem{tj177}
+%% Cavalli-Sforza LL, Menozzi P and Piazza A (1993) Demic expansions and human evolution.
+%%  \textit{Science} 259: 639--646.
 
 \bibitem{tj440}
   Callenge C (2006) The package "adehabitat" for the R software: a tool for the analysis
