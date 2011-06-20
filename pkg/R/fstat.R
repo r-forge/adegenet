@@ -71,6 +71,9 @@ pairwise.fst <- function(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRU
     temp <- pop(x)
     levPop <- levels(temp)
     allPairs <- combn(1:length(levPop), 2)
+    if(!is.matrix(allPairs)){
+        allPairs <- matrix(allPairs,nrow=2)
+    }
 
     vecRes <- numeric()
     for(i in 1:ncol(allPairs)){

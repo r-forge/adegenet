@@ -519,7 +519,7 @@ Operations that are not available for PA type will issue an appropriate error me
 Here is an example using a toy dataset 'AFLP.txt' that can be downloaded
 from the adegenet website, section 'Documentation':
 <<aflpread>>=
-dat <- read.table("http://adegenet.r-forge.r-project.org/files/AFLP.txt",header=TRUE)
+dat <- read.table(system.file("files/AFLP.txt",package="adegenet"), header=TRUE)
 dat
 @
 \noindent The function \texttt{df2genind} is used to obtain a genind object:

@@ -534,7 +534,7 @@ scatter.dapc <- function(x, xax=1, yax=2, grp=x$grp, col=rainbow(length(levels(g
         if(mstree && require(ade4)){
             meanposi <- apply(x$tab,2, tapply, grp, mean)
             D <- dist(meanposi)^2
-            tre <- mstree(D)
+            tre <- ade4::mstree(D)
             x0 <- x$grp.coord[tre[,1], axes[1]]
             y0 <- x$grp.coord[tre[,1], axes[2]]
             x1 <- x$grp.coord[tre[,2], axes[1]]
