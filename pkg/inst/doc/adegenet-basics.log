@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.4.12)  16 JUN 2011 17:44
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.4.12)  21 JUN 2011 15:53
 entering extended mode
  %&-line parsing enabled.
 **adegenet-basics.tex
@@ -662,7 +662,7 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <7> on input line 3.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <5> on input line 3.
-LaTeX Font Info:    Try loading font information for T1+aett on input line 26.
+LaTeX Font Info:    Try loading font information for T1+aett on input line 16.
 
 (/usr/share/texmf-texlive/tex/latex/ae/t1aett.fd
 File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
@@ -681,342 +681,368 @@ File: ts1aer.fd
 )
 LaTeX Font Info:    Font shape `TS1/aer/m/n' in size <10> not available
 (Font)              Font shape `TS1/cmr/m/n' tried instead on input line 97.
- [3]
-LaTeX Font Info:    Try loading font information for TS1+aett on input line 186
-.
 
-(/usr/local/R-versions/R-2.13.0/share/texmf/tex/latex/ts1aett.fd
+Underfull \hbox (badness 10000) in paragraph at lines 97--98
+[]\T1/aer/m/n/10 sPCA: ac-cessed by typ-ing \T1/aett/m/n/10 vignette("adegenet-
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 98--99
+[]\T1/aer/m/n/10 DAPC: ac-cessed by typ-ing \T1/aett/m/n/10 vignette("adegenet-
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 99--101
+[]\T1/aer/m/n/10 genomics: ac-cessed by typ-ing \T1/aett/m/n/10 vignette("adege
+net-
+ []
+
+
+Underfull \hbox (badness 3989) in paragraph at lines 99--101
+\T1/aett/m/n/10 genomics",package='adegenet')\T1/aer/m/n/10 ; ded-i-cated to ge
+nome-wide SNP
+ []
+
+[3]
+LaTeX Font Info:    Try loading font information for TS1+aett on input line 187
+.
+ (/usr/local/R-versions/R-2.13.0/share/texmf/tex/latex/ts1aett.fd
 File: ts1aett.fd 
 )
-LaTeX Font Info:    Try loading font information for TS1+cmtt on input line 186
+LaTeX Font Info:    Try loading font information for TS1+cmtt on input line 187
 .
 
 (/usr/share/texmf-texlive/tex/latex/base/ts1cmtt.fd
 File: ts1cmtt.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `TS1/aett/m/n' in size <8> not available
-(Font)              Font shape `TS1/cmtt/m/n' tried instead on input line 186.
+(Font)              Font shape `TS1/cmtt/m/n' tried instead on input line 187.
 
-Underfull \hbox (badness 10000) in paragraph at lines 189--197
+Underfull \hbox (badness 10000) in paragraph at lines 190--198
 
  []
 
 [4]
-Underfull \hbox (badness 10000) in paragraph at lines 227--230
+Underfull \hbox (badness 10000) in paragraph at lines 228--231
 
  []
 
 
-Underfull \hbox (badness 6364) in paragraph at lines 235--238
-[]\T1/aer/m/n/10 adegenet fo-rum ([][]$\T1/aett/m/n/10 https : / / lists . r-[]
-forge . r-[]project . org / cgi-[]bin /
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 235--238
-\T1/aett/m/n/10 mailman / listinfo / adegenet-[]forum$[][]\T1/aer/m/n/10 ): ade
--genet and mul-ti-vari-ate
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 240--243
-[]\T1/aer/m/n/10 R-sig-genetics ([][]$\T1/aett/m/n/10 https : / / stat . ethz .
- ch / mailman / listinfo /
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 243--246
-[]\T1/aer/m/n/10 R-sig-phylo ([][]$\T1/aett/m/n/10 https : / / stat . ethz . ch
- / mailman / listinfo /
+Underfull \hbox (badness 10000) in paragraph at lines 236--238
+[][]$\T1/aett/m/n/10 https : / / lists . r-[]forge . r-[]project . org / cgi-[]
+bin / mailman /
  []
 
 [5]
-Underfull \hbox (badness 10000) in paragraph at lines 308--313
+Underfull \hbox (badness 10000) in paragraph at lines 311--316
 
  []
 
 [6]
-Underfull \hbox (badness 10000) in paragraph at lines 353--357
+Underfull \hbox (badness 10000) in paragraph at lines 356--360
 
  []
 
 [7]
-Underfull \hbox (badness 10000) in paragraph at lines 414--420
+Underfull \hbox (badness 10000) in paragraph at lines 408--410
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 417--423
 
  []
 
 [8]
-Underfull \hbox (badness 10000) in paragraph at lines 468--470
+Underfull \hbox (badness 10000) in paragraph at lines 472--479
 
  []
 
 [9]
-Underfull \hbox (badness 10000) in paragraph at lines 581--590
+Underfull \hbox (badness 10000) in paragraph at lines 590--599
 
  []
 
-[10] [11] [12]
-Underfull \hbox (badness 2680) in paragraph at lines 678--678
+[10]
+Underfull \hbox (badness 10000) in paragraph at lines 653--655
+
+ []
+
+[11] [12]
+Underfull \hbox (badness 2680) in paragraph at lines 699--699
 []\T1/aer/bx/n/12 Importing data from GENETIX, STRUC-TURE,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 723--729
+Underfull \hbox (badness 4940) in paragraph at lines 702--710
+\T1/aer/m/n/10 (.str or .stru), FS-TAT (.dat) and Genepop (.gen) files, us-ing 
+the
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 744--750
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 730--740
+Underfull \hbox (badness 10000) in paragraph at lines 751--760
 
  []
 
 [13] [14]
-Underfull \hbox (badness 10000) in paragraph at lines 817--828
+Underfull \hbox (badness 10000) in paragraph at lines 857--868
 
  []
 
-[15] [16] <figs/base-pcaaflp.pdf, id=275, 433.62pt x 433.62pt>
+[15] [16] <figs/base-pcaaflp.pdf, id=273, 433.62pt x 433.62pt>
 File: figs/base-pcaaflp.pdf Graphic file (type pdf)
 
-<use figs/base-pcaaflp.pdf> [17 <./figs/base-pcaaflp.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 1018--1026
+<use figs/base-pcaaflp.pdf> [17]
+Underfull \hbox (badness 10000) in paragraph at lines 1065--1074
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 1065--1070
+[18 <./figs/base-pcaaflp.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 1113--1118
 
  []
 
-[18] [19] [20]
-Underfull \hbox (badness 2837) in paragraph at lines 1251--1256
+[19] [20]
+Underfull \hbox (badness 2837) in paragraph at lines 1294--1299
 \T1/aer/m/n/10 The six aligned pro-tein se-quences (\T1/aett/m/n/10 mase.res\T1
 /aer/m/n/10 ) have been scanned for
  []
 
-[21] <figs/base-njAA.pdf, id=306, 433.62pt x 433.62pt>
+[21] <figs/base-njAA.pdf, id=307, 433.62pt x 433.62pt>
 File: figs/base-njAA.pdf Graphic file (type pdf)
 
-<use figs/base-njAA.pdf> [22] <figs/base-040.pdf, id=311, 433.62pt x 433.62pt>
-File: figs/base-040.pdf Graphic file (type pdf)
+<use figs/base-njAA.pdf> [22] <figs/base-045.pdf, id=312, 433.62pt x 433.62pt>
+File: figs/base-045.pdf Graphic file (type pdf)
 
-<use figs/base-040.pdf> [23 <./figs/base-njAA.pdf>] [24 <./figs/base-040.pdf>]
-[25] [26] [27]
-Underfull \hbox (badness 10000) in paragraph at lines 1659--1662
+<use figs/base-045.pdf> [23 <./figs/base-njAA.pdf>]
 
- []
+LaTeX Font Warning: Font shape `T1/aett/bx/n' undefined
+(Font)              using `T1/aett/m/n' instead on input line 1395.
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 1711--1714
-
- []
-
-[28] [29]
-Underfull \hbox (badness 10000) in paragraph at lines 1831--1834
+[24 <./figs/base-045.pdf>] [25] [26] [27]
+Underfull \hbox (badness 10000) in paragraph at lines 1693--1696
 
  []
 
-[30] [31] <figs/base-sumry.pdf, id=364, 433.62pt x 433.62pt>
+
+Underfull \hbox (badness 10000) in paragraph at lines 1746--1749
+
+ []
+
+[28]
+Underfull \hbox (badness 10000) in paragraph at lines 1802--1805
+
+ []
+
+[29]
+Underfull \hbox (badness 10000) in paragraph at lines 1868--1871
+
+ []
+
+[30] [31] <figs/base-sumry.pdf, id=366, 433.62pt x 433.62pt>
 File: figs/base-sumry.pdf Graphic file (type pdf)
 
 <use figs/base-sumry.pdf> [32 <./figs/base-sumry.pdf>] [33]
-Underfull \hbox (badness 10000) in paragraph at lines 2078--2084
+Underfull \hbox (badness 10000) in paragraph at lines 2115--2121
 
  []
 
 [34]
-Underfull \hbox (badness 10000) in paragraph at lines 2175--2183
+Underfull \hbox (badness 10000) in paragraph at lines 2212--2220
 
  []
 
 
-Underfull \hbox (badness 3861) in paragraph at lines 2197--2201
+Underfull \hbox (badness 3861) in paragraph at lines 2234--2238
 \T1/aer/m/n/10 This there-fore al-lows for com-put-ing the like-li-hood of a gi
 ven state
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2197--2201
+Underfull \hbox (badness 10000) in paragraph at lines 2234--2238
 
  []
 
-[35] <figs/base-063.pdf, id=392, 433.62pt x 433.62pt>
-File: figs/base-063.pdf Graphic file (type pdf)
- <use figs/base-063.pdf>
-[36] <figs/base-065.pdf, id=397, 433.62pt x 433.62pt>
-File: figs/base-065.pdf Graphic file (type pdf)
- <use figs/base-065.pdf>
-[37 <./figs/base-063.pdf>] [38 <./figs/base-065.pdf>]
-Underfull \hbox (badness 5302) in paragraph at lines 2330--2338
+[35] <figs/base-068.pdf, id=394, 433.62pt x 433.62pt>
+File: figs/base-068.pdf Graphic file (type pdf)
+ <use figs/base-068.pdf>
+[36] <figs/base-070.pdf, id=399, 433.62pt x 433.62pt>
+File: figs/base-070.pdf Graphic file (type pdf)
+ <use figs/base-070.pdf>
+[37 <./figs/base-068.pdf>] [38 <./figs/base-070.pdf>]
+Underfull \hbox (badness 5302) in paragraph at lines 2376--2384
 \T1/aer/m/n/10 Multivariate anal-y-sis con-sists in sum-maris-ing a strongly mu
 l-ti-vari-ate
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2330--2338
+Underfull \hbox (badness 10000) in paragraph at lines 2376--2384
 
  []
 
 
-Underfull \hbox (badness 4872) in paragraph at lines 2351--2353
+Underfull \hbox (badness 4872) in paragraph at lines 2397--2399
 []\T1/aett/m/n/10 dist \T1/aer/m/n/10 (\T1/aer/m/it/10 stats\T1/aer/m/n/10 ): c
 om-putes pair-wise dis-tances be-tween mul-ti-vari-ate
  []
 
 [39]
-Underfull \hbox (badness 2126) in paragraph at lines 2372--2375
+Underfull \hbox (badness 2126) in paragraph at lines 2418--2421
 []\T1/aett/m/n/10 scatter \T1/aer/m/n/10 (\T1/aer/m/it/10 ade4,adegenet\T1/aer/
 m/n/10 ): generic func-tion to dis-play mul-ti-vari-ate
  []
 
 
-Underfull \hbox (badness 1490) in paragraph at lines 2376--2379
+Underfull \hbox (badness 1490) in paragraph at lines 2422--2425
 \T1/aer/m/n/10 con-tri-bu-tion to a given struc-ture) of al-le-les for a given 
 prin-ci-pal
  []
 
 
-Underfull \hbox (badness 2990) in paragraph at lines 2387--2390
+Underfull \hbox (badness 2990) in paragraph at lines 2433--2436
 []\T1/aett/m/n/10 colorplot \T1/aer/m/n/10 (\T1/aer/m/it/10 ade-genet\T1/aer/m/
 n/10 ): graph-i-cal dis-play of 1 to 3 quan-ti-ta-tive
  []
 
 
-Underfull \hbox (badness 1122) in paragraph at lines 2391--2393
+Underfull \hbox (badness 1122) in paragraph at lines 2437--2439
 []\T1/aett/m/n/10 num2col \T1/aer/m/n/10 (\T1/aer/m/it/10 ade-genet\T1/aer/m/n/
 10 ): aux-il-iary func-tion trans-form-ing a quan-ti-ta-tive
  []
 
 
-Underfull \hbox (badness 2564) in paragraph at lines 2395--2397
+Underfull \hbox (badness 2564) in paragraph at lines 2441--2443
 []\T1/aett/m/n/10 compoplot \T1/aer/m/n/10 (\T1/aer/m/it/10 ade-genet\T1/aer/m/
 n/10 ): spe-cific 'STRUCTURE-like' plot of group
  []
 
-
-LaTeX Font Warning: Font shape `T1/aett/bx/n' undefined
-(Font)              using `T1/aett/m/n' instead on input line 2412.
-
 [40]
-Underfull \hbox (badness 10000) in paragraph at lines 2448--2451
+Underfull \hbox (badness 10000) in paragraph at lines 2507--2510
 
  []
 
-<figs/base-068.pdf, id=431, 433.62pt x 433.62pt>
-File: figs/base-068.pdf Graphic file (type pdf)
- <use figs/base-068.pdf>
-[41] [42 <./figs/base-068.pdf>]
-<figs/base-070.pdf, id=447, 433.62pt x 433.62pt>
-File: figs/base-070.pdf Graphic file (type pdf)
- <use figs/base-070.pdf>
-<figs/base-071.pdf, id=448, 433.62pt x 433.62pt>
-File: figs/base-071.pdf Graphic file (type pdf)
- <use figs/base-071.pdf>
-[43 <./figs/base-070.pdf>] <figs/base-072.pdf, id=460, 433.62pt x 433.62pt>
-File: figs/base-072.pdf Graphic file (type pdf)
-
-<use figs/base-072.pdf> [44 <./figs/base-071.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 2533--2535
-
- []
-
-<figs/base-073.pdf, id=472, 433.62pt x 433.62pt>
+<figs/base-073.pdf, id=433, 433.62pt x 433.62pt>
 File: figs/base-073.pdf Graphic file (type pdf)
  <use figs/base-073.pdf>
-Underfull \hbox (badness 10000) in paragraph at lines 2546--2548
-
- []
-
-[45 <./figs/base-072.pdf>] <figs/base-074.pdf, id=484, 433.62pt x 433.62pt>
-File: figs/base-074.pdf Graphic file (type pdf)
-
-<use figs/base-074.pdf> [46 <./figs/base-073.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 2564--2569
-
- []
-
-<figs/base-075.pdf, id=498, 433.62pt x 433.62pt>
+[41] [42 <./figs/base-073.pdf>]
+<figs/base-075.pdf, id=448, 433.62pt x 433.62pt>
 File: figs/base-075.pdf Graphic file (type pdf)
  <use figs/base-075.pdf>
-[47 <./figs/base-074.pdf>] <figs/base-caexpl.pdf, id=513, 433.62pt x 433.62pt>
-File: figs/base-caexpl.pdf Graphic file (type pdf)
-
-<use figs/base-caexpl.pdf> [48 <./figs/base-075.pdf>]
-<figs/base-077.pdf, id=528, 433.62pt x 433.62pt>
+<figs/base-076.pdf, id=449, 433.62pt x 433.62pt>
+File: figs/base-076.pdf Graphic file (type pdf)
+ <use figs/base-076.pdf>
+[43 <./figs/base-075.pdf>] <figs/base-077.pdf, id=461, 433.62pt x 433.62pt>
 File: figs/base-077.pdf Graphic file (type pdf)
- <use figs/base-077.pdf>
-[49 <./figs/base-caexpl.pdf>] <figs/base-078.pdf, id=540, 433.62pt x 433.62pt>
-File: figs/base-078.pdf Graphic file (type pdf)
 
-<use figs/base-078.pdf> [50 <./figs/base-077.pdf>] [51 <./figs/base-078.pdf>]
-<figs/base-080.pdf, id=559, 433.62pt x 433.62pt>
-File: figs/base-080.pdf Graphic file (type pdf)
- <use figs/base-080.pdf>
-[52]
-Underfull \hbox (badness 10000) in paragraph at lines 2750--2756
+<use figs/base-077.pdf> [44 <./figs/base-076.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 2592--2594
 
  []
 
-<figs/base-082.pdf, id=564, 433.62pt x 433.62pt>
+<figs/base-078.pdf, id=473, 433.62pt x 433.62pt>
+File: figs/base-078.pdf Graphic file (type pdf)
+ <use figs/base-078.pdf>
+Underfull \hbox (badness 10000) in paragraph at lines 2605--2607
+
+ []
+
+[45 <./figs/base-077.pdf>] <figs/base-079.pdf, id=485, 433.62pt x 433.62pt>
+File: figs/base-079.pdf Graphic file (type pdf)
+
+<use figs/base-079.pdf> [46 <./figs/base-078.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 2623--2628
+
+ []
+
+<figs/base-080.pdf, id=499, 433.62pt x 433.62pt>
+File: figs/base-080.pdf Graphic file (type pdf)
+ <use figs/base-080.pdf>
+[47 <./figs/base-079.pdf>] <figs/base-caexpl.pdf, id=514, 433.62pt x 433.62pt>
+File: figs/base-caexpl.pdf Graphic file (type pdf)
+
+<use figs/base-caexpl.pdf> [48 <./figs/base-080.pdf>]
+<figs/base-082.pdf, id=529, 433.62pt x 433.62pt>
 File: figs/base-082.pdf Graphic file (type pdf)
  <use figs/base-082.pdf>
-[53 <./figs/base-080.pdf>] <figs/base-083.pdf, id=575, 433.62pt x 433.62pt>
+[49 <./figs/base-caexpl.pdf>] <figs/base-083.pdf, id=541, 433.62pt x 433.62pt>
 File: figs/base-083.pdf Graphic file (type pdf)
 
-<use figs/base-083.pdf> [54 <./figs/base-082.pdf>]
-<figs/densIbd.png, id=586, 481.8pt x 481.8pt>
+<use figs/base-083.pdf> [50 <./figs/base-082.pdf>] [51 <./figs/base-083.pdf>]
+<figs/base-085.pdf, id=560, 433.62pt x 433.62pt>
+File: figs/base-085.pdf Graphic file (type pdf)
+ <use figs/base-085.pdf>
+[52]
+Underfull \hbox (badness 10000) in paragraph at lines 2809--2815
+
+ []
+
+<figs/base-087.pdf, id=565, 433.62pt x 433.62pt>
+File: figs/base-087.pdf Graphic file (type pdf)
+ <use figs/base-087.pdf>
+[53 <./figs/base-085.pdf>] <figs/base-088.pdf, id=576, 433.62pt x 433.62pt>
+File: figs/base-088.pdf Graphic file (type pdf)
+
+<use figs/base-088.pdf> [54 <./figs/base-087.pdf>]
+<figs/densIbd.png, id=587, 481.8pt x 481.8pt>
 File: figs/densIbd.png Graphic file (type png)
- <use figs/densIbd.png> [55 <./figs/base-083.pdf>]
-Underfull \hbox (badness 3219) in paragraph at lines 2839--2839
+ <use figs/densIbd.png> [55 <./figs/base-088.pdf>]
+Underfull \hbox (badness 3219) in paragraph at lines 2898--2898
 []\T1/aer/bx/n/12 Using Mon-monier's al-go-rithm to de-fine ge-netic
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2846--2853
+Underfull \hbox (badness 10000) in paragraph at lines 2905--2912
 
  []
 
 [56 <./figs/densIbd.png (PNG copy)>]
-<figs/base-mon1.pdf, id=606, 433.62pt x 433.62pt>
+<figs/base-mon1.pdf, id=607, 433.62pt x 433.62pt>
 File: figs/base-mon1.pdf Graphic file (type pdf)
  <use figs/base-mon1.pdf>
-[57] <figs/base-mon4.pdf, id=611, 433.62pt x 433.62pt> [58 <./figs/base-mon1.pd
+[57] <figs/base-mon4.pdf, id=612, 433.62pt x 433.62pt> [58 <./figs/base-mon1.pd
 f>]
 File: figs/base-mon4.pdf Graphic file (type pdf)
- <use figs/base-mon4.pdf> <figs/monthres1.png, id=621, 481.8pt x 481.8pt>
+ <use figs/base-mon4.pdf> <figs/monthres1.png, id=622, 481.8pt x 481.8pt>
 File: figs/monthres1.png Graphic file (type png)
 
 <use figs/monthres1.png>
-Underfull \hbox (badness 10000) in paragraph at lines 2957--2961
+Underfull \hbox (badness 10000) in paragraph at lines 3016--3022
 
  []
 
 [59 <./figs/base-mon4.pdf> <./figs/monthres1.png (PNG copy)>]
-Underfull \hbox (badness 10000) in paragraph at lines 2988--2992
+Underfull \hbox (badness 10000) in paragraph at lines 3049--3053
 
  []
 
-<figs/base-mon6.pdf, id=631, 433.62pt x 433.62pt>
+<figs/base-mon6.pdf, id=632, 433.62pt x 433.62pt>
 File: figs/base-mon6.pdf Graphic file (type pdf)
  <use figs/base-mon6.pdf>
-[60] <figs/monthres2.png, id=636, 481.8pt x 481.8pt>
+[60] <figs/monthres2.png, id=637, 481.8pt x 481.8pt>
 File: figs/monthres2.png Graphic file (type png)
  <use figs/monthres2.png>
 [61 <./figs/base-mon6.pdf> <./figs/monthres2.png (PNG copy)>] [62]
-<figs/base-098.pdf, id=653, 433.62pt x 433.62pt>
-File: figs/base-098.pdf Graphic file (type pdf)
- <use figs/base-098.pdf>
-[63] <figs/base-099.pdf, id=658, 433.62pt x 433.62pt>
-File: figs/base-099.pdf Graphic file (type pdf)
- <use figs/base-099.pdf>
-[64 <./figs/base-098.pdf>] [65 <./figs/base-099.pdf>] [66]
-Underfull \hbox (badness 2617) in paragraph at lines 3259--3260
+<figs/base-103.pdf, id=654, 433.62pt x 433.62pt>
+File: figs/base-103.pdf Graphic file (type pdf)
+ <use figs/base-103.pdf>
+[63] <figs/base-104.pdf, id=659, 433.62pt x 433.62pt>
+File: figs/base-104.pdf Graphic file (type pdf)
+ <use figs/base-104.pdf>
+[64 <./figs/base-103.pdf>] [65 <./figs/base-104.pdf>] [66]
+Underfull \hbox (badness 2617) in paragraph at lines 3320--3321
 []\T1/aer/m/n/10 Monmonier M (1973) Maximum-difference bar-ri-ers: an al-ter-na
 -tive
  []
 
 
-Underfull \hbox (badness 1466) in paragraph at lines 3262--3264
+Underfull \hbox (badness 1466) in paragraph at lines 3323--3325
 \T1/aer/m/n/10 mor-pho-logic, lin-guis-tic) vari-a-tion: how bar-ri-ers can be 
 de-tected by
  []
@@ -1033,7 +1059,7 @@ Here is how much of TeX's memory you used:
  9075 multiletter control sequences out of 15000+50000
  47391 words of font info for 100 fonts, out of 3000000 for 9000
  714 hyphenation exceptions out of 8191
- 38i,6n,36p,282b,495s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 38i,6n,36p,286b,495s stack positions out of 5000i,500n,10000p,200000b,50000s
 {/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/share/texmf
 -texlive/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texmf-texlive/fo
 nts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-texlive/fonts/type1/p
@@ -1053,9 +1079,9 @@ msfonts/cm/cmtt10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/
 cmtt12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt8.pfb><
 /usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf/fon
 ts/type1/public/cm-super/sftt0800.pfb>
-Output written on adegenet-basics.pdf (67 pages, 1961343 bytes).
+Output written on adegenet-basics.pdf (67 pages, 1965547 bytes).
 PDF statistics:
- 782 PDF objects out of 1000 (max. 8388607)
+ 783 PDF objects out of 1000 (max. 8388607)
  115 named destinations out of 1000 (max. 500000)
  400 words of extra memory for PDF output out of 10000 (max. 10000000)
 

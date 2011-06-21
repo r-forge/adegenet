@@ -93,9 +93,10 @@ multiallelic markers (respectively for individuals and populations), and then sh
 information from these objects using a variety of tools.  Other vignettes are dedicated to some
 specific topics:
 \begin{itemize}
-\item sPCA: type \texttt{vignette("adegenet-spca",package='adegenet')}
-\item DAPC: type \texttt{vignette("adegenet-dapc",package='adegenet')} in R to access this vignette.
-\item genome-wide SNPs handling and analysis: type \texttt{vignette("adegenet-genomics",package='adegenet')}
+\item sPCA: accessed by typing \texttt{vignette("adegenet-spca",package='adegenet')}; dedicated to sPCA.
+\item DAPC: accessed by typing \texttt{vignette("adegenet-dapc",package='adegenet')}; dedicated to DAPC.
+\item genomics: accessed by typing \texttt{vignette("adegenet-genomics",package='adegenet')};
+  dedicated to genome-wide SNP data handling and analysis.
 \end{itemize}
 
 
@@ -112,10 +113,10 @@ specific topics:
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Installing the package}
 %%%%%%%%%%%%%%%%%%%%%%%%%%
-Before going further, we shall make sure that \textit{adegenet} is weel installed
+Before going further, we shall make sure that \textit{adegenet} is well installed
 on the computer.
 Current version of the package is \Sexpr{packageDescription("adegenet", fields = "Version")}.
-Make sure you have a recent version ($\geq 2.13.0$) of R by typing:
+Make sure you have a recent version of R ($\geq 2.13.0$) by typing:
 <<>>=
 R.version.string
 @
@@ -125,7 +126,7 @@ Then, install \textit{adegenet} with dependencies using:
 install.packages("adegenet", dep=TRUE)
 @
 This only installs packages on CRAN.
-However, some functions in \textit{adegenet} also use \textit{graph}, developped on Bioconductor, an
+However, some functions in \textit{adegenet} also use \textit{graph}, developed on Bioconductor, an
 alternative package repository.
 To install \textit{graph}, type:
 <<eval=FALSE>>=
@@ -134,6 +135,11 @@ biocLite("graph")
 @
 
 We can now load the package using:
+<<echo=FALSE,print=FALSE, results=hide>>=
+library(ape)
+library(seqinr)
+library(genetics)
+@
 <<>>=
 library(adegenet)
 @
@@ -150,7 +156,7 @@ packageDescription("adegenet", fields = "Version")
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Getting help}
 %%%%%%%%%%%%%%%%%%%%%%%%%%
-There are several ways of getting information about R in general, or about
+There are several ways of getting information about R in general, and about
 \textit{adegenet} in particular.
 The function \texttt{help.search} is used to look for help on a given topic.
 For instance:
@@ -158,10 +164,10 @@ For instance:
 help.search("Hardy-Weinberg")
 @
 replies that there is a function \texttt{HWE.test.genind} in the
-\textit{adegenet} package, other similar functions in \textit{genetics} and \textit{pegas}.
-To get help for a given function, use \texttt{?foo} where `foo' is the
+\textit{adegenet} package, and other similar functions in \textit{genetics} and \textit{pegas}.
+To get help for a given function, use \texttt{?foo} where \texttt{foo} is the
 function of interest.
-For instance (quotes can be removed):
+For instance (quotes and parentheses can be removed):
 <<eval=FALSE>>=
 ?spca
 @
@@ -178,7 +184,7 @@ lists and manpages).
 \textit{adegenet} has a few extra documentation sources.
 Information can be found from the website
 (\url{http://adegenet.r-forge.r-project.org/}), in the `documents'
-section, including tutorial and a manual which includes all
+section, including several tutorials and a manual which compiles all
 manpages of the package, and a dedicated mailing list with searchable archives.
 To open the website from R, use:
 <<eval=FALSE>>=
@@ -188,7 +194,7 @@ The same can be done for tutorials, using \texttt{adegenetTutorial} (see
 manpage to choose the tutorial to open).
 Alternatively, one can use \texttt{vignette}, for which \texttt{adegenetTutorial} is merely a wrapper.
 
-You will also find a listing of the main functions of the package typing:
+You will also find an overview of the main functionalities of the package typing:
 <<eval=FALSE>>=
 ?adegenet
 @
@@ -205,17 +211,14 @@ To go to the \textit{adegenet} page, click `packages', `adegenet', and
 Lastly, several mailing lists are available to find different kinds of
 information on R; to name a few:
 \begin{itemize}
-\item adegenet forum
-  (\url{https://lists.r-forge.r-project.org/cgi-bin/mailman/listinfo/adegenet-forum}):
-  adegenet and multivariate analysis of genetic markers
-\item R-help (\url{https://stat.ethz.ch/mailman/listinfo/r-help}):
-  general questions about R
-\item R-sig-genetics
-  (\url{https://stat.ethz.ch/mailman/listinfo/r-sig-genetics}):
-  genetics in R
-\item R-sig-phylo
-  (\url{https://stat.ethz.ch/mailman/listinfo/r-sig-phylo}):
-  phylogenetics in R
+\item \textit{adegenet forum}: adegenet and multivariate analysis of genetic markers.\\
+  \url{https://lists.r-forge.r-project.org/cgi-bin/mailman/listinfo/adegenet-forum}
+\item \textit{R-help}: general questions about R.\\
+  \url{https://stat.ethz.ch/mailman/listinfo/r-help}
+\item \textit{R-sig-genetics}: genetics in R.\\
+  \url{https://stat.ethz.ch/mailman/listinfo/r-sig-genetics}
+\item \textit{R-sig-phylo}: phylogenetics in R.\\
+  \url{https://stat.ethz.ch/mailman/listinfo/r-sig-phylo}
 \end{itemize}
 
 
@@ -229,11 +232,14 @@ information on R; to name a few:
 \section{Object classes}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Two classes of objects are used for storing genetic marker data, depending on the level at which the genetic information is considered:
-\texttt{genind} is used for individual genotypes, whereas \texttt{genpop} is used for alleles numbers counted by populations.
-Note that the term 'population', here and later, is employed in a broad sense: it simply refers to any grouping of individuals.
-The specific class \texttt{genlight} is used for storing large genome-wide SNPs data.
-See \textit{adegenet-genomics} vignette for more information.
+
+Two main classes of objects are used for storing
+genetic marker data, depending on the level at which the genetic information is considered:
+\texttt{genind} is used for individual genotypes, whereas \texttt{genpop} is used for alleles
+numbers counted by populations.  Note that the term 'population', here and later, is employed in a
+broad sense: it simply refers to any grouping of individuals.  The specific class \texttt{genlight}
+is used for storing large genome-wide SNPs data.  See \textit{adegenet-genomics} vignette for more
+information on this topic.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{genind objects}
@@ -241,6 +247,8 @@ See \textit{adegenet-genomics} vignette for more information.
 These objects can be obtained by reading data files from other software,
 from a \texttt{data.frame} of genotypes, by conversion from a table of
 allelic frequencies, or even from aligned DNA or proteic sequences (see 'importing data').
+Here, we introduce this class using the dataset \texttt{nancycats}, which is already stored as a
+\texttt{genind} object:
 <<genind>>=
 data(nancycats)
 is.genind(nancycats)
@@ -248,7 +256,7 @@ nancycats
 @
 A \texttt{genind} object is formal S4 object with several slots,
 accessed using the '\texttt{@}' operator (see \texttt{class?genind}).
-Note that the '\texttt{\$}' was also implemented for adegenet objects,
+Note that the '\texttt{\$}' is also implemented for adegenet objects,
 so that slots can be accessed as if they were components of a list.
 \\
 
@@ -259,7 +267,7 @@ getClassDef("genind")
 
 The slightly cryptic output of this function means that \texttt{genind} objects possess the following slots:
 \begin{itemize}
-  \item \texttt{tab}: a table of relative allele frequencies (individuals in rows, alleles in columns).
+  \item \texttt{tab}: a matrix of relative allele frequencies (individuals in rows, alleles in columns).
   \item \texttt{loc.names}: a vector of labels for the loci.
   \item \texttt{loc.fac}: a factor indicating which columns in \texttt{@tab} correspond to which marker.
   \item \texttt{loc.nall}: the number of alleles in each marker.
@@ -267,22 +275,22 @@ The slightly cryptic output of this function means that \texttt{genind} objects 
   \item \texttt{ind.names}:  a vector of labels for the individuals.
   \item \texttt{pop}: a factor storing group membership of the individuals.
   \item \texttt{pop.names}: labels used for populations.
-  \item \texttt{ploidy}: the ploidy level of the genome.
+  \item \texttt{ploidy}: a single integer indicating the ploidy of the individuals.
   \item \texttt{type}: a character string indicating whether the marker is codominant
-    (\texttt{codom}) or presence/absence ('\texttt{PA}').
+    (\texttt{codom}) or presence/absence (\texttt{PA}).
   \item \texttt{other}: a list storing optional information.
   \item \texttt{call}: the matched call, i.e. command used to create the object.
 \end{itemize}
 Slots can be accessed using '\texttt{@}' or '\texttt{\$}', although in some cases it is more
-convenient to use accessors (i.e. function which return specific content of the object) than
+convenient to use accessors (i.e. functions which return specific contents of the object) than
 accessing the slot directly (see section 'Using accessors').
 \\
 
 The main slot in \texttt{genind} is the table of allelic frequencies of individuals (in rows) for
 every alleles in every loci stored in \texttt{@tab}.
-Being frequencies, data sum to one per locus, giving the score of 1 for an homozygote and 0.5 for an heterozygote.
-The particular case of presence/absence data will is described in an
-ad-hoc section (see 'Handling presence/absence data').
+Being frequencies, data sum to one per locus, giving the score of 1 for an homozygote and 0.5 for a diploid heterozygote.
+The particular case of presence/absence data is described in a
+dedicated section (see 'Handling presence/absence data').
 For instance:
 <<>>=
 nancycats$tab[10:18,1:10]
@@ -290,7 +298,7 @@ nancycats$tab[10:18,1:10]
 Individual '010' is an homozygote for the allele 09 at locus 1, while '018' is an heterozygote with alleles 06 and 09.
 As user-defined labels are not always valid (for instance, they can
 be duplicated), generic labels are used for individuals, markers, alleles and eventually population.
-The true names are stored in the object (components \texttt{\$[...].names} where ... can be 'ind', 'loc', 'all' or 'pop').
+The true names are stored in the object (components \texttt{\$[...].names} where \texttt{\$[...]} can be \texttt{ind}, \texttt{loc}, \texttt{all} or \texttt{pop}).
 For instance :
 <<>>=
 nancycats$loc.names
@@ -300,16 +308,16 @@ gives the true marker names, and
 nancycats$all.names[[3]]
 @
 gives the allele names for marker 3.
+\\
 
-
-\noindent The slot 'ploidy' is an integer giving the level of ploidy
+The slot 'ploidy' is an integer giving the level of ploidy
 of the considered organisms (defaults to 2).
 This parameter is essential, in particular when switching from
 individual frequencies (\texttt{genind} object) to allele counts per
 populations (\texttt{genpop}).
 
 \noindent
-The slot 'type' describes the type of marker used: codominant ('codom', e.g. microsatellites) or presence/absence ('PA', e.g. AFLP).
+The slot 'type' describes the type of marker used: codominant (\texttt{codom}, e.g. microsatellites) or presence/absence (\texttt{PA}, e.g. AFLP).
 By default, adegenet considers that markers are codominant.
 Note that actual handling of presence/absence markers has been made available since version 1.2-3.
 See the dedicated section for more information about presence/absence markers.
@@ -318,19 +326,25 @@ See the dedicated section for more information about presence/absence markers.
 
 Optional content can are also be stored within the object.
 The slot \texttt{@other} is a list that can include any additional information.
-The optional slot \texttt{@pop} (a factor giving a grouping of individuals) is particular in that the behaviour of many functions will check automatically for it and behave accordingly.
+The optional slot \texttt{@pop} (a factor giving a grouping of individuals) is particular in that
+the behaviour of many functions will check automatically its content and behave accordingly.
 In fact, each time an argument 'pop' is required by a function, it is first seeked in \texttt{@pop}.
 For instance, using the function \texttt{genind2genpop} to convert \texttt{nancycats} to a \texttt{genpop} object, there is no need to give a 'pop' argument as it exists in the \texttt{genind} object:
 <<>>=
-table(nancycats$pop)
+head(pop(nancycats))
 catpop <- genind2genpop(nancycats)
 catpop
 @
-Other additional components can be stored (like here, spatial coordinates of populations in \$xy) but will not be passed during any conversion (\texttt{catpop} has no \$other\$xy).
+Other additional components can be stored (like here, spatial coordinates of populations in \$xy)
+and processed during the conversion if the argument \texttt{process.other} is set to \texttt{TRUE}.
+In this case, numeric vectors with a length corresponding to the number of individuals will we
+averaged per groups; note that any other function than \texttt{mean} can be used by providing any
+function to the argument \texttt{other.action}.
+Matrices with a number of rows corresponding to the number of individuals are processed similarly.
 \\
 
 Finally, a \texttt{genind} object generally contains its matched call, \textit{i.e.} the instruction that created it.
-This is not the case, however, for objects loaded using \texttt{data}.
+%%This is not the case, however, for objects loaded using \texttt{data}.
 When call is available, it can be used to regenerate an object.
 <<>>=
 obj <- read.genetix(system.file("files/nancycats.gtx",package="adegenet"))
@@ -390,11 +404,17 @@ indNames(nancycats) <- paste("cat", 1:nInd(nancycats),sep=".")
 head(indNames(nancycats),10)
 @
 
-Some accessors such as \texttt{locNames} may have specific options:
+\noindent Some accessors such as \texttt{locNames} may have specific options; for instance:
 <<>>=
 locNames(nancycats)
-head(locNames(nancycats, withAlleles=TRUE), 10)
 @
+returns the names of the loci, while:
+<<>>=
+temp <- locNames(nancycats, withAlleles=TRUE)
+head(temp, 10)
+@
+returns the names of the alleles in the form 'loci.allele'.
+\\
 
 \noindent The slot 'pop' can be retrieved and set using \texttt{pop}:
 <<>>=
@@ -403,9 +423,13 @@ pop(obj)
 pop(obj) <- rep("newPop",10)
 pop(obj)
 @
-An additional advantage of using accessors is they are most of the time safer. For instance,
+An additional advantage of using accessors is they are most of the time safer to use. For instance,
 \texttt{pop<-} will check the length of the new group membership vector against the data, and
-complain if there is a mismatch.
+complain if there is a mismatch. It also converts the provided replacement to a factor, while the command:
+<<eval=FALSE>>=
+obj@pop <- rep("newPop",10)
+@
+would generate an error (since replacement is not a factor).
 
 
 
@@ -424,11 +448,11 @@ complain if there is a mismatch.
 \subsection{Importing data from GENETIX, STRUCTURE, FSTAT, Genepop}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Data can be read from the software GENETIX (.gtx), STRUCTURE (.str or
+Data can be read from the software GENETIX (extension .gtx), STRUCTURE (.str or
 .stru), FSTAT (.dat) and Genepop (.gen) files, using the corresponding
 \texttt{read} function: \texttt{read.genetix},  \texttt{read.structure},
 \texttt{read.fstat}, and  \texttt{read.genepop}.
-These functions take as main argument the path (as a string character) to an input file, and produce a \texttt{genind} object.
+These functions take as main argument the path (as a string of characters) to an input file, and produce a \texttt{genind} object.
 Alternatively, one can use the function \texttt{import2genind} which detects a file format from its extension and uses the appropriate routine.
 For instance:
 <<import>>=
@@ -448,7 +472,7 @@ command lines).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Importing data from other software}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Genetic markers data can most of the time be stored as a table with individuals in row and markers
+Raw genetic markers data are often stored as tables with individuals in row and markers
 in column, where each entry is a character string coding the alleles possessed at one locus.
 Such data are easily imported into R as a \texttt{data.frame}, using for instance \texttt{read.table}
 for text files or \texttt{read.csv} for comma-separated text files.
@@ -460,20 +484,19 @@ easiest and clearest way of coding data is using a separator between alleles. Fo
 "80/78'', "80|78", or "80,78'' are different ways of coding a genotype at a microsatellite locus
 with alleles '80' and 78".
 Note that for haploid data, no separator shall be used.
-As a consequence, SNP data should consist of the raw nucleotides.
 The only contraint when using a separator is that the same separator is used in all the
 dataset. There are no contraints as to i) the type of separator used or ii) the ploidy of the data.
-These parameters can be set in \texttt{df2genind} through arguments 'sep' and 'ploidy', respectively.
+These parameters can be set in \texttt{df2genind} through arguments \texttt{sep} and \texttt{ploidy}, respectively.
 \\
 
-Alternatively, no separator may be used provided a fixed number of characters is used to code any allele.
+Alternatively, no separator may be used provided a fixed number of characters is used to code each allele.
 For instance, in a diploid organism, "0101" is an homozygote 1/1 while "1209" is a heterozygote
 12/09 in a two-character per allele coding scheme.
 In a tetraploid system with one character per allele, "1209" will be understood as 1/2/0/9.
 
-Here, we provide an example using randomly generated tetraploid data.
+Here, we provide an example using randomly generated tetraploid data and no separator.
 <<>>=
-temp <- lapply(1:30, function(i) sample(0:9, 4, replace=TRUE))
+temp <- lapply(1:30, function(i) sample(1:9, 4, replace=TRUE))
 temp <- sapply(temp, paste, collapse="")
 temp <- matrix(temp, nrow=10, dimnames=list(paste("ind",1:10), paste("loc",1:3)))
 temp
@@ -483,6 +506,11 @@ obj
 
 \noindent \texttt{obj} is a \texttt{genind} containing the same information, but recoded as a matrix of allele
 frequencies (\texttt{\$tab} slot).
+We can check that the conversion was exact by converting back the object into a table of character
+strings (function \texttt{genind2df}):
+<<>>=
+genind2df(obj, sep="|")
+@
 
 
 
@@ -491,20 +519,20 @@ frequencies (\texttt{\$tab} slot).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Handling presence/absence data}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Adegenet was primarly suited to handle codominant, multiallelic markers like microsatellites.
-However, dominant binary markers, like AFLP, can be used as well.
+\textit{adegenet} was primarly designed to handle codominant, multiallelic markers like microsatellites.
+However, dominant markers like AFLP can be used as well.
 In such a case, only presence/absence of alleles can be deduced accurately from
 the genotypes.
 This has several consequences, like the unability to compute allele frequencies.
-Hence, some functionalities in adegenet won't be available for
+Hence, some functionalities in \textit{adegenet} won't be available for
 dominant markers.
 
-From version 1.2-3 of adegenet, the distinction between both types of markers is made by the slot
-'type' of genind or genpop objects, which equals "codom" for
-codominant markers, and "PA" for presence/absence data.
+From version 1.2-3 of \textit{adegenet}, the distinction between both types of markers is made by the slot
+\texttt{@type} of genind or genpop objects, which equals \texttt{codom} for
+codominant markers, and \texttt{PA} for presence/absence data.
 In the latter case, the 'tab' slot of a genind object no longer contains allele
 frequencies, but only presence/absence of alleles in a genotype.
-Similarly, the 'tab' slot of a genpop object not longer contains
+Similarly, the \texttt{tab} slot of a genpop object not longer contains
 counts of alleles in the populations; instead, it contains the number
 of genotypes in each population possessing at least one copy of the concerned alleles.
 Moreover, in the case of presence/absence, the slots 'loc.nall', 'loc.fac', and 'all.names'
@@ -540,7 +568,7 @@ our object into a genpop:
 <<>>=
 obj2 <- genind2genpop(obj)
 obj2
-obj2@tab
+truenames(obj2)
 @
 
 \noindent To continue with the toy example, we can proceed to a simple PCA.
@@ -550,15 +578,21 @@ objNoNa <- na.replace(obj,met=0)
 objNoNa@tab
 @
 
-\noindent Now the PCA is performed:
+\noindent Now the PCA is performed and plotted:
 <<pcaaflp,fig=TRUE>>=
 library(ade4)
 pca1 <- dudi.pca(objNoNa,scannf=FALSE,scale=FALSE)
-scatter(pca1)
+temp <- as.integer(pop(objNoNa))
+myCol <- transp(c("blue","red"),.7)[temp]
+myPch <- c(15,17)[temp]
+plot(pca1$li, col=myCol, cex=3, pch=myPch)
+abline(h=0,v=0,col="grey",lty=2)
+s.arrow(pca1$c1, add.plot=TRUE)
+legend("topright", pch=c(15,17), col=transp(c("blue","red"),.7), leg=c("Group A","Group B"), pt.cex=2)
 @
 
-\noindent More generally, multivariate analyses from ade4, the sPCA (\texttt{spca}), the
-global and local tests (\texttt{global.rtest}, \texttt{local.rtest}), or
+\noindent More generally, multivariate analyses from ade4, sPCA (\texttt{spca}), DAPC
+(\texttt{dapc}), the global and local tests (\texttt{global.rtest}, \texttt{local.rtest}), or
 the Monmonier's algorithm (\texttt{monmonier}) will work just fine
 with presence/absence data.
 However, it is clear that the usual Euclidean distance (used in PCA
@@ -579,13 +613,14 @@ of ploidy.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{SNPs data}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-In adegenet, SNP data can be handled in two different ways.
+In \textit{adegenet}, SNP data can be handled in two different ways.
 For relatively small datasets (up to a few thousand SNPs) SNPs can
-be handled as other codominant markers such as microsatellites using \texttt{genind} objects.
+be handled as usual codominant markers such as microsatellites using \texttt{genind} objects.
 In the case of genome-wide SNP data (from hundreds of thousands to millions of SNPs),
 \texttt{genind} objects are no longer efficient representation of the data.
 In this case, we use \texttt{genlight} objects to store and handle information with maximum
 efficiency and minimum memory requirements. See the vignette \textit{adegenet-genomics} for more information.
+Below, we introduce only the case of SNPs handled using \texttt{genind} objects.
 \\
 
 The most convenient way to convert SNPs into a \texttt{genind} is using \texttt{df2genind}, which is
@@ -616,12 +651,12 @@ See the vignette \textit{adegenet-genomics} for more information.
 \\
 
 
-DNA sequences can be read into R using the ape package \cite{tj527}, and
-imported into adegenet using \texttt{DNAbin2genind}.
-There are several ways ape can be used to read in DNA sequences.
+DNA sequences can be read into R using the \textit{ape} package \cite{tj527}, and
+imported into \textit{adegenet} using \texttt{DNAbin2genind}.
+There are several ways \textit{ape}  can be used to read in DNA sequences.
 The easiest one is reading data from a usual format such as FASTA or Clustal using \texttt{read.dna}.
 Other options include reading data directly from GenBank using \texttt{read.GenBank}, or from other
-public databases using the seqinr package and transforming the \texttt{alignment} object into a
+public databases using the \textit{seqinr} package and transforming the \texttt{alignment} object into a
 \texttt{DNAbin} using \texttt{as.DNAbin}.
 Here, we illustrate this approach by re-using the example of \texttt{read.GenBank}. A connection to
 the internet is required, as sequences are read directly from a distant database.
@@ -632,10 +667,9 @@ ref <- c("U15717", "U15718", "U15719", "U15720",
 myDNA <- read.GenBank(ref)
 myDNA
 class(myDNA)
-summary(myDNA)
 @
-In adegenet, only polymorphic loci are conserved; importing data from a DNA sequence to adegenet
-therefore consist in extracting SNPs from the aligned sequences.
+In \textit{adegenet}, only polymorphic loci are conserved; importing data from a DNA sequence to \textit{adegenet}
+therefore consists in extracting SNPs from the aligned sequences.
 This conversion is achieved by \texttt{DNAbin2genind}.
 This function allows one to specify a threshold for polymorphism; for instance, one could retain
 only SNPs for which the second largest allele frequency is greater than 1\% (using the \texttt{polyThres} argument).
@@ -644,9 +678,12 @@ This is achieved using:
 obj <- DNAbin2genind(myDNA, polyThres=0.01)
 obj
 @
-Here, out of the 1045 nucleotides of the sequences, 318 SNPs where extracted and stored as a
+Here, out of the 1,045 nucleotides of the sequences, 318 SNPs where extracted and stored as a
 \texttt{genind} object.
-
+Positions of the SNPs are stored as names of the loci:
+<<>>=
+head(locNames(obj))
+@
 
 
 
@@ -655,7 +692,7 @@ Here, out of the 1045 nucleotides of the sequences, 318 SNPs where extracted and
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Extracting polymorphism from proteic sequences}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Alignments of proteic sequences can be exploited in adegenet in the same way as DNA sequences (see
+Alignments of proteic sequences can be exploited in \textit{adegenet} in the same way as DNA sequences (see
 section above).
 Alignments are scanned for polymorphic sites, and only those are retained to form a \texttt{genind} object.
 Loci correspond to the position of the residue in the alignment, and alleles correspond to the
@@ -663,7 +700,7 @@ different amino-acids (AA).
 Aligned proteic sequences are stored as objects of class \texttt{alignment} in the \emph{seqinr}
 package \cite{np160}.
 See \texttt{?as.alignment} for a description of this class.
-The function extracting polymorphic sites from \texttt{alignment} objects is \texttt{alignment2genind}
+The function extracting polymorphic sites from \texttt{alignment} objects is \texttt{alignment2genind}.
 
 Its use is fairly simple. It is here illustrated using a small dataset of aligned proteic sequences:
 <<seqinr1>>=
@@ -676,12 +713,12 @@ x
 The six aligned protein sequences (\texttt{mase.res}) have been scanned for polymorphic sites, and
 these have been extracted to form the \texttt{genind} object \texttt{x}.
 Note that several settings such as the characters corresponding to missing values (i.e., gaps) and
-the for polymorphism threshold for a site to be retained can be specified through the function's
+the polymorphism threshold for a site to be retained can be specified through the function's
 arguments (see \texttt{?alignment2genind}).
 
 The names of the loci directly provides the indices of polymorphic sites:
 <<>>=
-locNames(x)
+head(locNames(x))
 @
 The table of polymorphic sites can be reconstructed easily by:
 <<>>=
@@ -694,9 +731,9 @@ The global AA composition of the polymorphic sites is given by:
 table(unlist(tabAA))
 @
 
-Now that polymorphic sites have been converted into a genind object, simple distances can be
+Now that polymorphic sites have been converted into a \texttt{genind} object, simple distances can be
 computed between the sequences.
-Note that adegenet does not implement specific distances for protein sequences, we only use the
+Note that \textit{adegenet} does not implement specific distances for protein sequences, we only use the
 simple Euclidean distance.
 Fancier protein distances are implemented in R; see for instance \texttt{dist.alignment} in the
 \emph{seqinr} package, and \texttt{dist.ml} in the \emph{phangorn} package.
@@ -711,6 +748,7 @@ We first build a Neighbor-Joining tree using the \emph{ape} package:
 <<njAA, fig=TRUE>>=
 library(ape)
 tre <- nj(D)
+par(xpd=TRUE)
 plot(tre, type="unrooted", edge.w=2)
 edgelabels(tex=round(tre$edge.length,1), bg=rgb(.8,.8,1,.8))
 @
@@ -728,23 +766,21 @@ title("Principal Coordinate Analysis\n-based on proteic distances-")
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Using genind/genpop constructors}
+\subsection{Using \texttt{genind}/\texttt{genpop} constructors}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Lastly, \texttt{genind} or \texttt{genpop} objects can be constructed from data matrices similar to the \texttt{\$tab} component (respectively, alleles frequencies and alleles counts).
+\texttt{genind} or \texttt{genpop} objects can be constructed from data matrices similar to the \texttt{\$tab} component (respectively, alleles frequencies and alleles counts).
 This is achieved by the constructors \texttt{genind} (or \texttt{as.genind})  and \texttt{genpop}
 (or \texttt{as.genpop}).
 However, these low-level functions are first meant for internal use, and are called for instance by
 functions such as \texttt{read.genetix}.
 Consequently, there is much less control on the arguments and improper specification can lead to
-creating improper \texttt{genind}/\texttt{genpop} objects without issuing a warning or an error, by
-leading to meaningless subsequent analysis.
-
-Therefore, one should use these functions with additional care as to how information is coded.
+creating improper \texttt{genind}/\texttt{genpop} objects without issuing a warning or an error.
+One should therefore use these functions with additional care as to how information is coded.
 The table passed as argument to these constructors must have correct
 names: unique rownames identifying genotypes/populations, and unique colnames
 having the form '[marker].[allele]'.
 
-Here is an example for \texttt{genpop} using a dataset from ade4:
+Here is an example for \texttt{genpop} using a dataset from \textit{ade4}:
 <<>>=
 library(ade4)
 data(microsatt)
@@ -771,6 +807,9 @@ The package \emph{genetics} is now deprecated, but the implemented
 class \texttt{genotype} is still used in various packages.
 The package \emph{hierfstat} does not define a class, but requires
 data to be formated in a particular way.
+It has been removed from CRAN as of R version 2.13.0 for maintainance issues, but is supposed to be
+back eventually.
+
 Here are examples of how to use these functions:
 <<genind2genotype>>=
 obj <- genind2genotype(nancycats)
@@ -795,7 +834,7 @@ obj[1:4,1:5]
 %% @
 
 
-A more generic way to export data is to produce a data.frame of genotypes
+A more generic way to export data is to produce a \texttt{data.frame} of genotypes
 coded by character strings.
 This is done by \texttt{genind2df}:
 <<genind2df>>=
@@ -826,32 +865,33 @@ Note that tabulations can be obtained as follows using '{$\backslash$}t' charact
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Manipulating data}
+\subsection{Manipulating the data}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Data manipulation is meant to be easy in \textit{adegenet} (if it is
-not, complain!).
+Data manipulation is meant to be particularly flexible in \textit{adegenet}.
 First, as \texttt{genind} and \texttt{genpop} objects are basically formed
 by a data matrix (the \texttt{@tab} slot), it is natural to subset these objects like it is done
 with a matrix.
 The \texttt{$[$} operator does this, forming a new object with the retained genotypes/populations and alleles:
 <<>>=
+data(microbov)
+toto <- genind2genpop(microbov)
+toto
+toto@pop.names
 titi <- toto[1:3,]
-toto$pop.names
-titi
-titi$pop.names
+titi@pop.names
 @
 
 \noindent The object \texttt{toto} has been subsetted, keeping only the
 first three populations.
 Of course, any subsetting available for a matrix can be used with \texttt{genind} and \texttt{genpop} objects.
-For instance, we can subset \texttt{titi} to keep only the third marker:
+In addition, we can subset loci directly using the generic marker names:
 <<>>=
-titi <- titi[,titi$loc.fac=="L3"]
-titi
+tata <- titi[,loc="L03"]
+tata
 @
 
-\noindent Now, \texttt{titi} only contains the 11 alleles of the third
-marker of \texttt{toto}.
+\noindent Now, \texttt{tata} only contains the 12 alleles of the third
+marker of \texttt{titi}.
 \\
 
 To simplify the task of separating data by marker, the function
@@ -859,6 +899,7 @@ To simplify the task of separating data by marker, the function
 It returns a list of objects (optionnaly, of data matrices), each
 corresponding to a marker:
 <<seploc>>=
+data(nancycats)
 sepCats <- seploc(nancycats)
 class(sepCats)
 names(sepCats)
@@ -883,11 +924,13 @@ obj$Borgou
 
 \noindent The returned object \texttt{obj} is a list of \texttt{genind}
 objects each containing genotypes of a given breed.
+\\
+
 
 A last, rather vicious trick is to separate data by population and by marker.
 This is easy using \texttt{lapply}; one can first separate population
 then markers, or the contrary.
-Here, we separate markers inside each breed in \texttt{obj}
+Here, we separate markers inside each breed in \texttt{obj}:
 <<sepultim>>=
 obj <- lapply(obj,seploc)
 names(obj)
@@ -970,17 +1013,15 @@ One test is performed per locus and population, \textit{i.e.} 153 tests in this 
 Thus, the first question is: which tests are highly significant?
 <<>>=
 colnames(toto)
-which(toto<0.0001,TRUE)
+idx <- which(toto<0.0001,TRUE)
+idx
 @
 Here, only 4 tests indicate departure from HW.
 Rows give populations, columns give markers.
 Now complete tests are returned, but the significant ones are already known.
 <<>>=
 toto <- HWE.test.genind(nancycats,res="full")
-toto$fca23$P06
-toto$fca90$P10
-toto$fca96$P10
-toto$fca37$P13
+mapply(function(i,j) toto[[i]][[j]], idx[,2], idx[,1], SIMPLIFY=FALSE)
 @
 
 
@@ -1086,7 +1127,7 @@ frequency in the population, but for which inbred individuals are more likely to
 
 The inbreeding coefficient $F$ is defined as the probability that at a given locus, two identical
 alleles have been inherited from a common ancestor.
-In the absence of inbreeding, the probability of being homozygote at one loci simply is (for diploid
+In the absence of inbreeding, the probability of being homozygote at one loci is (for diploid
 individuals) simply $\sum_i p_i^2$ where $i$ indexes the alleles and $p_i$ is the frequency of
 allele $i$.
 This can be generalized incorporating $F$ as:
@@ -1105,7 +1146,7 @@ This estimation is achieved by \texttt{inbreeding}.
 Depending on the value of the argument \texttt{res.type}, the function returns a sample from the
 likelihood function (\texttt{res.type='sample'}) or the likelihood function itself, as a R function (\texttt{res.type='function'}).
 While likelihood functions are quickly obtained and easy to display graphically, sampling from the
-distributions is more computer intensive but may be useful if one wants to derive summary statistics of the distributions.
+distributions is more computer intensive but useful to derive summary statistics of the distributions.
 Here, we illustrate \texttt{inbreeding} using the \texttt{microbov} dataset, which contains cattle
 breeds genotypes for 30 microsatellites; to focus on breed Salers only, we use \texttt{seppop}:
 <<>>=
@@ -1118,6 +1159,7 @@ We first compute the mean inbreeding for each individual, and plot the resulting
 temp <- inbreeding(sal, N=100)
 class(temp)
 head(names(temp))
+head(temp[[1]],20)
 @
 \texttt{temp} is a list of values sampled from the likelihood distribution of each individual; means
 values are obtained for all individuals using \texttt{sapply}:
@@ -1191,7 +1233,7 @@ Useful functions include:
   \item \texttt{cailliez} (\textit{ade4}): renders a non-Euclidean distance matrix Euclidean by
     adding a constant to all entries.
   \item \texttt{dapc} (\textit{adegenet}): implements the Discriminant Analysis of Principal
-    Components (DAPC \cite{tjart19}), a new standard method for the analysis of population genetic structures; see
+    Components (DAPC \cite{tjart19}), a powerful method for the analysis of population genetic structures; see
     dedicated vignette (\textit{adegenet-dapc}).
   \item \texttt{sPCA} (\textit{adegenet}): implements the spatial Principal Component Analysis
     (sPCA \cite{tjart04}), a method for the analysis of spatial genetic structures; see dedicated vignette (\textit{adegenet-dapc}).
@@ -1203,7 +1245,7 @@ Useful functions include:
 Besides the procedures themselves, graphic functions are also often of the utmost importance; these include:
 \begin{itemize}
   \item \texttt{scatter} (\textit{ade4,adegenet}): generic function to display multivariate
-    analyses; in practice, the only useful application for genetic data is the one implemented in
+    analyses; in practice, the most useful application for genetic data is the one implemented in
     \texttt{adegenet} for DAPC results.
   \item \texttt{s.label} (\textit{ade4}): function used for basic display of principal components.
   \item \texttt{loadingplot} (\textit{adegenet}): function used to display the loadings (i.e.,
@@ -1228,6 +1270,8 @@ Besides the procedures themselves, graphic functions are also often of the utmos
   \item \texttt{compoplot} (\textit{adegenet}): specific 'STRUCTURE-like' plot of group membership probabilities for
     DAPC; see dedicated vignette (\textit{adegenet-dapc}).
   \item \texttt{add.scatter} (\textit{ade4}): add inset plots to an existing figure.
+  \item \texttt{add.scatter.eig} (\textit{ade4}): specific application of \texttt{add.scatter} to
+    add barplots of eigenvalues to an existing figure.
   %% \item \texttt{} (\textit{}): .
   %% \item \texttt{} (\textit{}): .
   %% \item \texttt{} (\textit{}): .
@@ -1244,34 +1288,35 @@ genetic data.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Performing a Principal Component Analysis on \texttt{genind} objects}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The tables contained in \texttt{genind} objects can be submitted to a Principal Component Analysis (PCA) to seek a typology of individuals.
+The tables contained in \texttt{genind} objects can be submitted to a Principal Component Analysis
+(PCA) to seek a summary of the genetic diversity among the sampled individuals.
 Such analysis is straightforward using \textit{adegenet} to prepare data and \textit{ade4} for the analysis \textit{per se}.
-One has first to replace missing data.
-Putting each missing observation at the mean of the concerned allele frequency seems the best choice (NA will be stuck at the origin).
+One has first to replace missing data (NAs) and transform the allele frequencies in an appropriate way.
+These operations are achieved by \texttt{scaleGen}.
+NAs are replaced by the mean allele frequency; different scaling options are available (argument
+\texttt{method}), but in general centring is sufficient since allele frequencies have inherently
+comparable variances.
 <<pcaexpl>>=
 data(microbov)
-any(is.na(microbov$tab))
 sum(is.na(microbov$tab))
 @
-There are 6325 missing data.
-Assuming that these are evenly distributed (for illustration purpose
-only!), we replace them using \texttt{na.replace}.
-As we intend to use a PCA, the appropriate replacement method is to
-put each NA at the mean of the corresponding allele (argument 'method'
-set to 'mean').
+There are 6325 missing data. They will all be replaced by \texttt{scaleGen}:
 <<>>=
-obj <- na.replace(microbov,method="mean")
+X <- scaleGen(microbov, missing="mean")
+class(X)
+dim(X)
+X[1:5,1:5]
 @
 
-\noindent Note that alternatively, we could have used \texttt{scaleGen} to obtain centred/scaled
-allele frequencies and replace NA.
+\noindent Note that alternatively, we could have used \texttt{na.replace} to replace missing data,
+and then left the centring/scaling to \texttt{dudi.pca}.
 \\
 
 The analysis can now be performed.
-Data are centred but not scaled as 'units' are the same.
+We disable the scaling in \texttt{dudi.pca}, which would erase the scaling choice made earlier in \texttt{scaleGen}.
 Note: in practice, retained axes can be chosen interactively by removing the arguments \texttt{scannf=FALSE,nf=3}.
 <<fig=T>>=
-pca1 <- dudi.pca(obj$tab,cent=TRUE,scale=FALSE,scannf=FALSE,nf=3)
+pca1 <- dudi.pca(X,cent=FALSE,scale=FALSE,scannf=FALSE,nf=3)
 barplot(pca1$eig[1:50],main="PCA eigenvalues", col=heat.colors(50))
 @
 <<>>=
@@ -1297,7 +1342,7 @@ add.scatter.eig(pca1$eig[1:20], 3,1,2)
 \noindent However, this figure can largely be improved.
 First, we can use \texttt{s.class} to represent both the genotypes and inertia ellipses for populations.
 <<fig=T>>=
-s.class(pca1$li, pop(obj),lab=obj$pop.names)
+s.class(pca1$li, pop(microbov))
 title("PCA of microbov dataset\naxes 1-2")
 add.scatter.eig(pca1$eig[1:20], 3,1,2)
 @
@@ -1305,7 +1350,7 @@ add.scatter.eig(pca1$eig[1:20], 3,1,2)
 \noindent This plane shows that the main structuring is between African an French breeds, the second structure reflecting genetic diversity among African breeds.
 The third axis reflects the diversity among French breeds:
 <<fig=T>>=
-s.class(pca1$li,pop(obj),xax=1,yax=3,lab=obj$pop.names,sub="PCA 1-3",csub=2)
+s.class(pca1$li,pop(microbov),xax=1,yax=3,sub="PCA 1-3",csub=2)
 title("PCA of microbov dataset\naxes 1-3")
 add.scatter.eig(pca1$eig[1:20],nf=3,xax=1,yax=3)
 @
@@ -1317,8 +1362,8 @@ However, we can yet improve these scatterplots, which are fortunately easy to cu
 For instance, we can remove the grid, choose different colors for the groups, use larger dots and transparency to
 better assess the density of points, and remove internal segments of the ellipses:
 <<fig=TRUE>>=
-col <- rainbow(length(levels(pop(obj))))
-s.class(pca1$li, pop(obj),xax=1,yax=3, col=transp(col,.6), axesell=FALSE, cstar=0, cpoint=3, grid=FALSE)
+col <- rainbow(length(levels(pop(microbov))))
+s.class(pca1$li, pop(microbov),xax=1,yax=3, col=transp(col,.6), axesell=FALSE, cstar=0, cpoint=3, grid=FALSE)
 @
 ~\\
 
@@ -1334,7 +1379,7 @@ abline(v=0,h=0,col="grey", lty=2)
 @
 
 \noindent Colors are based on the first three PCs of the PCA, recoded respectively on the red, green, and blue channel.
-In this figure, the genetic diversity is represented in two redundant ways: by the distances
+In this figure, the genetic diversity is represented in two complementary ways: by the distances
 (further away = more genetically different), and by the colors (more different colors = more
 genetically different).
 \\
@@ -1439,7 +1484,7 @@ group separation (\textit{adegenet-dapc}).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The R software is probably the largest collection of spatial methods.
+The R software probably offers the largest collection of spatial methods among statistical software.
 Here, we briefly illustrate two methods commonly used in population genetics.
 Spatial multivariate analysis is covered in a dedicated vignette; see \textit{adegenet-spca} for
 more information.
@@ -1539,8 +1584,8 @@ As such, the method was basically used in geographical analysis.
 More recently, \cite{np120} suggested that this algorithm could be employed to detect genetic boundaries among georeferecend genotypes (or populations).
 This algorithm is implemented using a more general approach than the initial one in \textit{adegenet}.
 
-Instead of using Voronoi tesselation as in original version, the functions \texttt{monmonier} and \texttt{optimize.monmonier} can handle various neighbouring graphs such as Delaunay triangulation, Gabriel's graph, Relative Neighbours graph, etc.
-These graphs defined spatial connectivity among 'points' (genotypes or populations), any couple of points being neighbours (if connected) or not.
+Instead of using Voronoi tesselation as in the original version, the functions \texttt{monmonier} and \texttt{optimize.monmonier} can handle various neighbouring graphs such as Delaunay triangulation, Gabriel's graph, Relative Neighbours graph, etc.
+These graphs define spatial connectivity among locations (of genotypes or populations), with couple of locations being neighbours (if connected) or not.
 Another information is given by a set of markers which define genetic distances among these 'points'.
 The aim of Monmonier's algorithm is to find the path through the strongest genetic distances between neighbours.
 A more complete description of the principle of this algorithm will be found in the documentation of \texttt{monmonier}.
@@ -1564,23 +1609,23 @@ legend("topright",leg=c("Pop A", "Pop B"),pch=c(3,5))
 
 There are two sampled populations in this dataset, with inequal sample sizes (100 and 30).
 Twenty microsatellite-like loci are available for all genotypes (no missing data).
-So, what do \texttt{monmonier} ask for?
+\texttt{monmonier} requires several arguments to be specified:
 <<mon2>>=
 args(monmonier)
 @
 
 \noindent The first argument (\texttt{xy}) is a matrix of geographic coordinates, already stored in \texttt{sim2pop}.
-Next argument is an object of class \texttt{dist}, which is basically a distance matrix cut in half.
-For now, we will use the classical Euclidean distance among alleles frequencies of genotypes.
+Next argument is an object of class \texttt{dist}, which is the matrix of pairwise genetic distances.
+For now, we will use the classical Euclidean distance between allelic profiles of the individuals.
 This is obtained by:
 <<mon3>>=
 D <- dist(sim2pop$tab)
 @
 
 \noindent The next argument (\texttt{cn}) is a connection network.
-As existing routines to build such networks are spread over several packages, the function \texttt{chooseCN} will help you choose one.
-This is an interactive function, so difficult to demonstrate here (see \texttt{?chooseCN}).
-Here we ask the function not to ask for a choice (\texttt{ask=FALSE}) and select the second type of graph which is the one of Gabriel (\texttt{type=2}).
+Routines for building such networks are scattered over several packages, but all made available
+through the function \texttt{chooseCN}.
+Here, we disable the interactivity of the function (\texttt{ask=FALSE}) and select the second type of graph which is the graph of Gabriel (\texttt{type=2}).
 <<mon4,fig=TRUE>>=
 gab <- chooseCN(sim2pop$other$xy,ask=FALSE,type=2)
 @
@@ -1595,8 +1640,10 @@ mon1 <- monmonier(sim2pop$other$xy,D,gab)
 \end{center}
 
 \noindent This plot shows all local differences sorted in decreasing order.
-The idea behind this is that a significant boundary would cause local differences to decrease abruptly after the boundary.This should be used to choose the \emph{threshold} difference for the algorithm to stop.
-Here, no boundary is visible: we stop.
+The idea behind this is that a significant boundary would cause local differences to decrease abruptly after the boundary.
+This should be used to choose the \emph{threshold} difference for the algorithm to stop extending
+the boundary.
+Here, there is no indication af an actual boundary.
 \\
 
 Why do the algorithm fail to find a boundary?
@@ -1620,7 +1667,7 @@ In fact, the two samples are indeed genetically differentiated.
 
 Can Monmonier's algorithm find a boundary between the two populations?
 Yes, if we get rid of the random noise.
-This can be achieved using simple ordination method like Principal Coordinates Analysis.
+This can be achieved using a simple ordination method such as Principal Coordinates Analysis.
 
 <<mon6,fig=TRUE>>=
 library(ade4)
@@ -1630,7 +1677,7 @@ barplot(pco1$eig,main="Eigenvalues")
 
 \noindent We retain only the first eigenvalue.
 The corresponding coordinates are used to redefine the genetic distances among genotypes.
-The algorithm is then rerunned.
+The algorithm is then re-run.
 <<mon7>>=
 D <- dist(pco1$li)
 @
