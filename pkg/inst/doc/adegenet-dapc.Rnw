@@ -77,7 +77,7 @@ built as linear combinations of alleles (i.e. $\mbox{new-variable} = a_1 \mbox{a
 where $a_1$, $a_2$ etc. are real coefficients)
 and which reflect as well as possible the genetic variation amongst the studied individuals.
 However, most of the time we are not only interested in the diversity amongst individuals, but
-also and possibly more in the diversity between groups of individuals.
+also and possibly more so in the diversity between groups of individuals.
 Typically, one will be analysing individual data to identify populations, or more largely genetic
 clusters, and then describe these clusters.
 
@@ -117,18 +117,20 @@ differences between groups as best as possible while minimizing variation within
 %%%%%%%%%%%%%%%%
 DAPC in itself requires prior groups to be defined. However, groups are often unknown or uncertain,
 and there is a need for identifying genetic clusters before describing them. This can be achieved
-using $k$-means, a clustering algorithm which finds a given (say, $k$) of groups maximizing the variation between
+using $k$-means, a clustering algorithm which finds a given number (say, $k$) of groups maximizing the variation between
 groups, $B(\m{X})$. To identify the optimal number of clusters, $k$-means is run sequentially with
 increasing values of $k$, and different clustering solutions are compared using Bayesian Information
 Criterion (BIC). Ideally, the optimal clustering solution should correspond to the lowest BIC. In
 practice, the 'best' BIC is often indicated by an elbow in the curve of BIC values as a function of
 $k$.
+\\
+
 
 While $k$-means could be performed on the raw data, we prefer running the algorithm after
 transforming the data using PCA. This transformation has the major advantage of reducing the
-number of variables so as to speed up the clustering algorithm. Note this does not imply a necessary
+number of variables so as to speed up the clustering algorithm. Note that this does not imply a necessary
 loss of information since all the principal components (PCs) can be retained, and therefore all the variation in the original data.
-However in practice, a reduced number of PCs is often sufficient to identify the existing clusters,
+In practice however, a reduced number of PCs is often sufficient to identify the existing clusters,
 while making the analysis essentially instantaneous.
 
 
@@ -178,6 +180,7 @@ The function displays a graph of cumulated variance explained by the eigenvalues
 Apart from computational time, there is no reason for keeping a small number of components; here, we
 keep all the information, specifying to retain 200 PCs (there are actually less PCs ---around 110---, so all of them
 are kept).
+\\
 
 Then, the function displays a graph of BIC values for increasing values of $k$:
 \begin{center}
@@ -223,8 +226,9 @@ which is most of the time far from following known population genetics models. T
 rarely looking for actual panmictic populations from which the individuals have been drawn. Genetic
 clusters can be biologically meaningful structures and reflect interesting biological processes, but
 they are still models.
+\\
 
-A slightly different but probably more relevant question would be: "How many clusters are useful to
+A slightly different but probably more meaningful question would be: "How many clusters are useful to
 describe the data?''. A fundamental point in this question is that clusters are merely tools used to
 summarise and understand the data. There is no longer a "true $k$", but some values of $k$ are
 better, more efficient summaries of the data than others.
@@ -261,6 +265,7 @@ These are constructed as linear combinations of the original variables (alleles)
 largest between-group variance and the smallest within-group variance. Coefficients of the alleles
 used in the linear combination are called \textit{loadings}, while the synthetic variables are
 themselves referred to as \textit{discriminant functions}.
+\\
 
 Moreover, being based on the Discriminant Analysis, DAPC also provides membership probabilities of
 each individual for the different groups based on the retained discriminant functions. While these
@@ -269,6 +274,7 @@ interpreted as proximities of individuals to the different clusters. Membership
 probabilities also provide indications of how clear-cut genetic clusters are. Loose clusters will
 result in fairly flat distributions of membership probabilities of individuals across clusters,
 pointing to possible admixture.
+\\
 
 Lastly, using the allele loadings, it is possible to represent new individuals (which have not participated to the analysis)
 onto the factorial planes, and derive membership probabilities as welll. Such individuals are
@@ -329,7 +335,7 @@ Essentially, the slots \texttt{ind.coord} and \texttt{grp.coord} contain the coo
 individuals and of the groups used in scatterplots.
 Contributions of the alleles to each discriminant function are stored in the slot \texttt{var.contr}.
 Eigenvalues, corresponding to the ratio of the variance between groups over the variance within
-group for each discriminant function, are stored in \texttt{eig}.
+groups for each discriminant function, are stored in \texttt{eig}.
 Basic scatterplots can be obtained using the function \texttt{scatterplot}:
 <<fig=TRUE>>=
 scatter(dapc1)
@@ -351,6 +357,7 @@ is displayed efficiently, and if possible to produce pretty figures.
 Possibility are almost unlimited, and here we just illustrate a few possibilities offered by
 \texttt{scatter}. Note that \texttt{scatter} is a generic function, with a dedicated method for
 objects produced by \texttt{dapc}. Documentation of this function can be accessed by typing \texttt{?scatter.dapc}.
+\\
 
 We illustrate some graphical possibilities trying to improve the display of the analysis presented
 in the previous section.
@@ -378,7 +385,7 @@ scatter(dapc1, scree.da=FALSE, bg="white", pch=20,  cell=0, cstar=0, col=myCol, 
         cex=3,clab=0, leg=TRUE, txt.leg=paste("Cluster",1:6))
 @
 
-We can also add a minimum spanning tree based on the (squared) distances between populations in the
+We can also add a minimum spanning tree based on the (squared) distances between populations within the
 entire space.
 This allows one to bear in mind the actual proximities between populations inside the entire space, which are not always
 well represented in susbsets of discriminant functions of lesser rank.
@@ -473,7 +480,7 @@ axis(side=1, at=1:6, lab=2001:2006)
 
 In both cases, a new allele appeared in 2005 at a very low frequency, and reached high or even dominant frequencies a
 year later.
-Irrespective of the mecanism underlying these changes (drift or selection), this illustrate that in
+Irrespective of the mecanism underlying these changes (drift or selection), this illustrates that in
 seasonal influenza, specific nucleotides can undergo drastic changes within only a couple of years.
 
 
@@ -527,7 +534,7 @@ or misclassified individuals.
 \\
 
 Note that this information can also be plotted in a STRUCTURE-like (!) way using \texttt{compoplot}
-(see \code{?compoplot} for customizing the plot).
+(see \code{?compoplot} to customize the plot).
 We can plot information of all individuals to have a global picture of the clusters composition.
 <<fig=TRUE>>=
 compoplot(dapc1, posi="bottomright", txt.leg=paste("Cluster", 1:6), lab="", ncol=1, xlab="individuals")
@@ -567,9 +574,8 @@ optimize the separation of individuals into pre-defined groups. Based on the ret
 functions, it is possible to derive group membership probabilities, which can be interpreted in
 order to assess how clear-cut or admixed the clusters are.
 Unfortunately, retaining too many PCs with respect to the number of individuals can lead to over-fitting the discriminant functions.
-In such case, discriminant function become so "flexible" that they could discriminate almost perfectly any cluster.
-While the main scatterplots are usually unaltered by this process, membership probabilities can
-become drastically inflated for the best-fitting cluster, resulting in apparent perfect discrimination.
+In such case, discriminant functions become so "flexible" that they could discriminate almost perfectly any cluster.
+As a result, membership probabilities can become drastically inflated for the best-fitting cluster, resulting in apparent perfect discrimination.
 \\
 
 
@@ -602,7 +608,7 @@ barplot(temp, xlab="% of reassignment to actual breed", horiz=TRUE, las=1)
 
 \noindent We now obtain almost 100\% of discrimination for all groups.
 Is this result satisfying? Actually not.
-The number retained PCs is so large that discriminant functions could model any structure and
+The number of PCs retained is so large that discriminant functions could model any structure and
 virtually any set of clusters would be well discriminated.
 This can be illustrated by running the analysis using randomized groups:
 <<>>=
@@ -631,7 +637,7 @@ successful reassignment of the analysis (observed discrimination) and values obt
 groups (random discrimination).
 It can be seen as the proportion of successful reassignment corrected for the number of retained PCs.
 It is implemented by \texttt{a.score}, which relies on repeating the DAPC analysis using randomized
-groups, and computing $a$-scores for each group, and well as the average $a$-score:
+groups, and computing $a$-scores for each group, as well as the average $a$-score:
 <<>>=
 dapc2 <- dapc(microbov, n.da=100, n.pca=10)
 temp <- a.score(dapc2)
@@ -701,10 +707,10 @@ fairly distant from its cluster, but has almost 50\% chances of being assigned t
 %%%%%%%%%%%%%%%%
 
 Statistically speaking, supplementary individuals are observations which do not participate to
-constructing a model, but which we would like to predict using a model obtaining on other ("training") data.
+constructing a model, but which we would like to predict using a model fitted on other ("training") data.
 In the context of DAPC, we may know groups for most individuals, but some individuals could be of
 unknown or uncertain group. In this case, we need to exclude individuals from the analysis, and then
-project them as supplementary individuals on the discriminant functions.
+project them as supplementary individuals onto the discriminant functions.
 The only requirement for this operation is that supplementary individuals have been typed for the
 same loci as the rest of the dataset.
 
