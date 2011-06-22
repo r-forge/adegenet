@@ -2,7 +2,7 @@
 \docType{methods}
 \name{Auxiliary functions}
 \alias{adegenetWeb}
-\alias{adegenetTutorial}
+%\alias{adegenetTutorial}
 \alias{checkType}
 \alias{.rmspaces}
 \alias{.genlab}
@@ -12,10 +12,9 @@
 \alias{transp}
 \title{ Utilities functions for adegenet}
 \description{
-  These functions are mostly used internally in adegenet.  The notable
-  exceptions are \code{adegenetWeb} which opens the adegenet website in
-  the default navigator, \code{adegenetTutorial} which opens online
-  tutorials for adegenet, and a few auxiliary graphical functions.\cr
+  These functions are mostly auxiliary procedures used internally in
+  adegenet, with the exception of \code{adegenetWeb}, which opens the
+  adegenet website in the default navigator.\cr
 
   The other functions are:\cr
   - \code{checkType}: checks the type of markers being used in a
@@ -30,7 +29,6 @@
 }
 \usage{
 adegenetWeb()
-adegenetTutorial(which=c("general","spca"))
 .genlab(base, n)
 corner(text, posi="topleft",  inset=0.1, \dots)
 num2col(x, col.pal=heat.colors, reverse=FALSE,
@@ -38,8 +36,6 @@ num2col(x, col.pal=heat.colors, reverse=FALSE,
 transp(col, alpha=.5)
 }
 \arguments{
-  \item{which}{a character string being "general" or "spca", indicating
-    which tutorial should be opened.}
   \item{base}{a character string forming the base of the labels}
   \item{n}{the number of labels to generate}
   \item{text}{a character string to be added to the plot}
@@ -68,13 +64,17 @@ transp(col, alpha=.5)
 ## this opens the adegenet website
 adegenetWeb()
 
-## this opens the general tutorial for adegenet
-adegenetTutorial()
-
-## this opens the sPCA tutorial for adegenet
-adegenetTutorial("spca")
 }
 
 .genlab("Locus-",11)
+
+## transparent colors using "transp"
+plot(rnorm(1000), rnorm(1000), col=transp("blue",.3), pch=20, cex=4)
+
+
+## numeric values to color using num2col
+plot(1:100, col=num2col(1:100), pch=20, cex=4)
+plot(1:100, col=num2col(1:100, col.pal=rainbow), pch=20, cex=4)
+
 }
 \keyword{manip}
