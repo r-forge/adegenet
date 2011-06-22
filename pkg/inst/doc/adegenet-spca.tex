@@ -426,7 +426,7 @@ First, eigenvalues of the analysis are stored inside the
 
 \noindent The axes of the analysis, denoted $\m{v}$ in eq. (4) \cite{tjart04}
 are stored as columns inside the \texttt{\$c1} component.
-Each columns contains loadings for all the alleles:
+Each column contains loadings for all the alleles:
 \begin{Schunk}
 \begin{Sinput}
 > head(mySpca$c1)
@@ -616,7 +616,7 @@ Simulated p-value: 0.01
 Alternative hypothesis: greater 
 
      Std.Obs  Expectation     Variance 
-5.088240e+00 1.281796e-02 5.469511e-07 
+4.282460e+00 1.284612e-02 7.606296e-07 
 \end{Soutput}
 \begin{Sinput}
 > plot(myGtest)
@@ -652,11 +652,11 @@ Call: local.rtest(X = obj$tab, listw = mySpca$lw, nperm = 99)
 Observation: 0.01397349 
 
 Based on 99 replicates
-Simulated p-value: 0.15 
+Simulated p-value: 0.16 
 Alternative hypothesis: greater 
 
      Std.Obs  Expectation     Variance 
-1.115539e+00 1.316718e-02 5.224396e-07 
+9.221277e-01 1.328443e-02 5.583863e-07 
 \end{Soutput}
 \begin{Sinput}
 > plot(myLtest)
@@ -1036,7 +1036,7 @@ eigenvalues and asks for a number of retained principal components:
 > rupica.X <- scaleGen(rupica, method = "binom")
 > rupica.pca1 <- dudi.pca(rupica.X, cent = FALSE, scale = FALSE, 
 +     scannf = FALSE, nf = 2)
-> barplot(rupica.pca1$eig, title = "Rupica dataset - PCA eigenvalues", 
+> barplot(rupica.pca1$eig, main = "Rupica dataset - PCA eigenvalues", 
 +     col = heat.colors(length(rupica.pca1$eig)))
 \end{Sinput}
 \end{Schunk}
@@ -1083,7 +1083,7 @@ In this case, the first two PCs may contain some relevant biological signal.
 \\
 
 
-We can use \texttt{s.label} to display to two first components of the analysis.
+We can use \texttt{s.label} to display the two first components of the analysis.
 Kernel density estimation (\texttt{s.kde2d}) is used for a better
 assessment of the distribution of the genotypes onto the principal axes:
 \begin{Schunk}
@@ -1097,7 +1097,6 @@ assessment of the distribution of the genotypes onto the principal axes:
 
 \noindent This scatterplot shows that the only structure identified by PCA points to a few outliers.
 \texttt{loadingplot} confirms that this corresponds to the possession of a few original alleles:
-Using this function, reproduce this figure:
 \begin{Schunk}
 \begin{Sinput}
 > loadingplot(rupica.pca1$c1^2)
@@ -1231,8 +1230,7 @@ W 335 112225 335 15.04311 1352.07
 \end{Schunk}
 \includegraphics{figs/spca-042}
 
-Perform Moran's test for the first two PCs, and plot the results.
-The first test should be significant:
+We perform Moran's test for the first two PCs, and plot the results.
 \begin{Schunk}
 \begin{Sinput}
 > pc1.mctest <- moran.mc(rupica.pca1$li[, 1], rupica.graph, 999)
@@ -1298,7 +1296,7 @@ look for spatial patterns. This is the role of the spatial Principal Component A
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{spatial Principal Component Analysis}
+\subsection{Spatial Principal Component Analysis}
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We apply an sPCA to the \texttt{rupica} dataset, using the connection network used previously in

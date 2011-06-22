@@ -300,7 +300,7 @@ abline(h=0,col="grey")
 
 \noindent The axes of the analysis, denoted $\m{v}$ in eq. (4) \cite{tjart04}
 are stored as columns inside the \texttt{\$c1} component.
-Each columns contains loadings for all the alleles:
+Each column contains loadings for all the alleles:
 <<>>=
 head(mySpca$c1)
 tail(mySpca$c1)
@@ -653,7 +653,7 @@ eigenvalues and asks for a number of retained principal components:
 <<results=hide, fig=TRUE>>=
 rupica.X <- scaleGen(rupica, method="binom")
 rupica.pca1 <- dudi.pca(rupica.X, cent=FALSE, scale=FALSE, scannf=FALSE, nf=2)
-barplot(rupica.pca1$eig, title="Rupica dataset - PCA eigenvalues",
+barplot(rupica.pca1$eig, main="Rupica dataset - PCA eigenvalues",
         col=heat.colors(length(rupica.pca1$eig)))
 @
 
@@ -674,7 +674,7 @@ In this case, the first two PCs may contain some relevant biological signal.
 \\
 
 
-We can use \texttt{s.label} to display to two first components of the analysis.
+We can use \texttt{s.label} to display the two first components of the analysis.
 Kernel density estimation (\texttt{s.kde2d}) is used for a better
 assessment of the distribution of the genotypes onto the principal axes:
 <<fig=TRUE>>=
@@ -685,7 +685,6 @@ add.scatter.eig(rupica.pca1$eig,2,1,2)
 
 \noindent This scatterplot shows that the only structure identified by PCA points to a few outliers.
 \texttt{loadingplot} confirms that this corresponds to the possession of a few original alleles:
-Using this function, reproduce this figure:
 <<fig=TRUE>>=
 loadingplot(rupica.pca1$c1^2)
 @
@@ -763,8 +762,7 @@ plot(rupica.graph, rupica$other$xy)
 title("rupica.graph")
 @
 
-Perform Moran's test for the first two PCs, and plot the results.
-The first test should be significant:
+We perform Moran's test for the first two PCs, and plot the results.
 <<fig=TRUE>>=
 pc1.mctest <- moran.mc(rupica.pca1$li[,1], rupica.graph, 999)
 plot(pc1.mctest)
@@ -818,7 +816,7 @@ look for spatial patterns. This is the role of the spatial Principal Component A
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{spatial Principal Component Analysis}
+\subsection{Spatial Principal Component Analysis}
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We apply an sPCA to the \texttt{rupica} dataset, using the connection network used previously in
