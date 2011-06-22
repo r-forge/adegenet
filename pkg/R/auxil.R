@@ -70,28 +70,28 @@ adegenetWeb <- function(){
 
 
 
-############################
-# Function adegenetTutorial
-############################
-adegenetTutorial <- function(which=c("general","spca")){
-    which <- match.arg(which)
-    if(which=="general"){
-        url <- "http://adegenet.r-forge.r-project.org/files/adegenet.pdf"
-        cat("\n")
-        cat("  >> Seeking the general tutorial for adegenet.\n")
-        cat("  >> Opening url \"",url,"\".\n ", sep="")
-        cat("\n")
-        browseURL(url)
-    }
-    if(which=="spca"){
-        url <- "http://adegenet.r-forge.r-project.org/files/tutorial-spca.pdf"
-        cat("\n")
-        cat("  >> Seeking the sPCA tutorial for adegenet.\n")
-        cat("  >> Opening url \"",url,"\". \n", sep="")
-        cat("\n")
-        browseURL(url)
-    }
-}
+## ############################
+## # Function adegenetTutorial
+## ############################
+## adegenetTutorial <- function(which=c("basics","spca")){
+##     which <- match.arg(which)
+##     if(which=="general"){
+##         url <- "http://adegenet.r-forge.r-project.org/files/adegenet.pdf"
+##         cat("\n")
+##         cat("  >> Seeking the general tutorial for adegenet.\n")
+##         cat("  >> Opening url \"",url,"\".\n ", sep="")
+##         cat("\n")
+##         browseURL(url)
+##     }
+##     if(which=="spca"){
+##         url <- "http://adegenet.r-forge.r-project.org/files/tutorial-spca.pdf"
+##         cat("\n")
+##         cat("  >> Seeking the sPCA tutorial for adegenet.\n")
+##         cat("  >> Opening url \"",url,"\". \n", sep="")
+##         cat("\n")
+##         browseURL(url)
+##     }
+## }
 
 
 
