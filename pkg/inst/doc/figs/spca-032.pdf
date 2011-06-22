@@ -2,8 +2,8 @@
 %Å‚Å„ÅœÅ”\r
 1 0 obj
 <<
-/CreationDate (D:20110620184029)
-/ModDate (D:20110620184029)
+/CreationDate (D:20110622141203)
+/ModDate (D:20110622141203)
 /Title (R Graphics Output)
 /Producer (R 2.13.0)
 /Creator (R)
@@ -126,6 +126,10 @@ Q q
 376.09 76.41 5.90 35.01 re B
 /sRGB cs 1.000 1.000 0.953 scn
 383.17 76.41 5.90 11.29 re B
+BT
+/sRGB cs 0.000 0.000 0.000 scn
+/F3 1 Tf 14.00 0.00 -0.00 14.00 116.18 397.45 Tm [(Rupica dataset - PCA eig) -10 (en) 40 (v) 20 (alues)] TJ
+ET
 Q q
 /sRGB CS 0.000 0.000 0.000 SCN
 0.75 w
@@ -155,7 +159,7 @@ Q
 endstream
 endobj
 9 0 obj
-3302
+3447
 endobj
 3 0 obj
 <<
@@ -170,7 +174,7 @@ endobj
 4 0 obj
 <<
 /ProcSet [/PDF /Text]
-/Font <</F2 11 0 R >>
+/Font <</F2 11 0 R /F3 12 0 R >>
 /ExtGState << >>
 /ColorSpace << /sRGB 5 0 R >>
 >>
@@ -396,26 +400,34 @@ endobj
 /BaseFont /Helvetica
 /Encoding 10 0 R
 >> endobj
+12 0 obj <<
+/Type /Font
+/Subtype /Type1
+/Name /F3
+/BaseFont /Helvetica-Bold
+/Encoding 10 0 R
+>> endobj
 xref
-0 12
+0 13
 0000000000 65535 f 
 0000000021 00000 n 
 0000000164 00000 n 
-0000003668 00000 n 
-0000003751 00000 n 
-0000003863 00000 n 
+0000003813 00000 n 
 0000003896 00000 n 
+0000004019 00000 n 
+0000004052 00000 n 
 0000000213 00000 n 
 0000000293 00000 n 
-0000003648 00000 n 
-0000013432 00000 n 
-0000013690 00000 n 
+0000003793 00000 n 
+0000013588 00000 n 
+0000013846 00000 n 
+0000013944 00000 n 
 trailer
 <<
-/Size 12
+/Size 13
 /Info 1 0 R
 /Root 2 0 R
 >>
 startxref
-13788
+14047
 %%EOF
