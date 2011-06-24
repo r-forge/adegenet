@@ -388,7 +388,7 @@ simulate 50 individuals typed for 1,00,000 SNPs each (including occasional NAs):
 > object.size(dat)/object.size(x)
 \end{Sinput}
 \begin{Soutput}
-61.3515491658149 bytes
+61.3318323604199 bytes
 \end{Soutput}
 \end{Schunk}
 here again, the storage if the data is much more efficient in \texttt{genlight} than using integers: converted data occupy
@@ -449,7 +449,7 @@ Most of them are identical to accessors for \texttt{genind} and \texttt{genpop} 
   \item \texttt{pop}$^{\dagger}$: returns/sets a factor grouping individuals.
   \item \texttt{other}$^{\dagger}$: returns/sets misc information stored as a list.
 \end{itemize}
-where $^{\dagger}$ indicates that a replacement method is available using \texttt{<-'}; for instance:
+where $^{\dagger}$ indicates that a replacement method is available using \texttt{<-}; for instance:
 \begin{Schunk}
 \begin{Sinput}
 > dat <- lapply(1:3, function(i) sample(0:2, 10, replace = TRUE))
@@ -457,13 +457,13 @@ where $^{\dagger}$ indicates that a replacement method is available using \textt
 \end{Sinput}
 \begin{Soutput}
 [[1]]
- [1] 0 0 0 0 1 2 2 1 0 1
+ [1] 2 0 0 1 1 0 2 2 2 2
 
 [[2]]
- [1] 1 1 0 2 1 2 2 1 1 2
+ [1] 0 1 1 2 0 1 2 0 1 0
 
 [[3]]
- [1] 1 2 1 2 1 2 0 0 1 1
+ [1] 1 2 0 2 2 1 2 2 0 1
 \end{Soutput}
 \begin{Sinput}
 > x <- new("genlight", dat)
@@ -495,9 +495,9 @@ NULL
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     0     0     0     0     1     2     2     1     0      1
-individual 2     1     1     0     2     1     2     2     1     1      2
-individual 3     1     2     1     2     1     2     0     0     1      1
+individual 1     2     0     0     1     1     0     2     2     2      2
+individual 2     0     1     1     2     0     1     2     0     1      0
+individual 3     1     2     0     2     2     1     2     2     0      1
 \end{Soutput}
 \end{Schunk}
 
@@ -583,34 +583,34 @@ For instance, using the previous toy dataset, we try a few classical subsetting 
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     0     0     0     0     1     2     2     1     0      1
-individual 2     1     1     0     2     1     2     2     1     1      2
-individual 3     1     2     1     2     1     2     0     0     1      1
+individual 1     2     0     0     1     1     0     2     2     2      2
+individual 2     0     1     1     2     0     1     2     0     1      0
+individual 3     1     2     0     2     2     1     2     2     0      1
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x[c(1, 3), ])
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     0     0     0     0     1     2     2     1     0      1
-individual 3     1     2     1     2     1     2     0     0     1      1
+individual 1     2     0     0     1     1     0     2     2     2      2
+individual 3     1     2     0     2     2     1     2     2     0      1
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x[, c(TRUE, FALSE)])
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.3 SNP.5 SNP.7 SNP.9
-individual 1     0     0     1     2     0
-individual 2     1     0     1     2     1
-individual 3     1     1     1     0     1
+individual 1     2     0     1     2     2
+individual 2     0     1     0     2     1
+individual 3     1     0     2     2     0
 \end{Soutput}
 \begin{Sinput}
 > as.matrix(x[1:2, c(1, 1, 1, 2, 2, 2, 3, 3, 3)])
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.1 SNP.1 SNP.2 SNP.2 SNP.2 SNP.3 SNP.3 SNP.3
-individual 1     0     0     0     0     0     0     0     0     0
-individual 2     1     1     1     1     1     1     0     0     0
+individual 1     2     2     2     0     0     0     0     0     0
+individual 2     0     0     0     1     1     1     1     1     1
 \end{Soutput}
 \end{Schunk}
 
@@ -638,9 +638,9 @@ For instance:
 \end{Sinput}
 \begin{Soutput}
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5 SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     0     0     0     0     1     2     2     1     0      1
-individual 2     1     1     0     2     1     2     2     1     1      2
-individual 3     1     2     1     2     1     2     0     0     1      1
+individual 1     2     0     0     1     1     0     2     2     2      2
+individual 2     0     1     1     2     0     1     2     0     1      0
+individual 3     1     2     0     2     2     1     2     2     0      1
 \end{Soutput}
 \begin{Sinput}
 > seploc(x, n.block = 2)
@@ -668,15 +668,15 @@ $block.2
 \begin{Soutput}
 $block.1
              SNP.1 SNP.2 SNP.3 SNP.4 SNP.5
-individual 1     0     0     0     0     1
-individual 2     1     1     0     2     1
-individual 3     1     2     1     2     1
+individual 1     2     0     0     1     1
+individual 2     0     1     1     2     0
+individual 3     1     2     0     2     2
 
 $block.2
              SNP.6 SNP.7 SNP.8 SNP.9 SNP.10
-individual 1     2     2     1     0      1
-individual 2     2     2     1     1      2
-individual 3     2     0     0     1      1
+individual 1     0     2     2     2      2
+individual 2     1     2     0     1      0
+individual 3     1     2     2     0      1
 \end{Soutput}
 \end{Schunk}
 splits the data into two blocks of contiguous SNPs, while:
@@ -686,16 +686,16 @@ splits the data into two blocks of contiguous SNPs, while:
 \end{Sinput}
 \begin{Soutput}
 $block.1
-             SNP.2 SNP.1 SNP.5 SNP.9 SNP.6
-individual 1     0     0     1     0     2
-individual 2     1     1     1     1     2
-individual 3     2     1     1     1     2
+             SNP.1 SNP.8 SNP.4 SNP.2 SNP.6
+individual 1     2     2     1     0     0
+individual 2     0     0     2     1     1
+individual 3     1     2     2     2     1
 
 $block.2
-             SNP.10 SNP.7 SNP.3 SNP.8 SNP.4
-individual 1      1     2     0     1     0
-individual 2      2     2     0     1     2
-individual 3      1     0     1     0     2
+             SNP.7 SNP.10 SNP.3 SNP.9 SNP.5
+individual 1     2      2     0     2     1
+individual 2     2      0     1     1     0
+individual 3     2      1     0     0     2
 \end{Soutput}
 \end{Schunk}
 generates blocks of randomly selected SNPs.
@@ -1617,64 +1617,23 @@ As in \texttt{glPca}, these methods never require more than a couple of genomes 
 allele frequencies at a time, thereby minimizing RAM requirements.
 \\
 
-Below, we illustrate DAPC on a \texttt{genlight} including only 50 structured SNPs out of 100,000
+Below, we illustrate DAPC on a \texttt{genlight} including only 50 structured SNPs out of 50,000
 non-structured SNPs:
 \begin{Schunk}
 \begin{Sinput}
-> x <- glSim(100, 1e+05, 50)
-\end{Sinput}
-\end{Schunk}
-\begin{Schunk}
-\begin{Sinput}
+> x <- glSim(100, 50000, 50)
 > x
 \end{Sinput}
 \begin{Soutput}
  === S4 class genlight ===
- 100 genotypes,  100050 binary SNPs
+ 100 genotypes,  50050 binary SNPs
  Ploidy: 1
  0 (0 %) missing data
  @pop: individual membership for 2 populations
 \end{Soutput}
-\end{Schunk}
-\begin{Schunk}
 \begin{Sinput}
 > dapc1 <- dapc(x, n.pca = 20, n.da = 1)
 \end{Sinput}
-\end{Schunk}
-\begin{Schunk}
-\begin{Sinput}
-> dapc1
-\end{Sinput}
-\begin{Soutput}
-	#########################################
-	# Discriminant Analysis of Principal Components #
-	#########################################
-class: dapc
-$call: dapc.genlight(x = x, n.pca = 20, n.da = 1)
-
-$n.pca: 20 first PCs of PCA used
-$n.da: 1 discriminant functions saved
-$var (proportion of conserved variance): 0.212
-
-$eig (eigenvalues): 132.9  vector    length content                   
-1 $eig      1      eigenvalues               
-2 $grp      100    prior group assignment    
-3 $prior    2      prior group probabilities 
-4 $assign   100    posterior group assignment
-5 $pca.cent 100050 centring vector of PCA    
-6 $pca.norm 100050 scaling vector of PCA     
-7 $pca.eig  99     eigenvalues of PCA        
-
-  data.frame    nrow   ncol content                                          
-1 $tab          100    20   retained PCs of PCA                              
-2 $means        2      20   group means                                      
-3 $loadings     20     1    loadings of variables                            
-4 $ind.coord    100    1    coordinates of individuals (principal components)
-5 $grp.coord    2      1    coordinates of groups                            
-6 $posterior    100    2    posterior membership probabilities               
-7 $pca.loadings 100050 20   PCA loadings of original variables               
-8 $var.contr    100050 1    contribution of original variables               
-\end{Soutput}
 \end{Schunk}
 
 For the last 50 structured SNPs (located at the end of the alignment), the two groups of individuals have different (random) distribution of
@@ -1687,16 +1646,16 @@ DAPC can still make some decent discrimination:
 +         "blue"))
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/genomics-062}
+\includegraphics{figs/genomics-058}
 
-\noindent While the composition plot confirms that groups are not entirely disentanbled...
+\noindent While the composition plot confirms that groups are not entirely disentangled...
 \begin{Schunk}
 \begin{Sinput}
 > compoplot(dapc1, col = c("red", "blue"), lab = "", txt.leg = paste("group", 
 +     1:2), ncol = 2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/genomics-063}
+\includegraphics{figs/genomics-059}
 
 \noindent ... the loading plot identifies pretty well the most discriminating alleles:
 \begin{Schunk}
@@ -1716,7 +1675,7 @@ corresponds to the 50 last structured loci:
 > loadingplot(tail(dapc1$var.contr[, 1], 100))
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/genomics-065}
+\includegraphics{figs/genomics-061}
 
 \noindent Here, we indeed identified the structured region of the genome fairly well.
 

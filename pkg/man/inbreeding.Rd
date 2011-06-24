@@ -68,7 +68,7 @@ data(microbov)
 lagun <- seppop(microbov)$Lagunaire
 
 ## estimate inbreeding - return sample of F values
-Fsamp <- inbreeding(lagun)
+Fsamp <- inbreeding(lagun, N=30)
 
 ## plot the first 10 results
 invisible(sapply(Fsamp[1:10], function(e) plot(density(e), xlab="F", xlim=c(0,1), main="Density of the sampled F values")))

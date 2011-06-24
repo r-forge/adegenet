@@ -204,14 +204,13 @@
 ## data(dapcIllus), data(eHGDP), and data(H3N2) illustrate the dapc
 ## see ?dapcIllus, ?eHGDP, ?H3N2
 ##
-
+\dontrun{
 example(dapcIllus)
 example(eHGDP)
 example(H3N2)
+}
 
-
-## showing different scatter options ##
-## !! more in ?scatter.dapc !! ##
+## H3N2 EXAMPLE ##
 data(H3N2)
 pop(H3N2) <- factor(H3N2$other$epid)
 dapc1 <- dapc(H3N2, var.contrib=FALSE, scale=FALSE, n.pca=150, n.da=5)
@@ -225,7 +224,16 @@ lab=paste("year\n",2001:2006), axesel=FALSE, col=terrain.colors(10))
 
 
 
-## example using genlight objects ##
+
+## SHOW COMPOPLOT ON MICROBOV DATA ##
+data(microbov)
+dapc1 <- dapc(microbov, n.pca=20, n.da=15)
+compoplot(dapc1, lab="")
+
+
+
+
+## EXAMPLE USING GENLIGHT OBJECTS ##
 ## simulate data
 x <- glSim(50,4e3-50, 50, ploidy=2)
 x
@@ -243,6 +251,8 @@ loadingplot(dapc1$var.contr)
 loadingplot(tail(dapc1$var.contr, 100), main="Loading plot - last 100 SNPs")
 
 
+
+\dontrun{
 ## USE "PREDICT" TO PREDICT GROUPS OF NEW INDIVIDUALS ##
 ## load data
 data(sim2pop)
@@ -267,7 +277,7 @@ pop(newdat) <- rep(c("pop A", "popB", "hyb AB"), c(30,30,30))
 dapc1 <- dapc(newdat[1:60],n.pca=5,n.da=1)
 
 ## plot results
-scatter(dapc1)
+scatter(dapc1, scree.da=FALSE)
 
 ## make prediction for the 30 hybrids
 hyb.pred <- predict(dapc1, newdat[61:90])
@@ -283,11 +293,8 @@ title("30 indiv popA, 30 indiv pop B, 30 hybrids")
 ## image using compoplot
 compoplot(dapc1, new.pred=hyb.pred, ncol=2)
 title("30 indiv popA, 30 indiv pop B, 30 hybrids")
+}
 
 
-## show compoplot on microbov data ##
-data(microbov)
-dapc1 <- dapc(microbov, n.pca=20, n.da=15)
-compoplot(dapc1, lab="")
 }
 \keyword{multivariate}
