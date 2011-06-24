@@ -966,23 +966,12 @@ As in \texttt{glPca}, these methods never require more than a couple of genomes 
 allele frequencies at a time, thereby minimizing RAM requirements.
 \\
 
-Below, we illustrate DAPC on a \texttt{genlight} including only 50 structured SNPs out of 100,000
+Below, we illustrate DAPC on a \texttt{genlight} including only 50 structured SNPs out of 50,000
 non-structured SNPs:
-<<eval=FALSE>>=
-x <- glSim(100, 1e5, 50)
-@
-<<echo=FALSE>>=
-load("Robjects/x.RData")
-load("Robjects/dapcGL.RData")
-@
 <<>>=
+x <- glSim(100, 5e4, 50)
 x
-@
-<<eval=FALSE>>=
 dapc1 <- dapc(x, n.pca=20, n.da=1)
-@
-<<>>=
-dapc1
 @
 
 For the last 50 structured SNPs (located at the end of the alignment), the two groups of individuals have different (random) distribution of

@@ -86,7 +86,7 @@ struct snpbin makesnpbin(unsigned char *bytevec, int *byteveclength, int *byteve
 	}
 	out.ploidy = ploidy;
 	return out;
-};
+}
 
 
 /* Maps one byte from 0-255 to sequences of 8 (binary) integers values */

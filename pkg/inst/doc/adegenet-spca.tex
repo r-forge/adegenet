@@ -321,7 +321,7 @@ indicate in red the retained eigenvalue):
 +     "grey"), c(1, 100)))
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-008}
+\includegraphics{figs/spca-009}
 
 \noindent Positive eigenvalues (on the left) correspond to global
 structures, while negative eigenvalues (on the right) indicate local patterns.
@@ -422,7 +422,7 @@ First, eigenvalues of the analysis are stored inside the
 > abline(h = 0, col = "grey")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-010}
+\includegraphics{figs/spca-011}
 
 \noindent The axes of the analysis, denoted $\m{v}$ in eq. (4) \cite{tjart04}
 are stored as columns inside the \texttt{\$c1} component.
@@ -616,7 +616,7 @@ Simulated p-value: 0.01
 Alternative hypothesis: greater 
 
      Std.Obs  Expectation     Variance 
-4.282460e+00 1.284612e-02 7.606296e-07 
+3.986172e+00 1.289255e-02 8.562127e-07 
 \end{Soutput}
 \begin{Sinput}
 > plot(myGtest)
@@ -652,11 +652,11 @@ Call: local.rtest(X = obj$tab, listw = mySpca$lw, nperm = 99)
 Observation: 0.01397349 
 
 Based on 99 replicates
-Simulated p-value: 0.16 
+Simulated p-value: 0.18 
 Alternative hypothesis: greater 
 
      Std.Obs  Expectation     Variance 
-9.221277e-01 1.328443e-02 5.583863e-07 
+8.138443e-01 1.329193e-02 7.013349e-07 
 \end{Soutput}
 \begin{Sinput}
 > plot(myLtest)
@@ -747,7 +747,7 @@ Interpolation is easy to realize using \texttt{interp} from the \texttt{akima} p
 > image(temp)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-021}
+\includegraphics{figs/spca-022}
 
 \noindent Note that for better clarity, we can use the lagged principal scores (\texttt{\$ls})
 rather than the original scores (\texttt{\$li}); we also achieve a better resolution using specific
@@ -760,7 +760,7 @@ interpolated coordinates:
 > image(temp)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-022}
+\includegraphics{figs/spca-023}
 
 \noindent Alternatively, \texttt{filled.contour} can be used for the display, and a customized color
 palette can be specified:
@@ -775,7 +775,7 @@ palette can be specified:
 +     plot.title = annot())
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-023}
+\includegraphics{figs/spca-024}
 ~\\
 
 
@@ -793,7 +793,7 @@ a description of the arguments):
 +     main = "Contribution of alleles \n to the first sPCA axis")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-024}
+\includegraphics{figs/spca-025}
 
 \noindent See \texttt{?loadingplot} for more information about this
 function, in particular for the definition of the threshold value
@@ -834,7 +834,7 @@ $var.values
 0.05793290 0.08246000 0.02368209 
 \end{Soutput}
 \end{Schunk}
-\includegraphics{figs/spca-025}
+\includegraphics{figs/spca-026}
 
 But to assess the average contribution of each marker, the
 boxplot probably is a better tool:
@@ -927,7 +927,7 @@ The spatial distribution of the sampling can be displayed as follows:
 > points(rupica$other$xy, col = "red", pch = 20)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-028}
+\includegraphics{figs/spca-029}
 
 \noindent This spatial distribution is clearly not random, but seems arranged into
 loose clusters.
@@ -941,7 +941,7 @@ issue.
 > points(rupica$other$xy, col = "red", pch = 20)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-029}
+\includegraphics{figs/spca-030}
 
 Unfortunately, geographical clustering is not strong enough to assign unambiguously each individual to a group.
 Therefore, we need to carry all analyses at the individual level, which precludes the use of most
@@ -998,7 +998,7 @@ L1 L2 L3 L4 L5 L6 L7 L8 L9
 > abline(0, 1, col = "red")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-030}
+\includegraphics{figs/spca-031}
 
 \noindent The red line indicate identity between both quantities.
 Observed heterozygosity do not seem to deviate massively from theoretical expectations.
@@ -1040,7 +1040,7 @@ eigenvalues and asks for a number of retained principal components:
 +     col = heat.colors(length(rupica.pca1$eig)))
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-032}
+\includegraphics{figs/spca-033}
 
 \noindent The output produced by \texttt{dudi.pca} is a \texttt{dudi} object.
 A \texttt{dudi} object contains various information; in the case of
@@ -1093,7 +1093,7 @@ assessment of the distribution of the genotypes onto the principal axes:
 > add.scatter.eig(rupica.pca1$eig, 2, 1, 2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-034}
+\includegraphics{figs/spca-035}
 
 \noindent This scatterplot shows that the only structure identified by PCA points to a few outliers.
 \texttt{loadingplot} confirms that this corresponds to the possession of a few original alleles:
@@ -1102,7 +1102,7 @@ assessment of the distribution of the genotypes onto the principal axes:
 > loadingplot(rupica.pca1$c1^2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-035}
+\includegraphics{figs/spca-036}
 
 \noindent We can go back to the genotypes for the concerned markers (e.g.,
 Bm203) to check whether the highlighted genotypes are uncommon.
@@ -1179,7 +1179,7 @@ two PCs of the PCA:
 > title("PCA - first PC", col.main = "yellow", line = -2, cex.main = 2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-039}
+\includegraphics{figs/spca-040}
 
 \begin{Schunk}
 \begin{Sinput}
@@ -1188,7 +1188,7 @@ two PCs of the PCA:
 > title("PCA - second PC", col.main = "yellow", line = -2, cex.main = 2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-040}
+\includegraphics{figs/spca-041}
 
 
 \noindent As we can see, none of these PCs seems to display a particular spatial pattern.
@@ -1228,7 +1228,7 @@ W 335 112225 335 15.04311 1352.07
 > title("rupica.graph")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-042}
+\includegraphics{figs/spca-043}
 
 We perform Moran's test for the first two PCs, and plot the results.
 \begin{Schunk}
@@ -1237,7 +1237,7 @@ We perform Moran's test for the first two PCs, and plot the results.
 > plot(pc1.mctest)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-043}
+\includegraphics{figs/spca-044}
 
 \noindent This result is surprisingly significant. Why is this?
 Moran's plot (\texttt{moran.plot}) represents the tested variable against its lagged vector; we
@@ -1247,7 +1247,7 @@ apply it to the first PC:
 > moran.plot(rupica.pca1$li[, 1], rupica.graph)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-044}
+\includegraphics{figs/spca-045}
 
 \noindent Positive autocorrelation corresponds to a positive correlation between a variable
 and its lag vector.
@@ -1261,7 +1261,7 @@ Results obtained on the second PC are less surprisingly non-significant:
 > plot(pc2.mctest)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-045}
+\includegraphics{figs/spca-046}
 
 
 
@@ -1286,7 +1286,7 @@ Perform Mantel test, using the scaled genetic data you used before in PCA, and t
 > plot(mtest, nclass = 30)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-046}
+\includegraphics{figs/spca-047}
 
 \noindent Interestingly, this test turns out to be marginally significant, and would encourage us to
 look for spatial patterns. This is the role of the spatial Principal Component Analysis.
@@ -1309,7 +1309,7 @@ Moran's $I$ tests:
 +     main = "rupica dataset - sPCA eigenvalues")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-047}
+\includegraphics{figs/spca-048}
 
 \noindent The principal components associated with the first two
 positive eigenvalues (in red) shall be retained.
@@ -1359,7 +1359,7 @@ The function \texttt{screeplot} allows to display this information graphically:
 > screeplot(rupica.spca1)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-049}
+\includegraphics{figs/spca-050}
 
 \noindent While $\lambda_1$ indicates with no doubt a structure, the
 second eigenvalue, $\lambda_2$ is less clearly distinct from the
@@ -1379,7 +1379,7 @@ We map the sPCA results using \texttt{s.value} and lagged scores (\texttt{\$ls})
 > title("sPCA - first PC", col.main = "yellow", line = -2, cex.main = 2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-050}
+\includegraphics{figs/spca-051}
 
 \noindent This first PC shows a remarkably clear structure opposing two high-altitude areas
 separated by a valley, which is thought to be an obstacle to the dispersal of Chamois (due to higher
@@ -1394,7 +1394,7 @@ The second PC of sPCA shows an equally interesting structure:
 > title("sPCA - second PC", col.main = "yellow", line = -2, cex.main = 2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-051}
+\includegraphics{figs/spca-052}
 
 \noindent The smaller clusters appearing on this map correspond to social units identified by
 direct observation in the field.
@@ -1413,7 +1413,7 @@ The final figure should ressemble this (although colors may change from one comp
 +     line = -2, cex = 2)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{figs/spca-052}
+\includegraphics{figs/spca-053}
 
 %% \begin{center}
 %% \includegraphics[width=.6\textwidth]{figs/rupicacolors.png}

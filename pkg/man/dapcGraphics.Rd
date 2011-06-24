@@ -162,7 +162,6 @@ scatter(dapc1,1,1,scree.da=FALSE, legend=TRUE, solid=.4,bg="white")
 
 
 
-
 ## example using genlight objects ##
 ## simulate data
 x <- glSim(50,4e3-50, 50, ploidy=2)
