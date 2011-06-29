@@ -165,6 +165,7 @@ mean(dat$ances==res$ances,na.rm=TRUE)
 
 
 ## PLOT RESULTS
+\dontrun{
 if(require(graph) && require(Rgraphviz)){
 dat.g <- as(dat, "graphNEL")
 res.g <- as(res, "graphNEL")
@@ -181,7 +182,7 @@ res.annot <- as.character(unlist(edgeWeights(res.g)))
 names(res.annot) <- edgeNames(res.g)
 renderGraph(layoutGraph(res.g, edgeAttrs = list(label = res.annot)))
 }
-
+}
 
 
 
