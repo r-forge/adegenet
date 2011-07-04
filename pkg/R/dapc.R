@@ -570,7 +570,13 @@ scatter.dapc <- function(x, xax=1, yax=2, grp=x$grp, col=rainbow(length(levels(g
     ## group legend
     if(legend){
         ## add a legend
-        legend(posi.leg, fill=col, legend=txt.leg, cex=cleg, bg=bg.inset)
+        temp <- list(...)$cex
+        if(is.null(temp)) temp <- 1
+        if(ONEDIM | temp<0.5 | all(pch=="")) {
+            legend(posi.leg, fill=col, legend=txt.leg, cex=cleg, bg=bg.inset)
+        } else {
+            legend(posi.leg, col=col, legend=txt.leg, cex=cleg, bg=bg.inset, pch=pch, pt.cex=temp)
+        }
     }
 
     ## eigenvalues discriminant analysis
