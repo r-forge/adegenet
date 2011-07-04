@@ -6,8 +6,8 @@
 \alias{get.likelihood}
 \alias{get.likelihood.seqTrack}
 \alias{seqTrack-class}
-\alias{as,seqTrack,graphNEL-method}
-\alias{coerce,seqTrack,graphNEL-method}
+%\alias{as,seqTrack,graphNEL-method}
+%\alias{coerce,seqTrack,graphNEL-method}
 \title{SeqTrack algorithm for reconstructing genealogies}
 \description{
   The SeqTrack algorithm [1] aims at reconstructing genealogies of sampled
