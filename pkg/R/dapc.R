@@ -348,7 +348,11 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
     if(pca.info){
         res$pca.loadings <- as.matrix(U)
         res$pca.cent <- glMean(x,alleleAsUnit=FALSE)
-        res$pca.norm <- sqrt(glVar(x,alleleAsUnit=FALSE))
+        if(scale) {
+            res$pca.norm <- sqrt(glVar(x,alleleAsUnit=FALSE))
+        } else {
+            res$pca.norm <- rep(1, nLoc(x))
+        }
         res$pca.eig <- pcaX$eig
     }
 
@@ -955,6 +959,8 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
     ## HANDLE DIMEN ##
     if(!missing(dimen)){
         if(dimen > object$n.da) stop(paste("Too many dimensions requested. \nOnly", object$n.da, "discriminant functions were saved in DAPC."))
+    } else {
+        dimen <- object$n.da
     }
 
     ## CALL PREDICT.LDA ##
