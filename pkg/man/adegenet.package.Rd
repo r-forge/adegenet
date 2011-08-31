@@ -188,13 +188,13 @@
     Package: \tab adegenet\cr
     Type: \tab Package\cr
     Version: \tab 1.3-1\cr
-    Date: \tab 2011-06-30 \cr
+    Date: \tab 2011-09-01 \cr
     License: \tab GPL (>=2)
   } 
 }
 \author{
   Thibaut Jombart <t.jombart@imperial.ac.uk>\cr
-  with contributions of: Ismail Ahmed, Peter Solymos\cr
+  with contributions of: Ismail Ahmed <ismail.ahmed@inserm.fr>, Peter Solymos\cr
   and contributed datasets from: Katayoun Moazami-Goudarzi, Denis Laloë,
   Dominique Pontier, Daniel Maillard, Francois Balloux.
 }
