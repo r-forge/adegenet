@@ -117,7 +117,7 @@
    \code{\link{optimize.monmonier}}. Object of the class
    \code{monmonier} can be plotted and printed using the corresponding
    methods. \cr
-   - \code{\link{spca}}: implements Jombart et al. (in revision) spatial
+   - \code{\link{spca}}: implements Jombart et al. (2008) spatial
    Principal Component Analysis \cr
    - \code{\link{global.rtest}}: implements Jombart et al. (2008)
    test for global spatial structures \cr
@@ -212,7 +212,7 @@
   outbreaks from genetic data: a graph approach. \emph{Heredity}. doi:
   10.1038/hdy.2010.78.\cr
 
-  Jombart, T., Devillard, S., Dufour, A.-B. and Pontier, D.  Revealing
+  Jombart, T., Devillard, S., Dufour, A.-B. and Pontier, D. (2008) Revealing
   cryptic spatial patterns in genetic variability by a new multivariate
   method. \emph{Heredity}, \bold{101}, 92--103.\cr
 
