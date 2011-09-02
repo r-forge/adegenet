@@ -1,3 +1,121 @@
+			CHANGES IN ADEGENET VERSION 1.3-1
+
+
+
+BUG FIXES
+
+	o removed all dependency with graph package, which was still
+	causing errors on some systems - whenever Bioconductor was not by
+	default one of the accessible repositories (used to be FAQ #4).
+
+NEW FEATURES
+
+	o legend in scatter.dapc now matches to the type and size of
+	symbols used in the plot.
+
+	o the package has been made smaller (from 20MB to 8.5MB).
+
+	o a warning has been added to read.structure: the function is made
+	for diploid data only.
+
+
+
+			CHANGES IN ADEGENET VERSION 1.3-0
+
+
+
+BUG FIXES
+
+	o fixed broken dependencies with hierfstat and graph packages
+	(used to be FAQ #4).
+
+	o fixed a minor bug in loadingplot regarding possible label errors.
+
+NEW FEATURES
+
+	o genome-wide SNP data support using the new class genlight,
+	supported by compiled C routines and parallelized computations on
+	multicore architectures.
+
+	o dedicated find.clusters and dapc methods for genlight objects.
+
+	o read.PLINK to read SNP data with PLINK format into genlight
+	objects.
+
+	o read.snp to read SNP data with adegenet's own format into genlight
+	objects.
+
+	o fasta2genlight to extract SNP from FASTA files into genlight
+	objects.
+
+	o new method 'predict' for DAPC objects, allowing for using
+	supplementary individuals.
+
+	o many new options of DAPC scatterplots (scatter.dapc).
+
+	o new plotting method 'compoplot' for DAPC objects, displaying
+	group memberships in a STRUCTURE-like way... only prettier.
+
+	o many new accessors for the classes genind and genpop.
+
+	o 4 new tutorial vignettes: adegenet-basics, adegenet-dapc,
+	adegenet-spca, adegenet-genomics.
+
+	o last but not least: Ismail Ahmed has joined the project as a
+	developper.
+
+
+
+			CHANGES IN ADEGENET VERSION 1.2-8
+
+
+
+BUG FIXES
+
+	o fixed a major issue in the conversion of genind objects to
+	hierfstat data format. In some cases, this issue biased the
+	results of the wrapper function "fstat".
+
+
+
+			CHANGES IN ADEGENET VERSION 1.2-7
+
+
+NEW FEATURES
+
+	o dapc and find.clusters are now stable versions for the published methods.
+
+	o a.score and optim.a.score are released in their beta versions.
+
+	o scatter.dapc is now adapted to representation 1-dimensional DAPC results.
+	
+
+BUG FIXES
+
+	o fixed a major issue in the ape package causing haploGen to
+	bug. This is a temporary replacement, waiting for ape to implement
+	the changes (currently, adegenet replaces ape's as.list.DNAbin
+	function with a corrected version).
+
+
+
+			CHANGES IN ADEGENET VERSION 1.2-6
+
+
+NEW FEATURES
+
+	o pairwise.fst: computes Nei's pairwise Fst between populations
+
+	o alignment2genind: extract polymorphism from nucleic and proteic
+	aligned sequences with the 'alignment' format, returning a genind object.
+
+
+BUG FIXES
+
+	o fixed a minor issue in Hs, occuring in fixed loci for a given population.
+
+
+
 			CHANGES IN ADEGENET VERSION 1.2-5
 
 
@@ -323,7 +441,7 @@ NEW FEATURES
 	implement the Monmonier algorithm. While not restrained to genetic
 	data analysis, this method can be used to find genetic boundaries
 	among individuals or populations based on their allelic
-	frequencies and spatial coordinates. 
+	frequencies and spatial coordinates.
 
 BUG FIXES
 
