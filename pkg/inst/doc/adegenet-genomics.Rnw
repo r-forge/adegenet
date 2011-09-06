@@ -65,7 +65,7 @@ The subsequent amounts of genetic data pose challenges in terms of storing and h
 making former tools developed for classical genetic markers such as microsatellite impracticable using
 standard computers.
 Adegenet has developed new object classes dedicated to handling genome-wide polymorphism (SNPs) with
-minimum rapid access memory (RAM) requirements.
+minimum random access memory (RAM) requirements.
 \\
 
 Two new formal classes have been implemented: \texttt{SNPbin}, used to store genome-wide SNPs for
