@@ -7,22 +7,19 @@
 \alias{pairwise.fst}
 \title{F statistics for genind objects}
 \description{
-  The function \code{fstat} computes a global Fst, while
   \code{pairwise.fst} computes Nei's pairwise Fst between all pairs of
-  populations. Both functions are designed for \linkS4class{genind}
-  objects.
-
-  \code{fstat} is wrapper for \code{varcomp.glob} from package
-  \code{hierfstat} for \linkS4class{genind} objects. It computes F statistics (Fst, Fis, Fit)
-  given a set of genotypes and a grouping factor.
-
-  \code{pairwise.fst} is an implementation of Nei's Fst in which
-  heretozygosities are weighted by group sizes (see details).
+  populations using a \linkS4class{genind} object. Heretozygosities are
+  weighted by group sizes (see details).
+  
+  The former function \code{fstat} was a wrapper for \code{varcomp.glob}
+  from the package \code{hierfstat}. Unfortunately, this package was
+  removed from CRAN due to maintaining issues. For a replacement, see
+  the function \code{Fst} in the \code{pagas} package.!
 }
 \usage{
-fstat(x, pop=NULL, fstonly=FALSE)
-
 pairwise.fst(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRUE)
+
+fstat(x, pop=NULL, fstonly=FALSE)
 }
 \arguments{
   \item{x}{an object of class \linkS4class{genind}.}
@@ -60,15 +57,6 @@ pairwise.fst(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRUE)
 ## pairwise Fst
 mat.fst <- pairwise.fst(nancycats, res.type="matrix")
 mat.fst
-
-
-## using hierfstat (if available)
-if(require(hierfstat)){
-data(nancycats)
-
-## Fst, Fis, Fit
-fstat(nancycats)
-}
 }
 }
 \keyword{multivariate}
