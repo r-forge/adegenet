@@ -1,7 +1,6 @@
 \encoding{UTF-8}
 \name{F statistics}
 \alias{fstat}
-\alias{Fst}
 \alias{FST}
 \alias{fst}
 \alias{pairwise.fst}
@@ -10,33 +9,28 @@
   \code{pairwise.fst} computes Nei's pairwise Fst between all pairs of
   populations using a \linkS4class{genind} object. Heretozygosities are
   weighted by group sizes (see details).
-  
-  The former function \code{fstat} was a wrapper for \code{varcomp.glob}
-  from the package \code{hierfstat}. Unfortunately, this package was
-  removed from CRAN due to maintaining issues. For a replacement, see
-  the function \code{Fst} in the \code{pagas} package.!
+
+  The function \code{fstat} is no longer available as the package
+  \code{hierfstat} has been removed from CRAN. For Fst, Fis and Fit, use
+  the function \code{Fst} from the \code{pagas} package (see example).
 }
 \usage{
 pairwise.fst(x, pop=NULL, res.type=c("dist","matrix"), truenames=TRUE)
-
-fstat(x, pop=NULL, fstonly=FALSE)
 }
 \arguments{
   \item{x}{an object of class \linkS4class{genind}.}
   \item{pop}{a factor giving the 'population' of each individual. If NULL,
     pop is seeked from \code{pop(x)}. Note that the term population refers in
     fact to any grouping of individuals'.}
-  \item{fstonly}{a logical stating whether only the Fst value should be
-    returned (TRUE) instead of all F statistics (FALSE, default).}
   \item{res.type}{the type of result to be returned: a \code{dist} object, or a
     symmetric matrix}
   \item{truenames}{a logical indicating whether true labels (as opposed
     to generic labels) should be used to name the output.}
 }
 \value{
-  A vector, a matrix, or a dist object containing F statistics.}
-\seealso{\code{\link{Hs}}%, \code{\link[hierfstat]{varcomp.glob}},
- % \code{\link{gstat.randtest}}
+  A vector, a matrix, or a dist object containing F statistics.
+}
+\seealso{\code{\link{Hs}}
 }
 \references{
   Nei, M. (1973) Analysis of gene diversity in subdivided
@@ -57,6 +51,20 @@ fstat(x, pop=NULL, fstonly=FALSE)
 ## pairwise Fst
 mat.fst <- pairwise.fst(nancycats, res.type="matrix")
 mat.fst
+}
+
+## Fst, Fis, Fit
+if(require(pegas)){
+data(nancycats)
+
+## conversion to pegas's format
+as.loci(nancycats)
+
+## use Fst from pegas
+fsttab <- Fst(as.loci(nancycats))
+
+## average over loci
+apply(fsttab, 2, mean)
 }
 }
 \keyword{multivariate}
