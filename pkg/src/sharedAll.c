@@ -19,7 +19,7 @@ Thibaut Jombart (t.jombart@imperial.ac.uk), 2008.
 #include "adesub.h"
 
 
-
+/* THIS FUNCTION IS DEPRECATED */
 void sharedAll(int *matAll, int *nRow, int *nCol, double *resVec)
 {
 /* Declare local C variables */
@@ -113,9 +113,16 @@ void sharedAll(int *matAll, int *nRow, int *nCol, double *resVec)
 
 
 
+/* SMALL FUNCTION TO RETURN THE SMALLEST OF 2 INTEGERS */
+int min_int(int a, int b){
+	if(a<b) return a;
+	return b;
+}
 
 
 
+
+/* THIS IS THE FUNCTION TO USE */
 void nb_shared_all(int *in, int *out, int *nind, int *ncol){
 	int i, j, k, counter=0, **mat, n = *nind, p = *ncol;
 
@@ -132,11 +139,6 @@ void nb_shared_all(int *in, int *out, int *nind, int *ncol){
 
 
 	/* perform computations */
-	int min_int(int a, int b){
-		if(a<b) return a;
-		return b;
-	}
-
 	counter = 0;
 	for(i=1;i<=(n-1);i++){
 		for(j=i+1;j<=n;j++){
