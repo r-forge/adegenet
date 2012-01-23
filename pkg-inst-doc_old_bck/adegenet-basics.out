@@ -1,0 +1,33 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}
+\BOOKMARK [1][-]{section.2}{Getting started}{}
+\BOOKMARK [2][-]{subsection.2.1}{Installing the package}{section.2}
+\BOOKMARK [2][-]{subsection.2.2}{Getting help}{section.2}
+\BOOKMARK [1][-]{section.3}{Object classes}{}
+\BOOKMARK [2][-]{subsection.3.1}{genind objects}{section.3}
+\BOOKMARK [2][-]{subsection.3.2}{genpop objects}{section.3}
+\BOOKMARK [2][-]{subsection.3.3}{Using accessors}{section.3}
+\BOOKMARK [1][-]{section.4}{Importing/exporting data}{}
+\BOOKMARK [2][-]{subsection.4.1}{Importing data from GENETIX, STRUCTURE, FSTAT, Genepop}{section.4}
+\BOOKMARK [2][-]{subsection.4.2}{Importing data from other software}{section.4}
+\BOOKMARK [2][-]{subsection.4.3}{Handling presence/absence data}{section.4}
+\BOOKMARK [2][-]{subsection.4.4}{SNPs data}{section.4}
+\BOOKMARK [2][-]{subsection.4.5}{Extracting polymorphism from DNA sequences}{section.4}
+\BOOKMARK [2][-]{subsection.4.6}{Extracting polymorphism from proteic sequences}{section.4}
+\BOOKMARK [2][-]{subsection.4.7}{Using genind/genpop constructors}{section.4}
+\BOOKMARK [2][-]{subsection.4.8}{Exporting data}{section.4}
+\BOOKMARK [1][-]{section.5}{Basics of data analysis}{}
+\BOOKMARK [2][-]{subsection.5.1}{Manipulating the data}{section.5}
+\BOOKMARK [2][-]{subsection.5.2}{Using summaries}{section.5}
+\BOOKMARK [2][-]{subsection.5.3}{Testing for Hardy-Weinberg equilibrium}{section.5}
+\BOOKMARK [2][-]{subsection.5.4}{Measuring and testing population structure \(a.k.a F statistics\)}{section.5}
+\BOOKMARK [2][-]{subsection.5.5}{Estimating inbreeding}{section.5}
+\BOOKMARK [1][-]{section.6}{Multivariate analysis}{}
+\BOOKMARK [2][-]{subsection.6.1}{General overview}{section.6}
+\BOOKMARK [2][-]{subsection.6.2}{Performing a Principal Component Analysis on genind objects}{section.6}
+\BOOKMARK [2][-]{subsection.6.3}{Performing a Correspondance Analysis on genpop objects}{section.6}
+\BOOKMARK [1][-]{section.7}{Spatial analysis}{}
+\BOOKMARK [2][-]{subsection.7.1}{Isolation by distance}{section.7}
+\BOOKMARK [3][-]{subsubsection.7.1.1}{Testing isolation by distance}{subsection.7.1}
+\BOOKMARK [3][-]{subsubsection.7.1.2}{Cline or distant patches?}{subsection.7.1}
+\BOOKMARK [2][-]{subsection.7.2}{Using Monmonier's algorithm to define genetic boundaries}{section.7}
+\BOOKMARK [1][-]{section.8}{Simulating hybridization}{}
