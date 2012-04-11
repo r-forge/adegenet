@@ -19,28 +19,28 @@ haploGen <- function(seq.length=10000, mu=0.0001, t.max=20,
     if(!require(ape)) stop("The ape package is required.")
 
 
-    ## HACK TO FIX APE'S BUG ##
-    env <- environment(as.list.DNAbin)
-    as.list.DNAbin.new <- function (x, ...){
-        if (is.list(x))
-            return(x)
-        if (is.null(dim(x)))
-            obj <- list(x)
-        else {
-            n <- nrow(x)
-            obj <- vector("list", n)
-            for (i in 1:n) obj[[i]] <- x[i, ]
-            names(obj) <- rownames(x)
-        }
-        class(obj) <- "DNAbin"
-        obj
-    }
+    ## ## HACK TO FIX APE'S BUG ##
+    ## env <- environment(as.list.DNAbin)
+    ## as.list.DNAbin.new <- function (x, ...){
+    ##     if (is.list(x))
+    ##         return(x)
+    ##     if (is.null(dim(x)))
+    ##         obj <- list(x)
+    ##     else {
+    ##         n <- nrow(x)
+    ##         obj <- vector("list", n)
+    ##         for (i in 1:n) obj[[i]] <- x[i, ]
+    ##         names(obj) <- rownames(x)
+    ##     }
+    ##     class(obj) <- "DNAbin"
+    ##     obj
+    ## }
 
-    as.list.DNAbin <- as.list.DNAbin.new
-    unlockBinding("as.list.DNAbin", env)
-    assignInNamespace("as.list.DNAbin", as.list.DNAbin.new, ns="ape", envir=env)
-    assign("as.list.DNAbin", as.list.DNAbin.new, envir=env)
-    lockBinding("as.list.DNAbin", env)
+    ## as.list.DNAbin <- as.list.DNAbin.new
+    ## unlockBinding("as.list.DNAbin", env)
+    ## assignInNamespace("as.list.DNAbin", as.list.DNAbin.new, ns="ape", envir=env)
+    ## assign("as.list.DNAbin", as.list.DNAbin.new, envir=env)
+    ## lockBinding("as.list.DNAbin", env)
 
     ## END HACK ##
 
