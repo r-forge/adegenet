@@ -215,3 +215,60 @@ num2col <- function(x, col.pal=heat.colors, reverse=FALSE,
     res[is.na(res)] <- na.col
     return(res)
 }
+
+
+
+
+
+###########
+## fac2col
+###########
+## translate a factor into colors of a palette
+## colors are randomized based on the provided seed
+fac2col <- function(x, col.pal=funky, na.col="grey", seed=1){
+    ## get factors and levels
+    x <- factor(x)
+    lev <- levels(x)
+    nlev <- length(lev)
+
+    ## get colors corresponding to levels
+    set.seed(seed)
+    newseed <- round(runif(1,1,1e9))
+    on.exit(set.seed(newseed))
+    col <- sample(col.pal(nlev))
+
+    ## get output colors
+    res <- rep(na.col, length(x))
+    res[!is.na(x)] <- col[as.integer(x[!is.na(x)])]
+
+    ## return
+    return(res)
+}
+
+
+## pre-defined palettes ##
+## mono color
+bluepal <- colorRampPalette(c("white","blue"))
+redpal <- colorRampPalette(c("white","green"))
+greenpal <- colorRampPalette(c("white","red"))
+
+## bi-color
+flame <- colorRampPalette(c("gold","red"))
+
+## tri-color
+seasun <- colorRampPalette(c("blue","gold","red"))
+lightseasun <- colorRampPalette(c("deepskyblue2","gold","red1"))
+deepseasun <- colorRampPalette(c("blue2","gold","red2"))
+
+## psychedelic
+funky <- colorRampPalette(c("grey30","blue","green3","gold","orange","red","brown4","purple"))
+
+
+
+##
+## example:
+##
+## x <- c(rnorm(10), rnorm(15,3), rnorm(5,10))
+## f <- rep(letters[1:3], c(10,15,5))
+## 
+##
