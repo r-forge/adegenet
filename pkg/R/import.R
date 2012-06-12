@@ -454,7 +454,7 @@ read.genepop <- function(file,missing=NA,quiet=FALSE){
     nocomma <- which(! (1:length(txt)) %in% grep(",",txt))
     splited <- nocomma[which(! nocomma %in% pop.idx)]
     if(length(splited)>0){
-        for(i in sort(splited,dec=TRUE)){
+        for(i in sort(splited,decreasing=TRUE)){
             txt[i-1] <- paste(txt[i-1],txt[i],sep=" ")
         }
         txt <- txt[-splited]

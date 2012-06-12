@@ -263,12 +263,3 @@ deepseasun <- colorRampPalette(c("blue2","gold","red2"))
 ## psychedelic
 funky <- colorRampPalette(c("grey30","blue","green3","gold","orange","red","brown4","purple"))
 
-
-
-##
-## example:
-##
-## x <- c(rnorm(10), rnorm(15,3), rnorm(5,10))
-## f <- rep(letters[1:3], c(10,15,5))
-## 
-##

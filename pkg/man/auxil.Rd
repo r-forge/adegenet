@@ -19,6 +19,7 @@
 \alias{lightseasun}
 \alias{deepseasun}
 \alias{funky}
+
 \title{ Auxiliary functions for adegenet}
 \description{
   adegenet implements a number of auxiliary procedures that might be of
@@ -44,15 +45,15 @@
   - \code{.genlab}: generate labels in a correct alphanumeric ordering. \cr
   - \code{.readExt}: read the extension of a given file. \cr
 
-  Color palettes include:
-  - \code{bluepal}: white->blue
-  - \code{redpal}: white->red
-  - \code{greenpal}: white->green
-  - \code{flame}: gold->red
-  - \code{seasun}: blue->gold->red
-  - \code{lightseasun}: blue->gold->red (light variant)
-  - \code{deepseasun}: blue->gold->red (deep variant)
-  - \code{funky}: many colors
+  Color palettes include:\cr
+  - \code{bluepal}: white->blue\cr
+  - \code{redpal}: white->red\cr
+  - \code{greenpal}: white->green\cr
+  - \code{flame}: gold->red\cr
+  - \code{seasun}: blue->gold->red\cr
+  - \code{lightseasun}: blue->gold->red (light variant)\cr
+  - \code{deepseasun}: blue->gold->red (deep variant)\cr
+  - \code{funky}: many colors\cr
 }
 \usage{
 adegenetWeb()
