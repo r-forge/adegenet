@@ -261,5 +261,5 @@ lightseasun <- colorRampPalette(c("deepskyblue2","gold","red1"))
 deepseasun <- colorRampPalette(c("blue2","gold","red2"))
 
 ## psychedelic
-funky <- colorRampPalette(c("grey30","blue","green3","gold","orange","red","brown4","purple"))
+funky <- colorRampPalette(c("blue","green3","gold","orange","red","brown4","purple"))
 
