@@ -9,6 +9,7 @@
 % \alias{seqTrackG.haploGen}
 % \alias{optimize.seqTrack.haploGen}
 \alias{as.seqTrack.haploGen}
+\alias{as.igraph.haploGen}
 \alias{plotHaploGen}
 \alias{sample.haploGen}
 %\alias{as,haploGen,graphNEL-method}
@@ -48,6 +49,7 @@ haploGen(seq.length=10000, mu=0.0001, t.max=20,
 as.seqTrack.haploGen(x)
 plotHaploGen(x, annot=FALSE, date.range=NULL, col=NULL, bg="grey", add=FALSE, \dots)
 sample.haploGen(x, n)
+\method{as.igraph}{haploGen}(x, \dots)
 %\S4method{coerce}{haploGen,graphNEL}(from, to, strict=TRUE)
 }
 \arguments{

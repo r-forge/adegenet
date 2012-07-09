@@ -11,7 +11,7 @@
 haploGen <- function(seq.length=10000, mu=0.0001, t.max=20,
                      gen.time=function(){round(rnorm(1,5,1))},
                      repro=function(){round(rnorm(1,2,1))}, max.nb.haplo=1e3,
-                     geo.sim=TRUE, grid.size=5, lambda.xy=0.5,
+                     geo.sim=FALSE, grid.size=5, lambda.xy=0.5,
                      mat.connect=NULL,
                      ini.n=1, ini.xy=NULL){
 
@@ -560,6 +560,42 @@ sample.haploGen <- function(x, n){
 } # end sample.haploGen
 
 
+
+
+
+
+as.igraph.haploGen <- function(x, ...){
+    if(!require(igraph)) stop("package igraph is required for this operation")
+    if(!require(ape)) stop("package ape is required for this operation")
+    if(!require(ade4)) stop("package ape is required for this operation")
+
+    ## GET DAG ##
+    from <- x$ances
+    to <- x$id
+    isNotNA <- !is.na(from) & !is.na(to)
+    dat <- data.frame(from,to,stringsAsFactors=FALSE)[isNotNA,,drop=FALSE]
+    vnames <- as.character(unique(unlist(dat)))
+    out <- graph.data.frame(dat, directed=TRUE, vertices=data.frame(names=vnames, dates=x$dates[vnames]))
+
+    ## SET WEIGHTS ##
+    D <- as.matrix(dist.dna(x$seq,model="raw")*ncol(x$seq))
+    temp <- mapply(function(i,j) return(D[i,j]), as.integer(from), as.integer(to))
+    E(out)$weight <- temp[isNotNA]
+
+    ## SET ARROW WIDTH ##
+    temp <- max(E(out)$weight) - E(out)$weight
+    temp <- temp/max(temp) * 4
+    E(out)$width <- round(temp)+1
+
+
+    ## ## SET LAYOUT ##
+    ## xcoord <- x$dates
+    ## ##ycoord <- dudi.pco(suppressWarnings(cailliez(as.dist(D))),scannf=FALSE,nf=1)$li[,1]
+    ## ycoord <- 1:length(xcoord)
+    ## set.graph.attribute(out, "layout", as.matrix(data.frame(xcoord,ycoord)))
+
+    return(out)
+}
 
 
 
