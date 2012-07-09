@@ -564,10 +564,13 @@ sample.haploGen <- function(x, n){
 
 
 
+######################
+## as.igraph.haploGen
+######################
 as.igraph.haploGen <- function(x, ...){
     if(!require(igraph)) stop("package igraph is required for this operation")
     if(!require(ape)) stop("package ape is required for this operation")
-    if(!require(ade4)) stop("package ape is required for this operation")
+    ## if(!require(ade4)) stop("package ape is required for this operation")
 
     ## GET DAG ##
     from <- x$ances
