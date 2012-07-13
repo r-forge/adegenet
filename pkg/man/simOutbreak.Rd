@@ -72,10 +72,13 @@ of susceptible, infected, or recovered in the population. \cr
 \examples{
 \dontrun{
 if(require(ape)&&require(igraph)){
-x <- simOutbreak(R0 = 2, infec.curve = c(0, 1, 1, 1), n.hosts = 200)
+x <- simOutbreak(R0 = 2, infec.curve = c(0, 1, 1, 1), n.hosts = 100)
 x
 
-plot(x)
+head(x$dynam,15)
+matplot(x$dynam,xlab="time",ylab="nb of individuals")
+par(mar=rep(.1,4))
+plot(x,cex=.8)
 }
 }
 }
