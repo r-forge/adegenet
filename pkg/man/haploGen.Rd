@@ -6,21 +6,16 @@
 \alias{as.POSIXct.haploGen}
 \alias{seqTrack.haploGen}
 \alias{haploGen-class}
-% \alias{seqTrackG.haploGen}
-% \alias{optimize.seqTrack.haploGen}
 \alias{as.seqTrack.haploGen}
 \alias{as.igraph.haploGen}
 \alias{plotHaploGen}
 \alias{sample.haploGen}
-%\alias{as,haploGen,graphNEL-method}
-%\alias{coerce,haploGen,graphNEL-method}
-%\alias{as,haploGen,graphNEL-method}
 \title{Simulation of genealogies of haplotypes}
 \description{
   The function \code{haploGen} implements simulations of genealogies of
-  haplotypes. This forward-time, individual-based simulation tool allow
+  haplotypes. This forward-time, individual-based simulation tool allows
   haplotypes to replicate and mutate according to specified parameters,
-  and keeps track of entire genealogies.
+  and keeps track of their genealogy.
 
   Simulations can be spatially explicit or not (see \code{geo.sim}
   argument). In the first case, haplotypes are assigned to locations on
@@ -34,13 +29,17 @@
   available to print, plot, subset, sample or convert \code{haploGen}
   objects. A seqTrack method is also provided for analysing
   \code{haploGen} objects.
+
+  Note that for simulation of outbreaks, the new tool \code{\link{simOutbreak}} should
+  be used.
 }
 \usage{
-haploGen(seq.length=10000, mu=0.0001, t.max=20,
-              gen.time=function(){round(rnorm(1,5,1))},
-              repro=function(){round(rnorm(1,2,1))}, max.nb.haplo=1e3,
-              geo.sim=TRUE, grid.size=5, lambda.xy=0.5,
-              mat.connect=NULL, ini.n=1, ini.xy=NULL)
+haploGen(seq.length=1e4, mu.transi=1e-4, mu.transv=mu.transi/2, t.max=20,
+         gen.time=function(){1+rpois(1,0.5)},
+         repro=function(){rpois(1,1.5)}, max.nb.haplo=200,
+         geo.sim=FALSE, grid.size=10, lambda.xy=0.5,
+         mat.connect=NULL,
+         ini.n=1, ini.xy=NULL)
 \method{print}{haploGen}(x, \dots)
 \method{[}{haploGen}(x, i, j, drop=FALSE)
 \method{labels}{haploGen}(object, \dots)
@@ -55,9 +54,10 @@ sample.haploGen(x, n)
 \arguments{
   \item{seq.length}{an integer indicating the length of the simulated
     haplotypes, in number of nucleotides.}
-  \item{mu}{the mutation rate, in number of mutation per site and per
-    time unit. Can be a (fixed) number or a function returning a number
-    (then called for each replication event).}
+  \item{mu.transi}{the rate of transitions, in number of mutation per site and per
+    time unit.}
+  \item{mu.transv}{the rate of transversions, in number of mutation per site and per
+    time unit.}
   \item{t.max}{an integer indicating the maximum number of time units to
     run the simulation for.}
   \item{gen.time}{an integer indicating the generation time, in number
@@ -72,7 +72,7 @@ sample.haploGen(x, n)
     simulations. If this number is exceeded, the genealogy is prunded to as
     to keep this number of haplotypes.}
   \item{geo.sim}{a logical stating whether simulations should be
-    spatially explicit (TRUE, default) or not (FALSE). Spatially-explicit
+    spatially explicit (TRUE) or not (FALSE, default). Spatially-explicit
     simulations are slightly slower than their non-spatial counterpart.}
   \item{grid.size}{the size of the square grid of possible locations for
     spatial simulations. The total number of locations will be this number
@@ -154,35 +154,41 @@ sample.haploGen(x, n)
   See the respective vignettes for more information on using these packages.
 
 
-  % === Converting haploGen objects to graphs ===\cr
-  % \code{haploGen} objects can be converted to \code{graphNEL-class}
-  % objects, which can in turn be plotted and manipulated using classical
-  % graph tools. Simply use 'as(x, "graphNEL")' where 'x' is a
-  % \code{haploGen} object. This functionality requires the \code{graph}
-  % package (see 'details').
+  === Converting haploGen objects to graphs ===\cr
+  \code{haploGen} objects can be converted to \code{igraph}
+  objects (package \code{igraph}), which can in turn be plotted and manipulated using classical
+  graph tools. Simply use 'as.igraph(x)' where 'x' is a
+  \code{haploGen} object. This functionality requires the \code{igraph}
+  package.
+}
+\seealso{
+ \code{\link{simOutbreak}} for simulating disease outbreaks under a
+  realistic epidemiological model.
 }
 \examples{
 \dontrun{
 if(require(ape)){
 ## PERFORM SIMULATIONS
-x <- haploGen(repro=2)
+x <- haploGen(geo.sim=TRUE)
 x
 
 ## PLOT SPATIAL SPREAD
 plotHaploGen(x, bg="white")
-title("Spatial dispersion of the haplotypes")
-
-% ## PLOT GENEALOGY
-% if(require(graph) & require(Rgraphviz)){
-% g=as(x, "graphNEL")
-% g
-% renderGraph(layoutGraph(g))
-% }
+title("Spatial dispersion")
 
 
 ## USE SEQTRACK RECONSTRUCTION
 x.recons <- seqTrack(x)
 mean(x.recons$ances==x$ances, na.rm=TRUE) # proportion of correct reconstructions
+
+
+if(require(igraph)){
+g <- as.igraph(x)
+g
+plot(g)
+plot(g, vertex.size=0)
+
+}
 }
 }
 }

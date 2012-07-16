@@ -24,7 +24,7 @@
  - \code{dist} \cr
  - \code{\linkS4class{genind}} objects (genetic markers, individuals)\cr
  - \code{\linkS4class{genpop}} objects (genetic markers, populations)\cr
- - \code{\linkS4class{DNAbin}} objects (DNA sequences)
+ -  \code{\link[ape]{DNAbin}} objects (DNA sequences)
 }
 \usage{
 gengraph(x, \dots)
@@ -36,7 +36,7 @@ gengraph(x, \dots)
 \method{gengraph}{genind}(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, \dots)
 
 \method{gengraph}{genpop}(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE,
-         plot=TRUE, show.graph=TRUE, method=1, col.pal=funky, \dots)
+         plot=TRUE, show.graph=TRUE, col.pal=funky, method=1, \dots)
 
 \method{gengraph}{DNAbin}(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, \dots)
 
@@ -77,17 +77,13 @@ gengraph(x, \dots)
   \item{cutoff}{the value used as a cutoff point}
   \item{col}{the color used to plot each group.}
 }
-\references{
-
-}
 \seealso{
   The \code{\link[igraph]{igraph}} package.
 }
 \author{
-  Thibaut Jombart \email{t.jombart@imperial.ac.uk}
-  Anne Cori
-  Christophe Fraser
-}
+  Original idea by Anne Cori and Christophe Fraser.
+  Implementation by Thibaut Jombart \email{t.jombart@imperial.ac.uk}.
+ }
 \examples{
 \dontrun{
 dat <- haploGen()

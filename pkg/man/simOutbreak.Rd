@@ -42,6 +42,8 @@ tree of the outbreak should be included in the output.}
     instance, \code{i=1:3} will retain only the first three haplotypes of the
     outbreak. \code{j} and \code{drop} are only provided for compatibility,
     but not used.}
+  \item{y}{present for compatibility with the generic 'plot'
+method. Currently not used.}
   \item{cex}{a size factor for the vertices of the plotted graph.}
   \item{col}{the color of the vertices of the plotted graph.}
   \item{label}{the labels of the vertices of the plotted graph.}
