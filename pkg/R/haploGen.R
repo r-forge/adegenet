@@ -10,7 +10,7 @@
 ##
 haploGen <- function(seq.length=1e4, mu.transi=1e-4, mu.transv=mu.transi/2, t.max=20,
                      gen.time=function(){1+rpois(1,0.5)},
-                     repro=function(){rpois(1,1.5)}, max.nb.haplo=1e3,
+                     repro=function(){rpois(1,1.5)}, max.nb.haplo=200,
                      geo.sim=FALSE, grid.size=10, lambda.xy=0.5,
                      mat.connect=NULL,
                      ini.n=1, ini.xy=NULL){
@@ -20,16 +20,16 @@ haploGen <- function(seq.length=1e4, mu.transi=1e-4, mu.transv=mu.transi/2, t.ma
 
 
     ## HANDLE ARGUMENTS ##
-    ## if numeric vector, taken as proba for t=0,1,2,...(length-1)
+    ## if numeric value, make it a function
     if(is.numeric(gen.time)){
-        gen.time.val <- gen.time/sum(gen.time)
-        gen.time <- function(){sample(0:(length(repro.val)-1), size=1, prob=gen.time.val)}
+        gen.time.val <- gen.time[1]
+        gen.time <- function(){return(gen.time.val)}
     }
 
-    ## if numeric vector, taken as proba for ndesc=0,1,2,...(length-1)
+    ## if numeric value, make it a function
     if(is.numeric(repro)){
-        repro.val <- repro/sum(repro)
-        repro <- function(){sample(0:(length(repro.val)-1),size=1,prob=repro.val)}
+        repro.val <- repro[1]
+        repro <- function(){return(repro.val)}
     }
 
 

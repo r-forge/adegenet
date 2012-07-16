@@ -117,12 +117,12 @@ gengraph.matrix <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TR
 ############
 ## GENIND ##
 ############
-gengraph.dist <- function(x, cutoff=NULL, ncut=NULL, computeAll=FALSE, plot=TRUE, col.pal=funky, ...){
+gengraph.dist <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, ...){
     ## CHECKS ##
     if(!require("igraph")) stop("igraph is required")
 
     ## USE MATRIX METHOD ##
-    res <- gengraph(as.matrix(x), cutoff=cutoff, ncut=ncut, computeAll=computeAll, plot=plot, col.pal=col.pal, ...)
+    res <- gengraph(as.matrix(x), cutoff=cutoff, ngrp=ngrp, computeAll=computeAll, plot=plot, show.graph=show.graph, col.pal=col.pal, ...)
     return(res)
 } # end gengraph.dist
 
@@ -135,7 +135,7 @@ gengraph.dist <- function(x, cutoff=NULL, ncut=NULL, computeAll=FALSE, plot=TRUE
 ############
 ## GENIND ##
 ############
-gengraph.genind <- function(x, cutoff=NULL, ncut=NULL, computeAll=FALSE, plot=TRUE, col.pal=funky, ...){
+gengraph.genind <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, ...){
     ## CHECKS ##
     if(!require("igraph")) stop("igraph is required")
 
@@ -144,7 +144,7 @@ gengraph.genind <- function(x, cutoff=NULL, ncut=NULL, computeAll=FALSE, plot=TR
     D <- (1-propShared(x))*nLoc(x)*ploidy(x)
 
     ## USE MATRIX METHOD ##
-    res <- gengraph(D, cutoff=cutoff, ncut=ncut, computeAll=computeAll, plot=plot, col.pal=col.pal, ...)
+    res <- gengraph(D, cutoff=cutoff, ngrp=ngrp, computeAll=computeAll, plot=plot, show.graph=show.graph, col.pal=col.pal, ...)
     return(res)
 } # end gengraph.genind
 
@@ -158,7 +158,7 @@ gengraph.genind <- function(x, cutoff=NULL, ncut=NULL, computeAll=FALSE, plot=TR
 ############
 ## GENPOP ##
 ############
-gengraph.genpop <- function(x, cutoff=NULL, ncut=NULL, computeAll=FALSE, plot=TRUE, col.pal=funky, method=1, ...){
+gengraph.genpop <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, method=1, ...){
     ## CHECKS ##
     if(!require("igraph")) stop("igraph is required")
 
@@ -171,7 +171,7 @@ gengraph.genpop <- function(x, cutoff=NULL, ncut=NULL, computeAll=FALSE, plot=TR
     }
 
     ## USE MATRIX METHOD ##
-    res <- gengraph(D, cutoff=cutoff, ncut=ncut, computeAll=computeAll, plot=plot, col.pal=col.pal, ...)
+    res <- gengraph(D, cutoff=cutoff, ngrp=ngrp, computeAll=computeAll, plot=plot, show.graph=show.graph, col.pal=col.pal, ...)
     return(res)
 } # end gengraph.genpop
 
@@ -184,7 +184,7 @@ gengraph.genpop <- function(x, cutoff=NULL, ncut=NULL, computeAll=FALSE, plot=TR
 ############
 ## DNABIN ##
 ############
-gengraph.DNAbin <- function(x, cutoff=NULL, ncut=NULL, computeAll=FALSE, plot=TRUE, col.pal=funky, ...){
+gengraph.DNAbin <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, ...){
     ## CHECKS ##
     if(!require("igraph")) stop("igraph is required")
     if(!require("ape")) stop("ape is required")
@@ -193,7 +193,7 @@ gengraph.DNAbin <- function(x, cutoff=NULL, ncut=NULL, computeAll=FALSE, plot=TR
     D <- as.matrix(round(dist.dna(x,model="raw", pairwise.deletion = TRUE)*ncol(x)))
 
     ## USE MATRIX METHOD ##
-    res <- gengraph(D, cutoff=cutoff, ncut=ncut, computeAll=computeAll, plot=plot, col.pal=col.pal, ...)
+    res <- gengraph(D, cutoff=cutoff, ngrp=ngrp, computeAll=computeAll, plot=plot, show.graph=show.graph, col.pal=col.pal, ...)
     return(res)
 } # end gengraph.DNAbin
 
