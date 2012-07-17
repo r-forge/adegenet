@@ -119,8 +119,10 @@ simOutbreak <- function(R0, infec.curve, n.hosts=200, duration=50,
     res$id <- 1:res$n
     res$nmut <- sapply(1:res$n, function(i) dist.dna(res$dna[c(res$id[i],res$ances[i]),], model="raw"))*ncol(res$dna)
     res$call <- match.call()
-    res$tree <- fastme.ols(dist.dna(res$dna, model="TN93"))
-    res$tree <- root(res$tree,"1")
+    if(tree){
+        res$tree <- fastme.ols(dist.dna(res$dna, model="TN93"))
+        res$tree <- root(res$tree,"1")
+    }
     class(res) <- "simOutbreak"
     return(res)
 
