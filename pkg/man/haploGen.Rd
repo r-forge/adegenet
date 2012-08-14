@@ -30,8 +30,8 @@
   objects. A seqTrack method is also provided for analysing
   \code{haploGen} objects.
 
-  Note that for simulation of outbreaks, the new tool \code{\link{simOutbreak}} should
-  be used.
+  Note that for simulation of outbreaks, the new tool \code{simOutbreak}
+  in the \code{outbreaker} package should be used.
 }
 \usage{
 haploGen(seq.length=1e4, mu.transi=1e-4, mu.transv=mu.transi/2, t.max=20,
