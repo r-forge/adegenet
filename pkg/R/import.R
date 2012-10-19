@@ -1173,3 +1173,115 @@ fasta2genlight <- function(file, quiet=FALSE, chunkSize=1000, saveNbAlleles=FALS
 
     return(res)
 } # end fasta2genlight
+
+
+
+
+
+
+
+
+###########################
+## Function fasta2DNAbin
+###########################
+fasta2DNAbin <- function(file, quiet=FALSE, chunkSize=10, snpOnly=FALSE, ...){
+    if(!require(ape)) stop("ape package is needed")
+
+    ## HANDLE ARGUMENTS ##
+    ext <- .readExt(file)
+    ext <- toupper(ext)
+    if(!ext %in% c("FASTA", "FA", "FAS")) warning("wrong file extension - '.fasta', '.fa' or '.fas' expected")
+    if(!quiet) cat("\n Converting FASTA alignment into a DNAbin object... \n\n")
+
+
+    ## PRIOR CHECKS ##
+    ## find nb of lines per genome ##
+
+    ## find length of a single line of sequence
+    if(!quiet) cat("\n Finding the size of a single genome... \n\n")
+    lines.to.skip <- 0
+    txt <- scan(file,what="character",sep="\n",quiet=TRUE, nmax=1)
+
+    while(length(grep("^>.+", txt))==1){
+        lines.to.skip <- lines.to.skip + 1
+        txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, n=1)
+    }
+
+    char.per.line <- nchar(txt)
+    nbOfLinesToRead <- max(round(1e6/char.per.line),1)#
+
+    ## read file to find genome size, 1e6 characters at a time
+    nblocks <- 1
+    txt <- scan(file,what="character",sep="\n",quiet=TRUE, n=nbOfLinesToRead*nblocks)
+
+    while(length(grep("^>.+", txt))<2){
+        nblocks <- nblocks+1
+        txt <- scan(file,what="character",sep="\n",quiet=TRUE, n=nbOfLinesToRead*nblocks)
+    }
+
+    ## this is the nb of lines for one genome
+    ## including the first line of annotation
+    LINES.PER.IND <- diff(grep("^>.+", txt))
+
+    ## this is the length of a genome single
+    GENOMESIZE <- sum(nchar(txt[2:LINES.PER.IND]))
+    if(!quiet) cat("\n genome size is:", format(GENOMESIZE, big.mark=","), "nucleotides \n")
+    if(!quiet) cat("\n(",format(LINES.PER.IND, big.mark=","), " lines per genome )\n")
+
+
+    ## START READING / CONVERTING GENOMES ##
+    if(!quiet) cat("\n Importing sequences... \n")
+
+    ## read all genomes by chunks
+    ## initialize
+    lines.to.skip <- 0
+    IND.LAB <- NULL
+    COUNT <- 0 # used to count the nb reads
+
+    txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, n=LINES.PER.IND*chunkSize)
+    res <- raw()
+
+    ## read and process chunks
+    while(length(txt)>0){
+        COUNT <- COUNT + 1
+        if(!quiet) {
+            for(i in 1:(COUNT*chunkSize)) cat(".")
+        }
+
+        nb.ind <- length(grep("^>", txt))
+        IND.LAB <- c(IND.LAB, sub(">","",txt[grep("^>", txt)])) # find individuals' labels
+        txt <- split(txt, rep(1:nb.ind, each=LINES.PER.IND)) # split per individuals
+        txt <- lapply(txt, function(e) unlist(strsplit(tolower(paste(e[-1], collapse="")), split=""))) # each genome -> one vector
+
+        ## convert character vectors to DNAbin output
+        res <- c(res, unlist(lapply(txt, as.DNAbin)))
+
+        ## ## POOL contains all alleles of each position
+        ## temp <- as.list(apply(matrix(unlist(txt), byrow=TRUE, nrow=length(txt)),2,unique)) # alleles current genomes
+        ## POOL <- mapply(function(x,y) unique(c(x,y)), POOL, temp, SIMPLIFY=FALSE) # update global pool
+
+        lines.to.skip <- lines.to.skip + nb.ind*LINES.PER.IND
+        txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, n=LINES.PER.IND*chunkSize)
+    }
+
+    ## GET FINAL OBJECT ##
+    if(!quiet) cat("\n Forming final object... \n")
+
+    ## form matrix ##
+    res <- matrix(res, nrow=length(IND.LAB), byrow=TRUE)
+    class(res) <- "DNAbin"
+    rownames(res) <- IND.LAB
+
+    ## extract snps if needed ##
+    if(snpOnly){
+        if(!quiet) cat("\n Extracting SNPs... \n")
+        snp.posi <- seg.sites(res)
+        if(length(snp.posi)==0) warning("no polymorphic site in the sequences")
+        res <- res[,seg.sites(res),drop=FALSE]
+    }
+
+    ## RETURN OUTPUT ##
+    if(!quiet) cat("\n...done.\n\n")
+
+    return(res)
+} # end fasta2DNAbin
