@@ -1243,11 +1243,16 @@ fasta2DNAbin <- function(file, quiet=FALSE, chunkSize=10, snpOnly=FALSE, ...){
 
     ## read and process chunks
     while(length(txt)>0){
+        ## clean memory ##
+        invisible(gc())
+
+        ## progression... ##
         COUNT <- COUNT + 1
         if(!quiet) {
             for(i in 1:(COUNT*chunkSize)) cat(".")
         }
 
+        ## process txt ##
         nb.ind <- length(grep("^>", txt))
         IND.LAB <- c(IND.LAB, sub(">","",txt[grep("^>", txt)])) # find individuals' labels
         txt <- split(txt, rep(1:nb.ind, each=LINES.PER.IND)) # split per individuals
@@ -1260,6 +1265,7 @@ fasta2DNAbin <- function(file, quiet=FALSE, chunkSize=10, snpOnly=FALSE, ...){
         ## temp <- as.list(apply(matrix(unlist(txt), byrow=TRUE, nrow=length(txt)),2,unique)) # alleles current genomes
         ## POOL <- mapply(function(x,y) unique(c(x,y)), POOL, temp, SIMPLIFY=FALSE) # update global pool
 
+        ## scan file further ##
         lines.to.skip <- lines.to.skip + nb.ind*LINES.PER.IND
         txt <- scan(file,what="character",sep="\n",quiet=TRUE, skip=lines.to.skip, n=LINES.PER.IND*chunkSize)
     }
