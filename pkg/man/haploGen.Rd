@@ -8,6 +8,7 @@
 \alias{haploGen-class}
 \alias{as.seqTrack.haploGen}
 \alias{as.igraph.haploGen}
+\alias{plot.haploGen}
 \alias{plotHaploGen}
 \alias{sample.haploGen}
 \title{Simulation of genealogies of haplotypes}
@@ -41,6 +42,8 @@ haploGen(seq.length=1e4, mu.transi=1e-4, mu.transv=mu.transi/2, t.max=20,
          mat.connect=NULL,
          ini.n=1, ini.xy=NULL)
 \method{print}{haploGen}(x, \dots)
+\method{as.igraph}{haploGen}(x, col.pal=redpal, \dots)
+\method{plot}{haploGen}(x, y=NULL, col.pal=redpal, \dots)
 \method{[}{haploGen}(x, i, j, drop=FALSE)
 \method{labels}{haploGen}(object, \dots)
 \method{as.POSIXct}{haploGen}(x, tz="", origin=as.POSIXct("2000/01/01"), \dots)
@@ -48,7 +51,6 @@ haploGen(seq.length=1e4, mu.transi=1e-4, mu.transv=mu.transi/2, t.max=20,
 as.seqTrack.haploGen(x)
 plotHaploGen(x, annot=FALSE, date.range=NULL, col=NULL, bg="grey", add=FALSE, \dots)
 sample.haploGen(x, n)
-\method{as.igraph}{haploGen}(x, \dots)
 %\S4method{coerce}{haploGen,graphNEL}(from, to, strict=TRUE)
 }
 \arguments{
@@ -86,12 +88,15 @@ sample.haploGen(x, n)
     with row 'i' / column 'j' corresponding to locations number 'i' and 'j'.
     Locations are numbered as in a matrix in which rows and columns are
     respectively x and y coordinates. For instance, in a 5x5 grid, locations
-    are numbered as in \code{matrix(1:25,5,5)}.
-  }
+    are numbered as in \code{matrix(1:25,5,5)}.}
   \item{ini.n}{an integer specifying the number of (identical)
     haplotypes to initiate the simulation}
   \item{ini.xy}{a vector of two integers giving the x/y coordinates of the initial haplotype.}
   \item{x,object}{\code{haploGen} objects.}
+  \item{y}{unused argument, for compatibility with 'plot'.}
+  \item{col.pal}{a color palette to be used to represent weights using
+   colors on the edges of the graph. See \code{?num2col}. Note that the
+   palette is inversed by default.}
   \item{i,j, drop}{\code{i} is a vector used for subsetting the object. For
     instance, \code{i=1:3} will retain only the first three haplotypes of the
     genealogy. \code{j} and \code{drop} are only provided for compatibility,
@@ -106,7 +111,8 @@ sample.haploGen(x, n)
   %   \code{haploGen} object into a \code{graphNEL-class}.}
   \item{tz, origin}{ aguments to be passed to \code{\link{as.POSIXct}}
     (see ?as.POSIXct)}
-  \item{\dots}{further arguments to be passed to other methods}
+  \item{\dots}{further arguments to be passed to other methods; for
+  'plot', arguments are passed to \code{plot.igraph}.}
   % \item{strict}{a logical used for compatibility with \code{as} generic
   %   function, but not used in the conversion. See \code{\link{setAs}} for
   %   more information.}
@@ -144,33 +150,29 @@ sample.haploGen(x, n)
   \code{install.packages("ape")}
 
   - for various purposes including plotting, converting genealogies to
-  graphs (\code{graphNEL-class} class) can be useful. This requires the
-  packages graph, and possibly Rgraphviz for plotting. These packages are
-  not on CRAN, but on Bioconductor. To install them, use:\cr
-  source("http://bioconductor.org/biocLite.R")\cr
-  biocLite("graph")\cr
-  biocLite("Rgraphviz")
-
-  See the respective vignettes for more information on using these packages.
-
+  graphs can be useful. From adegenet version 1.3-5 onwards, this is
+  achieved using the package \code{igraph}. See below.
 
   === Converting haploGen objects to graphs ===\cr
   \code{haploGen} objects can be converted to \code{igraph}
   objects (package \code{igraph}), which can in turn be plotted and manipulated using classical
   graph tools. Simply use 'as.igraph(x)' where 'x' is a
   \code{haploGen} object. This functionality requires the \code{igraph}
-  package.
+  package. Graphs are time oriented (top=old, bottom=recent).
 }
 \seealso{
- \code{\link{simOutbreak}} for simulating disease outbreaks under a
-  realistic epidemiological model.
+ \code{simOutbreak} in the package 'outbreaker' for simulating disease
+  outbreaks under a realistic epidemiological model.
 }
 \examples{
 \dontrun{
-if(require(ape)){
+if(require(ape) && require(igraph)){
 ## PERFORM SIMULATIONS
 x <- haploGen(geo.sim=TRUE)
 x
+
+## PLOT DATA
+plot(x)
 
 ## PLOT SPATIAL SPREAD
 plotHaploGen(x, bg="white")
@@ -181,14 +183,12 @@ title("Spatial dispersion")
 x.recons <- seqTrack(x)
 mean(x.recons$ances==x$ances, na.rm=TRUE) # proportion of correct reconstructions
 
-
-if(require(igraph)){
 g <- as.igraph(x)
 g
 plot(g)
 plot(g, vertex.size=0)
 
-}
+
 }
 }
 }

@@ -23,9 +23,9 @@ fasta2genlight(file, quiet=FALSE, chunkSize = 1000, saveNbAlleles=FALSE,
 }
 \arguments{
   \item{file}{ a character string giving the path to the file to
-    convert, with the extension ".snp".}
+    convert, with the extension ".fa", ".fas", or ".fasta".}
   \item{quiet}{ logical stating whether a conversion messages should be
-    printed (TRUE,default) or not (FALSE).}
+    printed (FALSE,default) or not (TRUE).}
   \item{chunkSize}{an integer indicating the number of genomes to be
     read at a time; larger values require more RAM but decrease the time
     needed to read the data.}

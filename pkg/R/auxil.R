@@ -248,9 +248,9 @@ fac2col <- function(x, col.pal=funky, na.col="grey", seed=1){
 
 ## pre-defined palettes ##
 ## mono color
-bluepal <- colorRampPalette(c("white","blue"))
-redpal <- colorRampPalette(c("white","green"))
-greenpal <- colorRampPalette(c("white","red"))
+bluepal <- colorRampPalette(c("lightgrey","blue"))
+redpal <- colorRampPalette(c("lightgrey","red"))
+greenpal <- colorRampPalette(c("lightgrey","green"))
 
 ## bi-color
 flame <- colorRampPalette(c("gold","red"))
