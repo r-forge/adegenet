@@ -560,10 +560,9 @@ sample.haploGen <- function(x, n){
 ######################
 ## as.igraph.haploGen
 ######################
-as.igraph.haploGen <- function(x, ...){
+as.igraph.haploGen <- function(x, col.pal=redpal, ...){
     if(!require(igraph)) stop("package igraph is required for this operation")
     if(!require(ape)) stop("package ape is required for this operation")
-    ## if(!require(ade4)) stop("package ape is required for this operation")
 
     ## GET DAG ##
     from <- x$ances
@@ -578,20 +577,57 @@ as.igraph.haploGen <- function(x, ...){
     temp <- mapply(function(i,j) return(D[i,j]), as.integer(from), as.integer(to))
     E(out)$weight <- temp[isNotNA]
 
-    ## SET ARROW WIDTH ##
-    temp <- max(E(out)$weight) - E(out)$weight
-    temp <- temp/max(temp) * 4
-    E(out)$width <- round(temp)+1
 
+    ## DATES FOR VERTICES
+    V(out)$dates <- x$date
 
-    ## ## SET LAYOUT ##
-    ## xcoord <- x$dates
-    ## ##ycoord <- dudi.pco(suppressWarnings(cailliez(as.dist(D))),scannf=FALSE,nf=1)$li[,1]
-    ## ycoord <- 1:length(xcoord)
-    ## set.graph.attribute(out, "layout", as.matrix(data.frame(xcoord,ycoord)))
+    ## SET EDGE LABELS ##
+    E(out)$label <- E(out)$weight
+
+    ## SET EDGE COLORS
+    E(out)$color <- num2col(E(out)$weight, col.pal=col.pal, reverse=TRUE)
+
+    ## SET LAYOUT ##
+    ypos <- V(out)$dates
+    ypos <- abs(ypos-max(ypos))
+    attr(out, "layout") <- layout.fruchterman.reingold(out, params=list(miny=ypos, maxy=ypos))
 
     return(out)
-}
+} # end as.igraph.haploGen
+
+
+
+
+
+
+#################
+## plot.haploGen
+#################
+plot.haploGen <- function(x, y=NULL, col.pal=redpal, ...){
+    if(!require(igraph)) stop("igraph is required")
+
+    ## get graph ##
+    g <- as.igraph(x, col.pal=col.pal)
+
+    ## make plot ##
+    plot(g, layout=attr(g,"layout"), ...)
+
+    ## return graph invisibly ##
+    return(invisible(g))
+
+} # end plot.haploGen
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

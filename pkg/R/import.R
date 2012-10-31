@@ -341,9 +341,11 @@ read.genetix <- function(file=NULL,missing=NA,quiet=FALSE) {
 
 
 
-##########################
+
+
+######################
 # Function read.fstat
-##########################
+######################
 read.fstat <- function(file,missing=NA,quiet=FALSE){
     ##if(!file.exists(file)) stop("Specified file does not exist.") <- not needed
     if(toupper(.readExt(file)) != "DAT") stop("File extension .dat expected")
@@ -1184,7 +1186,7 @@ fasta2genlight <- function(file, quiet=FALSE, chunkSize=1000, saveNbAlleles=FALS
 ###########################
 ## Function fasta2DNAbin
 ###########################
-fasta2DNAbin <- function(file, quiet=FALSE, chunkSize=10, snpOnly=FALSE, ...){
+fasta2DNAbin <- function(file, quiet=FALSE, chunkSize=10, snpOnly=FALSE){
     if(!require(ape)) stop("ape package is needed")
 
     ## HANDLE ARGUMENTS ##
