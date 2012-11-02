@@ -331,7 +331,7 @@ void snpbin2freq(struct snpbin *x, double *out){
     *temp=nLoc(x);
     bytesToDouble(x->bytevec, x->byteveclength, x->bytevecnb, out, temp);
     int i;
- 	
+
     for(i=0; i < nLoc(x); i++){
 	out[i] = out[i] / ploid;
     }
@@ -354,13 +354,13 @@ void printsnpbin(struct snpbin *x){
 	Rprintf("%i ", (int) (x->bytevec)[i]);
 	/* printf("%i ", (int) (x->bytevec)[i]); */
     }
-    printf("   ");
+    Rprintf("   ");
     for(i=0;i<nLoc(x);i++){
 	Rprintf("%i ", temp[i]);
 	/* printf("%i ", temp[i]); */
     }
 
-    printf("NA posi: ");
+    Rprintf("NA posi: ");
     for(i=0;i< *(x->nanb);i++){
 	Rprintf("%i ", (x->naposi)[i]);
 	/* printf("%i ", (x->naposi)[i]); */
