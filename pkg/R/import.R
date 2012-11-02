@@ -861,7 +861,7 @@ read.snp <- function(file, quiet=FALSE, chunkSize=1000,
         other <- list(chromosome = misc.info$chromosome)
     }
 
-    res <- new("genlight", gen=res, ind.names=ind.names, position=misc.info$position, loc.all=misc.info$allele, ploidy=misc.info$ploidy, pop=misc.info$population, other=other)
+    res <- new("genlight", gen=res, ind.names=ind.names, position=misc.info$position, loc.all=misc.info$allele, ploidy=misc.info$ploidy, pop=misc.info$population, other=other, multicore=multicore)
 
     if(!quiet) cat("\n...done.\n\n")
 
@@ -1000,7 +1000,7 @@ read.PLINK <- function(file, map.file=NULL, quiet=FALSE, chunkSize=1000,
     ## BUILD FINAL OBJECT ##
     if(!quiet) cat("\n Building final object... \n")
 
-    res <- new("genlight",res, ploidy=2)
+    res <- new("genlight",res, ploidy=2, multicore=multicore)
     indNames(res) <- misc.info$IID
     pop(res) <- misc.info$FID
     locNames(res) <- loc.names
@@ -1163,7 +1163,7 @@ fasta2genlight <- function(file, quiet=FALSE, chunkSize=1000, saveNbAlleles=FALS
     ## BUILD FINAL OBJECT ##
     if(!quiet) cat("\n Building final object... \n")
 
-    res <- new("genlight",res, ploidy=1)
+    res <- new("genlight",res, ploidy=1, multicore=multicore)
     indNames(res) <- IND.LAB
     alleles(res) <- sapply(POOL[snp.posi], paste, collapse="/")
     position(res) <- which(snp.posi)
