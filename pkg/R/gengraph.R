@@ -10,7 +10,8 @@ gengraph <-  function (x, ...) UseMethod("gengraph")
 #############
 ## DEFAULT ##
 #############
-gengraph.default <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, ...){
+gengraph.default <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky,
+                             truenames=TRUE, ...){
     stop(paste("No method for objects of class",class(x)))
 } # end gengraph.default
 
@@ -21,7 +22,8 @@ gengraph.default <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=T
 ############
 ## MATRIX ##
 ############
-gengraph.matrix <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, ...){
+gengraph.matrix <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky,
+                            truenames=TRUE, ...){
     ## CHECKS ##
     if(!require("igraph")) stop("igraph is required")
 
@@ -50,7 +52,11 @@ gengraph.matrix <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TR
             if(plot){
                 abline(v=ans,col="red",lty=2, lwd=2)
             }
-            res <- gengraph.matrix(x, cutoff=ans)
+            res <- gengraph.matrix(x, cutoff=ans, truenames=truenames)
+            if(truenames){
+                V(res$graph)$label <- rownames(x)
+            }
+
             cat(paste("\nNumber of clusters found:  ", res$clust$no, sep=""))
             if(plot && show.graph) plot(res$graph)
             ans <- ""
@@ -74,6 +80,9 @@ gengraph.matrix <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TR
         col <- col.pal(clust$no)[1:clust$no]
         names(col) <- 1:clust$no
         res <- list(graph=g, clust=clusters(g), cutoff=cutoff, col=col)
+        if(truenames){
+            V(res$graph)$label <- rownames(x)
+        }
 
     } else { ## IF CUT-OFF POINT NEEDS TO BE FOUND ##
         if(ngrp>=nrow(x)) stop("ngrp is greater than or equal to the number of individuals")
@@ -93,7 +102,6 @@ gengraph.matrix <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TR
 
         ## FIND THE LOWEST CUTOFF GIVING NGRP ##
         res <- gengraph.matrix(x,cutoff=cutoff)
-
         while(res$clust$no>ngrp){
             cutoff <- cutoff+1
             res <- gengraph.matrix(x,cutoff=cutoff)
@@ -104,6 +112,12 @@ gengraph.matrix <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TR
 
 
     ## RETURN ##
+    if(truenames){
+        V(res$graph)$label <- rownames(x)
+    } else {
+        V(res$graph)$label <- 1:nrow(x)
+    }
+
     return(res)
 
 } # end gengraph.matrix
@@ -122,7 +136,8 @@ gengraph.dist <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE
     if(!require("igraph")) stop("igraph is required")
 
     ## USE MATRIX METHOD ##
-    res <- gengraph(as.matrix(x), cutoff=cutoff, ngrp=ngrp, computeAll=computeAll, plot=plot, show.graph=show.graph, col.pal=col.pal, ...)
+    res <- gengraph(as.matrix(x), cutoff=cutoff, ngrp=ngrp, computeAll=computeAll, plot=plot, show.graph=show.graph, col.pal=col.pal,
+                    truenames=truenames, ...)
     return(res)
 } # end gengraph.dist
 
@@ -135,7 +150,8 @@ gengraph.dist <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE
 ############
 ## GENIND ##
 ############
-gengraph.genind <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, ...){
+gengraph.genind <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky,
+                            truenames=TRUE, ...){
     ## CHECKS ##
     if(!require("igraph")) stop("igraph is required")
 
@@ -144,7 +160,12 @@ gengraph.genind <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TR
     D <- (1-propShared(x))*nLoc(x)*ploidy(x)
 
     ## USE MATRIX METHOD ##
-    res <- gengraph(D, cutoff=cutoff, ngrp=ngrp, computeAll=computeAll, plot=plot, show.graph=show.graph, col.pal=col.pal, ...)
+    res <- gengraph(D, cutoff=cutoff, ngrp=ngrp, computeAll=computeAll, plot=plot, show.graph=show.graph, col.pal=col.pal,
+                    truenames=truenames, ...)
+    if(truenames){
+        V(res$graph)$label <- indNames(x)
+    }
+
     return(res)
 } # end gengraph.genind
 
@@ -158,7 +179,8 @@ gengraph.genind <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TR
 ############
 ## GENPOP ##
 ############
-gengraph.genpop <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, method=1, ...){
+gengraph.genpop <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, method=1,
+                            truenames=TRUE, ...){
     ## CHECKS ##
     if(!require("igraph")) stop("igraph is required")
 
@@ -171,7 +193,12 @@ gengraph.genpop <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TR
     }
 
     ## USE MATRIX METHOD ##
-    res <- gengraph(D, cutoff=cutoff, ngrp=ngrp, computeAll=computeAll, plot=plot, show.graph=show.graph, col.pal=col.pal, ...)
+    res <- gengraph(D, cutoff=cutoff, ngrp=ngrp, computeAll=computeAll, plot=plot, show.graph=show.graph, col.pal=col.pal,
+                    truenames=truenames, ...)
+    if(truenames){
+        V(res$graph)$label <- x@pop.names
+    }
+
     return(res)
 } # end gengraph.genpop
 
@@ -184,7 +211,8 @@ gengraph.genpop <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TR
 ############
 ## DNABIN ##
 ############
-gengraph.DNAbin <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, ...){
+gengraph.DNAbin <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky,
+                            truenames=TRUE, ...){
     ## CHECKS ##
     if(!require("igraph")) stop("igraph is required")
     if(!require("ape")) stop("ape is required")
@@ -193,7 +221,8 @@ gengraph.DNAbin <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TR
     D <- as.matrix(round(dist.dna(x,model="raw", pairwise.deletion = TRUE)*ncol(x)))
 
     ## USE MATRIX METHOD ##
-    res <- gengraph(D, cutoff=cutoff, ngrp=ngrp, computeAll=computeAll, plot=plot, show.graph=show.graph, col.pal=col.pal, ...)
+    res <- gengraph(D, cutoff=cutoff, ngrp=ngrp, computeAll=computeAll, plot=plot, show.graph=show.graph, col.pal=col.pal,
+                    truenames=truenames, ...)
     return(res)
 } # end gengraph.DNAbin
 

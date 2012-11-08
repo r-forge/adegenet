@@ -76,9 +76,9 @@ DNAbin2genind <- function(x, pop=NULL, exp.char=c("a","t","g","c"), na.char=NULL
 
 
 
-################
-# alignment2genind
-################
+####################
+## alignment2genind
+####################
 alignment2genind <- function(x, pop=NULL, exp.char=c("a","t","g","c"), na.char="-", polyThres=1/100){
 
     ## misc checks
@@ -155,7 +155,51 @@ alignment2genind <- function(x, pop=NULL, exp.char=c("a","t","g","c"), na.char="
 
 
 
+#################
+## findMutations
+#################
 
+## generic
+findMutations <- function(...){
+    UseMethod("findMutations")
+}
+
+## method for DNAbin
+findMutations.DNAbin <- function(x, pairs=NULL, ...){
+    ## CHECKS ##
+    if(!require(ape)) stop("the ape package is needed")
+    if(!inherits(x,"DNAbin")) stop("x is not a DNAbin object")
+    x <- as.matrix(x)
+
+    ## function to pull out mutations from sequence a to b ##
+    f1 <- function(a,b){
+        seqa <- as.character(x[a,])
+        seqb <- as.character(x[b,])
+        temp <- which(seqa != seqb)
+        ori <- seqa[temp]
+        mut <- seqb[temp]
+        names(ori) <- names(mut) <- temp
+        toRemove <- !ori %in% c('a','t','g','c') | !mut %in% c('a','t','g','c')
+        ori <- ori[!toRemove]
+        mut <- mut[!toRemove]
+        res <- data.frame(ori,mut)
+        names(res) <- rownames(x)[c(a,b)]
+        res$short <- paste(row.names(res),":",res[,1],"->",res[,2],sep="")
+        return(res)
+    }
+
+    ## get list of pairs to compare ##
+    if(is.null(pairs)){
+        pairs <- expand.grid(1:nrow(x),1:nrow(x))
+        pairs <- pairs[pairs[,1]!=pairs[,2],,drop=FALSE]
+    }
+
+    out <- lapply(1:nrow(pairs), function(i) f1(pairs[i,1], pairs[i,2]))
+    names(out) <- paste(rownames(x)[pairs[,1]], rownames(x)[pairs[,2]],sep="->")
+
+    return(out)
+
+} # end findMutations
 
 
 
