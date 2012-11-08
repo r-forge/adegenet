@@ -206,6 +206,33 @@ findMutations.DNAbin <- function(x, pairs=NULL, ...){
 
 
 
+## ##################
+## ## graphMutations
+## ##################
+## graphMutations <- function(x, plot=TRUE, ...){
+##     if(!require(igraph)) stop("igraph is required")
+
+##     ## GET GRAPH ##
+##     from.old <- gsub("->.*","",names(x))
+##     to.old <- gsub(".*->","",names(x))
+##     vnames <- sort(unique(c(from.old,to.old)))
+##     from <- match(from.old,vnames)
+##     to <- match(to.old,vnames)
+##     dat <- data.frame(from,to,stringsAsFactors=FALSE)
+##     out <- graph.data.frame(dat, directed=TRUE)
+
+##     ## SET VERTICES LABELS ##
+##     V(out)$label <- vnames
+
+##     ## SET ANNOTATIONS FOR THE BRANCHES ##
+##     annot <- unlist(lapply(x, function(e) paste(e$short, collapse="\n")))
+##     E(out)$label <- annot
+
+##     ## PLOT / RETURN ##
+##     if(plot) plot(out, ...)
+
+##     return(out)
+## } # end graphMutations
 
 
 
