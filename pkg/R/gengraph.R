@@ -22,6 +22,9 @@ gengraph.default <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=T
 ############
 ## MATRIX ##
 ############
+##
+## this is the basic method
+##
 gengraph.matrix <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky,
                             truenames=TRUE, ...){
     ## CHECKS ##
@@ -79,14 +82,24 @@ gengraph.matrix <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TR
         V(g)$color <- col.pal(clust$no)[clust$membership]
         col <- col.pal(clust$no)[1:clust$no]
         names(col) <- 1:clust$no
-        res <- list(graph=g, clust=clusters(g), cutoff=cutoff, col=col)
+
+        ## assign labels to vertices
         if(truenames){
-            V(res$graph)$label <- rownames(x)
+            V(g)$label <- rownames(x)
+        } else {
+            V(g)$label <- 1:nrow(x)
         }
+
+        ## assign labels to edges
+        if(length(E(g))>0) {
+            E(g)$label <- E(g)$weight
+        }
+
+        ## make result
+        res <- list(graph=g, clust=clusters(g), cutoff=cutoff, col=col)
 
     } else { ## IF CUT-OFF POINT NEEDS TO BE FOUND ##
         if(ngrp>=nrow(x)) stop("ngrp is greater than or equal to the number of individuals")
-
 
         ## FIRST HAVE A LOOK AT A RANGE OF VALUES ##
         cutToTry <- pretty(x,10)
@@ -112,11 +125,11 @@ gengraph.matrix <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TR
 
 
     ## RETURN ##
-    if(truenames){
-        V(res$graph)$label <- rownames(x)
-    } else {
-        V(res$graph)$label <- 1:nrow(x)
-    }
+    ## if(truenames){
+    ##     V(res$graph)$label <- rownames(x)
+    ## } else {
+    ##     V(res$graph)$label <- 1:nrow(x)
+    ## }
 
     return(res)
 
