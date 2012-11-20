@@ -10,8 +10,7 @@ gengraph <-  function (x, ...) UseMethod("gengraph")
 #############
 ## DEFAULT ##
 #############
-gengraph.default <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky,
-                             truenames=TRUE, ...){
+gengraph.default <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, truenames=TRUE, ...){
     stop(paste("No method for objects of class",class(x)))
 } # end gengraph.default
 
@@ -144,7 +143,7 @@ gengraph.matrix <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TR
 ############
 ## GENIND ##
 ############
-gengraph.dist <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, ...){
+gengraph.dist <- function(x, cutoff=NULL, ngrp=NULL, computeAll=FALSE, plot=TRUE, show.graph=TRUE, col.pal=funky, truenames=TRUE, ...){
     ## CHECKS ##
     if(!require("igraph")) stop("igraph is required")
 

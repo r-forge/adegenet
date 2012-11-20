@@ -9,8 +9,10 @@ findMutations <- function(...){
     UseMethod("findMutations")
 }
 
+
+
 ## METHOD FOR DNABIN
-findMutations.DNAbin <- function(x, from=NULL, to=NULL, ...){
+findMutations.DNAbin <- function(x, from=NULL, to=NULL, allcomb=TRUE, ...){
     ## CHECKS ##
     if(!require(ape)) stop("the ape package is needed")
     if(!inherits(x,"DNAbin")) stop("x is not a DNAbin object")
@@ -36,12 +38,23 @@ findMutations.DNAbin <- function(x, from=NULL, to=NULL, ...){
     }
 
     ## GET LIST OF PAIRS TO COMPARE ##
+    ## handle from/to as character
+    if(is.character(from)) from <- match(from, rownames(x))
+    if(is.character(to)) to <- match(to, rownames(x))
+
     ## handle NULL
     if(is.null(from)) from <- 1:nrow(x)
     if(is.null(to)) to <- 1:nrow(x)
 
     ## get pairs
-    pairs <- expand.grid(from, to)
+    if(allcomb){
+        pairs <- expand.grid(to, from)[,2:1,drop=FALSE]
+    } else {
+        N <- max(length(from),length(to))
+        from <- rep(from, length=N)
+        to <- rep(to, length=N)
+        pairs <- cbind(from, to)
+    }
 
     ## remove unwanted comparisons
     pairs <- pairs[pairs[,1]!=pairs[,2],,drop=FALSE]
@@ -69,12 +82,14 @@ graphMutations <- function(...){
     UseMethod("graphMutations")
 }
 
+
+
 ## METHOD FOR DNABIN
-graphMutations.DNAbin <- function(x, from=NULL, to=NULL, plot=TRUE, edge.curved=TRUE, ...){
+graphMutations.DNAbin <- function(x, from=NULL, to=NULL, allcomb=TRUE, plot=TRUE, curved.edges=TRUE, ...){
     if(!require(igraph)) stop("igraph is required")
 
     ## GET MUTATIONS ##
-    x <- findMutations(x, from=from, to=to)
+    x <- findMutations(x, from=from, to=to, allcomb=allcomb)
 
     ## GET GRAPH ##
     from <- gsub("->.*","",names(x))
@@ -86,7 +101,7 @@ graphMutations.DNAbin <- function(x, from=NULL, to=NULL, plot=TRUE, edge.curved=
     ## SET ANNOTATIONS FOR THE BRANCHES ##
     annot <- unlist(lapply(x, function(e) paste(e$short, collapse="\n")))
     E(out)$label <- annot
-    E(out)$curved <- edge.curved
+    E(out)$curved <- curved.edges
 
     ## PLOT / RETURN ##
     if(plot) plot(out, ...)
