@@ -1,9 +1,9 @@
 Package: adegenet
 Version: 1.3-6
-Date: 2012/10/31
+Date: 2013/01/30
 Title: adegenet: an R package for the exploratory analysis of genetic and genomic data.
 Author:  Thibaut Jombart <t.jombart@imperial.ac.uk>
-Developpers: Ismail Ahmed <ismail.ahmed@inserm.fr>, Anne Cori <a.cori@imperial.ac.uk>, Peter Solymos
+Developpers: Ismail Ahmed <ismail.ahmed@inserm.fr>, Anne Cori <a.cori@imperial.ac.uk>, Tobias Erik Reiners <Tobias.Reiners@Senckenberg.de>, Peter Solymos
 Contributed datasets from: Katayoun Moazami-Goudarzi, Denis Laloe,
   Dominique Pontier, Daniel Maillard, Francois Balloux
 Maintainer: Thibaut Jombart <t.jombart@imperial.ac.uk>
