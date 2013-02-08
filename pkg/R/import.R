@@ -1111,6 +1111,10 @@ fasta2genlight <- function(file, quiet=FALSE, chunkSize=1000, saveNbAlleles=FALS
     ## POOL <- lapply(POOL, setdiff, "-")
     nb.alleles <- sapply(POOL, length)
     snp.posi <- nb.alleles==2
+    if(all(!snp.posi)){
+        warning("No polymorphism in the alignment - returning empty object")
+        return(new("genlight"))
+    }
     sec.all <- unlist(lapply(POOL[snp.posi], function(e) e[2]))
 
 
