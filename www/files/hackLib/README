@@ -1,0 +1,23 @@
+
+=================================================
+ HACK TO INSTALL R PACKAGES WITHOUT ADMIN RIGHTS
+=================================================
+== AUTHOR ==
+ Thibaut Jombart, March 2013
+ tjombart@imperial.ac.uk
+
+
+
+== USAGE ==
+The function hackLib has to be loaded in R, either by copy-pasting the code of libHack.R into the R console, or by using the R command 'source' to load the file, e.g.:
+source("libHack.R")
+
+The hack is made active by typing:
+hackLib()
+
+By default, libraries will be installed in "C:/Users/Public/Rlibs" (windows systems). Other locations can be specified by the user, as an argument of the function. For instance, linux users might use:
+hackLib("~/Rlibs")
+to create a library in their home directory.
+
+Once the hack is activated, install packages normally. For instance, to install a package 'foo', simply use:
+install.packages("foo")
