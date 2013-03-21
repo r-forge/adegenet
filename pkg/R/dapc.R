@@ -380,9 +380,9 @@ dapc.genlight <- function(x, pop=NULL, n.pca=NULL, n.da=NULL,
 # Function print.dapc
 ######################
 print.dapc <- function(x, ...){
-    cat("\t#########################################\n")
+    cat("\t#################################################\n")
     cat("\t# Discriminant Analysis of Principal Components #\n")
-    cat("\t#########################################\n")
+    cat("\t#################################################\n")
     cat("class: ")
     cat(class(x))
     cat("\n$call: ")
