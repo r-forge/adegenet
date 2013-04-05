@@ -1290,6 +1290,7 @@ fasta2DNAbin <- function(file, quiet=FALSE, chunkSize=10, snpOnly=FALSE){
         snp.posi <- seg.sites(res)
         if(length(snp.posi)==0) warning("no polymorphic site in the sequences")
         res <- res[,seg.sites(res),drop=FALSE]
+        colnames(res) <- snp.posi
     }
 
     ## RETURN OUTPUT ##
