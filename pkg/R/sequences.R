@@ -36,10 +36,9 @@ DNAbin2genind <- function(x, pop=NULL, exp.char=c("a","t","g","c"), polyThres=1/
         vec <- as.character(locus)
         vec[!vec %in% exp.char] <- NA
         N <- sum(!is.na(vec)) # N: number of sequences
-        if(N==0) return(NULL) # escape if untyped locus
-        alleles <- names(which(table(vec)/N >= polyThres ))
-        if(length(alleles)<2) return(NULL) # escape if no polymorphism
-        vec[!vec %in% alleles] <- NA
+        if(N==0 || sum(table(vec)/N >= polyThres )<2) return(NULL) # escape if untyped locus or no SNPs
+        alleles <- unique(na.omit(vec))
+        ## vec[!vec %in% alleles] <- NA # this would replace rare alleles by NAs
         out <- sapply(alleles, function(e) 1*(vec==e))
         colnames(out) <- paste(posi, alleles, sep=".")
         return(out)
