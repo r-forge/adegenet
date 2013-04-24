@@ -9,6 +9,7 @@
 \alias{print.dapc}
 \alias{summary.dapc}
 \alias{predict.dapc}
+\alias{xval.dapc}
 \alias{as.lda}
 \alias{as.lda.dapc}
 \title{Discriminant Analysis of Principal Components (DAPC)}
@@ -36,7 +37,8 @@
 
   - \code{print.dapc}: prints the content of a \code{dapc} object.\cr
   - \code{summary.dapc}: extracts useful information from a  \code{dapc} object.\cr
-  - \code{predict.dapc}: predicts group memberships based on DAPC results.
+  - \code{predict.dapc}: predicts group memberships based on DAPC results.\cr
+  - \code{xval.dapc}: performs cross-validation of DAPC function varying the number of PCs and keeping the number of DAs fixed. 
 
 
   DAPC implementation calls upon \code{\link[ade4]{dudi.pca}} from the
@@ -73,6 +75,8 @@
 
 \method{predict}{dapc}(object, newdata, prior = object$prior, dimen,
          method = c("plug-in", "predictive", "debiased"), ...)
+
+\method{xval}{dapc}(object, n.pca, n.da, training.set = 90)
 }
 \arguments{
   \item{x}{\code{a data.frame}, \code{matrix}, or \code{\linkS4class{genind}}
@@ -132,6 +136,10 @@
     original ('training') data. In particular, variables must be exactly
     the same as in the original data. For  \linkS4class{genind}
     objects, see \code{\link{repool}} to ensure matching of alleles.}
+  \item{training.set}{the percentage of individuals randomly chosen in each population 
+    as the training set used for cross-validation. This value is applied to all groups/pops 
+    defined in the object. The default is set to 90\%. 
+    For meaningful cross-validation it is recommended not to go below 80\%}
   \item{prior,dimen,method}{see \code{?predict.lda}.}
 }
 \details{
@@ -172,6 +180,8 @@
   \item{var.contr}{(optional) a data.frame giving the contributions of original
     variables (alleles in the case of genetic data) to the principal components
     of DAPC.}
+  \item{match.prp}{a list, where each item is the proportion of individuals 
+    correctly matched to their original population in cross-validation.}
 
   
   === other outputs ===\cr
@@ -181,7 +191,11 @@
   \code{assign.prop} (proportion of overall correct assignment),
   \code{assign.per.pop} (proportion of correct assignment per group),
   \code{prior.grp.size} (prior group sizes), and \code{post.grp.size} (posterior
-  group sizes).
+  group sizes),  \code{xval.dapc} (returns a list of four lists, each one with as 
+  many items as cross-validation runs.  The first item is a list of \code{assign} components,  
+  the secon is a list of \code{posterior} components, the thirs is a list of \code{ind.score}
+  components and the fourth is a list of \code{match.prp} items, i.e. the prortion of the validation
+  set correctly matched to its original population)
 }
 \references{
   Jombart T, Devillard S and Balloux F  (2010) Discriminant analysis of
@@ -291,6 +305,26 @@ title("30 indiv popA, 30 indiv pop B, 30 hybrids")
 ## image using compoplot
 compoplot(dapc1, new.pred=hyb.pred, ncol=2)
 title("30 indiv popA, 30 indiv pop B, 30 hybrids")
+
+## CROSS-VALIDATION ##
+# select dataset
+data(microbov)
+summary(microbov) # the dataset contains 15 populations of different sizes
+
+# we take a fixed number of disriminant functions (15 in this case)
+# and we test how the cross-validation does varying the number of PCs
+# we specify the *maximum* number of PCs, and we will test how
+# the cross-validation performs by going from 1 PC to the maximum
+# we specified in the fucntion call
+
+crossval.test <- xval.dapc(microbov, n.pca = 40, n.da = 15, training.set = 90)
+
+attributes(crossval.test) # we get four lists of lists
+# namely "assign" "posterior" "ind.score" "match.prp"
+# a quick visual inspection of the cross-validation 
+
+plot(unlist(crossval.test$match.prp))
+
 }
 
 

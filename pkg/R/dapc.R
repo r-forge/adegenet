@@ -986,13 +986,29 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
 ## ############
 ## ## crossval
 ## ############
-## crossval <- function (x, ...) UseMethod("crossval")
+#xval <- function (x, ...) UseMethod("xval")
 
-## crossval.dapc <- function(){
-
-## }
-
-
+xval.dapc <- function(object, n.pca, n.da, training.set = 90){
+  training.set = training.set/100
+  kept.id <- unlist(tapply(1:nInd(object), pop(object), function(e) {pop.size = length(e); pop.size.train = round(pop.size * training.set); sample(e, pop.size.train, replace=FALSE)}))
+  training <- object[kept.id]
+  validating <- object[-kept.id]
+  post = vector(mode = 'list', length = n.pca)
+  asgn = vector(mode = 'list', length = n.pca)
+  ind = vector(mode = 'list', length = n.pca)
+  mtch = vector(mode = 'list', length = n.pca)
+  for(i in 1:n.pca){
+    dapc.base = dapc(training, n.pca = i, n.da = 15)
+    dapc.p = predict.dapc(dapc.base, newdata = validating)
+    match.prp = mean(as.character(dapc.p$assign)==as.character(pop(validating)))
+    post[[i]] = dapc.p$posterior
+    asgn[[i]] = dapc.p$assign
+    ind[[i]] = dapc.p$ind.score
+    mtch[[i]] = match.prp
+  }
+  res = list(assign = asgn, posterior = post, ind.score = ind, match.prp = mtch) 
+  return(res)
+} # end of xval.dapc
 
 ## ###############
 ## ## randtest.dapc
