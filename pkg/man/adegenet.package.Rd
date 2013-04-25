@@ -197,7 +197,7 @@
 }
 \author{
   Thibaut Jombart <t.jombart@imperial.ac.uk>\cr
-  Developpers: Ismail Ahmed <ismail.ahmed@inserm.fr>, Federico Calboli <f.calboli@imperial.ac.uk>,Tobias Erik Reiners, Peter Solymos, Anne Cori\cr
+  Developers: Ismail Ahmed <ismail.ahmed@inserm.fr>, Federico Calboli <f.calboli@imperial.ac.uk>,Tobias Erik Reiners, Peter Solymos, Anne Cori\cr
   and contributed datasets from: Katayoun Moazami-Goudarzi, Denis Laloë,
   Dominique Pontier, Daniel Maillard, Francois Balloux.
 }
