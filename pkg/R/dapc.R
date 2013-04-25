@@ -986,9 +986,9 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
 ## ############
 ## ## crossval
 ## ############
-#xval <- function (x, ...) UseMethod("xval")
+xval <- function (object, n.pca, n.da, training.set, ...) UseMethod("xval")
 
-xval.dapc <- function(object, n.pca, n.da, training.set = 90){
+xval.dapc <- function(object, n.pca, n.da, training.set = 90, ...){
   training.set = training.set/100
   kept.id <- unlist(tapply(1:nInd(object), pop(object), function(e) {pop.size = length(e); pop.size.train = round(pop.size * training.set); sample(e, pop.size.train, replace=FALSE)}))
   training <- object[kept.id]
