@@ -9,6 +9,7 @@
 \alias{print.dapc}
 \alias{summary.dapc}
 \alias{predict.dapc}
+\alias{xval}
 \alias{xval.dapc}
 \alias{as.lda}
 \alias{as.lda.dapc}
@@ -76,7 +77,7 @@
 \method{predict}{dapc}(object, newdata, prior = object$prior, dimen,
          method = c("plug-in", "predictive", "debiased"), ...)
 
-\method{xval}{dapc}(object, n.pca, n.da, training.set = 90)
+\method{xval}{dapc}(object, n.pca, n.da, training.set = 90, \ldots)
 }
 \arguments{
   \item{x}{\code{a data.frame}, \code{matrix}, or \code{\linkS4class{genind}}
