@@ -9,8 +9,9 @@
 \alias{print.dapc}
 \alias{summary.dapc}
 \alias{predict.dapc}
-\alias{xval}
 \alias{xval.dapc}
+\alias{xval}
+\alias{xval.genind}
 \alias{as.lda}
 \alias{as.lda.dapc}
 \title{Discriminant Analysis of Principal Components (DAPC)}
@@ -40,6 +41,9 @@
   - \code{summary.dapc}: extracts useful information from a  \code{dapc} object.\cr
   - \code{predict.dapc}: predicts group memberships based on DAPC results.\cr
   - \code{xval.dapc}: performs cross-validation of DAPC function varying the number of PCs and keeping the number of DAs fixed. 
+  - \code{xval}: performs cross-validation of DAPC function varying the number of PCs and keeping the number of DAs fixed. 
+  - \code{xval.genind}: performs cross-validation of DAPC function varying the number of PCs and keeping the number of DAs fixed. 
+
 
 
   DAPC implementation calls upon \code{\link[ade4]{dudi.pca}} from the
@@ -78,6 +82,8 @@
          method = c("plug-in", "predictive", "debiased"), ...)
 
 \method{xval}{dapc}(object, n.pca, n.da, training.set = 90, \ldots)
+
+\method{xval}{genind}(object, n.pca, n.da, training.set = 90, \ldots)
 }
 \arguments{
   \item{x}{\code{a data.frame}, \code{matrix}, or \code{\linkS4class{genind}}
@@ -192,7 +198,7 @@
   \code{assign.prop} (proportion of overall correct assignment),
   \code{assign.per.pop} (proportion of correct assignment per group),
   \code{prior.grp.size} (prior group sizes), and \code{post.grp.size} (posterior
-  group sizes),  \code{xval.dapc} (returns a list of four lists, each one with as 
+  group sizes),  \code{xval.dapc}, \code{xval.genind} and \code{xval}  (all return a list of four lists, each one with as 
   many items as cross-validation runs.  The first item is a list of \code{assign} components,  
   the secon is a list of \code{posterior} components, the thirs is a list of \code{ind.score}
   components and the fourth is a list of \code{match.prp} items, i.e. the prortion of the validation
@@ -325,6 +331,12 @@ attributes(crossval.test) # we get four lists of lists
 # a quick visual inspection of the cross-validation 
 
 plot(unlist(crossval.test$match.prp))
+
+# the use can also just call  xval:
+crossval.test2 <- xval(microbov, n.pca = 40, n.da = 15, training.set = 90)
+plot(unlist(crossval.test2$match.prp)) 
+
+
 
 }
 
