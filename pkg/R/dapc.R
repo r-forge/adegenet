@@ -986,7 +986,6 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
 ## ############
 ## ## crossval
 ## ############
-xval <- function (object, n.pca, n.da, training.set, ...) UseMethod("xval")
 
 xval.dapc <- function(object, n.pca, n.da, training.set = 90, ...){
   training.set = training.set/100
@@ -1010,6 +1009,11 @@ xval.dapc <- function(object, n.pca, n.da, training.set = 90, ...){
   return(res)
 } # end of xval.dapc
 
+xval <- function (object, n.pca, n.da, training.set, ...) UseMethod("xval")
+xval.genind  <- function(object, n.pca, n.da, training.set = 90, ...){
+  res = xval.dapc(object = object, n.pca = n.pca, n.da = n.da, training.set = training.set)
+  return(res)
+}
 ## ###############
 ## ## randtest.dapc
 ## ###############
