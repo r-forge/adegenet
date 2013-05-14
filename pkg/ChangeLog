@@ -7,8 +7,8 @@ NEW FEATURES
 	o new function any2col translates (numeric, factor, character)
 	vectors into colors, also providing information for a legend
 
-	o new function xval.dapc (and its wrapper xval), that performs 
-	cross-validation for a dapc analysis.
+	o new function xvalDapc which performs cross-validation for a dapc
+	analysis.
 
 
 	
