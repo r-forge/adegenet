@@ -257,14 +257,14 @@ fac2col <- function(x, col.pal=funky, na.col="grey", seed=NULL){
 any2col <- function(x, col.pal=seasun, na.col="transparent"){
     ## handle numeric data
     if(is.numeric(x)){
-        col <- num2col(x, col.pal=col.pal)
+        col <- num2col(x, col.pal=col.pal, na.col=na.col)
         leg.col <- num2col(pretty(x), x.min=min(x, na.rm=TRUE),
                            x.max=max(x, na.rm=TRUE), col.pal=col.pal,
                            na.col=na.col)
         leg.txt <- pretty(x)
     } else{ ## handle factor
         x <- factor(x)
-        col <- fac2col(x, col.pal=col.pal)
+        col <- fac2col(x, col.pal=col.pal, na.col=na.col)
         leg.col <- col.pal(length(levels(x)))
         leg.txt <- levels(x)
     }
