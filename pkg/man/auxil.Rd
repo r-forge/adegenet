@@ -72,8 +72,8 @@ adegenetWeb()
 corner(text, posi="topleft",  inset=0.1, \dots)
 num2col(x, col.pal=heat.colors, reverse=FALSE,
         x.min=min(x,na.rm=TRUE), x.max=max(x,na.rm=TRUE),
-        na.col="green")
-fac2col(x, col.pal=funky, na.col="grey", seed=NULL)
+        na.col="transparent")
+fac2col(x, col.pal=funky, na.col="transparent", seed=NULL)
 any2col(x, col.pal=seasun, na.col="transparent")
 transp(col, alpha=.5)
 }
