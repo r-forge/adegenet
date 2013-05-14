@@ -196,7 +196,8 @@ corner <- function(text, posi="topleft",  inset=0.1, ...){
 ###########
 ## translate numeric values into colors of a palette
 num2col <- function(x, col.pal=heat.colors, reverse=FALSE,
-                    x.min=min(x), x.max=max(x), na.col="green"){
+                    x.min=min(x,na.rm=TRUE), x.max=max(x,na.rm=TRUE),
+                    na.col="green"){
     ## if(any(is.na(x))) warning("NAs detected in x")
     x[x < x.min] <- x.min
     x[x > x.max] <- x.max
