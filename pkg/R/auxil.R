@@ -197,7 +197,7 @@ corner <- function(text, posi="topleft",  inset=0.1, ...){
 ## translate numeric values into colors of a palette
 num2col <- function(x, col.pal=heat.colors, reverse=FALSE,
                     x.min=min(x,na.rm=TRUE), x.max=max(x,na.rm=TRUE),
-                    na.col="green"){
+                    na.col="transparent"){
     ## if(any(is.na(x))) warning("NAs detected in x")
     x[x < x.min] <- x.min
     x[x > x.max] <- x.max
@@ -226,7 +226,7 @@ num2col <- function(x, col.pal=heat.colors, reverse=FALSE,
 ###########
 ## translate a factor into colors of a palette
 ## colors are randomized based on the provided seed
-fac2col <- function(x, col.pal=funky, na.col="grey", seed=NULL){
+fac2col <- function(x, col.pal=funky, na.col="transparent", seed=NULL){
     ## get factors and levels
     x <- factor(x)
     lev <- levels(x)
