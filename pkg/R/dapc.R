@@ -984,14 +984,13 @@ predict.dapc <- function(object, newdata, prior = object$prior, dimen,
 
 
 ############
-## crossval
+## xvalDapc
 ############
 
 xvalDapc <- function (x, ...) UseMethod("xvalDapc")
 
 xvalDapc.data.frame <- function(x, grp, n.pca.max, n.da=NULL, training.set = 1/2,
-                                center=TRUE, scale=FALSE,
-                                n.pca=NULL, n.rep=10, ...){
+                                center=TRUE, scale=FALSE, n.pca=NULL, n.rep=10, ...){
 
     ## CHECKS ##
     grp <- factor(grp)
@@ -1005,6 +1004,7 @@ xvalDapc.data.frame <- function(x, grp, n.pca.max, n.da=NULL, training.set = 1/2
     N.training <- round(N*training.set)
 
     ## GET FULL PCA ##
+    if(missing(n.pca.max)) n.pca.max <- min(dim(x))
     pcaX <- dudi.pca(x, nf=n.pca.max, scannf=FALSE, center=center, scale=scale)
     n.pca.max <- min(n.pca.max,pcaX$rank,N.training-1)
 
@@ -1031,12 +1031,62 @@ xvalDapc.data.frame <- function(x, grp, n.pca.max, n.da=NULL, training.set = 1/2
 
     ## GET %SUCCESSFUL OF ACCURATE PREDICTION FOR ALL VALUES ##
     res.all <- unlist(lapply(n.pca, get.prop.pred))
-    res <- list(success=res.all, n.pca=factor(rep(n.pca, each=n.rep)))
+    res <- data.frame(n.pca=rep(n.pca, each=n.rep), success=res.all)
     return(res)
-}
+} # end xvalDapc.data.frame
 
 
 xvalDapc.matrix <- xvalDapc.data.frame
+
+
+
+
+
+
+#############
+## discriVal
+#############
+
+discriVal <- function (x, ...) UseMethod("discriVal")
+
+discriVal.data.frame <- function(x, grp, n.pca.max, n.da=NULL, center=TRUE, scale=FALSE, n.pca=NULL, ...){
+
+    ## CHECKS ##
+    grp <- factor(grp)
+    n.pca <- n.pca[n.pca>0]
+    if(is.null(n.da)) {
+        n.da <- length(levels(grp))-1
+    }
+
+    ## GET FULL PCA ##
+    if(missing(n.pca.max)) n.pca.max <- min(dim(x))
+    pcaX <- dudi.pca(x, nf=n.pca.max, scannf=FALSE, center=center, scale=scale)
+    n.pca.max <- min(n.pca.max,pcaX$rank)
+
+    ## DETERMINE N.PCA IF NEEDED ##
+    if(is.null(n.pca)){
+        n.pca <- round(pretty(1:n.pca.max,10))
+    }
+    n.pca <- n.pca[n.pca>0 & n.pca<n.pca.max]
+
+    ## FUNCTION GETTING THE TOTAL DISCRIMINATION (SUM OF EIGENVALUES) FOR ONE GIVEN NB OF PCA PCs ##
+    ## n.pca is a number of retained PCA PCs
+    get.totdiscr <- function(n.pca){
+            temp.dapc <- suppressWarnings(dapc(x, grp, n.pca=n.pca, n.da=n.da, dudi=pcaX))
+            return(sum(temp.dapc$eig))
+    }
+
+
+    ## GET %SUCCESSFUL OF ACCURATE PREDICTION FOR ALL VALUES ##
+    res.all <- sapply(n.pca, get.totdiscr)
+    res <- data.frame(n.pca=n.pca, success=res.all)
+    return(res)
+} # end discriVal.data.frame
+
+
+discriVal.matrix <- discriVal.data.frame
+
+
 
 
 ## There's a bunch of problems down there, commenting it for nowé
