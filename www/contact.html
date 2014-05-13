@@ -18,7 +18,8 @@
   </script>
   </head>
   <body>
-    <div style="margin-left: 40px;"><span style="font-weight: bold;
+    <div style="margin-left: 40px; font-family:
+      Helvetica,Arial,sans-serif;"><span style="font-weight: bold;
         color: rgb(255, 102, 102);"><br>
         Note: I no longer reply to personal emails asking questions that
         should be asked on the adegenet forum. </span><span
@@ -27,13 +28,14 @@
         questions should go on the adegenet forum. Excitingly, all you
         need to know about this forum is just below.</span><br>
     </div>
-    <br>
-    &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <br>
-    <div style="margin-left: 40px;"><img alt="" src="images/bullet.png"
+    <br style="font-family: Helvetica,Arial,sans-serif;">
+    <span style="font-family: Helvetica,Arial,sans-serif;">
+      &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; </span><br style="font-family:
+      Helvetica,Arial,sans-serif;">
+    <div style="margin-left: 40px; font-family:
+      Helvetica,Arial,sans-serif;"><img alt="" src="images/bullet.png"
         style="width: 10px; height: 10px;"> <span style="font-weight:
-        bold;">The
-        adegenet
-        forum<br>
+        bold;">The adegenet forum<br>
       </span>For all discussions/questions related to adegenet.<br>
       - one address: adegenet-forum AT lists DOT r-forge DOT r-project
       DOT org<br>
@@ -45,113 +47,91 @@ href="https://lists.r-forge.r-project.org/cgi-bin/mailman/listinfo/adegenet-foru
       before sending a post<br>
       - use the <a style="font-weight: bold;" target="_top"
         href="search.html">search engine</a> to look for information in
-      the
-      archives<br>
+      the archives<br>
       - alternatively,&nbsp; you can <a
         href="http://lists.r-forge.r-project.org/pipermail/adegenet-forum/">browse
-        the
-        archives</a> of adegenet forum<br>
+
+        the archives</a> of adegenet forum<br>
       - the most frequent questions and their answers are listed at the
       bottom of this page.<br>
       <br>
       <br>
       <img alt="" src="images/bullet.png" style="width: 10px; height:
-        10px;">
-      For more general questions<span style="font-weight: bold;"> </span>about
-the
-analysis
-of
-genetic
-markers
-in
-R,
-use
-      the <a target="_top"
+        10px;"> For more general questions<span style="font-weight:
+        bold;"> </span>about
+      the
+      analysis
+      of
+      genetic
+      markers
+      in
+      R,
+      use the <a target="_top"
         href="https://stat.ethz.ch/mailman/listinfo/r-sig-genetics">R-sig-genetics</a>
       mailing list.<br>
       <br>
       <br>
       <img alt="" src="images/bullet.png" style="width: 10px; height:
-        10px;">
-      Want
-      to track the evolution of the package from the inside ? <br>
+        10px;"> Want to track the evolution of the package from the
+      inside ? <br>
       Subscribe to the commit mailing-list <a
 href="https://lists.r-forge.r-project.org/cgi-bin/mailman/listinfo/adegenet-commits"
         target="_top">here</a><br>
       <br>
       <br>
       <img alt="" src="images/bullet.png" style="width: 10px; height:
-        10px;">
-      Contributions, direct contact with the author: t.jombart AT
-      imperial
-      DOT ac DOT uk<br>
+        10px;"> Contributions, direct contact with the author: t.jombart
+      AT imperial DOT ac DOT uk<br>
       <br style="color: rgb(0, 102, 0);">
       <br style="color: rgb(0, 102, 0);">
       <span style="font-weight: bold; color: rgb(255, 102, 102);">Please,
-        do use
-        the adegenet forum to
-        ask questions concerning the
+
+        do use the adegenet forum to ask questions concerning the
         package.</span> Browsable archives of this mailing list allow
-      other
-      users to
-      benefit from previous answers.<br>
+      other users to benefit from previous answers.<br>
       <br>
       <span style="color: rgb(0, 102, 0); font-weight: bold;">Frequently
         Asked Questions (and their answers):</span><br>
       <br>
       <span style="color: rgb(0, 153, 0);"># 1: How do I know which R
-        version
-        / adegenet version I'm using?</span><br>
+        version / adegenet version I'm using?</span><br>
       For R version, type:<br>
-      <span style="font-family: monospace;">R.version<br>
-        <br>
-      </span>For adegenet version, type:<br style="font-family:
-        monospace;">
-      <span style="font-family: monospace;">packageDescription("adegenet",
-        field="Version")</span><br style="font-family: monospace;">
+      R.version<br>
+      <br>
+      For adegenet version, type:<br>
+      packageDescription("adegenet", field="Version")<br>
       <br>
       <br>
       <span style="color: rgb(0, 153, 0);"># 2: Loading adegenet fails
-        on
-        windows Vista; what's going on?</span><br>
+        on windows Vista; what's going on?</span><br>
       This is likely caused by a wrong installation of the package, or
-      not
-      installing the dependencies.<br>
+      not installing the dependencies.<br>
       Start R in 'Administrator' mode (right click on R's icon -&gt;
-      "start
-      as administrator"), then type:<br>
-      <span style="font-family: monospace;">install.packages("adegenet",
-        dep=TRUE)</span><br style="font-family: monospace;">
+      "start as administrator"), then type:<br>
+      install.packages("adegenet", dep=TRUE)<br>
       <br>
       <br>
       <span style="color: rgb(0, 153, 0);"># 3: Help pages are not found
-        on
-        windows...</span><br>
+        on windows...</span><br>
       This is likely because your R installation did not include help
-      pages
-      in html. You need to specify you want to use help in text mode.
-      This is
-      achieved by typing:<br>
-      <span style="font-family: monospace;">options("help_type"="text")<br>
-        <br>
-        <br>
-      </span><span style="color: rgb(0, 153, 0);"># 4: Loading adegenet
-        fails
+      pages in html. You need to specify you want to use help in text
+      mode. This is achieved by typing:<br>
+      options("help_type"="text")<br>
+      <br>
+      <br>
+      <span style="color: rgb(0, 153, 0);"># 4: Loading adegenet fails
         with this error (R &gt;= 2.13.0): </span><font><font size="2"><br>
           <span style="color: rgb(0, 102, 0);">Error in
-            as.environment(pos) : no
-            item called "newtable" on the search list</span></font></font><br>
+            as.environment(pos) : no item called "newtable" on the
+            search list</span></font></font><br>
       This is because the package '<span style="font-style: italic;">graph</span>',
-      on
-      which
-      <span style="font-style: italic;">adegenet</span> depends,
-      has been removed from CRAN. You need to install graph from
-      bioconductor
-      first, and then install adegenet:<br>
-      <pre>source("http://bioconductor.org/biocLite.R")<br>biocLite("graph")<span style="font-family: monospace;"><br>install.packages("adegenet", dep=TRUE)</span><br></pre>
-      <span style="color: rgb(0, 153, 0);"></span><br
-        style="font-family: monospace;">
-      <br style="font-family: monospace;">
+
+      on which <span style="font-style: italic;">adegenet</span>
+      depends, has been removed from CRAN. You need to install graph
+      from bioconductor first, and then install adegenet:<br>
+      <pre>source("http://bioconductor.org/biocLite.R")<br>biocLite("graph")<br>install.packages("adegenet", dep=TRUE)<br></pre>
+      <span style="color: rgb(0, 153, 0);"></span><br>
+      <br>
       <br>
       <br>
       <br>
