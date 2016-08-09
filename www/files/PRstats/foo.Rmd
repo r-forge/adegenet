@@ -1,0 +1,33 @@
+
+This is a toy example of rmarkdown document
+-------------------------------------------
+
+Markdown is a very simple, yet powerful language. Most of its features can be summed up in a simple cheat sheet, such as:
+https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
+
+To compile it, one can use:
+- `knitr::knit("foo.Rmd")` to produce a `.md` file
+- `knitr::knit2html("foo.Rmd")` to produce a `.html` file
+- `rmarkdown::render("foo.Rmd", "pdf_document")` to produce a `.pdf` file; this features may require other (non-R) packages installed, such as LaTeX and pandoc.
+
+
+### Including R inputs and outputs
+```{r, echo=FALSE}
+opts_chunk$set(fig.path="figs/foo-")	
+```
+In the following, we load the `microbov` dataset and run a DAPC on it:
+```{r, dapc}
+library(adegenet)
+data(microbov)
+microbov
+dapc1 <- dapc(microbov, n.pca=30, n.da=15)
+dapc1
+```
+
+
+
+```{r, results}
+summary(dapc1)
+scatter(dapc1)
+```
+

@@ -1,0 +1,77 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[english]{babel}
+\usepackage{color}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{array}
+\usepackage{amsfonts}
+\usepackage{url}
+\usepackage{bm}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{authblk}
+
+\title{Dynamic document generation using knitr}
+
+\author{Thibaut Jombart\thanks{\texttt{thibautjombart@gmail.com}}}
+
+\affil{{\footnotesize Imperial College London \\MRC Centre for Outbreak Analysis and Modelling}}
+
+%% \date{\today}
+\date{August 20, 2016}
+
+\sloppy
+\hyphenpenalty 10000
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\selectlanguage{english}
+
+\maketitle
+
+\newpage
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{A simple example}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This document is a \LaTeX document with some inclusions of R code.
+It can be compiled into a pdf using \textit{knitr} by typing:
+<<eval=FALSE>>=
+knitr::knit2pdf("bar.Rnw")
+@
+
+We set a number of \textit{knitr} options using \texttt{opts\_chunk}:
+<<>>=
+opts_chunk$set(fig.path='figs/bar', fig.keep='high', dev='pdf',
+               fig.width=7, fig.height=7, tidy=FALSE, warning=FALSE,
+               fig.show="asis", fig.align='center',
+               out.width=".6\\textwidth")
+@
+
+Note that the instruction \texttt{\textbackslash Sexpr} can be used to include in-line values; for instance, the
+value of $\pi$ is \Sexpr{pi}.
+
+More substantial code needs to be enclosed in a chunk.
+For instance, the DAPC of the \textit{microbov} dataset:
+<<>>=
+library(adegenet)
+data(microbov)
+microbov
+dapc1 <- dapc(microbov, n.pca=30, n.da=15)
+dapc1
+summary(dapc1)
+scatter(dapc1)
+@
+
+
+\end{document}
+
